@@ -1,0 +1,12 @@
+# Secrets / local env — NEVER commit
+.envrc
+.env
+.env.*
+!.env.example
+.dev.vars
+.wrangler/
+
+# Local tool cache (not part of the project)
+.ckb/
+
+# (SvelteKit scaffold will extend this: node_modules, .svelte-kit, build output, etc.)
