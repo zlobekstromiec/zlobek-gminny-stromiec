@@ -5,6 +5,7 @@
 	// AND aria-current="page" — never colour alone (UI-SPEC §Header/Nav link states).
 	import { page } from '$app/state';
 	import { navLinks } from '$lib/nav';
+	import MobileNav from './MobileNav.svelte';
 
 	// Reactive current path for the active-link state (Svelte 5 runes).
 	const pathname = $derived(page.url.pathname);
@@ -40,10 +41,9 @@
 			</ul>
 		</nav>
 
-		<!-- Mobile drawer island (< md) — the one hydrated interaction.
-		     MobileNav mounts here; the component + wiring land in Task 2. -->
+		<!-- Mobile drawer island (< md) — the one hydrated interaction. -->
 		<div class="mobile-slot">
-			<!-- MobileNav placeholder (Task 2) -->
+			<MobileNav />
 		</div>
 	</div>
 </header>
