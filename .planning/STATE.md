@@ -6,14 +6,14 @@ current_phase: 1
 current_phase_name: Live Homepage & Design Foundation
 status: executing
 stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-08-12T18:48:29.473Z"
+last_updated: "2026-08-12T19:15:27.912Z"
 last_activity: 2026-08-12
 last_activity_desc: Completed Plan 01-01 (foundation scaffold + two-tier design tokens + a11y/test gate)
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 5
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-12)
 ## Current Position
 
 Phase: 1 of 6 (Live Homepage & Design Foundation) — EXECUTING
-Plan: 2 of 5 complete (next: 01-02 — semantic layout shell)
+Plan: 3 of 5 complete (next: 01-02 — semantic layout shell)
 Status: Ready to execute
 Last activity: 2026-08-12 — Completed Plan 01-01 (foundation scaffold + two-tier design tokens + a11y/test gate)
 
@@ -57,6 +57,7 @@ Progress: [██░░░░░░░░] 20%
 *Updated after each plan completion*
 | Phase 01 P01 | 25 | 3 tasks | 27 files |
 | Phase 01 P02 | 20 | 3 tasks | 9 files |
+| Phase 01 P04 | 18min | 3 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,8 @@ Recent decisions affecting current work:
 - Language: Entire product in Polish — public site (Phase 1, SITE-06) and CMS admin portal labels/hints (Phase 2, CMS-03); staff assumed not to read English.
 - [01-01] Scaffold reconciled to plan layout: adapter in `svelte.config.js` (canonical), Tailwind entrypoint in `src/app.css`; kept Cloudflare-native `wrangler types --check` build + `wrangler pages dev` preview (worker-configuration.d.ts committed). Fonts self-hosted via `@fontsource` (no Google CDN). Node pinned/built on 22.23.2 (asdf), not local Node 25.
 - [Phase ?]: [01-02] Navigation shell uses $app/state rune page (not deprecated $app/stores); MobileNav is the single hydrated island (bounded focus trap + reduced-motion fly/fade); not-yet-built section routes tolerated via prerender handleHttpError allow-list in svelte.config.js.
+- [Phase ?]: Plan 01-04: _headers must live at project root (adapter-cloudflare v7), not static/ — adapter copies it into the Pages build output
+- [Phase 01]: Plan 01-04: placeholder stays crawl-safe via robots Disallow:/ (D-11); favicon set + 1200x630 OG card + security-headers baseline shipped; /deklaracja-dostepnosci stubbed so the footer link never 404s
 
 ### Pending Todos
 
@@ -102,6 +105,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-12T18:48:11.084Z
+Last session: 2026-08-12T19:15:13.103Z
 Stopped at: Completed 01-01-PLAN.md
 Resume file: None
