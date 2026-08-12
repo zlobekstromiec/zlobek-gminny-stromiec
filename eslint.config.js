@@ -38,6 +38,14 @@ export default defineConfig(
 	{
 		// Override or add rule settings here, such as:
 		// 'svelte/button-has-type': 'error'
-		rules: {}
+		rules: {
+			// The site deploys at the domain root (Cloudflare Pages: *.pages.dev →
+			// zlobekstromiec.pl), so there is no configured `base` path and
+			// `resolve()` base-prefixing is a no-op. Internal section routes are
+			// also built incrementally across Plans 04–05 of this phase, so typing
+			// `resolve('/aktualnosci' | …)` against not-yet-generated route IDs would
+			// break the phased build. Plain absolute internal hrefs are correct here.
+			'svelte/no-navigation-without-resolve': 'off'
+		}
 	}
 );
