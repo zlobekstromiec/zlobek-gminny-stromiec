@@ -7,13 +7,14 @@ the project-specific specifics.
 
 ## Repository & hosting
 
-| Item              | Value                                                                                 |
-| ----------------- | ------------------------------------------------------------------------------------- |
-| GitHub repository | `zlobekstromiec/zlobek-gminny-stromiec` (dedicated Org, D-06/D-07)                    |
-| Repository URL    | https://github.com/zlobekstromiec/zlobek-gminny-stromiec                              |
-| Default branch    | `main` (push to `main` → Cloudflare Pages auto build+deploy)                          |
-| Hosting           | Cloudflare Pages — free `*.pages.dev` in Phase 1 (D-04/D-05)                          |
-| Live URL          | _recorded after the Cloudflare Pages git-integration connect (Plan 01-05 checkpoint)_ |
+| Item              | Value                                                                                              |
+| ----------------- | -------------------------------------------------------------------------------------------------- |
+| GitHub repository | `zlobekstromiec/zlobek-gminny-stromiec` (dedicated Org, D-06/D-07)                                 |
+| Repository URL    | https://github.com/zlobekstromiec/zlobek-gminny-stromiec                                           |
+| Default branch    | `main` (push to `main` → Cloudflare Pages auto build+deploy)                                       |
+| Hosting           | Cloudflare Pages — free `*.pages.dev` in Phase 1 (D-04/D-05)                                       |
+| Pages project     | `zlobek-gminny-stromiec` (account `b34639a1c6eccab5d37ed6a2aa697deb`)                              |
+| Live URL          | **https://zlobek-gminny-stromiec.pages.dev** (git-integration; push to `main` → auto build+deploy) |
 
 The repository is owned by the dedicated GitHub Organization `zlobekstromiec` (not
 a personal account) so the whole operational surface — repo, CMS OAuth App, staff
@@ -61,17 +62,35 @@ npm run check && npm run lint && npm run test
 
 ## Cloudflare Pages build settings (Git integration — D-04/D-05)
 
-Configure the Pages project (push to `main` → auto build + deploy):
+Confirmed-live settings on the Pages project (push to `main` → auto build + deploy):
 
 | Setting                | Value                                          |
 | ---------------------- | ---------------------------------------------- |
-| Framework preset       | SvelteKit (or None)                            |
+| Framework preset       | SvelteKit                                      |
 | Build command          | `npm run build`                                |
 | Build output directory | `.svelte-kit/cloudflare`                       |
 | Node version           | `NODE_VERSION = 22` (matches `.tool-versions`) |
 
 Phase 1 ships to the free `*.pages.dev` subdomain; the custom domain
 `zlobekstromiec.pl` is added at launch (Phase 6).
+
+### Redeploy / handoff gotcha — create a **Pages** project, not a Worker
+
+The current Cloudflare dashboard funnels "Import a repository" into the
+**Workers** builder, which deploys via `npx wrangler deploy`. That is the wrong
+flavor for this project: our build emits a `pages_build_output_dir`
+(`.svelte-kit/cloudflare`) that only the **Pages** pipeline serves — a
+git-connected Worker's first deploy fails. If you (re)connect the repo, use the
+Pages deep link so you land in the correct flow:
+
+```
+https://dash.cloudflare.com/b34639a1c6eccab5d37ed6a2aa697deb/pages/new/provider/github
+```
+
+Also: if Cloudflare reports the GitHub App is "already installed", grant the
+org-installed `cloudflare-workers-and-pages` app access to this repo
+(GitHub → Org `zlobekstromiec` → Settings → GitHub Apps → Configure →
+Repository access), since installation was scoped to selected repositories.
 
 ## Gotchas (project-specific)
 
