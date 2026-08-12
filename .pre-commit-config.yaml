@@ -1,0 +1,21 @@
+# Local quality gate (D-08). Runs the same checks as the pre-commit verify
+# contract: type/a11y check + lint. No remote hook repos — everything runs
+# against the project's own npm scripts so behaviour matches CI exactly.
+#
+# Install once:  pre-commit install
+# Run manually:  pre-commit run -a
+repos:
+  - repo: local
+    hooks:
+      - id: svelte-check
+        name: svelte-check (types + compiler a11y)
+        entry: npm run check
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+      - id: lint
+        name: prettier + eslint
+        entry: npm run lint
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]

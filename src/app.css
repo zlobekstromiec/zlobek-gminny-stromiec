@@ -1,4 +1,96 @@
 @import 'tailwindcss';
 
-/* Design tokens (@theme), self-hosted @font-face, and the global a11y base
-   layer are added in Task 3 (01-UI-SPEC.md token seed). */
+/* Self-hosted fonts (RODO — never the Google Fonts CDN). @fontsource bundles the
+   WOFF2 from our own origin; subset to latin + latin-ext for full Polish diacritic
+   coverage (ą ć ę ł ń ó ś ź ż / Ą Ć Ę Ł Ń Ó Ś Ź Ż). font-display: swap is the
+   @fontsource default. Weights: Regular 400 + Bold 700 only (no third weight). */
+@import '@fontsource/baloo-2/latin-400.css';
+@import '@fontsource/baloo-2/latin-700.css';
+@import '@fontsource/baloo-2/latin-ext-400.css';
+@import '@fontsource/baloo-2/latin-ext-700.css';
+@import '@fontsource/nunito/latin-400.css';
+@import '@fontsource/nunito/latin-700.css';
+@import '@fontsource/nunito/latin-ext-400.css';
+@import '@fontsource/nunito/latin-ext-700.css';
+
+/* -----------------------------------------------------------------------------
+   Two-tier design tokens (SITE-04 — the single highest project risk).
+   Source: 01-UI-SPEC.md §Appendix @theme seed (verbatim, AA-verified).
+
+   HARD RULES — do not drift downstream:
+   • The EXPRESSIVE tier (--color-expr-*) is decorative surfaces / blobs / shapes
+     ONLY. Never place text, icons, or borders in an expressive color (e.g. no
+     `text-expr-yellow`) — they fail AA contrast on light backgrounds.
+   • Every text / icon / border / focus / button-label color MUST draw from the
+     ACCESSIBLE tier below (each pairing has a measured WCAG ratio in the UI-SPEC).
+   • The Rekrutacja CTA label is `ink` (#1E293B) on amber for default + hover;
+     switch to WHITE only on the darkest `active` state to stay ≥ 4.5:1. Never
+     white-on-amber otherwise (2.15:1 — fails).
+   • Body links are `brand-blue` (#0369A1) AND underlined — never colour alone.
+   • Red (danger) is semantic only (errors/alerts) — never decorative.
+----------------------------------------------------------------------------- */
+@theme {
+	/* surfaces */
+	--color-surface: #ffffff;
+	--color-surface-warm: #fbfaf7;
+	--color-band: #e0f2fe;
+
+	/* accessible text/UI tier */
+	--color-ink: #1e293b;
+	--color-muted: #475569;
+	--color-brand-blue: #0369a1;
+	--color-accent: #f59e0b;
+	--color-accent-hover: #d97706;
+	--color-accent-active: #b45309;
+	--color-danger: #b91c1c;
+	--color-danger-surface: #fef2f2;
+	--color-focus-ring: #0c4a6e;
+	--color-border-strong: #64748b;
+	--color-border-subtle: #e2e8f0;
+
+	/* expressive/decorative tier (non-text only) */
+	--color-expr-blue: #38bdf8;
+	--color-expr-yellow: #facc15;
+	--color-expr-orange: #fb923c;
+
+	/* typography */
+	--font-display: 'Baloo 2', system-ui, sans-serif;
+	--font-body: 'Nunito', system-ui, sans-serif;
+
+	/* radius */
+	--radius-sm: 8px;
+	--radius-md: 16px;
+	--radius-lg: 24px;
+	--radius-pill: 9999px;
+
+	/* spacing echoes the 8-pt scale; Tailwind's default 4px step already covers it */
+}
+
+/* -----------------------------------------------------------------------------
+   Global accessibility base (WCAG 2.1 AA baseline — inherited by every route).
+----------------------------------------------------------------------------- */
+
+/* Visible focus ring on every interactive element (WCAG 2.4.7). Never use
+   `outline: none` without an equally-visible replacement. */
+:focus-visible {
+	outline: 3px solid var(--color-focus-ring);
+	outline-offset: 2px;
+}
+
+/* Reduced motion (WCAG 2.3.3 / A11Y-01) — hard requirement, not optional polish.
+   Neutralise transforms/animation/transition and smooth scrolling at the base
+   layer; keep only instant/opacity changes. */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+
+	html {
+		scroll-behavior: auto;
+	}
+}
