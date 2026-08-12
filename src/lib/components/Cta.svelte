@@ -71,8 +71,11 @@
 		box-shadow: 0 4px 12px rgb(15 23 42 / 0.08);
 	}
 
-	/* Active/pressed — darkest amber; label flips to WHITE to keep AA (4.6:1). */
-	.cta.primary:active {
+	/* Active/pressed — darkest amber; label flips to WHITE to keep AA (4.6:1).
+	   Mirrored on :focus-visible (Amendment v1.1) so keyboard users get the same
+	   pressed appearance; the global 3px focus-ring outline still applies on top. */
+	.cta.primary:active,
+	.cta.primary:focus-visible {
 		background: var(--color-accent-active);
 		color: #ffffff;
 		transform: translateY(0);
