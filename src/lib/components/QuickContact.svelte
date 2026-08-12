@@ -162,6 +162,6 @@
 	}
 
 	.item-link:hover {
-		color: #075985;
+		color: var(--color-brand-blue-hover);
 	}
 </style>

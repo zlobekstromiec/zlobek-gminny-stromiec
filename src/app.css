@@ -39,6 +39,8 @@
 	--color-ink: #1e293b;
 	--color-muted: #475569;
 	--color-brand-blue: #0369a1;
+	/* link-hover darkening of brand-blue (Amendment v1.1) — AA on white/warm surfaces */
+	--color-brand-blue-hover: #075985;
 	--color-accent: #f59e0b;
 	--color-accent-hover: #d97706;
 	--color-accent-active: #b45309;
