@@ -28,7 +28,7 @@ A parent lands on the site and, within seconds, **both feels the żłobek's warm
 - [ ] Prominent **BIP** link out to the existing BIP (`https://ugstromiec.naszbip.pl/zlobek`)
 - [ ] RODO consent checkbox + *klauzula informacyjna* on all forms; spam protection (Cloudflare Turnstile)
 - [ ] Deployed on Cloudflare (org-standard hosting; CLI is connected to the Cloudflare account)
-- [ ] Polish-language content throughout
+- [ ] Polish-language throughout — the entire public site **and** the CMS admin portal (staff assumed not to read English)
 
 ### Out of Scope
 
@@ -59,7 +59,7 @@ A parent lands on the site and, within seconds, **both feels the żłobek's warm
 - **Legal — Accessibility**: WCAG 2.1 AA + Deklaracja dostępności under *ustawa o dostępności cyfrowej* (EU Directive 2016/2102) — *mandatory for public-sector sites*
 - **Legal — RODO/GDPR**: Form submissions carry a child's personal data → consent checkbox + *klauzula informacyjna* required — *lawful processing*
 - **Legal — BIP**: Public body must expose a BIP — *satisfied by linking to existing naszbip BIP*
-- **Language**: Polish only — *local audience*
+- **Language**: Polish only — the entire public site **and** the CMS admin portal (field labels, hints, editor UI where supported); assume staff and visitors do not read English — *local audience in Stromiec*
 - **Design**: Must convey joy/warmth instantly, be mobile-first, and clearly exceed the Białobrzegi reference — *primary client expectation*
 
 ## Key Decisions
@@ -72,6 +72,7 @@ A parent lands on the site and, within seconds, **both feels the żłobek's warm
 | BIP handled by linking to existing naszbip page (not rebuilt) | Legal obligation met externally; avoids duplicating a regulated system | — Pending |
 | Placeholder content first, real content later | Keeps build momentum while client gathers assets | — Pending |
 | Host on Cloudflare | Org standard; CLI already connected | — Pending |
+| Polish across the whole product, including CMS admin portal | Staff and visitors in Stromiec assumed not to read English; Polish field labels/hints written in CMS config | — Pending |
 
 ## Evolution
 
