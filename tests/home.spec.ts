@@ -44,9 +44,7 @@ test.describe('Homepage — Phase 1 acceptance', () => {
 
 	test('quick-contact exposes a mailto link to the żłobek inbox (HOME-02)', async ({ page }) => {
 		await page.goto('/');
-		await expect(
-			page.locator('a[href="mailto:zlobek@ugstromiec.pl"]')
-		).toBeVisible();
+		await expect(page.locator('a[href="mailto:zlobek@ugstromiec.pl"]')).toBeVisible();
 	});
 
 	test('no WCAG 2.1 AA violations (SITE-04 / A11Y baseline)', async ({ page }) => {

@@ -3,10 +3,34 @@
 .env
 .env.*
 !.env.example
+!.env.test
 .dev.vars
 .wrangler/
 
 # Local tool cache (not part of the project)
 .ckb/
 
-# (SvelteKit scaffold will extend this: node_modules, .svelte-kit, build output, etc.)
+# Dependencies
+node_modules
+
+# SvelteKit / build output
+/.svelte-kit
+/build
+.output
+.vercel
+.netlify
+
+# Generated Cloudflare types are committed (needed by `wrangler types --check`)
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Playwright
+/test-results
+/playwright-report
+/playwright/.cache
