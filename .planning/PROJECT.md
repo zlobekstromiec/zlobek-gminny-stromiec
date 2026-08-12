@@ -42,13 +42,14 @@ A parent lands on the site and, within seconds, **both feels the żłobek's warm
 ## Context
 
 - **Organization:** Public żłobek, a *jednostka organizacyjna* of Gmina Stromiec, under Urząd Gminy Stromiec. Institutional email domain: `ugstromiec.pl`.
+- **Owned domain (ours):** `zlobekstromiec.pl` — we own it and control its DNS on Cloudflare. It is the public site domain **and** the Resend sending domain (SPF/DKIM/DMARC live here, fully under our control). Distinct from the Gmina's `ugstromiec.pl`, whose DNS we do **not** control.
 - **Core message (feature verbatim on the homepage):**
   > „Drogi Rodzicu, Kiedy Ty będziesz realizować swoje obowiązki, my będziemy czuwać nad każdym krokiem Twojej pociechy. Będziemy cierpliwie ocierać łzy, kołysać do snu i z autentycznym zachwytem świętować każde małe zwycięstwo — od samodzielnie zjedzonej zupki po pierwszy, odważny krok."
 - **Palette (as requested):** niebieski (blue), żółty (yellow), pomarańczowy (orange), czerwony (red) — a warm, joyful, child-friendly scheme.
 - **Anti-reference:** https://zlobek.bialobrzegi.pl/ — the client dislikes this: dated, oversimplified. We deliberately go *above and beyond* — a beautiful, modern design bursting with joy, with every essential piece of information right in front of the parent.
 - **BIP:** https://ugstromiec.naszbip.pl/zlobek (link out; do not rebuild).
-- **Form recipient:** `zlobek@ugstromiec.pl` — *to confirm exact spelling with the client (brief mentioned `zlobel@…`, likely a typo).*
-- **Email sending:** Cloudflare ended its free MailChannels sending integration in 2024, so form emails will be sent via a provider (e.g. Resend free tier). No inbound mailbox needed on our side.
+- **Form recipient:** `zlobek@ugstromiec.pl` — **confirmed** (the earlier `zlobel@` was a typo). This is the Gmina/żłobek mailbox on the Gmina's `ugstromiec.pl` domain and is the RODO recipient inbox (Gmina/żłobek = data controller). We do **not** control `ugstromiec.pl` DNS.
+- **Email sending:** Cloudflare ended its free MailChannels sending integration in 2024, so form emails are sent via **Resend** (free tier) **from our owned domain `zlobekstromiec.pl`** (SPF/DKIM/DMARC on our Cloudflare DNS; dedicated send subdomain `send.zlobekstromiec.pl`) and **delivered to the Gmina mailbox `zlobek@ugstromiec.pl`**. No inbound mailbox is needed on our side, and **no DNS changes on `ugstromiec.pl` are required**.
 - **Content strategy:** Build with realistic **placeholders** first (text, photos, a designed logo treatment), swap in real content later.
 - **Candidate stacks:** Cloudflare-friendly frameworks (SvelteKit or Astro on Cloudflare Pages) — final choice to be set by research (STACK.md).
 
@@ -68,6 +69,7 @@ A parent lands on the site and, within seconds, **both feels the żłobek's warm
 |----------|-----------|---------|
 | Git-based CMS (Sveltia/Decap) over paid headless CMS | Staff self-edit news/documents at near-zero cost, no database, commits to repo → Cloudflare rebuilds | — Pending |
 | Rekrutacja & Kontakt forms are email-only (no storage) via Cloudflare Worker + email provider (Resend) | Lowest cost + minimizes RODO surface; volume is tiny | — Pending |
+| Send form email **from** our owned domain `zlobekstromiec.pl` (DNS on Cloudflare) → **deliver to** Gmina mailbox `zlobek@ugstromiec.pl` | We control SPF/DKIM/DMARC on our own domain, so deliverability no longer depends on Gmina IT or `ugstromiec.pl` DNS | ✓ Decided |
 | Cloudflare Turnstile for form spam protection | Free, Cloudflare-native, no third-party CAPTCHA cost | — Pending |
 | BIP handled by linking to existing naszbip page (not rebuilt) | Legal obligation met externally; avoids duplicating a regulated system | — Pending |
 | Placeholder content first, real content later | Keeps build momentum while client gathers assets | — Pending |

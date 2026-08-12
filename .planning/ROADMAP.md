@@ -2,7 +2,7 @@
 
 ## Overview
 
-The site is delivered as six vertical MVP slices, each shipping an end-to-end, deployable piece of user-visible value rather than a horizontal technical layer. We start by putting a real, joyful homepage live on Cloudflare with the accessible-palette design foundation baked in (the defining design risk resolved first). We then bring the git-based CMS online alongside the first staff-editable content (O nas + Dokumenty), add news publishing, ship the legally-sensitive email form pipeline for enrollment and contact, round out gallery and fees, and finish with a compliance-and-launch slice that audits WCAG 2.1 AA, publishes the mandatory legal pages against a real baseline, tunes performance, and swaps placeholders for consented real content. Content is built placeholder-first throughout; the DNS/email lead-time item is kicked off in Phase 1 to de-risk Phase 4.
+The site is delivered as six vertical MVP slices, each shipping an end-to-end, deployable piece of user-visible value rather than a horizontal technical layer. We start by putting a real, joyful homepage live on Cloudflare with the accessible-palette design foundation baked in (the defining design risk resolved first). We then bring the git-based CMS online alongside the first staff-editable content (O nas + Dokumenty), add news publishing, ship the legally-sensitive email form pipeline for enrollment and contact, round out gallery and fees, and finish with a compliance-and-launch slice that audits WCAG 2.1 AA, publishes the mandatory legal pages against a real baseline, tunes performance, and swaps placeholders for consented real content. Content is built placeholder-first throughout. (The former multi-day DNS lead-time that gated Phase 4 is dissolved: Resend's SPF/DKIM/DMARC live on our own domain `zlobekstromiec.pl`, whose DNS we control on Cloudflare — there is no dependency on the Gmina's `ugstromiec.pl` DNS, which serves only as the delivery mailbox.)
 
 ## Phases
 
@@ -100,7 +100,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. The site publishes a conformant Deklaracja dostępności, written only after the AA baseline is real, including conformance status, procedura wnioskowo-skargowa, koordynator dostępności, and dostępność architektoniczna — plus a Polityka prywatności / RODO information page.
   3. The site links prominently and correctly to the existing BIP (https://ugstromiec.naszbip.pl/zlobek).
   4. Pages load fast on mobile — images are optimized and Core Web Vitals pass (green).
-  5. All placeholder content is replaced with client-provided real content, any children's photos have documented consent, and a live end-to-end test email confirms delivery to the confirmed recipient address.
+  5. All placeholder content is replaced with client-provided real content, any children's photos have documented consent, and a live end-to-end test email confirms delivery to the confirmed recipient address `zlobek@ugstromiec.pl` (sent from our domain `zlobekstromiec.pl`).
 **Plans**: TBD
 **UI hint**: yes
 
@@ -110,8 +110,25 @@ Client-input items to confirm early; these gate specific phases and carry lead t
 
 | Item | Gates | Notes |
 |------|-------|-------|
-| DNS control of `ugstromiec.pl` (or a controlled subdomain) for Resend SPF/DKIM/DMARC | Phase 4 | Multi-day lead time — **kick off during Phase 1**. Fallback: MailChannels Email API if DNS is inaccessible. |
-| Exact recipient email (`zlobek@` vs `zlobel@ugstromiec.pl`) | Phase 4, Phase 6 | Wrong address is a silent data-loss/breach risk; confirm before the form pipeline locks in. |
+| Resend SPF/DKIM/DMARC records on our owned domain `zlobekstromiec.pl` | Phase 4 | **No external dependency, no lead time** — we own `zlobekstromiec.pl` and control its DNS on Cloudflare. Supersedes the former `ugstromiec.pl`-DNS dependency, which is DISSOLVED: the Gmina's `ugstromiec.pl` is only the delivery mailbox, not the sending domain. |
+| ~~Exact recipient email (`zlobek@` vs `zlobel@ugstromiec.pl`)~~ — **RESOLVED** | Phase 4, Phase 6 | **Confirmed as `zlobek@ugstromiec.pl`** (the earlier `zlobel@` was a typo). Gmina/żłobek mailbox on `ugstromiec.pl`; Gmina/żłobek = data controller. |
+| Gmina IT: allowlist our sending domain (`send.zlobekstromiec.pl` / From address) + confirm `zlobek@ugstromiec.pl` receives **external** mail | Phase 4 (test), Phase 6 (launch) | **Soft, non-blocking.** Government mail gateways filter aggressively; run an early real end-to-end test and monitor Resend delivery/bounce webhooks (or BCC a backup) so a filtered enrollment isn't silently lost. |
+| RODO sub-processors: Gmina (controller) signs Resend DPA + SCCs and Cloudflare DPA; list both in the RCPD; select Resend EU (eu-west-1) region | Phase 4 (klauzula), Phase 6 | Personal data transits/logs via Resend (US-stored logs) + Cloudflare = international transfer; the klauzula informacyjna must disclose email transmission via an external processor. |
+
+### Email Sending — Implementation Notes (Phase 4)
+
+Authoritative spec for the form-email pipeline (verified against current Resend/Cloudflare/DMARC docs — supersedes the point-in-time research notes):
+
+- **Sending identity:** dedicated subdomain `send.zlobekstromiec.pl` (isolates sending reputation from the apex). `From:` a role address on that subdomain, e.g. `formularz@send.zlobekstromiec.pl`; `Reply-To:` the parent's **validated/sanitized** submitted email (staff hit Reply → reaches the parent). **Never** put the parent's address in `From:` (spoofing → DMARC fail).
+- **DNS on `zlobekstromiec.pl` (Cloudflare, all records DNS-only / grey-cloud):**
+  - SPF — `TXT` at `send.zlobekstromiec.pl` → `v=spf1 include:amazonses.com ~all`
+  - DKIM — **`TXT`** (not CNAME) at `resend._domainkey.send.zlobekstromiec.pl` → key from Resend
+  - MX — at `send.zlobekstromiec.pl` → `feedback-smtp.<region>.amazonses.com` priority 10 (bounce/complaint handling; **required**)
+  - DMARC — `TXT` at `_dmarc.zlobekstromiec.pl` → `v=DMARC1; p=none; rua=mailto:dmarc@zlobekstromiec.pl; adkim=r; aspf=r` (start `p=none`, monitor, ramp to `quarantine` → `reject`)
+  - Use the exact region-specific values shown in the Resend dashboard.
+- **Anti silent-loss:** because nothing is stored, a filtered/bounced email is a lost application with no record — monitor Resend delivery/bounce webhooks, or BCC a backup mailbox.
+- **Security:** sanitize the submitted email before `Reply-To` (header-injection); Turnstile verified server-side; recipient hard-coded to `zlobek@ugstromiec.pl`; rate-limit the endpoint.
+- **RODO:** select Resend's EU (eu-west-1) region; ensure Resend + Cloudflare DPAs/SCCs are in place; the klauzula informacyjna discloses that submissions are transmitted by email via an external processor.
 | Koordynator dostępności / IOD contact details | Phase 4 (klauzula informacyjna), Phase 6 (Deklaracja dostępności) | Client must name a person. |
 | Staff GitHub accounts (per-editor vs shared editor account) | Phase 2 (CMS handover) | Onboarding decision, not a technical blocker. |
 

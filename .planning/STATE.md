@@ -23,7 +23,7 @@ See: .planning/PROJECT.md (updated 2026-08-12)
 Phase: 1 of 6 (Live Homepage & Design Foundation)
 Plan: 0 of TBD in current phase
 Status: Ready to plan
-Last activity: 2026-08-12 — Roadmap created; 37/37 v1 requirements mapped across 6 vertical MVP slices (incl. Polish-language SITE-06, CMS-03)
+Last activity: 2026-08-12 — Roadmap created (37/37 v1 requirements across 6 vertical MVP slices, incl. Polish-language SITE-06, CMS-03); email architecture clarified — send from owned `zlobekstromiec.pl` → deliver to `zlobek@ugstromiec.pl`; `ugstromiec.pl`-DNS dependency dissolved
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -56,6 +56,7 @@ Recent decisions affecting current work:
 - Stack: SvelteKit 2 + `@sveltejs/adapter-cloudflare` + Tailwind v4 (research SUMMARY.md — authoritative).
 - Design: Resolve the bright-palette-vs-WCAG-contrast tension with a two-tier token system (expressive/decorative vs accessible text/UI) in Phase 1, before mass component building.
 - Forms: Email-only via Cloudflare function + Resend + server-side Turnstile + RODO consent/klauzula, zero storage (Phase 4).
+- Domain/email split: we OWN `zlobekstromiec.pl` (public site + Resend sending domain via `send.` subdomain; DNS on Cloudflare, we control it) → form email delivered to the Gmina mailbox `zlobek@ugstromiec.pl` (confirmed recipient; `zlobel@` was a typo). No `ugstromiec.pl`-DNS dependency. DKIM is a TXT record (not CNAME); MX + SPF + DMARC on our domain (see ROADMAP "Email Sending — Implementation Notes").
 - CMS: Git-based Sveltia + self-hosted `sveltia-cms-auth` OAuth Worker + GitHub OAuth App (Phase 2).
 - Compliance: Deklaracja dostępności conformance claim written AFTER the AA baseline is real (Phase 6).
 - Language: Entire product in Polish — public site (Phase 1, SITE-06) and CMS admin portal labels/hints (Phase 2, CMS-03); staff assumed not to read English.
@@ -70,8 +71,10 @@ None yet.
 
 External/client-input items (see ROADMAP.md "External Dependencies & Open Items"):
 
-- [Phase 1→4] Confirm DNS control of `ugstromiec.pl` for Resend SPF/DKIM — multi-day lead time; start now. Fallback: MailChannels Email API.
-- [Phase 4/6] Confirm exact recipient email (`zlobek@` vs `zlobel@ugstromiec.pl`) — wrong address = silent breach risk.
+- ~~[Phase 1→4] Confirm DNS control of `ugstromiec.pl`~~ — **DISSOLVED.** Resend SPF/DKIM/DMARC live on our owned domain `zlobekstromiec.pl` (DNS on Cloudflare, we control it). No Gmina-IT dependency and no lead time; `ugstromiec.pl` is only the delivery mailbox. (The old MailChannels fallback is also stale — discontinued 2024.)
+- ~~[Phase 4/6] Confirm exact recipient email~~ — **RESOLVED: `zlobek@ugstromiec.pl`** confirmed (`zlobel@` was a typo).
+- [Phase 4] NEW (soft): ask Gmina IT to allowlist our sending domain (`send.zlobekstromiec.pl`) and confirm the `zlobek@ugstromiec.pl` mailbox receives external mail; run an early end-to-end delivery test.
+- [Phase 4/6] RODO: Gmina (controller) to sign Resend DPA + SCCs and Cloudflare DPA, list both as sub-processors in the RCPD, select Resend EU region.
 - [Phase 4/6] Obtain koordynator dostępności / IOD contact for klauzula informacyjna and Deklaracja dostępności.
 - [Phase 2] Decide staff GitHub account model (per-editor vs shared) before CMS handover.
 
