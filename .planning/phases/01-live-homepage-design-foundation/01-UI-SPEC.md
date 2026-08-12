@@ -1,7 +1,7 @@
 ---
 phase: 1
 slug: live-homepage-design-foundation
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-08-12
@@ -57,7 +57,7 @@ Mobile-first (SITE-02). Tailwind v4 default breakpoints:
 |-------|-------|-------|
 | `2xs` | 4px | Icon-to-label gaps, hairline insets |
 | `xs` | 8px | Compact element spacing, chip padding |
-| `sm` | 12px | Button vertical padding, tight stacks |
+| `sm` | 12px | Button vertical padding, tight stacks — **intentional exception** to the canonical 8-pt set; a valid 4px-grid multiple, scoped to button/control padding only (do not use for layout spacing) |
 | `md` | 16px | Default element spacing, card inner padding (mobile) |
 | `lg` | 24px | Card inner padding (desktop), grid gaps, section sub-padding |
 | `xl` | 32px | Layout gaps, container gutter (lg) |
@@ -77,6 +77,7 @@ Mobile-first sizes with responsive `clamp()`. **Exactly two weights** across the
 |------|---------|--------|------|--------|-------------|
 | Display | Hero `h1` | Baloo 2 | `clamp(2rem, 5vw, 2.75rem)` (32→44px) | 700 | 1.1 |
 | Heading | Section `h2` / card `h3` | Baloo 2 | `clamp(1.5rem, 3vw, 1.75rem)` (24→28px); card title 20px | 700 | 1.2 |
+| ↳ | *card `h3` is a **sub-step of the Heading role** (20px), not a 5th size — same family/weight/line-height, smaller optical size for dense card grids* ||||||
 | Body | Paragraphs, subcopy | Nunito | 16px | 400 (700 for inline emphasis) | 1.5 |
 | Label | Nav links, meta/date, captions, buttons | Nunito | 14px | 700 | 1.4 |
 
@@ -329,11 +330,11 @@ CSS-first tokens for the executor to place in the global stylesheet (`app.css`).
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: PASS
+- [x] Dimension 2 Visuals: PASS
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS (FLAG resolved — 20px card title documented as sub-step of Heading role)
+- [x] Dimension 5 Spacing: PASS (FLAG resolved — 12px `sm` documented as intentional button-padding exception)
+- [x] Dimension 6 Registry Safety: PASS (N/A — bespoke Tailwind v4 `@theme`, no third-party registries)
 
-**Approval:** pending
+**Approval:** APPROVED — 6/6 dimensions, 0 blocking issues, 2 FLAGs resolved (gsd-ui-checker, 2026-08-12)
