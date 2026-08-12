@@ -6,15 +6,15 @@ current_phase: 1
 current_phase_name: Live Homepage & Design Foundation
 status: executing
 stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-08-12T19:30:00.000Z"
+last_updated: "2026-08-12T18:48:29.473Z"
 last_activity: 2026-08-12
-last_activity_desc: Completed Plan 01-01 — SvelteKit/Tailwind v4/Cloudflare scaffold, two-tier design tokens, self-hosted fonts, a11y base, and the RED Playwright+axe homepage gate
+last_activity_desc: Completed Plan 01-01 (foundation scaffold + two-tier design tokens + a11y/test gate)
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 5
-  completed_plans: 1
-  percent: 20
+  completed_plans: 2
+  percent: 0
 ---
 
 # Project State
@@ -29,8 +29,8 @@ See: .planning/PROJECT.md (updated 2026-08-12)
 ## Current Position
 
 Phase: 1 of 6 (Live Homepage & Design Foundation) — EXECUTING
-Plan: 1 of 5 complete (next: 01-02 — semantic layout shell)
-Status: Executing Phase 01
+Plan: 2 of 5 complete (next: 01-02 — semantic layout shell)
+Status: Ready to execute
 Last activity: 2026-08-12 — Completed Plan 01-01 (foundation scaffold + two-tier design tokens + a11y/test gate)
 
 Progress: [██░░░░░░░░] 20%
@@ -56,6 +56,7 @@ Progress: [██░░░░░░░░] 20%
 
 *Updated after each plan completion*
 | Phase 01 P01 | 25 | 3 tasks | 27 files |
+| Phase 01 P02 | 20 | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -72,6 +73,7 @@ Recent decisions affecting current work:
 - Compliance: Deklaracja dostępności conformance claim written AFTER the AA baseline is real (Phase 6).
 - Language: Entire product in Polish — public site (Phase 1, SITE-06) and CMS admin portal labels/hints (Phase 2, CMS-03); staff assumed not to read English.
 - [01-01] Scaffold reconciled to plan layout: adapter in `svelte.config.js` (canonical), Tailwind entrypoint in `src/app.css`; kept Cloudflare-native `wrangler types --check` build + `wrangler pages dev` preview (worker-configuration.d.ts committed). Fonts self-hosted via `@fontsource` (no Google CDN). Node pinned/built on 22.23.2 (asdf), not local Node 25.
+- [Phase ?]: [01-02] Navigation shell uses $app/state rune page (not deprecated $app/stores); MobileNav is the single hydrated island (bounded focus trap + reduced-motion fly/fade); not-yet-built section routes tolerated via prerender handleHttpError allow-list in svelte.config.js.
 
 ### Pending Todos
 
@@ -100,6 +102,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-12T19:30:00.000Z
+Last session: 2026-08-12T18:48:11.084Z
 Stopped at: Completed 01-01-PLAN.md
 Resume file: None

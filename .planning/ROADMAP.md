@@ -37,14 +37,14 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. Every piece of visitor-facing text (navigation, labels, buttons, messages) is in Polish — no English appears anywhere on the public site.
   6. A push to git automatically rebuilds and redeploys the site on Cloudflare end to end.
 
-**Plans**: 1/5 plans executed
+**Plans**: 2/5 plans executed
 **Wave 1**
 
 - [x] 01-01-PLAN.md — Walking skeleton spine: scaffold + Cloudflare build + two-tier design tokens + a11y/test gate
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02-PLAN.md — Navigation shell: sticky header, mobile drawer island, footer (BIP), semantic layout
+- [x] 01-02-PLAN.md — Navigation shell: sticky header, mobile drawer island, footer (BIP), semantic layout
 - [ ] 01-04-PLAN.md — Static/SEO artifacts, security-header baseline, accessibility-declaration stub
 
 **Wave 3** *(blocked on Wave 2 completion)*
@@ -176,7 +176,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Live Homepage & Design Foundation | 1/5 | In Progress|  |
+| 1. Live Homepage & Design Foundation | 2/5 | In Progress|  |
 | 2. About, Documents & CMS | 0/TBD | Not started | - |
 | 3. News (Aktualności) | 0/TBD | Not started | - |
 | 4. Enrollment, Contact & Email Pipeline | 0/TBD | Not started | - |
