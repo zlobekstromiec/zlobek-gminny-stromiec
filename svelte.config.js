@@ -11,8 +11,9 @@ const KNOWN_FUTURE_ROUTES = [
 	'/o-nas',
 	'/rekrutacja',
 	'/dokumenty',
-	'/kontakt',
-	'/deklaracja-dostepnosci'
+	'/kontakt'
+	// '/deklaracja-dostepnosci' — now a real prerendered stub (Plan 01-04),
+	// so the crawler enforces its footer link again.
 ];
 
 /** @type {import('@sveltejs/kit').Config} */
