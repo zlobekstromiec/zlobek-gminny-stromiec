@@ -24,6 +24,26 @@ const config = {
 		// adapter-cloudflare makes SvelteKit server routes the Pages Functions —
 		// do NOT hand-author a /functions dir (none exist in Phase 1).
 		adapter: adapter(),
+		// CSP lives here, not in _headers: SvelteKit boots hydration from an
+		// inline <script> whose sha256 hash changes every build, so only the
+		// framework can emit a policy that allows it ('auto' = hash on
+		// prerendered pages via <meta>, nonce on dynamic responses).
+		// frame-ancestors is intentionally absent — browsers ignore it in
+		// <meta> CSP; _headers keeps X-Frame-Options: DENY instead.
+		// Phases 2–4 extend these directives (Sveltia /admin, Turnstile, Resend).
+		csp: {
+			mode: 'auto',
+			directives: {
+				'default-src': ['self'],
+				'script-src': ['self'],
+				'style-src': ['self', 'unsafe-inline'],
+				'font-src': ['self'],
+				'img-src': ['self', 'data:'],
+				'base-uri': ['self'],
+				'form-action': ['self'],
+				'object-src': ['none']
+			}
+		},
 		prerender: {
 			handleHttpError: ({ status, path, message }) => {
 				const known = KNOWN_FUTURE_ROUTES.some(

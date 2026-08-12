@@ -1,14 +1,15 @@
 # Cloudflare Pages response headers — security baseline for the public-body site.
-# adapter-cloudflare copies static/_headers verbatim into .svelte-kit/cloudflare.
+# adapter-cloudflare copies this root _headers file verbatim into .svelte-kit/cloudflare.
 #
-# Phase 1 posture: a conservative same-origin CSP. Self-hosted WOFF2 fonts and
-# Svelte scoped styles ('unsafe-inline' is required for Svelte's injected <style>
-# and inline style attributes) are the only relaxations. Phases 2-4 will EXTEND
-# this CSP: the Sveltia CMS /admin (frame/connect to GitHub), the Cloudflare
-# Turnstile widget (script-src/frame-src challenges.cloudflare.com), and Resend
-# form posting. Do not loosen beyond what a phase actually needs.
+# NOTE: Content-Security-Policy is NOT set here. SvelteKit's hydration bootstrap
+# is an inline <script> whose sha256 hash changes every build, so a static
+# header policy with script-src 'self' would block it (it did — broke the mobile
+# nav drawer). The CSP is managed by kit.csp in svelte.config.js (hash/nonce
+# mode). Framing protection stays here via X-Frame-Options: DENY, because
+# frame-ancestors is ignored in <meta>-delivered CSP.
+# Phase 2 note: Sveltia /admin is static HTML outside SvelteKit — when it lands,
+# add a path-scoped /admin/* CSP block here.
 /*
-  Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; script-src 'self'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; object-src 'none'
   Strict-Transport-Security: max-age=31536000; includeSubDomains
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
