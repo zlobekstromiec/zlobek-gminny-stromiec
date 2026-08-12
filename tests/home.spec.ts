@@ -47,6 +47,31 @@ test.describe('Homepage — Phase 1 acceptance', () => {
 		await expect(page.locator('a[href="mailto:zlobek@ugstromiec.pl"]')).toBeVisible();
 	});
 
+	test('page owns exactly one <h1> (SITE-02 / heading structure)', async ({ page }) => {
+		await page.goto('/');
+		await expect(page.locator('h1')).toHaveCount(1);
+	});
+
+	test('Aktualności secondary link points to /aktualnosci (HOME-02)', async ({ page }) => {
+		await page.goto('/');
+		await expect(page.getByRole('link', { name: 'Zobacz wszystkie' })).toHaveAttribute(
+			'href',
+			'/aktualnosci'
+		);
+	});
+
+	test('emits Polish per-route SEO metadata with noindex (D-10, D-11)', async ({ page }) => {
+		await page.goto('/');
+		// Non-empty Polish <title> + meta description (HOME SEO foundation).
+		await expect(page).toHaveTitle(/Żłobek Gminny w Stromcu/);
+		await expect(page.locator('head meta[name="description"]')).toHaveAttribute('content', /.+/);
+		// Canonical + OG share image (professional preview on a shared *.pages.dev link).
+		await expect(page.locator('head link[rel="canonical"]')).toHaveCount(1);
+		await expect(page.locator('head meta[property="og:image"]')).toHaveCount(1);
+		// noindex while on the *.pages.dev placeholder (flips at Phase 6).
+		await expect(page.locator('head meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+	});
+
 	test('no WCAG 2.1 AA violations (SITE-04 / A11Y baseline)', async ({ page }) => {
 		await page.goto('/');
 		const results = await new AxeBuilder({ page })
