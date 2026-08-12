@@ -27,6 +27,9 @@
 					<a class="footer-link" href="/deklaracja-dostepnosci">Deklaracja dostępności</a>
 				</li>
 				<li>
+					<a class="footer-link" href="/polityka-prywatnosci">Polityka prywatności (RODO)</a>
+				</li>
+				<li>
 					<a class="footer-link" href="/kontakt">Kontakt</a>
 				</li>
 			</ul>

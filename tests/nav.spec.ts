@@ -39,12 +39,18 @@ test.describe('Navigation shell — Phase 1 acceptance', () => {
 		expect(rel).toContain('noreferrer');
 	});
 
-	test('footer links to Deklaracja dostępności and Kontakt (SITE-03)', async ({ page }) => {
+	test('footer links to Deklaracja dostępności, Polityka prywatności and Kontakt (SITE-03)', async ({
+		page
+	}) => {
 		await page.goto('/');
 		const footer = page.getByRole('contentinfo');
 		await expect(footer.getByRole('link', { name: 'Deklaracja dostępności' })).toHaveAttribute(
 			'href',
 			'/deklaracja-dostepnosci'
+		);
+		await expect(footer.getByRole('link', { name: 'Polityka prywatności (RODO)' })).toHaveAttribute(
+			'href',
+			'/polityka-prywatnosci'
 		);
 		await expect(footer.getByRole('link', { name: 'Kontakt' })).toHaveAttribute('href', '/kontakt');
 	});
