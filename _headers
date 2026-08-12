@@ -1,0 +1,16 @@
+# Cloudflare Pages response headers — security baseline for the public-body site.
+# adapter-cloudflare copies static/_headers verbatim into .svelte-kit/cloudflare.
+#
+# Phase 1 posture: a conservative same-origin CSP. Self-hosted WOFF2 fonts and
+# Svelte scoped styles ('unsafe-inline' is required for Svelte's injected <style>
+# and inline style attributes) are the only relaxations. Phases 2-4 will EXTEND
+# this CSP: the Sveltia CMS /admin (frame/connect to GitHub), the Cloudflare
+# Turnstile widget (script-src/frame-src challenges.cloudflare.com), and Resend
+# form posting. Do not loosen beyond what a phase actually needs.
+/*
+  Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; script-src 'self'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; object-src 'none'
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: geolocation=(), camera=(), microphone=()
