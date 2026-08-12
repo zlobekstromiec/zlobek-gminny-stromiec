@@ -7,6 +7,7 @@ The site is delivered as six vertical MVP slices, each shipping an end-to-end, d
 ## Phases
 
 **Phase Numbering:**
+
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
@@ -22,90 +23,120 @@ Decimal phases appear between their surrounding integers in numeric order.
 ## Phase Details
 
 ### Phase 1: Live Homepage & Design Foundation
+
 **Goal**: A parent can visit a live, joyful, mobile-first homepage that leads with the żłobek's verbatim core message and navigates to every section — with the accessible-palette design system established before any mass component building.
 **Mode:** mvp
 **Depends on**: Nothing (first phase)
 **Requirements**: SITE-01, SITE-02, SITE-03, SITE-04, SITE-06, HOME-01, HOME-02
 **Success Criteria** (what must be TRUE):
+
   1. A visitor can open the deployed homepage on a public Cloudflare URL and immediately read the żłobek's core message verbatim in the hero.
   2. A visitor on phone, tablet, and desktop sees a responsive layout with a persistent header linking to all five sections and a footer linking to BIP, Deklaracja dostępności, and contact.
   3. The homepage surfaces the most-needed items at a glance: a Rekrutacja call-to-action, a latest-Aktualności preview area, and quick contact.
   4. The design visibly uses the joyful brand palette (niebieski/żółty/pomarańczowy/czerwony) through a two-tier token system — expressive/decorative colors alongside a constrained accessible text/UI subset that keeps text legible.
   5. Every piece of visitor-facing text (navigation, labels, buttons, messages) is in Polish — no English appears anywhere on the public site.
   6. A push to git automatically rebuilds and redeploys the site on Cloudflare end to end.
+
 **Plans**: 5 plans
+**Wave 1**
+
 - [ ] 01-01-PLAN.md — Walking skeleton spine: scaffold + Cloudflare build + two-tier design tokens + a11y/test gate
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 01-02-PLAN.md — Navigation shell: sticky header, mobile drawer island, footer (BIP), semantic layout
-- [ ] 01-03-PLAN.md — Homepage content: verbatim hero, Rekrutacja CTA, Aktualności empty state, quick-contact, SEO
 - [ ] 01-04-PLAN.md — Static/SEO artifacts, security-header baseline, accessibility-declaration stub
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 01-03-PLAN.md — Homepage content: verbatim hero, Rekrutacja CTA, Aktualności empty state, quick-contact, SEO
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 01-05-PLAN.md — Deploy: GitHub Org + Cloudflare Pages git-integration, live *.pages.dev + auto-redeploy
+
 **UI hint**: yes
 
 ### Phase 2: About, Documents & CMS
+
 **Goal**: Staff can self-edit the O nas page and manage downloadable documents through a git-based CMS, with no developer involved.
 **Mode:** mvp
 **Depends on**: Phase 1
 **Requirements**: ABOUT-01, ABOUT-02, DOCS-01, DOCS-02, CMS-01, CMS-02, CMS-03
 **Success Criteria** (what must be TRUE):
+
   1. A visitor can read the O nas page (misja, wartości, plan dnia, kadra).
   2. A visitor can browse and download documents (regulaminy, formularze) from the Dokumenty page.
   3. Authorized staff can log into the Sveltia CMS via GitHub OAuth (self-hosted `sveltia-cms-auth` Worker) on the live deployment.
   4. Staff can edit O nas content and upload, replace, or remove documents in the CMS without a developer.
   5. The CMS admin portal presents to staff in Polish — all collection/field labels, hints, and help text are Polish (and the editor UI locale is Polish where supported).
   6. A CMS edit commits to the repo and triggers a Cloudflare rebuild that publishes the change live.
+
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 3: News (Aktualności)
+
 **Goal**: Staff can publish news posts and visitors can read them, with the newest surfaced on the homepage.
 **Mode:** mvp
 **Depends on**: Phase 2
 **Requirements**: NEWS-01, NEWS-02, NEWS-03
 **Success Criteria** (what must be TRUE):
+
   1. A visitor can view a list of news posts, newest first.
   2. A visitor can open a single news post and read its full content.
   3. Staff can create, edit, and publish a news post via the CMS without a developer, and it appears live after rebuild.
   4. The homepage's latest-Aktualności preview shows the most recently published posts.
+
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 4: Enrollment, Contact & Email Pipeline
+
 **Goal**: Parents can find enrollment information, download the forms, and submit enrollment and contact requests that are safely emailed to the żłobek — with RODO compliance, spam protection, and zero data storage.
 **Mode:** mvp
 **Depends on**: Phase 2 (CMS for RECRUIT-05; the form pipeline itself needs only the Phase 1 foundation)
 **Requirements**: RECRUIT-01, RECRUIT-02, RECRUIT-03, RECRUIT-04, RECRUIT-05, CONTACT-01, CONTACT-02, CONTACT-03, FORM-01, FORM-02
 **Success Criteria** (what must be TRUE):
+
   1. A visitor can read enrollment information (harmonogram, kryteria, zasady) and download the PDF enrollment forms (wnioski).
   2. A visitor can submit an online enrollment application and a contact message; each is delivered by email via Resend to the fixed żłobek address, with no database or stored submission body.
   3. Both forms require ticking an explicit (unticked-by-default) RODO consent, display the klauzula informacyjna, and are spam-protected by Cloudflare Turnstile verified server-side, with the endpoint rate-limiting abuse.
   4. A visitor can see contact details (address, phone, email, opening hours) and the location on a map with directions (mapa dojazdu).
   5. Staff can edit enrollment info/dates and manage enrollment documents via the CMS.
+
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 5: Gallery & Fees
+
 **Goal**: Visitors can view a photo gallery and read the fees page, both staff-managed through the CMS.
 **Mode:** mvp
 **Depends on**: Phase 2 (CMS)
 **Requirements**: GALLERY-01, GALLERY-02, FEES-01
 **Success Criteria** (what must be TRUE):
+
   1. A visitor can view a photo gallery of the żłobek.
   2. A visitor can read the fees page (opłaty, stawki).
   3. Staff can add and remove gallery photos and edit the fees page via the CMS, with changes publishing after a Cloudflare rebuild.
+
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 6: Accessibility, Legal Compliance & Launch
+
 **Goal**: The site passes WCAG 2.1 AA, publishes every mandatory legal page against a real baseline, performs well on mobile, and carries consented real content — legally compliant and ready to go live.
 **Mode:** mvp
 **Depends on**: Phase 1, Phase 2, Phase 3, Phase 4, Phase 5
 **Requirements**: SITE-05, A11Y-01, A11Y-02, A11Y-03, LEGAL-01, LEGAL-02, LAUNCH-01
 **Success Criteria** (what must be TRUE):
+
   1. The site passes a WCAG 2.1 AA audit — semantic structure, AA contrast, keyboard navigation, visible focus, and prefers-reduced-motion — and provides an accessibility widget (font-size + high-contrast toggles).
   2. The site publishes a conformant Deklaracja dostępności, written only after the AA baseline is real, including conformance status, procedura wnioskowo-skargowa, koordynator dostępności, and dostępność architektoniczna — plus a Polityka prywatności / RODO information page.
   3. The site links prominently and correctly to the existing BIP (https://ugstromiec.naszbip.pl/zlobek).
   4. Pages load fast on mobile — images are optimized and Core Web Vitals pass (green).
   5. All placeholder content is replaced with client-provided real content, any children's photos have documented consent, and a live end-to-end test email confirms delivery to the confirmed recipient address `zlobek@ugstromiec.pl` (sent from our domain `zlobekstromiec.pl`).
+
 **Plans**: TBD
 **UI hint**: yes
 
@@ -134,6 +165,7 @@ Authoritative spec for the form-email pipeline (verified against current Resend/
 - **Anti silent-loss:** because nothing is stored, a filtered/bounced email is a lost application with no record — monitor Resend delivery/bounce webhooks, or BCC a backup mailbox.
 - **Security:** sanitize the submitted email before `Reply-To` (header-injection); Turnstile verified server-side; recipient hard-coded to `zlobek@ugstromiec.pl`; rate-limit the endpoint.
 - **RODO:** select Resend's EU (eu-west-1) region; ensure Resend + Cloudflare DPAs/SCCs are in place; the klauzula informacyjna discloses that submissions are transmitted by email via an external processor.
+
 | Koordynator dostępności / IOD contact details | Phase 4 (klauzula informacyjna), Phase 6 (Deklaracja dostępności) | Client must name a person. |
 | Staff GitHub accounts (per-editor vs shared editor account) | Phase 2 (CMS handover) | Onboarding decision, not a technical blocker. |
 
