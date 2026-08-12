@@ -338,3 +338,78 @@ CSS-first tokens for the executor to place in the global stylesheet (`app.css`).
 - [x] Dimension 6 Registry Safety: PASS (N/A — bespoke Tailwind v4 `@theme`, no third-party registries)
 
 **Approval:** APPROVED — 6/6 dimensions, 0 blocking issues, 2 FLAGs resolved (gsd-ui-checker, 2026-08-12)
+
+---
+
+## Amendment v1.1 — Homepage v2 composition (2026-08-13)
+
+> Appended per the approved design handoff "Homepage v2" (design_handoff_homepage_v2).
+> The locked body above is UNCHANGED; where this amendment conflicts with it, the
+> amendment wins for the homepage. Tokens, h1/h2 clamps, weights (400/700), radii,
+> and all color hard-rules remain locked as-is.
+
+1. **Section order contract (homepage):** Hero → Key-facts strip → Rekrutacja module
+   → O-nas teaser → Kontakt i dojazd → Aktualności (**only when `posts.length > 0`**
+   — the homepage never shows the news empty state; the empty state remains for
+   `/aktualnosci` in Phase 3) → Footer.
+2. **Extended type scale** (adds 5 sizes; h1 `clamp(2rem,5vw,2.75rem)` and h2
+   `clamp(1.5rem,3vw,1.75rem)` UNCHANGED — the handoff's 52px/30px are rejected):
+   | Size | Use |
+   |---|---|
+   | 26px Baloo 700 | key-fact values |
+   | 19px Nunito 400 | lead-quote role: hero lead (lh 1.55) + o-nas blockquote (lh 1.65) |
+   | 17px | recruitment intro (Nunito 400), step titles (Nunito 700), step numerals (Baloo 700) |
+   | 15px Nunito | step bodies (400), doc names (700), hero phone line (400), fact suffix (400) |
+   | 13px Nunito 700 | key-fact overline labels (uppercase, letter-spacing .04em), doc meta |
+3. **New token:** `--color-brand-blue-hover: #075985` — supersedes the `#075985`
+   literal in §Interaction & States "Body link hover" (accessible tier; AA on
+   white/warm surfaces).
+4. **Component contracts added:**
+   - **Hero v2** — status pill (band bg, focus-ring text, 8px brand-blue dot,
+     radius-pill, Nunito 700 14px) above the h1; lead = sentence 2 of the core
+     message ONLY; CTA row `Zapisz dziecko` (primary, icon) → `/rekrutacja` +
+     `Zadzwoń do nas` (secondary) → `/kontakt`; phone line (Nunito 15px muted +
+     brand-blue tel link) under the CTAs; TWO decorative blobs (blue 340/.18
+     top-right, yellow 200/.22 bottom-left, blur 10px — the third orange blob is
+     retired); `padding-block` 48px → 72px at ≥1024px.
+   - **KeyFacts** — warm surface, `border-block` subtle, 40px block padding; 4 facts
+     as `<dl>`; 3px `--color-expr-*` left borders (decorative only — carry no
+     information; label/value text is accessible-tier); 4 → 2 → 1 columns at
+     1024/640px.
+   - **Recruitment** — white section 48→80px; card `border: 2px solid band`,
+     radius-lg; band header strip (h2 at locked clamp + deadline Nunito 700 16px
+     `--color-focus-ring`); body grid 1.2fr/1fr gap 48px (1-col <1024px); 3
+     numbered steps (34px brand-blue circle, white Baloo 700 17px numeral); docs
+     panel (warm bg, radius-md, h3 20px) — file meta (`PDF · …`) stays INSIDE each
+     link so screen readers announce it with the name.
+   - **AboutTeaser** — warm surface 48→80px; grid 0.9fr/1.1fr, image-first ≥1024px,
+     copy-first stacked below; h2 „Kilka słów od nas"; the FULL 4-sentence verbatim
+     core message as a blockquote (Nunito 19px/1.65, max 56ch, `text-wrap: pretty`,
+     4px `--color-expr-yellow` left border — decorative, information-free);
+     secondary CTA `Poznaj żłobek` → `/o-nas`.
+   - **ContactAndMap** (replaces QuickContact) — band surface 48→80px; h2 „Kontakt
+     i dojazd"; 2×2 contact grid (existing Lucide icons 22px, aria-hidden); map
+     panel min-height 260px, radius-md, warm bg, `--color-border-strong` border —
+     **static map image only, NEVER a third-party iframe (RODO)**; placeholder
+     panel until the address is confirmed.
+5. **Content state:** `recruitmentOpen` boolean + derived strings live in
+   `src/lib/content/site.ts` — flipped by a human, never a date comparison; strings
+   per the handoff §State Management table (open/closed variants of pill, heading,
+   deadline, body). `showNews := posts.length > 0`.
+6. **Copywriting contract additions:** pill/heading/deadline/body recruitment
+   variants; 3 step titles+bodies (step 2's e-mail is plain text, NOT a mailto —
+   the homepage carries exactly one mailto, in ContactAndMap); doc names (Karta
+   zgłoszenia dziecka · Statut żłobka · Regulamin organizacyjny · Uchwała w
+   sprawie opłat); „Kontakt i dojazd"; „Kilka słów od nas"; map panel „Mapa
+   dojazdu" / „Mapa pojawi się wkrótce."; footer „Polityka prywatności (RODO)" →
+   `/polityka-prywatnosci` (stub route until Phase 6).
+7. **Cta:** `:focus-visible` on the primary variant mirrors `:active`
+   (accent-active fill + white label) so the pressed appearance is keyboard-reachable.
+   Hit target stays 44px / `12px 24px` (the handoff's 48px / `12px 26px` is rejected).
+8. **Placeholder register (Phase 6 gate):** fee `000 zł`, capacity `00 dzieci`,
+   phone, street address, opening hours `6:30–16:30`, recruitment deadline dates
+   („do 31 marca 2026", „do 15 kwietnia"), doc meta `PDF · ---`, map panel, hero
+   hook, hero/o-nas image slots. Convention extended: `// PLACEHOLDER:` line
+   comments in `.ts` content modules (greppable token unchanged). FINAL (never
+   marked): `zlobek@ugstromiec.pl`, the verbatim core message, age range
+   „20 tyg. – 3 lata" (statutory).

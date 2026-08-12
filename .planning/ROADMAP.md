@@ -14,6 +14,7 @@ The site is delivered as six vertical MVP slices, each shipping an end-to-end, d
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Live Homepage & Design Foundation** - Joyful, mobile-first homepage live on Cloudflare with the core-message hero, nav/footer shell, and accessible palette token system (completed 2026-08-12)
+- [ ] **Phase 01.1: Homepage v2 restructure (INSERTED)** - Hero split + key-facts strip + rekrutacja module + o-nas teaser + kontakt/mapa + conditional news + RODO stub (design handoff, UI-SPEC Amendment v1.1)
 - [ ] **Phase 2: About, Documents & CMS** - O nas + Dokumenty pages made staff-editable via the git-based Sveltia CMS (OAuth Worker)
 - [ ] **Phase 3: News (Aktualności)** - Staff-publishable news list + single post, feeding the homepage preview
 - [ ] **Phase 4: Enrollment, Contact & Email Pipeline** - Rekrutacja + Kontakt with the RODO-compliant, Turnstile-gated, email-only form pipeline (Resend)
@@ -56,6 +57,15 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] 01-05-PLAN.md — Deploy: GitHub Org + Cloudflare Pages git-integration, live *.pages.dev + auto-redeploy
 
 **UI hint**: yes
+
+### Phase 01.1: Homepage v2 restructure (INSERTED)
+
+**Goal**: The homepage answers a parent's four arrival questions at a glance (place availability, cost, hours, location) — hero split (sentence-2 lead + full verbatim message in the o-nas teaser), key-facts strip, recruitment centrepiece module with open/closed copy states, kontakt+mapa section (no third-party iframe — RODO), news section rendered only once posts exist, RODO footer link + stub route.
+**Source**: Approved design handoff `design_handoff_homepage_v2` + UI-SPEC Amendment v1.1 (2026-08-13).
+**Depends on**: Phase 1
+**Requirements**: HOME-01, HOME-02 (amended notes in REQUIREMENTS.md); no new requirement IDs — real news data stays Phase 3, real PDFs Phase 2, forms/map details Phase 4.
+
+- [ ] Homepage v2 restructure executed as approved plan (8 atomic commits, suite green at every step)
 
 ### Phase 2: About, Documents & CMS
 

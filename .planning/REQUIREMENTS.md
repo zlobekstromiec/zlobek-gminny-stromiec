@@ -18,8 +18,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Homepage
 
-- [x] **HOME-01**: The homepage hero prominently features the żłobek's core message verbatim
-- [x] **HOME-02**: The homepage surfaces the most-needed items at a glance — a Rekrutacja call-to-action, a preview of latest Aktualności, and quick contact
+- [x] **HOME-01**: The homepage hero prominently features the żłobek's core message verbatim *(Amendment v1.1: the hero leads with sentence 2 of the message; the FULL 4-sentence verbatim message renders in the homepage O-nas teaser blockquote — exact-match tested)*
+- [x] **HOME-02**: The homepage surfaces the most-needed items at a glance — a Rekrutacja call-to-action, a preview of latest Aktualności, and quick contact *(Amendment v1.1: recruitment is now a full homepage module + key-facts strip; quick contact became „Kontakt i dojazd” with a map panel; the Aktualności preview renders only once posts exist — the empty state moves to /aktualnosci in Phase 3)*
 
 ### Aktualności (News)
 
