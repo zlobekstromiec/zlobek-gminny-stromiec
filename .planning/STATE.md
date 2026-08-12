@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 1
 current_phase_name: Live Homepage & Design Foundation
 status: executing
-stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-08-12T19:15:27.912Z"
+stopped_at: Completed 01-03-PLAN.md
+last_updated: "2026-08-12T19:33:03.395Z"
 last_activity: 2026-08-12
-last_activity_desc: Completed Plan 01-01 (foundation scaffold + two-tier design tokens + a11y/test gate)
+last_activity_desc: Completed Plan 01-03 (homepage content slice — hero/CTA/news/quick-contact/SEO; acceptance suite GREEN)
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 5
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -29,11 +29,11 @@ See: .planning/PROJECT.md (updated 2026-08-12)
 ## Current Position
 
 Phase: 1 of 6 (Live Homepage & Design Foundation) — EXECUTING
-Plan: 3 of 5 complete (next: 01-02 — semantic layout shell)
+Plan: 4 of 5 complete (next: 01-05 — Cloudflare Pages git-integration deploy, SITE-01)
 Status: Ready to execute
-Last activity: 2026-08-12 — Completed Plan 01-01 (foundation scaffold + two-tier design tokens + a11y/test gate)
+Last activity: 2026-08-12 — Completed Plan 01-03 (homepage content slice — hero/CTA/news/quick-contact/SEO; acceptance suite GREEN)
 
-Progress: [██░░░░░░░░] 20%
+Progress: [████████░░] 80%
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Progress: [██░░░░░░░░] 20%
 | Phase 01 P01 | 25 | 3 tasks | 27 files |
 | Phase 01 P02 | 20 | 3 tasks | 9 files |
 | Phase 01 P04 | 18min | 3 tasks | 11 files |
+| Phase 01 P03 | 22min | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -77,6 +78,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [01-02] Navigation shell uses $app/state rune page (not deprecated $app/stores); MobileNav is the single hydrated island (bounded focus trap + reduced-motion fly/fade); not-yet-built section routes tolerated via prerender handleHttpError allow-list in svelte.config.js.
 - [Phase ?]: Plan 01-04: _headers must live at project root (adapter-cloudflare v7), not static/ — adapter copies it into the Pages build output
 - [Phase 01]: Plan 01-04: placeholder stays crawl-safe via robots Disallow:/ (D-11); favicon set + 1200x630 OG card + security-headers baseline shipped; /deklaracja-dostepnosci stubbed so the footer link never 404s
+- [Phase 01]: [01-03] Homepage composed GREEN: verbatim core message kept as an un-wrapped constant (prettier-safe); Seo noindex baked into prerendered HTML for the *.pages.dev placeholder (not a runtime host check); consent-safe AVIF/WebP hero placeholder (no child faces)
 
 ### Pending Todos
 
@@ -105,6 +107,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-12T19:15:13.103Z
-Stopped at: Completed 01-01-PLAN.md
+Last session: 2026-08-12T19:32:07.992Z
+Stopped at: Completed 01-03-PLAN.md
 Resume file: None

@@ -10,16 +10,16 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Foundation & Design
 
 - [ ] **SITE-01**: Site is a SvelteKit app deployed on Cloudflare with automatic deploys from git
-- [ ] **SITE-02**: Every page is mobile-first responsive and usable on phone, tablet, and desktop
+- [x] **SITE-02**: Every page is mobile-first responsive and usable on phone, tablet, and desktop
 - [ ] **SITE-03**: A persistent header navigates to all five sections; a footer links to BIP, Deklaracja dostępności, and contact
 - [x] **SITE-04**: A joyful design system implements the brand palette (niebieski/żółty/pomarańczowy/czerwony) split into expressive (decorative) and accessible (text/UI) color tokens
 - [ ] **SITE-05**: Pages load fast on mobile — images are optimized and Core Web Vitals pass (green)
-- [ ] **SITE-06**: All client-facing content, navigation, labels, and messages are in Polish — no English is shown to visitors
+- [x] **SITE-06**: All client-facing content, navigation, labels, and messages are in Polish — no English is shown to visitors
 
 ### Homepage
 
-- [ ] **HOME-01**: The homepage hero prominently features the żłobek's core message verbatim
-- [ ] **HOME-02**: The homepage surfaces the most-needed items at a glance — a Rekrutacja call-to-action, a preview of latest Aktualności, and quick contact
+- [x] **HOME-01**: The homepage hero prominently features the żłobek's core message verbatim
+- [x] **HOME-02**: The homepage surfaces the most-needed items at a glance — a Rekrutacja call-to-action, a preview of latest Aktualności, and quick contact
 
 ### Aktualności (News)
 
@@ -113,12 +113,12 @@ Which phases cover which requirements. Populated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | SITE-01 | Phase 1 | Pending |
-| SITE-02 | Phase 1 | Pending |
+| SITE-02 | Phase 1 | Complete |
 | SITE-03 | Phase 1 | Pending |
 | SITE-04 | Phase 1 | Complete |
-| HOME-01 | Phase 1 | Pending |
-| HOME-02 | Phase 1 | Pending |
-| SITE-06 | Phase 1 | Pending |
+| HOME-01 | Phase 1 | Complete |
+| HOME-02 | Phase 1 | Complete |
+| SITE-06 | Phase 1 | Complete |
 | ABOUT-01 | Phase 2 | Pending |
 | ABOUT-02 | Phase 2 | Pending |
 | DOCS-01 | Phase 2 | Pending |
