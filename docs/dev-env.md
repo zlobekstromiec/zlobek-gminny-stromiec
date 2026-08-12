@@ -5,6 +5,20 @@ project on a new machine or handing it over to a future maintainer. Global dev
 conventions (asdf / direnv / pre-commit) apply as elsewhere; this file records
 the project-specific specifics.
 
+## Repository & hosting
+
+| Item              | Value                                                                                 |
+| ----------------- | ------------------------------------------------------------------------------------- |
+| GitHub repository | `zlobekstromiec/zlobek-gminny-stromiec` (dedicated Org, D-06/D-07)                    |
+| Repository URL    | https://github.com/zlobekstromiec/zlobek-gminny-stromiec                              |
+| Default branch    | `main` (push to `main` → Cloudflare Pages auto build+deploy)                          |
+| Hosting           | Cloudflare Pages — free `*.pages.dev` in Phase 1 (D-04/D-05)                          |
+| Live URL          | _recorded after the Cloudflare Pages git-integration connect (Plan 01-05 checkpoint)_ |
+
+The repository is owned by the dedicated GitHub Organization `zlobekstromiec` (not
+a personal account) so the whole operational surface — repo, CMS OAuth App, staff
+editors — can be handed over intact to a future maintainer / the Gmina (D-07).
+
 ## Toolchain
 
 | Tool       | Pin / source                                     | Notes                                                                                                                                                     |
