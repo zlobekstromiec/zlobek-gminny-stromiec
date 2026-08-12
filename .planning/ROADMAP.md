@@ -13,7 +13,7 @@ The site is delivered as six vertical MVP slices, each shipping an end-to-end, d
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Live Homepage & Design Foundation** - Joyful, mobile-first homepage live on Cloudflare with the core-message hero, nav/footer shell, and accessible palette token system
+- [x] **Phase 1: Live Homepage & Design Foundation** - Joyful, mobile-first homepage live on Cloudflare with the core-message hero, nav/footer shell, and accessible palette token system (completed 2026-08-12)
 - [ ] **Phase 2: About, Documents & CMS** - O nas + Dokumenty pages made staff-editable via the git-based Sveltia CMS (OAuth Worker)
 - [ ] **Phase 3: News (Aktualności)** - Staff-publishable news list + single post, feeding the homepage preview
 - [ ] **Phase 4: Enrollment, Contact & Email Pipeline** - Rekrutacja + Kontakt with the RODO-compliant, Turnstile-gated, email-only form pipeline (Resend)
@@ -37,7 +37,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. Every piece of visitor-facing text (navigation, labels, buttons, messages) is in Polish — no English appears anywhere on the public site.
   6. A push to git automatically rebuilds and redeploys the site on Cloudflare end to end.
 
-**Plans**: 4/5 plans executed
+**Plans**: 5/5 plans complete
 **Wave 1**
 
 - [x] 01-01-PLAN.md — Walking skeleton spine: scaffold + Cloudflare build + two-tier design tokens + a11y/test gate
@@ -53,7 +53,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 01-05-PLAN.md — Deploy: GitHub Org + Cloudflare Pages git-integration, live *.pages.dev + auto-redeploy
+- [x] 01-05-PLAN.md — Deploy: GitHub Org + Cloudflare Pages git-integration, live *.pages.dev + auto-redeploy
 
 **UI hint**: yes
 
@@ -176,7 +176,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Live Homepage & Design Foundation | 4/5 | In Progress|  |
+| 1. Live Homepage & Design Foundation | 5/5 | Complete   | 2026-08-12 |
 | 2. About, Documents & CMS | 0/TBD | Not started | - |
 | 3. News (Aktualności) | 0/TBD | Not started | - |
 | 4. Enrollment, Contact & Email Pipeline | 0/TBD | Not started | - |

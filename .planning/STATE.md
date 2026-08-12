@@ -6,15 +6,15 @@ current_phase: 1
 current_phase_name: Live Homepage & Design Foundation
 status: executing
 stopped_at: Completed 01-03-PLAN.md
-last_updated: "2026-08-12T19:33:03.395Z"
+last_updated: "2026-08-12T22:04:24.175Z"
 last_activity: 2026-08-12
 last_activity_desc: Completed Plan 01-03 (homepage content slice — hero/CTA/news/quick-contact/SEO; acceptance suite GREEN)
 progress:
   total_phases: 6
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 5
-  completed_plans: 4
-  percent: 0
+  completed_plans: 5
+  percent: 17
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-12)
 ## Current Position
 
 Phase: 1 of 6 (Live Homepage & Design Foundation) — EXECUTING
-Plan: 4 of 5 complete (next: 01-05 — Cloudflare Pages git-integration deploy, SITE-01)
+Plan: 5 of 5 complete (next: 01-05 — Cloudflare Pages git-integration deploy, SITE-01)
 Status: Ready to execute
 Last activity: 2026-08-12 — Completed Plan 01-03 (homepage content slice — hero/CTA/news/quick-contact/SEO; acceptance suite GREEN)
 
@@ -59,6 +59,7 @@ Progress: [████████░░] 80%
 | Phase 01 P02 | 20 | 3 tasks | 9 files |
 | Phase 01 P04 | 18min | 3 tasks | 11 files |
 | Phase 01 P03 | 22min | 3 tasks | 10 files |
+| Phase 01 P05 | 15 | 3 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,7 @@ Recent decisions affecting current work:
 - [Phase ?]: Plan 01-04: _headers must live at project root (adapter-cloudflare v7), not static/ — adapter copies it into the Pages build output
 - [Phase 01]: Plan 01-04: placeholder stays crawl-safe via robots Disallow:/ (D-11); favicon set + 1200x630 OG card + security-headers baseline shipped; /deklaracja-dostepnosci stubbed so the footer link never 404s
 - [Phase 01]: [01-03] Homepage composed GREEN: verbatim core message kept as an un-wrapped constant (prettier-safe); Seo noindex baked into prerendered HTML for the *.pages.dev placeholder (not a runtime host check); consent-safe AVIF/WebP hero placeholder (no child faces)
+- [Phase ?]: [01-05] Walking skeleton live: repo under Org zlobekstromiec/zlobek-gminny-stromiec + Cloudflare Pages git-integration; push to main auto-builds+deploys to https://zlobek-gminny-stromiec.pages.dev (SITE-01 proven). Reconnect gotcha: use the Pages deep link, NOT the Workers 'Import a repository' funnel.
 
 ### Pending Todos
 
@@ -107,6 +109,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-12T19:32:07.992Z
+Last session: 2026-08-12T22:04:18.802Z
 Stopped at: Completed 01-03-PLAN.md
 Resume file: None

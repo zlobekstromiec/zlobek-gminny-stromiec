@@ -9,7 +9,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Foundation & Design
 
-- [ ] **SITE-01**: Site is a SvelteKit app deployed on Cloudflare with automatic deploys from git
+- [x] **SITE-01**: Site is a SvelteKit app deployed on Cloudflare with automatic deploys from git
 - [x] **SITE-02**: Every page is mobile-first responsive and usable on phone, tablet, and desktop
 - [ ] **SITE-03**: A persistent header navigates to all five sections; a footer links to BIP, Deklaracja dostępności, and contact
 - [x] **SITE-04**: A joyful design system implements the brand palette (niebieski/żółty/pomarańczowy/czerwony) split into expressive (decorative) and accessible (text/UI) color tokens
@@ -112,7 +112,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SITE-01 | Phase 1 | Pending |
+| SITE-01 | Phase 1 | Complete |
 | SITE-02 | Phase 1 | Complete |
 | SITE-03 | Phase 1 | Pending |
 | SITE-04 | Phase 1 | Complete |
