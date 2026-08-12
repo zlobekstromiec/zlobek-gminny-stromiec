@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Scaffolded noindex-aligned (D-11): the sitemap exists as the mechanism but is
+  NOT advertised to crawlers (no `Sitemap:` line in robots.txt) while the site is
+  on the *.pages.dev placeholder. The host below is a PLACEHOLDER; at Phase 6 the
+  real custom domain and the full URL set (all five sections) land here, and
+  robots.txt flips to allow-all + references this file.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://zlobek-stromiec.pages.dev/</loc>
+    <lastmod>2026-08-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>

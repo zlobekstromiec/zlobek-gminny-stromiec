@@ -1,3 +1,6 @@
-# allow crawling everything by default
+# Placeholder deployment on *.pages.dev — disallow ALL crawling (D-11).
+# The site is intentionally not indexed while it lives on the free Cloudflare
+# Pages subdomain. At Phase 6 (custom domain / launch) this flips to an
+# allow-all group plus a `Sitemap:` reference to the real sitemap.xml.
 User-agent: *
-Disallow:
+Disallow: /
