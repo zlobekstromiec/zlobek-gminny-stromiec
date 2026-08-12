@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 1
 current_phase_name: Live Homepage & Design Foundation
 status: executing
-stopped_at: Phase 1 context gathered
-last_updated: "2026-08-12T18:06:14.733Z"
+stopped_at: Completed 01-01-PLAN.md
+last_updated: "2026-08-12T19:30:00.000Z"
 last_activity: 2026-08-12
-last_activity_desc: Roadmap created (37/37 v1 requirements across 6 vertical MVP slices, incl. Polish-language SITE-06, CMS-03); email architecture clarified — send from owned `zlobekstromiec.pl` → deliver to `zlobek@ugstromiec.pl`; `ugstromiec.pl`-DNS dependency dissolved
+last_activity_desc: Completed Plan 01-01 — SvelteKit/Tailwind v4/Cloudflare scaffold, two-tier design tokens, self-hosted fonts, a11y base, and the RED Playwright+axe homepage gate
 progress:
   total_phases: 6
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_plans: 5
+  completed_plans: 1
+  percent: 20
 ---
 
 # Project State
@@ -28,12 +28,12 @@ See: .planning/PROJECT.md (updated 2026-08-12)
 
 ## Current Position
 
-Phase: 1 of 6 (Live Homepage & Design Foundation)
-Plan: 0 of TBD in current phase
-Status: Ready to execute
-Last activity: 2026-08-12 — Roadmap created (37/37 v1 requirements across 6 vertical MVP slices, incl. Polish-language SITE-06, CMS-03); email architecture clarified — send from owned `zlobekstromiec.pl` → deliver to `zlobek@ugstromiec.pl`; `ugstromiec.pl`-DNS dependency dissolved
+Phase: 1 of 6 (Live Homepage & Design Foundation) — EXECUTING
+Plan: 1 of 5 complete (next: 01-02 — semantic layout shell)
+Status: Executing Phase 01
+Last activity: 2026-08-12 — Completed Plan 01-01 (foundation scaffold + two-tier design tokens + a11y/test gate)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██░░░░░░░░] 20%
 
 ## Performance Metrics
 
@@ -55,6 +55,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: —
 
 *Updated after each plan completion*
+| Phase 01 P01 | 25 | 3 tasks | 27 files |
 
 ## Accumulated Context
 
@@ -70,6 +71,7 @@ Recent decisions affecting current work:
 - CMS: Git-based Sveltia + self-hosted `sveltia-cms-auth` OAuth Worker + GitHub OAuth App (Phase 2).
 - Compliance: Deklaracja dostępności conformance claim written AFTER the AA baseline is real (Phase 6).
 - Language: Entire product in Polish — public site (Phase 1, SITE-06) and CMS admin portal labels/hints (Phase 2, CMS-03); staff assumed not to read English.
+- [01-01] Scaffold reconciled to plan layout: adapter in `svelte.config.js` (canonical), Tailwind entrypoint in `src/app.css`; kept Cloudflare-native `wrangler types --check` build + `wrangler pages dev` preview (worker-configuration.d.ts committed). Fonts self-hosted via `@fontsource` (no Google CDN). Node pinned/built on 22.23.2 (asdf), not local Node 25.
 
 ### Pending Todos
 
@@ -98,6 +100,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-12T16:34:28.707Z
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-live-homepage-design-foundation/01-CONTEXT.md
+Last session: 2026-08-12T19:30:00.000Z
+Stopped at: Completed 01-01-PLAN.md
+Resume file: None
