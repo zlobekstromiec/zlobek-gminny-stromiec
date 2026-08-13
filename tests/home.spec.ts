@@ -54,17 +54,36 @@ test.describe('Homepage: Phase 1 + 01.1 acceptance', () => {
 		await expect(cta).toHaveAttribute('href', '/rekrutacja');
 	});
 
-	test('no Aktualności section renders while there are no posts (HOME-02 amended)', async ({
+	// LOCKSTEP CHANGE (Amendment v1.1 §1): the homepage NewsPreview is realigned to
+	// surface the three newest posts from the shared `aktualnosci` reader (03-UI-SPEC.md
+	// „Homepage NewsPreview realignment"). This UI-SPEC amendment is the approved change
+	// that authorizes editing these assertions: the old absence assertions (no news
+	// section while the stub was empty) are replaced by presence assertions now that a
+	// seeded collection reaches the homepage. Same lockstep discipline as the D-18 note.
+	test('Aktualności section surfaces the newest posts on the homepage (HOME-02, NEWS-01)', async ({
 		page
 	}) => {
 		await page.goto('/');
-		await expect(
-			page.getByRole('heading', { name: 'Wkrótce pojawią się aktualności' })
-		).toHaveCount(0);
+		const news = page.locator('section.news');
+		// The NewsPreview section heading now renders (the empty stub is gone).
+		await expect(news.getByRole('heading', { name: 'Aktualności' })).toBeVisible();
 		// exact: true so this targets ONLY the news CTA („Zobacz wszystkie"); the
-		// recruitment docs panel now owns a distinct „Zobacz wszystkie dokumenty"
-		// see-all link (D-18) that must not be matched by this news-empty guard.
-		await expect(page.getByRole('link', { name: 'Zobacz wszystkie', exact: true })).toHaveCount(0);
+		// recruitment docs panel owns a distinct „Zobacz wszystkie dokumenty" see-all
+		// link (D-18) that must not be matched here. It takes the parent to /aktualnosci.
+		await expect(page.getByRole('link', { name: 'Zobacz wszystkie', exact: true })).toHaveAttribute(
+			'href',
+			'/aktualnosci'
+		);
+		// The newest seeded post surfaces on the homepage.
+		await expect(news.getByText('Wielkie otwarcie żłobka: 14 sierpnia!')).toBeVisible();
+		// Its card is a whole-card link into the single-post page (Plan 02).
+		await expect(
+			news.locator('a[href="/aktualnosci/2026-08-01-wielkie-otwarcie-zlobka"]')
+		).toBeVisible();
+		// Curated homepage subset: at most the three newest posts (3-column grid).
+		const cardCount = await news.locator('a.news-card').count();
+		expect(cardCount).toBeGreaterThan(0);
+		expect(cardCount).toBeLessThanOrEqual(3);
 	});
 
 	test('TopBar surfaces phone and opening hours on every viewport', async ({ page }) => {
