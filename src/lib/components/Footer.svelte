@@ -1,96 +1,193 @@
 <script lang="ts">
-	// Site footer (SITE-03). Links out to the existing BIP (external, opened in a
-	// new tab with reverse-tabnabbing protection), the Deklaracja dostępności page
-	// (authored later — Phase 6), and Kontakt. Do NOT rebuild BIP content — it is
-	// an external municipal system (UI-SPEC §Footer, RESEARCH Pitfall 14).
+	// Site footer v2 (SITE-03, UI-SPEC v1.2 §6): wave into a brand-blue block with
+	// four columns. Contact lines are PLAIN TEXT by design (the homepage carries
+	// exactly one mailto and its tel-link count is asserted; the linked versions
+	// live in TopBar/Hero/ContactAndMap). BIP stays an external municipal system:
+	// do NOT rebuild it (RESEARCH Pitfall 14).
+	import Wave from './Wave.svelte';
+	import { contact } from '$lib/content/site';
 </script>
 
 <footer class="site-footer">
+	<Wave fill="var(--color-brand-blue)" bg="var(--color-surface)" />
+
 	<div class="inner">
-		<p class="org">Żłobek Gminny w Stromcu — jednostka organizacyjna Gminy Stromiec.</p>
+		<div class="col brand-col">
+			<p class="footer-wordmark">Żłobek Gminny Stromiec</p>
+			<p class="org">
+				Żłobek Gminny w Stromcu, jednostka organizacyjna Gminy Stromiec<br />
+				<!-- PLACEHOLDER: address + phone pending written client confirmation (site.ts). -->
+				{contact.addressLines[0]}, {contact.addressLines[1]}<br />
+				tel. {contact.phoneDisplay}<br />
+				{contact.email}
+			</p>
+			<div class="logo-slots" aria-hidden="true">
+				<!-- PLACEHOLDER: real program logos (Phase 6 assets). -->
+				<span class="logo-slot slot-sm">Herb gminy</span>
+				<span class="logo-slot slot-lg">Aktywny Maluch</span>
+			</div>
+		</div>
 
 		<nav class="footer-links" aria-label="Odnośniki w stopce">
-			<ul>
-				<li>
-					<a
-						class="footer-link"
-						href="https://ugstromiec.naszbip.pl/zlobek"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						Biuletyn Informacji Publicznej (BIP)<span class="visually-hidden">
-							(otwiera się w nowej karcie)</span
+			<div class="col">
+				<h2 class="col-heading">Na skróty</h2>
+				<ul>
+					<li><a class="footer-link" href="/aktualnosci">Aktualności</a></li>
+					<li><a class="footer-link" href="/rekrutacja">Rekrutacja</a></li>
+					<li><a class="footer-link" href="/dokumenty">Dokumenty</a></li>
+					<li><a class="footer-link" href="/cennik">Cennik</a></li>
+					<li><a class="footer-link" href="/galeria">Galeria</a></li>
+					<li><a class="footer-link" href="/dojazd">Dojazd</a></li>
+				</ul>
+			</div>
+
+			<div class="col">
+				<h2 class="col-heading">Informacje</h2>
+				<ul>
+					<li>
+						<a class="footer-link" href="/deklaracja-dostepnosci">Deklaracja dostępności</a>
+					</li>
+					<li>
+						<a class="footer-link" href="/polityka-prywatnosci">Polityka prywatności (RODO)</a>
+					</li>
+					<li>
+						<a
+							class="footer-link"
+							href="https://ugstromiec.naszbip.pl/zlobek"
+							target="_blank"
+							rel="noopener noreferrer"
 						>
-					</a>
-				</li>
-				<li>
-					<a class="footer-link" href="/deklaracja-dostepnosci">Deklaracja dostępności</a>
-				</li>
-				<li>
-					<a class="footer-link" href="/polityka-prywatnosci">Polityka prywatności (RODO)</a>
-				</li>
-				<li>
-					<a class="footer-link" href="/kontakt">Kontakt</a>
-				</li>
-			</ul>
+							Biuletyn Informacji Publicznej (BIP)<span class="visually-hidden">
+								(otwiera się w nowej karcie)</span
+							>
+						</a>
+					</li>
+					<li>
+						<a class="footer-link" href="/kontakt">Kontakt</a>
+					</li>
+				</ul>
+			</div>
 		</nav>
 
-		<p class="copyright">© Żłobek Gminny w Stromcu</p>
+		<div class="col">
+			<h2 class="col-heading">Godziny otwarcia</h2>
+			<!-- PLACEHOLDER: opening hours pending written client confirmation (site.ts). -->
+			<p class="hours-line">poniedziałek-piątek</p>
+			<p class="hours-big">6:30–16:30</p>
+			<p class="hours-line">soboty i niedziele: nieczynne</p>
+		</div>
 	</div>
+
+	<p class="copyright">© Żłobek Gminny w Stromcu</p>
 </footer>
 
 <style>
 	.site-footer {
-		background: var(--color-surface-warm);
-		color: var(--color-ink);
-		padding-block: 48px;
-		border-top: 1px solid var(--color-border-subtle);
+		background: var(--color-brand-blue);
+		color: #ffffff;
 	}
 
 	.inner {
 		max-width: 72rem;
 		margin-inline: auto;
-		padding-inline: 16px;
-		display: flex;
-		flex-direction: column;
-		gap: 16px;
+		padding: 36px 16px 20px;
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 32px;
 	}
 
-	@media (min-width: 768px) {
+	@media (min-width: 640px) {
 		.inner {
+			grid-template-columns: 1fr 1fr;
 			padding-inline: 24px;
 		}
 	}
 
 	@media (min-width: 1024px) {
 		.inner {
+			grid-template-columns: 1.2fr 2fr 1fr;
 			padding-inline: 32px;
 		}
 	}
 
-	.org {
-		font-family: var(--font-body);
-		font-size: 16px;
-		line-height: 1.5;
-		color: var(--color-ink);
-		margin: 0;
+	/* The link nav spans two visual columns of the grid on desktop. */
+	.footer-links {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 32px;
 	}
 
-	.footer-links ul {
+	@media (min-width: 640px) {
+		.footer-links {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+
+	.footer-wordmark {
+		font-family: var(--font-display);
+		font-weight: 700;
+		font-size: 20px;
+		line-height: 1.2;
+		color: #ffffff;
+		margin: 0 0 8px;
+	}
+
+	/* Band on brand-blue: 5.17:1 (v1.2 pairing table). */
+	.org {
+		font-family: var(--font-body);
+		font-size: 14px;
+		line-height: 1.7;
+		color: var(--color-band);
+		margin: 0;
+		overflow-wrap: anywhere;
+	}
+
+	.logo-slots {
+		display: flex;
+		gap: 12px;
+		margin-top: 16px;
+	}
+
+	.logo-slot {
+		display: grid;
+		place-items: center;
+		height: 44px;
+		border-radius: var(--radius-sm);
+		background: var(--color-surface);
+		color: var(--color-muted);
+		font-family: var(--font-body);
+		font-size: 12px;
+		font-weight: 700;
+		text-align: center;
+		padding-inline: 6px;
+	}
+
+	.slot-sm {
+		width: 76px;
+	}
+
+	.slot-lg {
+		width: 112px;
+	}
+
+	/* Tint-yellow on brand-blue: 4.69:1, no margin: never lighten brand-blue. */
+	.col-heading {
+		font-family: var(--font-body);
+		font-size: 14px;
+		font-weight: 700;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		color: var(--color-tint-yellow);
+		margin: 0 0 10px;
+	}
+
+	.col ul {
 		list-style: none;
 		margin: 0;
 		padding: 0;
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
-	}
-
-	@media (min-width: 640px) {
-		.footer-links ul {
-			flex-direction: row;
-			flex-wrap: wrap;
-			gap: 24px;
-		}
+		gap: 2px;
 	}
 
 	.footer-link {
@@ -101,18 +198,38 @@
 		font-size: 14px;
 		font-weight: 700;
 		line-height: 1.4;
-		color: var(--color-brand-blue);
+		color: var(--color-band);
 		text-decoration: underline;
 	}
 
 	.footer-link:hover {
-		color: var(--color-brand-blue-hover);
+		color: #ffffff;
+	}
+
+	.hours-line {
+		font-family: var(--font-body);
+		font-size: 14px;
+		font-weight: 700;
+		line-height: 1.8;
+		color: var(--color-band);
+		margin: 0;
+	}
+
+	.hours-big {
+		font-family: var(--font-display);
+		font-size: 20px;
+		font-weight: 700;
+		color: #ffffff;
+		margin: 0;
 	}
 
 	.copyright {
+		border-top: 1px solid rgb(255 255 255 / 0.2);
+		text-align: center;
+		padding: 14px 24px;
 		font-family: var(--font-body);
 		font-size: 14px;
-		color: var(--color-muted);
+		color: var(--color-band);
 		margin: 0;
 	}
 

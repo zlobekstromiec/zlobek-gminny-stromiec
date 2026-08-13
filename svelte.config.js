@@ -11,9 +11,13 @@ const KNOWN_FUTURE_ROUTES = [
 	'/o-nas',
 	'/rekrutacja',
 	'/dokumenty',
-	'/kontakt'
-	// '/deklaracja-dostepnosci' — now a real prerendered stub (Plan 01-04),
-	// so the crawler enforces its footer link again.
+	'/kontakt',
+	// Footer v2 shortcuts (UI-SPEC v1.2): pages authored in Phases 4-5.
+	'/cennik',
+	'/galeria',
+	'/dojazd'
+	// '/deklaracja-dostepnosci' and '/polityka-prywatnosci' are real prerendered
+	// stubs, so the crawler enforces those footer links.
 ];
 
 /** @type {import('@sveltejs/kit').Config} */

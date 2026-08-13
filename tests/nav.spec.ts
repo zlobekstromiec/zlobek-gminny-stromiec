@@ -55,6 +55,35 @@ test.describe('Navigation shell — Phase 1 acceptance', () => {
 		await expect(footer.getByRole('link', { name: 'Kontakt' })).toHaveAttribute('href', '/kontakt');
 	});
 
+	test('footer v2 exposes shortcut columns and big opening hours (UI-SPEC v1.2)', async ({
+		page
+	}) => {
+		await page.goto('/');
+		const footer = page.getByRole('contentinfo');
+
+		// Column headings (scoped to contentinfo: "Godziny otwarcia" also exists
+		// as a contact label elsewhere on the page).
+		await expect(footer.getByRole('heading', { name: 'Na skróty' })).toBeVisible();
+		await expect(footer.getByRole('heading', { name: 'Informacje' })).toBeVisible();
+		await expect(footer.getByRole('heading', { name: 'Godziny otwarcia' })).toBeVisible();
+
+		// Shortcut links, including the Phase 4-5 pages surfaced early.
+		const shortcuts: Array<[string, string]> = [
+			['Aktualności', '/aktualnosci'],
+			['Rekrutacja', '/rekrutacja'],
+			['Dokumenty', '/dokumenty'],
+			['Cennik', '/cennik'],
+			['Galeria', '/galeria'],
+			['Dojazd', '/dojazd']
+		];
+		for (const [name, href] of shortcuts) {
+			await expect(footer.getByRole('link', { name, exact: true })).toHaveAttribute('href', href);
+		}
+
+		// Big hours line (footer-scoped: the same range renders in KeyFacts).
+		await expect(footer.getByText('6:30–16:30')).toBeVisible();
+	});
+
 	test('mobile drawer: hamburger opens dialog, ESC closes and restores focus (SITE-02)', async ({
 		page
 	}) => {
