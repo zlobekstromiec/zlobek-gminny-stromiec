@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Live Homepage & Design Foundation** - Joyful, mobile-first homepage live on Cloudflare with the core-message hero, nav/footer shell, and accessible palette token system (completed 2026-08-12)
 - [x] **Phase 01.1: Homepage v2.1 merged design (INSERTED)** - Two-design merge: hero split + key facts + perks band + rekrutacja module + day plan + o-nas teaser + kontakt/mapa + TopBar/Header/Footer v2 + conditional news + RODO stub (UI-SPEC Amendments v1.1/v1.2) (completed 2026-08-13)
-- [ ] **Phase 2: About, Documents & CMS** - O nas + Dokumenty pages made staff-editable via the git-based Sveltia CMS (OAuth Worker)
+- [x] **Phase 2: About, Documents & CMS** - O nas + Dokumenty pages made staff-editable via the git-based Sveltia CMS (OAuth Worker) (completed 2026-08-13)
 - [ ] **Phase 3: News (Aktualności)** - Staff-publishable news list + single post, feeding the homepage preview
 - [ ] **Phase 4: Enrollment, Contact & Email Pipeline** - Rekrutacja + Kontakt with the RODO-compliant, Turnstile-gated, email-only form pipeline (Resend)
 - [ ] **Phase 5: Gallery & Fees** - CMS-managed photo gallery and editable fees page
@@ -82,7 +82,9 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. The CMS admin portal presents to staff in Polish — all collection/field labels, hints, and help text are Polish (and the editor UI locale is Polish where supported).
   6. A CMS edit commits to the repo and triggers a Cloudflare rebuild that publishes the change live.
 
-**Plans**: 4/5 plans executed
+**Plans**: 6/6 plans complete
+
+- [x] 02-06-PLAN.md
 
 **Wave 1**
 
@@ -99,7 +101,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 **Wave 4** *(blocked on Wave 3)*
 
-- [ ] 02-05-PLAN.md — CMS OAuth + live loop (CMS-01, CMS-02, CMS-03): sveltia-cms-auth Worker + GitHub OAuth App + login-edit-commit-rebuild-live verification + Polish instrukcja
+- [x] 02-05-PLAN.md — CMS OAuth + live loop (CMS-01, CMS-02, CMS-03): sveltia-cms-auth Worker + GitHub OAuth App + login-edit-commit-rebuild-live verification + Polish instrukcja
 
 **UI hint**: yes
 
@@ -205,7 +207,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Live Homepage & Design Foundation | 5/5 | Complete    | 2026-08-12 |
-| 2. About, Documents & CMS | 4/5 | In Progress|  |
+| 2. About, Documents & CMS | 6/6 | Complete   | 2026-08-13 |
 | 3. News (Aktualności) | 0/TBD | Not started | - |
 | 4. Enrollment, Contact & Email Pipeline | 0/TBD | Not started | - |
 | 5. Gallery & Fees | 0/TBD | Not started | - |

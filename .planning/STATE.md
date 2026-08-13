@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 02
 current_phase_name: about-documents-cms
-status: executing
+status: verifying
 stopped_at: Phase 2 UI-SPEC approved
-last_updated: "2026-08-13T12:57:47.171Z"
+last_updated: "2026-08-13T16:36:28.739Z"
 last_activity: 2026-08-13
 last_activity_desc: Phase 02 execution started
 progress:
   total_phases: 7
-  completed_phases: 1
-  total_plans: 10
-  completed_plans: 9
-  percent: 14
+  completed_phases: 2
+  total_plans: 11
+  completed_plans: 11
+  percent: 29
 ---
 
 # Project State
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-08-12)
 
 Phase: 02 (about-documents-cms) — EXECUTING
 Plan: 5 of 5
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-08-13 — Phase 02 execution started
 
 Progress: [████████░░] 80%
@@ -64,6 +64,7 @@ Progress: [████████░░] 80%
 | Phase 02 P02 | 6 | 3 tasks | 10 files |
 | Phase 02 P03 | 3 | 2 tasks | 5 files |
 | Phase 02 P04 | 6 | 3 tasks | 7 files |
+| Phase 02 P05 | 15 | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -89,6 +90,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [02-01] O nas page shipped (ABOUT-01): content migrated out of site.ts into shared day-plan.json (D-03) + strict o-nas.json singleton; enhanced-img + marked build pipeline wired; enhanced-img/marked exact-pinned per T-0201-SC.
 - [Phase 02]: [02-02] /dokumenty shipped (DOCS-01): build-time statSync meta resolver (src/lib/server/dokumenty.ts, reusable by homepage Plan 03); dormant RODO category (D-13); 3-doc placeholder-flagged BIP seed; meta-inside-link WCAG rows; crawler now enforces /dokumenty.
 - [Phase ?]: [02-04] Sveltia CMS shell + config landed: self-hosted pinned @sveltia/cms 0.189.0 at /admin (no CDN, vendored bundle + cms:sync refresh script), all-Polish strict-widget config.yml mapping 1:1 to o-nas.json/day-plan.json/dokumenty (JSON keys unchanged, markdown limited to bold+link, fixed category select), path-scoped /admin/* CSP (tight connect-src, site-page kit.csp untouched). Worker origin is a placeholder finalized in Plan 05.
+- [Phase ?]: [02-05] Staff-editor vertical slice proven LIVE on *.pages.dev: self-hosted sveltia-cms-auth OAuth Worker (devzlobekstromiec.workers.dev, ALLOWED_DOMAINS=live Pages origin), config.yml base_url + _headers connect-src finalized to the real origin, Polish instrukcja shipped; GitHub login to Polish edit to commit main to Pages rebuild to live confirmed (CMS-01/02/03). Secrets Worker-only. npm audit sharp/libvips CVEs NOT force-fixed (breaking enhanced-img 0.4.1 downgrade rejected). CMS-03 chrome caveat narrowed by gap-closure plan 02-06.
 
 ### Pending Todos
 
@@ -105,7 +107,7 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 - [Phase 4] NEW (soft): ask Gmina IT to allowlist our sending domain (`send.zlobekstromiec.pl`) and confirm the `zlobek@ugstromiec.pl` mailbox receives external mail; run an early end-to-end delivery test.
 - [Phase 4/6] RODO: Gmina (controller) to sign Resend DPA + SCCs and Cloudflare DPA, list both as sub-processors in the RCPD, select Resend EU region.
 - [Phase 4/6] Obtain koordynator dostępności / IOD contact for klauzula informacyjna and Deklaracja dostępności.
-- [Phase 2] Decide staff GitHub account model (per-editor vs shared) before CMS handover.
+- [Phase 2] Confirm staff GitHub account model (per-editor vs shared) and invite staff as zlobekstromiec Org members with write access before CMS handover (D-19/D-20).
 
 ## Deferred Items
 
@@ -117,6 +119,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-13T12:57:02.647Z
+Last session: 2026-08-13T16:35:54.479Z
 Stopped at: Phase 2 UI-SPEC approved
 Resume file: .planning/phases/02-about-documents-cms/02-UI-SPEC.md
