@@ -90,13 +90,34 @@ test.describe('Homepage: Phase 1 + 01.1 acceptance', () => {
 		await expect(page.locator('.perk-card')).toHaveCount(4);
 	});
 
-	test('recruitment module: heading, four steps, six document rows (HOME-02)', async ({ page }) => {
+	// LOCKSTEP CHANGE (D-18): the homepage docs panel is realigned to the real BIP
+	// set and re-sourced from the shared `dokumenty` collection (02-UI-SPEC.md
+	// „Homepage Recruitment docs-panel realignment"). This UI-SPEC amendment is the
+	// approved copy change that authorizes editing these assertions: the old count
+	// (6) and the „Karta zgłoszenia dziecka" name are replaced by the curated
+	// two-row subset and the real name „Wniosek o przyjęcie dziecka". The
+	// meta-inside-the-link (WCAG) assertion is preserved, only its shape changes.
+	test('recruitment module: heading, four steps, curated BIP docs panel (HOME-02, D-18)', async ({
+		page
+	}) => {
 		await page.goto('/');
 		await expect(page.getByRole('heading', { name: 'Nabór na rok 2026/2027 trwa' })).toBeVisible();
 		await expect(page.locator('.step')).toHaveCount(4);
-		await expect(page.locator('.doc-row')).toHaveCount(6);
-		// File meta must live INSIDE the link so it is announced with the name.
-		await expect(page.getByRole('link', { name: /Karta zgłoszenia dziecka\s+PDF/ })).toBeVisible();
+		// Curated subset: exactly the two real rekrutacja documents from the shared
+		// collection (Wniosek o przyjęcie dziecka, Regulamin rekrutacji). The three
+		// non-BIP docs (Regulamin organizacyjny, Upoważnienie do odbioru dziecka,
+		// Oświadczenia RODO) are dropped (D-18).
+		await expect(page.locator('.doc-row')).toHaveCount(2);
+		// File meta must live INSIDE the link so it is announced with the name; the
+		// row carries the real BIP name plus its computed „... wersja z ..." meta.
+		await expect(
+			page.getByRole('link', { name: /Wniosek o przyjęcie dziecka[\s\S]*wersja z/ })
+		).toBeVisible();
+		// A see-all link takes the parent to the full documents page.
+		await expect(page.getByRole('link', { name: 'Zobacz wszystkie dokumenty' })).toHaveAttribute(
+			'href',
+			'/dokumenty'
+		);
 	});
 
 	test('day plan panel renders the daily schedule', async ({ page }) => {
