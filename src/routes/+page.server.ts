@@ -11,6 +11,10 @@ import { readDokumenty } from '$lib/server/dokumenty';
 export const load: PageServerLoad = () => {
 	const docs = readDokumenty()
 		.filter((entry) => entry.kategoria === 'rekrutacja')
+		// Curated homepage subset (D-18): the centrepiece panel shows at most two
+		// rows, no matter how many rekrutacja documents an editor adds; the full
+		// set always lives on /dokumenty behind the see-all link.
+		.slice(0, 2)
 		.map((entry) => ({ name: entry.nazwa, meta: entry.meta, href: entry.plik }));
 	return { docs };
 };
