@@ -190,11 +190,15 @@ collections:
     # unlike dokumenty, which overrides to /static/dokumenty because PDFs are served
     # verbatim.
     #
-    # Slug prefixes the publication `data` field via the `date` transformation
-    # filter (verified present in the pinned @sveltia/cms@0.189.0 bundle), so the
-    # URL follows the post date and honors backdating (D-05/D-06). The build reader
-    # takes the slug from the committed filename, never re-derived (D-07/D-08).
-    slug: "{{fields.data | date('YYYY-MM-DD')}}-{{fields.tytul}}"
+    # Slug prefixes the publication `data` field by direct substitution: `data`
+    # is stored on disk as ISO (`YYYY-MM-DD`, see the `format` key below), so the
+    # template inserts it verbatim and every day of the month yields a correct
+    # `RRRR-MM-DD-tytul` prefix. This is the CR-01 fix: the previous `date`
+    # transformation could not parse the `DD.MM.YYYY` storage and minted
+    # wrong (days 1-12, MM/DD swap) or dateless (days 13-31) URLs. The build
+    # reader still takes the slug from the committed filename, never re-derived
+    # (D-07/D-08).
+    slug: '{{fields.data}}-{{fields.tytul}}'
     fields:
       - name: tytul
         label: 'Tytuł'
@@ -203,7 +207,12 @@ collections:
       - name: data
         label: 'Data publikacji'
         widget: datetime
+        # `date_format` is the Polish picker DISPLAY (staff pick DD.MM.RRRR);
+        # `format` is the on-disk STORAGE format — ISO so the slug substitutes it
+        # verbatim (CR-01). In @sveltia/cms@0.189.0 an explicit `format` is the
+        # save format while `date_format` stays the editor display.
         date_format: 'DD.MM.YYYY'
+        format: 'YYYY-MM-DD'
         time_format: false
         hint: 'Data wpisu (DD.MM.RRRR). Wpisy sortowane od najnowszego.'
       - name: zajawka
