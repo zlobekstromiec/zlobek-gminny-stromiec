@@ -1,11 +1,12 @@
 <script lang="ts">
-	// Persistent sticky header (SITE-03). Wordmark left, five section links right
-	// on >= md; below md the links collapse to the MobileNav hamburger drawer
-	// (wired in Task 2). Active section is signalled by a 3px brand-blue bottom bar
-	// AND aria-current="page" — never colour alone (UI-SPEC §Header/Nav link states).
+	// Persistent sticky header (SITE-03, UI-SPEC v1.2 §3). Logo badge + two-line
+	// wordmark left, five section links right on >= md; below md the links collapse
+	// to the MobileNav hamburger drawer. Active section is an accent pill chip AND
+	// aria-current="page", never colour alone.
 	import { page } from '$app/state';
 	import { navLinks } from '$lib/nav';
 	import MobileNav from './MobileNav.svelte';
+	import IconBear from '$lib/icons/IconBear.svelte';
 
 	// Reactive current path for the active-link state (Svelte 5 runes).
 	const pathname = $derived(page.url.pathname);
@@ -13,7 +14,7 @@
 		return pathname === href || pathname.startsWith(href + '/');
 	}
 
-	// Header gains shadow-sm + a hairline border once the page is scrolled.
+	// Header gains shadow-sm once the page is scrolled.
 	let scrollY = $state(0);
 	const scrolled = $derived(scrollY > 4);
 </script>
@@ -22,7 +23,13 @@
 
 <header class="site-header" class:scrolled>
 	<div class="bar">
-		<a class="wordmark" href="/">Żłobek Gminny Stromiec</a>
+		<a class="wordmark" href="/">
+			<span class="badge" aria-hidden="true"><IconBear size={28} /></span>
+			<span class="wordmark-text">
+				<span class="wordmark-name">Żłobek Gminny Stromiec</span>
+				<span class="wordmark-tagline">Publiczny żłobek w gminie Stromiec</span>
+			</span>
+		</a>
 
 		<!-- Desktop navigation (>= md). -->
 		<nav class="desktop-nav" aria-label="Główna nawigacja">
@@ -41,7 +48,7 @@
 			</ul>
 		</nav>
 
-		<!-- Mobile drawer island (< md) — the one hydrated interaction. -->
+		<!-- Mobile drawer island (< md): the one hydrated interaction. -->
 		<div class="mobile-slot">
 			<MobileNav />
 		</div>
@@ -54,14 +61,11 @@
 		top: 0;
 		z-index: 50;
 		background: var(--color-surface);
-		border-bottom: 1px solid transparent;
-		transition:
-			box-shadow 150ms ease,
-			border-color 150ms ease;
+		border-bottom: 4px solid var(--color-accent);
+		transition: box-shadow 150ms ease;
 	}
 
 	.site-header.scrolled {
-		border-bottom-color: var(--color-border-subtle);
 		box-shadow:
 			0 1px 2px rgb(15 23 42 / 0.06),
 			0 1px 3px rgb(15 23 42 / 0.08);
@@ -92,20 +96,53 @@
 	}
 
 	.wordmark {
+		display: inline-flex;
+		align-items: center;
+		gap: 12px;
+		min-height: 44px;
+		text-decoration: none;
+	}
+
+	/* Logo badge: accent surface, INK icon stroke (brand-blue on accent fails
+	   contrast, v1.2 §3), tint-yellow duotone fill, hard toy shadow. */
+	.badge {
+		flex: none;
+		width: 52px;
+		height: 52px;
+		border-radius: var(--radius-pill);
+		background: var(--color-accent);
+		display: grid;
+		place-items: center;
+		color: var(--color-ink);
+		--icon-fill: var(--color-tint-yellow);
+		box-shadow: 0 3px 0 var(--color-accent-active);
+	}
+
+	.wordmark-text {
+		display: flex;
+		flex-direction: column;
+		gap: 1px;
+	}
+
+	.wordmark-name {
 		font-family: var(--font-display);
 		font-weight: 700;
 		font-size: 20px;
 		line-height: 1.1;
 		color: var(--color-brand-blue);
-		text-decoration: none;
-		/* 44px hit area (WCAG 2.5.5). */
-		display: inline-flex;
-		align-items: center;
-		min-height: 44px;
 	}
 
-	.wordmark:hover {
+	.wordmark:hover .wordmark-name {
 		text-decoration: underline;
+	}
+
+	/* 12px legalized for this single use (v1.2 §3). */
+	.wordmark-tagline {
+		font-family: var(--font-body);
+		font-weight: 700;
+		font-size: 12px;
+		line-height: 1.2;
+		color: var(--color-muted);
 	}
 
 	/* Desktop links: hidden below md, horizontal flex from md up. */
@@ -122,18 +159,18 @@
 	.desktop-nav ul {
 		display: flex;
 		align-items: center;
-		gap: 24px;
+		gap: 4px;
 		list-style: none;
 		margin: 0;
 		padding: 0;
 	}
 
 	.nav-link {
-		position: relative;
 		display: inline-flex;
 		align-items: center;
 		min-height: 44px;
-		padding: 0 2px;
+		padding: 8px 12px;
+		border-radius: var(--radius-sm);
 		font-family: var(--font-body);
 		font-size: 14px;
 		font-weight: 700;
@@ -143,24 +180,16 @@
 	}
 
 	.nav-link:hover {
-		color: var(--color-brand-blue);
-		text-decoration: underline;
+		background: var(--color-tint-yellow);
+		color: var(--color-ink);
 	}
 
-	/* Active section: 3px brand-blue bottom bar AND aria-current (not colour alone). */
+	/* Active section: accent pill chip AND aria-current (not colour alone).
+	   Ink on accent: 6.82:1 (v1.2 pairing table). */
 	.nav-link[aria-current='page'] {
-		color: var(--color-brand-blue);
-	}
-
-	.nav-link[aria-current='page']::after {
-		content: '';
-		position: absolute;
-		left: 0;
-		right: 0;
-		bottom: 6px;
-		height: 3px;
-		background: var(--color-brand-blue);
-		border-radius: 9999px;
+		background: var(--color-accent);
+		color: var(--color-ink);
+		box-shadow: 0 3px 0 var(--color-accent-active);
 	}
 
 	/* Hamburger island only appears below md. */

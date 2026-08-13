@@ -6,9 +6,16 @@
 	// native <button>/<a> elements — no hand-rolled click-divs. Motion respects
 	// prefers-reduced-motion (UI-SPEC §Header/Nav mobile + §Motion).
 	import { fade, fly } from 'svelte/transition';
+	import { page } from '$app/state';
 	import Menu from '@lucide/svelte/icons/menu';
 	import X from '@lucide/svelte/icons/x';
 	import { navLinks } from '$lib/nav';
+
+	// Active section mirrors the header's accent pill (UI-SPEC v1.2 §3).
+	const pathname = $derived(page.url.pathname);
+	function isActive(href: string): boolean {
+		return pathname === href || pathname.startsWith(href + '/');
+	}
 
 	const DRAWER_ID = 'mobile-nav-drawer';
 	const DRAWER_MS = 220;
@@ -120,7 +127,14 @@
 			<ul>
 				{#each navLinks as link (link.href)}
 					<li>
-						<a class="drawer-link" href={link.href} onclick={closeDrawer}>{link.label}</a>
+						<a
+							class="drawer-link"
+							href={link.href}
+							aria-current={isActive(link.href) ? 'page' : undefined}
+							onclick={closeDrawer}
+						>
+							{link.label}
+						</a>
 					</li>
 				{/each}
 			</ul>
@@ -203,6 +217,14 @@
 	.drawer-link:hover {
 		color: var(--color-brand-blue);
 		text-decoration: underline;
+	}
+
+	/* Active section: accent pill matching the header chip (never colour alone). */
+	.drawer-link[aria-current='page'] {
+		background: var(--color-accent);
+		color: var(--color-ink);
+		border-radius: var(--radius-sm);
+		box-shadow: 0 3px 0 var(--color-accent-active);
 	}
 
 	/* Explicit instant show/hide when reduced motion is requested (the JS duration
