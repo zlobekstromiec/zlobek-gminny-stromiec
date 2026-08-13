@@ -30,6 +30,15 @@ media_libraries:
         jpeg: { format: webp, quality: 82, width: 1600 }
         png: { format: webp, quality: 82, width: 1600 }
 
+# Global slug rules (apply to every folder collection). `encoding: ascii`
+# transliterates Polish letters to ASCII (ł→l, ż→z, ś→s) and `clean_accents`
+# strips diacritics (ą→a, ę→e, ó→o), so a staff-typed title becomes a clean
+# ASCII URL (D-06). Sveltia defaults (sanitize_replacement '-', lowercase, trim)
+# are kept untouched.
+slug:
+  encoding: ascii
+  clean_accents: true
+
 singletons:
   - name: o_nas
     label: 'O nas'
@@ -161,6 +170,62 @@ collections:
         widget: string
         required: false
         hint: 'Odnośnik do dokumentu w BIP (opcjonalnie).'
+      - name: placeholder
+        label: 'Treść zastępcza (do potwierdzenia)'
+        widget: boolean
+        default: true
+        hint: 'Zaznacz, dopóki treść nie została potwierdzona.'
+
+  - name: aktualnosci
+    label: 'Aktualności'
+    label_singular: 'Wpis'
+    identifier_field: tytul
+    description: 'Wpisy widoczne na stronie Aktualności, najnowsze na górze. Trzy najnowsze pokazują się też na stronie głównej. Zmiany pojawią się na stronie po ok. 2 minutach.'
+    folder: src/lib/content/aktualnosci
+    create: true
+    extension: json
+    # CRITICAL (Pitfall 3): this collection deliberately sets NO per-collection
+    # media path override. Covers inherit the GLOBAL Vite-processed uploads path
+    # (src/lib/assets/uploads) so @sveltejs/enhanced-img can optimize them at build,
+    # unlike dokumenty, which overrides to /static/dokumenty because PDFs are served
+    # verbatim.
+    #
+    # Slug prefixes the publication `data` field via the `date` transformation
+    # filter (verified present in the pinned @sveltia/cms@0.189.0 bundle), so the
+    # URL follows the post date and honors backdating (D-05/D-06). The build reader
+    # takes the slug from the committed filename, never re-derived (D-07/D-08).
+    slug: "{{fields.data | date('YYYY-MM-DD')}}-{{fields.tytul}}"
+    fields:
+      - name: tytul
+        label: 'Tytuł'
+        widget: string
+        hint: 'Tytuł wpisu po polsku (widoczny na liście i na stronie wpisu).'
+      - name: data
+        label: 'Data publikacji'
+        widget: datetime
+        date_format: 'DD.MM.YYYY'
+        time_format: false
+        hint: 'Data wpisu (DD.MM.RRRR). Wpisy sortowane od najnowszego.'
+      - name: zajawka
+        label: 'Zajawka'
+        widget: text
+        required: false
+        hint: 'Krótkie streszczenie (2-3 zdania) pokazywane na kafelku listy. Jeśli puste, użyjemy początku treści.'
+      - name: tresc
+        label: 'Treść'
+        widget: markdown
+        buttons: [bold, link, bulleted-list, numbered-list]
+        hint: 'Pełna treść wpisu. Dozwolone: pogrubienie, odnośniki oraz listy.'
+      - name: obraz
+        label: 'Zdjęcie (opcjonalnie)'
+        widget: image
+        required: false
+        hint: 'Zdjęcie nagłówkowe. Bez identyfikowalnych dzieci bez zgody. Zostanie zoptymalizowane automatycznie.'
+      - name: obraz_alt
+        label: 'Opis alternatywny zdjęcia (alt)'
+        widget: string
+        required: false
+        hint: 'Krótki opis zdjęcia dla osób korzystających z czytników ekranu.'
       - name: placeholder
         label: 'Treść zastępcza (do potwierdzenia)'
         widget: boolean
