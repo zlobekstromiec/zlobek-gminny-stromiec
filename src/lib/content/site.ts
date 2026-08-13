@@ -97,16 +97,8 @@ export const perks: Perk[] = [
 	}
 ];
 
-// PLACEHOLDER: daily schedule, pending written client confirmation.
-export const dayPlan = [
-	{ time: '6:30–8:30', what: 'Przyjmowanie dzieci, swobodna zabawa' },
-	{ time: '8:30–9:00', what: 'Śniadanie' },
-	{ time: '9:00–11:00', what: 'Zajęcia i zabawy, spacer lub plac zabaw' },
-	{ time: '11:00–11:30', what: 'Obiad: zupa' },
-	{ time: '11:30–13:30', what: 'Leżakowanie, odpoczynek' },
-	{ time: '13:30–14:00', what: 'Obiad: drugie danie' },
-	{ time: '14:00–16:30', what: 'Podwieczorek, zabawy, odbiór dzieci' }
-] as const;
+// dayPlan migrated to src/lib/content/day-plan.json (D-03): single shared source
+// so the homepage DayPlan and /o-nas render byte-identical rows.
 
 type RecruitmentStrings = {
 	pill: string;

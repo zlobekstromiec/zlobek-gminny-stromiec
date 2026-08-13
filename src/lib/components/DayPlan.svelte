@@ -1,9 +1,10 @@
 <script lang="ts">
 	// Daily schedule panel (UI-SPEC v1.2 §6): a parent's "what does a day look
-	// like" answer, right after the recruitment module. Static content from
-	// site.ts (PLACEHOLDER schedule). Times render at 19px Baloo 700
-	// accent-active on tint-blue (3.97:1 large-text pass; never smaller).
-	import { dayPlan } from '$lib/content/site';
+	// like" answer, right after the recruitment module. Static content from the
+	// migrated single source day-plan.json (D-03) so the homepage and /o-nas
+	// render byte-identical rows. Times render at 19px Baloo 700 accent-active
+	// on tint-blue (3.97:1 large-text pass; never smaller).
+	import dayPlan from '$lib/content/day-plan.json';
 </script>
 
 <section class="dayplan" aria-labelledby="dayplan-heading">
@@ -11,7 +12,7 @@
 		<div class="panel">
 			<h2 id="dayplan-heading">Nasz dzień w żłobku</h2>
 			<ul>
-				{#each dayPlan as row (row.time)}
+				{#each dayPlan.rows as row (row.time)}
 					<li>
 						<span class="time">{row.time}</span>
 						<span class="what">{row.what}</span>

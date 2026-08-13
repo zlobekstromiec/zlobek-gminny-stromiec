@@ -1,0 +1,31 @@
+{
+	"placeholder": true,
+	"lead": "Poznaj żłobek gminny w Stromcu: naszą misję, wartości, zespół i miejsce, w którym Twoje dziecko spędza dzień.",
+	"misja": "W żłobku gminnym w Stromcu otaczamy najmłodszych **ciepłą, bezpieczną opieką**, wspierając ich rozwój przez zabawę i codzienne, drobne odkrycia. Chcemy, aby każdy dzień był dla dziecka radosny, a dla rodzica spokojny.",
+	"wartosci": [
+		{
+			"tytul": "Bezpieczeństwo",
+			"opis": "Nowoczesny, monitorowany budynek i troskliwa kadra, dzięki którym dziecko czuje się pewnie każdego dnia."
+		},
+		{
+			"tytul": "Radość i zabawa",
+			"opis": "Zajęcia muzyczne, plastyczne i ruchowe dopasowane do wieku, pełne uśmiechu i wspólnej zabawy."
+		},
+		{
+			"tytul": "Indywidualny rozwój",
+			"opis": "Uważnie obserwujemy każde dziecko i wspieramy je w jego własnym tempie rozwoju."
+		},
+		{
+			"tytul": "Rodzinna atmosfera",
+			"opis": "Ciepłe, domowe otoczenie, w którym maluchy i rodzice czują się zaopiekowani."
+		}
+	],
+	"kadra_opis": "Naszą kadrę tworzą **wykwalifikowane opiekunki** oraz personel pomocniczy, którzy z sercem i cierpliwością towarzyszą dzieciom przez cały dzień. Stawiamy na bliskość, uważność i codzienną troskę o dobre samopoczucie każdego malucha.",
+	"kadra_opiekunki": 6,
+	"kadra_personel": 3,
+	"obiekt_opis": "Żłobek mieści się w **jasnym, przestronnym budynku** z salami dostosowanymi do potrzeb najmłodszych. Do dyspozycji dzieci jest kolorowa sala zabaw oraz bezpieczny plac zabaw przed budynkiem.",
+	"obiekt_zdjecia": [
+		{ "plik": "sala-zabaw.jpg", "alt": "Sala zabaw z kolorowymi zabawkami" },
+		{ "plik": "plac-zabaw.jpg", "alt": "Plac zabaw przed budynkiem żłobka" }
+	]
+}
