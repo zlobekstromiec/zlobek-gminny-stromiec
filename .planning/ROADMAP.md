@@ -14,7 +14,7 @@ The site is delivered as six vertical MVP slices, each shipping an end-to-end, d
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Live Homepage & Design Foundation** - Joyful, mobile-first homepage live on Cloudflare with the core-message hero, nav/footer shell, and accessible palette token system (completed 2026-08-12)
-- [ ] **Phase 01.1: Homepage v2 restructure (INSERTED)** - Hero split + key-facts strip + rekrutacja module + o-nas teaser + kontakt/mapa + conditional news + RODO stub (design handoff, UI-SPEC Amendment v1.1)
+- [x] **Phase 01.1: Homepage v2.1 merged design (INSERTED)** - Two-design merge: hero split + key facts + perks band + rekrutacja module + day plan + o-nas teaser + kontakt/mapa + TopBar/Header/Footer v2 + conditional news + RODO stub (UI-SPEC Amendments v1.1/v1.2) (completed 2026-08-13)
 - [ ] **Phase 2: About, Documents & CMS** - O nas + Dokumenty pages made staff-editable via the git-based Sveltia CMS (OAuth Worker)
 - [ ] **Phase 3: News (Aktualności)** - Staff-publishable news list + single post, feeding the homepage preview
 - [ ] **Phase 4: Enrollment, Contact & Email Pipeline** - Rekrutacja + Kontakt with the RODO-compliant, Turnstile-gated, email-only form pipeline (Resend)
@@ -65,7 +65,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Depends on**: Phase 1
 **Requirements**: HOME-01, HOME-02 (amended notes in REQUIREMENTS.md); no new requirement IDs — real news data stays Phase 3, real PDFs Phase 2, forms/map details Phase 4.
 
-- [ ] Homepage v2 restructure executed as approved plan (8 atomic commits, suite green at every step)
+- [x] Homepage v2.1 merged design executed as approved plan (17 atomic commits, suite green at every step; completed 2026-08-13)
 
 ### Phase 2: About, Documents & CMS
 
