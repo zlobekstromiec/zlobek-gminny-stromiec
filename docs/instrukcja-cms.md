@@ -6,10 +6,11 @@ Ten dokument jest przeznaczony do wydruku. Prowadzi krok po kroku przez logowani
 edycję treści strony O nas, edycję planu dnia oraz dodawanie, zamianę i usuwanie
 dokumentów. Na końcu znajduje się lista kontrolna weryfikacji.
 
-Uwaga o języku: wszystkie etykiety pól i podpowiedzi w panelu są po polsku.
-Same przyciski i menu edytora (paski narzędzi programu Sveltia) są po angielsku,
-ponieważ program nie ma jeszcze polskiej wersji interfejsu. Poniżej podajemy
-tłumaczenia najważniejszych przycisków. Zobacz sekcję "Przyciski edytora po angielsku".
+Uwaga o języku: panel jest po polsku, łącznie z przyciskami i menu edytora
+(polskie tłumaczenie programu Sveltia jest wczytywane lokalnie). Tłumaczenie
+programu nie jest jeszcze kompletne, więc pojedyncze napisy mogą pozostać po
+angielsku. Tłumaczenia najważniejszych przycisków znajdziesz w sekcji
+"Język i wygląd edytora".
 
 ---
 
@@ -47,7 +48,7 @@ W panelu wybierz sekcję "O nas". Możesz edytować następujące pola:
 Ważne: zdjęcia nie mogą przedstawiać osób (dzieci ani personelu). Publikujemy
 wyłącznie zdjęcia budynku, sal i placu zabaw, bez wizerunku osób.
 
-Po zakończeniu edycji zapisz zmiany (przycisk "Save", po polsku Zapisz).
+Po zakończeniu edycji zapisz zmiany przyciskiem "Zapisz".
 
 <!-- PLACEHOLDER: screenshot - formularz O nas z polskimi etykietami -->
 
@@ -125,10 +126,15 @@ pominąć pamięć podręczną przeglądarki).
 
 ---
 
-## 7. Przyciski edytora po angielsku
+## 7. Język i wygląd edytora
 
-Interfejs edytora (paski narzędzi programu Sveltia) jest po angielsku, natomiast
-wszystkie etykiety pól i podpowiedzi są po polsku. Najważniejsze przyciski:
+Panel otwiera się w jasnym, ciepłym motywie graficznym i po polsku. Motyw oraz
+język można zmienić w ustawieniach edytora (menu konta, pozycja Ustawienia,
+karta Wygląd). Zalecamy pozostawienie motywu jasnego.
+
+Polskie tłumaczenie programu Sveltia nie jest jeszcze kompletne, dlatego
+pojedyncze przyciski lub komunikaty mogą pozostać po angielsku. Najważniejsze
+z nich:
 
 | Przycisk (po angielsku) | Znaczenie (po polsku) |
 | ----------------------- | --------------------- |
@@ -136,11 +142,7 @@ wszystkie etykiety pól i podpowiedzi są po polsku. Najważniejsze przyciski:
 | Publish                 | Opublikuj             |
 | Delete                  | Usuń                  |
 
-To jest znane i zaakceptowane ograniczenie (CMS-03, "w zakresie, w jakim jest to
-wspierane"): pola są po polsku, sam szkielet edytora pozostaje po angielsku,
-ponieważ program nie oferuje jeszcze polskiej wersji interfejsu.
-
-<!-- PLACEHOLDER: screenshot - przyciski Save, Publish, Delete z opisami po polsku -->
+<!-- PLACEHOLDER: screenshot - polski edytor w jasnym motywie -->
 
 ---
 
@@ -153,9 +155,9 @@ które wklejasz w miejsca oznaczone powyżej jako "PLACEHOLDER: screenshot".
 1. Otwórz `/admin` na działającej stronie i zaloguj się kontem GitHub będącym
    członkiem organizacji `zlobekstromiec`. Potwierdź, że okno logowania GitHub
    kończy się powodzeniem i wczytuje się edytor (CMS-01).
-2. Potwierdź, że etykiety sekcji i pól oraz podpowiedzi są po polsku (CMS-03).
-   Wykonaj zrzut ekranu angielskich przycisków (Save, Publish, Delete) do
-   instrukcji.
+2. Potwierdź, że edytor otwiera się w jasnym motywie, a etykiety sekcji i pól,
+   podpowiedzi oraz przyciski edytora (Zapisz, Opublikuj) są po polsku (CMS-03).
+   Wykonaj zrzut ekranu edytora do instrukcji.
 3. Zmień tekst misji w sekcji O nas, zapisz i opublikuj. Potwierdź, że powstał
    zapis (commit) w repozytorium `zlobekstromiec/zlobek-gminny-stromiec` na
    gałęzi `main` (CMS-02).
@@ -166,13 +168,12 @@ które wklejasz w miejsca oznaczone powyżej jako "PLACEHOLDER: screenshot".
    żywo na stronie `/dokumenty` po przebudowie (DOCS-02).
 6. Wklej polskie zrzuty ekranu z opisami w miejsca oznaczone w tej instrukcji
    (zastępując znaczniki "PLACEHOLDER: screenshot").
-7. Ponownie sprawdź listę dostępnych języków interfejsu edytora w używanej,
-   przypiętej wersji programu i zanotuj, czy pojawiła się polska wersja
-   interfejsu.
-8. Potwierdź akceptację ograniczenia CMS-03 (angielski szkielet edytora
-   zaakceptowany "w zakresie, w jakim jest to wspierane") oraz przyjęcie do
-   wiadomości uwagi o zależnościach: pakiety zostały zainstalowane w przypiętych
-   wersjach.
+7. Zanotuj napotkane angielskie napisy (tłumaczenie programu nie jest jeszcze
+   kompletne) i w razie potrzeby uzupełnij tabelę tłumaczeń w sekcji 7.
+8. Potwierdź akceptację ograniczenia CMS-03 (pojedyncze angielskie napisy w
+   edytorze do czasu ukończenia polskiego tłumaczenia programu) oraz przyjęcie
+   do wiadomości uwagi o zależnościach: pakiety zostały zainstalowane w
+   przypiętych wersjach.
 
 Uwaga techniczna: warunki możliwe do sprawdzenia automatycznie (strona `/admin`
 serwowana na żywo, `base_url` w pliku konfiguracji wskazuje na działający Worker,

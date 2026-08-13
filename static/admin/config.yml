@@ -11,6 +11,9 @@ backend:
   # /admin/* CSP block in `_headers`.
   base_url: https://sveltia-cms-auth.devzlobekstromiec.workers.dev
 
+# Branding: shown on the login page and in the browser tab (CMS-03).
+app_title: 'Panel redakcyjny Żłobka w Stromcu'
+
 # Direct publish to `main`, no editorial workflow (D-20).
 
 # Global media = images only, stored under a Vite-processed path so
@@ -30,6 +33,7 @@ media_libraries:
 singletons:
   - name: o_nas
     label: 'O nas'
+    description: 'Tu edytujesz treść strony O nas: wprowadzenie, misję, wartości oraz opisy kadry i budynku. Zapisane zmiany pojawią się na stronie automatycznie po ok. 2 minutach.'
     file: src/lib/content/o-nas.json
     fields:
       - name: lead
@@ -53,8 +57,18 @@ singletons:
         widget: markdown
         buttons: [bold, link]
         hint: 'Ciepły opis zespołu (kwalifikacje, podejście). Bez nazwisk i zdjęć.'
-      - { name: kadra_opiekunki, label: 'Liczba opiekunek', widget: number, value_type: int, min: 0 }
-      - { name: kadra_personel, label: 'Personel pomocniczy (liczba)', widget: number, value_type: int, min: 0 }
+      - name: kadra_opiekunki
+        label: 'Liczba opiekunek'
+        widget: number
+        value_type: int
+        min: 0
+        hint: 'Liczba opiekunek pokazywana na stronie O nas w sekcji Kadra.'
+      - name: kadra_personel
+        label: 'Personel pomocniczy (liczba)'
+        widget: number
+        value_type: int
+        min: 0
+        hint: 'Liczba osób personelu pomocniczego pokazywana obok liczby opiekunek.'
       - name: obiekt_opis
         label: 'O budynku'
         widget: markdown
@@ -78,6 +92,7 @@ singletons:
 
   - name: day_plan
     label: 'Plan dnia'
+    description: 'Godziny i zajęcia widoczne na stronie głównej oraz na stronie O nas w sekcji Plan dnia. Zapisane zmiany pojawią się na stronie po ok. 2 minutach.'
     file: src/lib/content/day-plan.json
     fields:
       # JSON keys stay `time` / `what` so the file round-trips with Plan 01 (D-03/D-06);
@@ -87,8 +102,14 @@ singletons:
         widget: list
         hint: 'Kolejne punkty planu dnia. Każdy wiersz: godziny i opis.'
         fields:
-          - { name: time, label: 'Godziny', widget: string }
-          - { name: what, label: 'Opis', widget: string }
+          - name: time
+            label: 'Godziny'
+            widget: string
+            hint: 'Np. 7:00–8:30.'
+          - name: what
+            label: 'Opis'
+            widget: string
+            hint: 'Krótki opis zajęć, np. Śniadanie.'
       - name: placeholder
         label: 'Treść zastępcza (do potwierdzenia)'
         widget: boolean
@@ -99,6 +120,7 @@ collections:
   - name: dokumenty
     label: 'Dokumenty'
     label_singular: 'Dokument'
+    description: 'Dokumenty do pobrania na stronie Dokumenty (dwa dokumenty rekrutacyjne widać też na stronie głównej). Nazwij dokument po polsku, wybierz kategorię i dodaj plik. Zmiany pojawią się na stronie po ok. 2 minutach.'
     folder: src/lib/content/dokumenty
     create: true
     extension: json
@@ -114,6 +136,7 @@ collections:
       - name: kategoria
         label: 'Kategoria'
         widget: select
+        hint: 'Rekrutacja oraz Statut i uchwały są widoczne na stronie. Kategoria RODO zostanie włączona w późniejszym etapie.'
         # Fixed dropdown so staff cannot typo new categories into existence (D-13/D-15).
         options:
           - { label: 'Rekrutacja', value: 'rekrutacja' }
