@@ -481,19 +481,22 @@ test.describe('Aktualności: NEWS-01/02/03 acceptance', () => {
 | A3 | D-01 seed facts (date 14.08.2026 event, 01.08.2026 publish) are correct | Seed post | Content-only; `placeholder: true` flags it; client confirmation pending. Not a code risk. |
 | A4 | `marked` `gfm: true` heading/table override fully neutralizes those blocks | renderPost | Low: widget offers no heading/table buttons; override is defense-in-depth. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Empty-state coverage when D-01 always seeds a post**
    - What we know: The list page must render the inherited empty state (UI-SPEC), but a seeded collection is never empty at build.
    - What's unclear: whether to assert the empty state via a component-isolation test, a fixtureless build, or accept it as visually-verified only.
    - Recommendation: Assert the empty-state markup by rendering `NewsPreview`/list with `posts={[]}` in a component test, or document it as manually verified. Planner call (D-02 discretion).
+   - **RESOLVED (Plan 01, Task 3):** because the collection is always seeded, a zero-post build is not producible, so the `{:else}` empty branch is covered by svelte-check compilation + code review (not a Playwright assertion); its markup and copy are identical to the a11y-tested `NewsPreview` empty state shipped in Phase 1. Documented as a manual-only verification in `03-VALIDATION.md`.
 
 2. **Sveltia `date` filter availability (see A1)**
    - Recommendation: During implementation, create one test post in the live CMS and inspect the committed filename before finalizing the slug template. Keep the ISO-storage fallback ready.
+   - **RESOLVED (Plan 03, Task 1):** the plan specifies the primary slug template `slug: "{{fields.data | date('YYYY-MM-DD')}}-{{fields.tytul}}"` with an explicit documented fallback if the `date` filter is unavailable in `@sveltia/cms@0.189.0` (store ISO via datetime `format: 'YYYY-MM-DD'` and use `slug: "{{fields.data}}-{{fields.tytul}}"`, adjusting the reader `parseData` expectation and noting it in the SUMMARY). Verified live during implementation.
 
 3. **`+error.svelte` for 404 UX**
    - What we know: unknown slug throws `error(404)`; the project may or may not have a styled error page.
    - Recommendation: Confirm an `+error.svelte` exists (or add a minimal Polish one) so a dead post URL (D-08) shows a friendly page, not a bare default.
+   - **RESOLVED (Plan 02, Task 3):** the plan creates `src/routes/+error.svelte`, a friendly Polish error/404 page (reads `$page.status`/`$page.error?.message` from `$app/state`, links back to the homepage and `/aktualnosci`), so a dead post URL (D-08) renders a friendly page rather than the bare default.
 
 ## Environment Availability
 
