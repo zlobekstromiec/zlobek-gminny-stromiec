@@ -66,3 +66,56 @@ test.describe('Aktualności: NEWS-01 list acceptance', () => {
 		expect(results.violations).toEqual([]);
 	});
 });
+
+/**
+ * Single-post acceptance test: encodes NEWS-02 (a visitor can open a post and
+ * read its full body) plus the D-08 unknown-slug 404 and the WCAG 2.1 AA
+ * baseline for the /aktualnosci/[slug] route. Landed in Plan 02; do NOT weaken
+ * these assertions to make the suite pass.
+ */
+
+const SEED_SLUG = '2026-08-01-wielkie-otwarcie-zlobka';
+
+test.describe('Aktualności: NEWS-02 single post', () => {
+	test('wpis /aktualnosci/{slug} odpowiada statusem 200', async ({ page }) => {
+		const response = await page.goto(`/aktualnosci/${SEED_SLUG}`);
+		expect(response?.status()).toBe(200);
+	});
+
+	test('dokładnie jeden nagłówek h1 z tytułem wpisu', async ({ page }) => {
+		await page.goto(`/aktualnosci/${SEED_SLUG}`);
+		await expect(page.locator('h1')).toHaveCount(1);
+		await expect(page.getByRole('heading', { level: 1 })).toHaveText(/Wielkie otwarcie/);
+	});
+
+	test('data wpisu jest maszynowo-czytelna w elemencie time (datetime = 2026-08-01)', async ({
+		page
+	}) => {
+		await page.goto(`/aktualnosci/${SEED_SLUG}`);
+		await expect(page.locator('time').first()).toHaveAttribute('datetime', '2026-08-01');
+	});
+
+	test('pełna treść wpisu jest widoczna (NEWS-02)', async ({ page }) => {
+		await page.goto(`/aktualnosci/${SEED_SLUG}`);
+		await expect(page.getByText('uroczyste otwarcie Publicznego Żłobka w Stromcu')).toBeVisible();
+	});
+
+	test('link powrotny "Wszystkie aktualności" prowadzi do /aktualnosci', async ({ page }) => {
+		await page.goto(`/aktualnosci/${SEED_SLUG}`);
+		const back = page.getByRole('link', { name: 'Wszystkie aktualności' });
+		await expect(back).toHaveAttribute('href', '/aktualnosci');
+	});
+
+	test('nieznany slug zwraca 404 (D-08)', async ({ page }) => {
+		const response = await page.goto('/aktualnosci/nie-ma-takiego');
+		expect(response?.status()).toBe(404);
+	});
+
+	test('brak naruszeń WCAG 2.1 AA na stronie wpisu (SITE-04 / A11Y baseline)', async ({ page }) => {
+		await page.goto(`/aktualnosci/${SEED_SLUG}`);
+		const results = await new AxeBuilder({ page })
+			.withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+			.analyze();
+		expect(results.violations).toEqual([]);
+	});
+});
