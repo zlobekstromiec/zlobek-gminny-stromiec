@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Live Homepage & Design Foundation** - Joyful, mobile-first homepage live on Cloudflare with the core-message hero, nav/footer shell, and accessible palette token system (completed 2026-08-12)
 - [x] **Phase 01.1: Homepage v2.1 merged design (INSERTED)** - Two-design merge: hero split + key facts + perks band + rekrutacja module + day plan + o-nas teaser + kontakt/mapa + TopBar/Header/Footer v2 + conditional news + RODO stub (UI-SPEC Amendments v1.1/v1.2) (completed 2026-08-13)
 - [x] **Phase 2: About, Documents & CMS** - O nas + Dokumenty pages made staff-editable via the git-based Sveltia CMS (OAuth Worker) (completed 2026-08-13)
-- [ ] **Phase 3: News (Aktualności)** - Staff-publishable news list + single post, feeding the homepage preview
+- [x] **Phase 3: News (Aktualności)** - Staff-publishable news list + single post, feeding the homepage preview (completed 2026-08-13)
 - [ ] **Phase 4: Enrollment, Contact & Email Pipeline** - Rekrutacja + Kontakt with the RODO-compliant, Turnstile-gated, email-only form pipeline (Resend)
 - [ ] **Phase 5: Gallery & Fees** - CMS-managed photo gallery and editable fees page
 - [ ] **Phase 6: Accessibility, Legal Compliance & Launch** - WCAG 2.1 AA audit, accessibility widget, Deklaracja dostępności, BIP link, Polityka prywatności, performance, and the real-content launch gate
@@ -118,7 +118,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Staff can create, edit, and publish a news post via the CMS without a developer, and it appears live after rebuild.
   4. The homepage's latest-Aktualności preview shows the most recently published posts.
 
-**Plans**: 3/4 plans executed
+**Plans**: 4/4 plans complete
 
 **Wave 1**
 
@@ -131,7 +131,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 03-04-PLAN.md — Homepage surfacing + lockstep (NEWS-01/HOME-02): NewsPreview real feed (3 newest) + site.ts stub removal + tests/home.spec.ts lockstep
+- [x] 03-04-PLAN.md — Homepage surfacing + lockstep (NEWS-01/HOME-02): NewsPreview real feed (3 newest) + site.ts stub removal + tests/home.spec.ts lockstep
 
 **UI hint**: yes
 
@@ -222,7 +222,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Live Homepage & Design Foundation | 5/5 | Complete    | 2026-08-12 |
 | 2. About, Documents & CMS | 6/6 | Complete    | 2026-08-13 |
-| 3. News (Aktualności) | 3/4 | In Progress|  |
+| 3. News (Aktualności) | 4/4 | Complete   | 2026-08-13 |
 | 4. Enrollment, Contact & Email Pipeline | 0/TBD | Not started | - |
 | 5. Gallery & Fees | 0/TBD | Not started | - |
 | 6. Accessibility, Legal Compliance & Launch | 0/TBD | Not started | - |
