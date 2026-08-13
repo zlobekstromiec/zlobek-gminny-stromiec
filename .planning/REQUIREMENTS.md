@@ -29,7 +29,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### O nas (About)
 
-- [ ] **ABOUT-01**: A visitor can read the O nas page (misja, wartości, plan dnia, kadra)
+- [x] **ABOUT-01**: A visitor can read the O nas page (misja, wartości, plan dnia, kadra)
 - [ ] **ABOUT-02**: Staff can edit the O nas content via the CMS
 
 ### Rekrutacja (Enrollment)
@@ -119,7 +119,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | HOME-01 | Phase 1 | Complete |
 | HOME-02 | Phase 1 | Complete |
 | SITE-06 | Phase 1 | Complete |
-| ABOUT-01 | Phase 2 | Pending |
+| ABOUT-01 | Phase 2 | Complete |
 | ABOUT-02 | Phase 2 | Pending |
 | DOCS-01 | Phase 2 | Pending |
 | DOCS-02 | Phase 2 | Pending |

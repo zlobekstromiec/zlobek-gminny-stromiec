@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 2
-current_phase_name: About, Documents & CMS
+current_phase: 02
+current_phase_name: about-documents-cms
 status: executing
 stopped_at: Phase 2 UI-SPEC approved
-last_updated: "2026-08-13T11:29:56.333Z"
-last_activity: 2026-08-12
-last_activity_desc: Phase 01 complete, transitioned to Phase 2
+last_updated: "2026-08-13T12:31:08.795Z"
+last_activity: 2026-08-13
+last_activity_desc: Phase 02 execution started
 progress:
   total_phases: 7
   completed_phases: 1
-  total_plans: 5
-  completed_plans: 5
+  total_plans: 10
+  completed_plans: 6
   percent: 14
 ---
 
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-12)
 
 **Core value:** A parent lands on the site and, within seconds, both feels the żłobek's warmth and finds the exact information they need (enrollment, documents, contact) — on any device.
-**Current focus:** Phase 1 — Live Homepage & Design Foundation
+**Current focus:** Phase 02 — about-documents-cms
 
 ## Current Position
 
-Phase: 2 of 6 (About, Documents & CMS)
-Plan: Not started
+Phase: 02 (about-documents-cms) — EXECUTING
+Plan: 2 of 5
 Status: Ready to execute
-Last activity: 2026-08-12 — Phase 01 complete, transitioned to Phase 2
+Last activity: 2026-08-13 — Phase 02 execution started
 
 Progress: [████████░░] 80%
 
@@ -60,6 +60,7 @@ Progress: [████████░░] 80%
 | Phase 01 P04 | 18min | 3 tasks | 11 files |
 | Phase 01 P03 | 22min | 3 tasks | 10 files |
 | Phase 01 P05 | 15 | 3 tasks | 1 files |
+| Phase 02 P01 | 10 | 3 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -82,6 +83,7 @@ Recent decisions affecting current work:
 - [Phase 01]: Plan 01-04: placeholder stays crawl-safe via robots Disallow:/ (D-11); favicon set + 1200x630 OG card + security-headers baseline shipped; /deklaracja-dostepnosci stubbed so the footer link never 404s
 - [Phase 01]: [01-03] Homepage composed GREEN: verbatim core message kept as an un-wrapped constant (prettier-safe); Seo noindex baked into prerendered HTML for the *.pages.dev placeholder (not a runtime host check); consent-safe AVIF/WebP hero placeholder (no child faces)
 - [Phase ?]: [01-05] Walking skeleton live: repo under Org zlobekstromiec/zlobek-gminny-stromiec + Cloudflare Pages git-integration; push to main auto-builds+deploys to https://zlobek-gminny-stromiec.pages.dev (SITE-01 proven). Reconnect gotcha: use the Pages deep link, NOT the Workers 'Import a repository' funnel.
+- [Phase ?]: [02-01] O nas page shipped (ABOUT-01): content migrated out of site.ts into shared day-plan.json (D-03) + strict o-nas.json singleton; enhanced-img + marked build pipeline wired; enhanced-img/marked exact-pinned per T-0201-SC.
 
 ### Pending Todos
 
@@ -110,6 +112,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-13T11:29:56.329Z
+Last session: 2026-08-13T12:30:44.283Z
 Stopped at: Phase 2 UI-SPEC approved
 Resume file: .planning/phases/02-about-documents-cms/02-UI-SPEC.md
