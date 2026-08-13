@@ -7,6 +7,7 @@
 // path. The full set stays on /dokumenty, reached via the panel's see-all link.
 import type { PageServerLoad } from './$types';
 import { readDokumenty } from '$lib/server/dokumenty';
+import { readLatest } from '$lib/server/aktualnosci';
 
 export const load: PageServerLoad = () => {
 	const docs = readDokumenty()
@@ -16,5 +17,10 @@ export const load: PageServerLoad = () => {
 		// set always lives on /dokumenty behind the see-all link.
 		.slice(0, 2)
 		.map((entry) => ({ name: entry.nazwa, meta: entry.meta, href: entry.plik }));
-	return { docs };
+	// Curated homepage news feed (NEWS-01): the three newest posts for the
+	// NewsPreview 3-column grid, re-sourced from the SAME shared aktualnosci reader
+	// as /aktualnosci so the homepage and the list can never drift (single source,
+	// mirrors the docs re-source above). The full set lives on /aktualnosci.
+	const posts = readLatest(3);
+	return { docs, posts };
 };
