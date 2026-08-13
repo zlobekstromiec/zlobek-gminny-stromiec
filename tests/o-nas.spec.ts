@@ -52,8 +52,11 @@ test.describe('O nas: Phase 2 acceptance', () => {
 		page
 	}) => {
 		await page.goto('/o-nas');
-		await expect(page.getByText('opiekunki', { exact: false })).toBeVisible();
-		await expect(page.getByText('personel pomocniczy', { exact: false })).toBeVisible();
+		// Exact match targets the headcount <dt> labels specifically, not the same
+		// words where they also appear inside the kadra narrative prose (D-02).
+		const kadra = page.locator('section[aria-labelledby="kadra-heading"]');
+		await expect(kadra.getByText('opiekunki', { exact: true })).toBeVisible();
+		await expect(kadra.getByText('personel pomocniczy', { exact: true })).toBeVisible();
 	});
 
 	test('every facility image carries a non-empty informative alt (D-04)', async ({ page }) => {

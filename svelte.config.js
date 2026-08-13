@@ -8,7 +8,7 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 // fail on any other broken link so real regressions still break the build.
 const KNOWN_FUTURE_ROUTES = [
 	'/aktualnosci',
-	'/o-nas',
+	// '/o-nas' is now a real prerendered route (Plan 02-01), so the crawler enforces it.
 	'/rekrutacja',
 	'/dokumenty',
 	'/kontakt',
