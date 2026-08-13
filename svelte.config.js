@@ -10,7 +10,7 @@ const KNOWN_FUTURE_ROUTES = [
 	'/aktualnosci',
 	// '/o-nas' is now a real prerendered route (Plan 02-01), so the crawler enforces it.
 	'/rekrutacja',
-	'/dokumenty',
+	// '/dokumenty' is now a real prerendered route (Plan 02-02), so the crawler enforces it.
 	'/kontakt',
 	// Footer v2 shortcuts (UI-SPEC v1.2): pages authored in Phases 4-5.
 	'/cennik',
