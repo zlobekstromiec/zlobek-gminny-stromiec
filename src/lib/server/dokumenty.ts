@@ -45,10 +45,25 @@ function formatRozmiar(bytes: number): string {
 	return `${Math.max(1, Math.round(kb))} KB`;
 }
 
-function withMeta(entry: DokumentEntry): DokumentWithMeta {
+function withMeta(entry: DokumentEntry): DokumentWithMeta | null {
+	// `plik` is CMS-controlled content. Require the canonical /dokumenty/ prefix
+	// and forbid traversal segments so the join below can never resolve outside
+	// static/ (defense-in-depth; only .size is ever read).
+	if (!entry.plik.startsWith('/dokumenty/') || entry.plik.includes('..')) {
+		console.warn(`dokumenty: invalid plik path for "${entry.nazwa}" (${entry.plik}); skipping`);
+		return null;
+	}
 	// Files are served verbatim from static/, so their public path maps 1:1 to
-	// static${plik} on disk at build time.
-	const bytes = statSync(join(process.cwd(), 'static', entry.plik)).size;
+	// static${plik} on disk at build time. A missing file (e.g. deleted from the
+	// Sveltia media library while its entry remains) must NOT abort the whole
+	// prerender: skip the entry with a warning instead of failing the deploy.
+	let bytes: number;
+	try {
+		bytes = statSync(join(process.cwd(), 'static', entry.plik)).size;
+	} catch {
+		console.warn(`dokumenty: missing file for "${entry.nazwa}" (${entry.plik}); skipping`);
+		return null;
+	}
 	const typ = (entry.plik.split('.').pop() ?? '').toUpperCase();
 	const rozmiar = formatRozmiar(bytes);
 	return {
@@ -59,13 +74,17 @@ function withMeta(entry: DokumentEntry): DokumentWithMeta {
 	};
 }
 
-/** Read every seed entry and augment it with computed type/size meta (D-14). */
+/** Read every seed entry and augment it with computed type/size meta (D-14).
+ *  Entries whose file is missing or whose path is invalid are skipped (with a
+ *  build warning) rather than failing the prerender of every consuming route. */
 export function readDokumenty(): DokumentWithMeta[] {
 	const modules = import.meta.glob<DokumentEntry>('$lib/content/dokumenty/*.json', {
 		eager: true,
 		import: 'default'
 	});
-	return Object.values(modules).map(withMeta);
+	return Object.values(modules)
+		.map(withMeta)
+		.filter((entry): entry is DokumentWithMeta => entry !== null);
 }
 
 /** Group entries by category in the fixed order, omitting empty groups (D-13). */
