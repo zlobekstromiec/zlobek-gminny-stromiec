@@ -9,12 +9,21 @@
 
 	const is404 = $derived(page.status === 404);
 	const heading = $derived(is404 ? 'Nie znaleziono strony' : 'Wystąpił błąd');
+	// Document title (WCAG 2.4.2, Level A): built only from fixed is404-gated
+	// Polish strings + the constant site name. NEVER interpolate page.error or any
+	// request-derived text here — that would reflect attacker-controllable content
+	// into <head> (T-03-06-03).
+	const title = $derived(`${heading} | Żłobek Gminny w Stromcu`);
 	const body = $derived(
 		is404
 			? 'Strona, której szukasz, nie istnieje lub została przeniesiona. Sprawdź adres albo wróć na stronę główną.'
 			: 'Coś poszło nie tak podczas ładowania strony. Spróbuj ponownie za chwilę lub wróć na stronę główną.'
 	);
 </script>
+
+<svelte:head>
+	<title>{title}</title>
+</svelte:head>
 
 <header class="page-head">
 	<div class="inner narrow">

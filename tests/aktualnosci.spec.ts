@@ -109,6 +109,11 @@ test.describe('Aktualności: NEWS-02 single post', () => {
 	test('nieznany slug zwraca 404 (D-08)', async ({ page }) => {
 		const response = await page.goto('/aktualnosci/nie-ma-takiego');
 		expect(response?.status()).toBe(404);
+		// WR-04: the error response must ship a non-empty Polish document title
+		// (WCAG 2.4.2, Level A), not the raw URL.
+		const documentTitle = await page.title();
+		expect(documentTitle).not.toBe('');
+		expect(documentTitle).toMatch(/Nie znaleziono strony/);
 	});
 
 	test('brak naruszeń WCAG 2.1 AA na stronie wpisu (SITE-04 / A11Y baseline)', async ({ page }) => {
