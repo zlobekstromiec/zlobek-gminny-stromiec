@@ -1,9 +1,16 @@
 <script lang="ts">
-	// Latest-Aktualności preview (HOME-02). No posts exist until Phase 3, so the
-	// REQUIRED empty state is rendered (UI-SPEC §Latest-Aktualności). The post-grid
-	// card contract is documented in the UI-SPEC and lands with the CMS in Phase 3.
+	// Latest-Aktualności preview (HOME-02, NEWS-01). Data-driven: the homepage load
+	// supplies the three newest posts (readLatest(3)) and renders the shared NewsCard
+	// per post (UI-SPEC „Homepage NewsPreview realignment"). The homepage gates this
+	// component on posts.length, so the empty {:else} branch is a safety net only and
+	// never renders on the homepage (Amendment v1.1 §1). Post typed via the client-safe
+	// shared shape from $lib/content/site ($lib/server is server-only, not importable here).
 	import Newspaper from '@lucide/svelte/icons/newspaper';
 	import Cta from './Cta.svelte';
+	import NewsCard from './NewsCard.svelte';
+	import type { Post } from '$lib/content/site';
+
+	let { posts }: { posts: Post[] } = $props();
 </script>
 
 <section class="news" aria-labelledby="news-heading">
@@ -13,17 +20,33 @@
 			<Cta href="/aktualnosci" variant="secondary">Zobacz wszystkie</Cta>
 		</div>
 
-		<!-- Empty state: shown on /aktualnosci until Phase 3 posts exist. The
-		     homepage no longer renders this component while posts.length is 0
-		     (UI-SPEC Amendment v1.1 §1). -->
-		<div class="empty">
-			<Newspaper class="empty-icon" size={40} aria-hidden="true" focusable="false" />
-			<h3 class="empty-heading">Wkrótce pojawią się aktualności</h3>
-			<p class="empty-body">
-				Nie opublikowaliśmy jeszcze żadnych wpisów. Zajrzyj tu wkrótce, będziemy informować o
-				wydarzeniach i nowościach z życia żłobka.
-			</p>
-		</div>
+		{#if posts.length > 0}
+			<div class="news-grid">
+				{#each posts as post (post.href)}
+					<NewsCard
+						tytul={post.tytul}
+						href={post.href}
+						iso={post.iso}
+						dataDisplay={post.dataDisplay}
+						excerpt={post.excerpt}
+						obraz={post.obraz}
+						obraz_alt={post.obraz_alt}
+					/>
+				{/each}
+			</div>
+		{:else}
+			<!-- Safety-net empty state (also used by /aktualnosci). The homepage gates
+			     this component on posts.length, so this branch never renders there
+			     (UI-SPEC Amendment v1.1 §1). -->
+			<div class="empty">
+				<Newspaper class="empty-icon" size={40} aria-hidden="true" focusable="false" />
+				<h3 class="empty-heading">Wkrótce pojawią się aktualności</h3>
+				<p class="empty-body">
+					Nie opublikowaliśmy jeszcze żadnych wpisów. Zajrzyj tu wkrótce, będziemy informować o
+					wydarzeniach i nowościach z życia żłobka.
+				</p>
+			</div>
+		{/if}
 	</div>
 </section>
 
@@ -73,6 +96,26 @@
 		line-height: 1.2;
 		color: var(--color-ink);
 		margin: 0;
+	}
+
+	/* Responsive card grid (1/2/3 columns), matching the o-nas/dokumenty grid
+	   tokens (24px gap). No new design tokens introduced. */
+	.news-grid {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 24px;
+	}
+
+	@media (min-width: 768px) {
+		.news-grid {
+			grid-template-columns: repeat(2, 1fr);
+		}
+	}
+
+	@media (min-width: 1024px) {
+		.news-grid {
+			grid-template-columns: repeat(3, 1fr);
+		}
 	}
 
 	.empty {

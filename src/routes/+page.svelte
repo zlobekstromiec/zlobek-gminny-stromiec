@@ -15,12 +15,14 @@
 	import AboutTeaser from '$lib/components/AboutTeaser.svelte';
 	import ContactAndMap from '$lib/components/ContactAndMap.svelte';
 	import NewsPreview from '$lib/components/NewsPreview.svelte';
-	import { posts } from '$lib/content/site';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
-	const showNews = posts.length > 0;
+	// Curated news feed comes from the build-time load (readLatest(3)); the homepage
+	// never renders the news empty state (Amendment v1.1 §1). $derived satisfies
+	// svelte-check's state_referenced_locally guard (mirrors dokumenty/+page.svelte).
+	const showNews = $derived(data.posts.length > 0);
 </script>
 
 <Seo
@@ -37,5 +39,5 @@
 <AboutTeaser />
 <ContactAndMap />
 {#if showNews}
-	<NewsPreview />
+	<NewsPreview posts={data.posts} />
 {/if}

@@ -155,8 +155,17 @@ export const recruitment = {
 	// set. Heading, deadline, body, infoCard, and steps stay content-authored here.
 } as const;
 
-export type Post = { title: string; date: string; href: string; excerpt?: string };
-
-/** Empty until Phase 3 wires the CMS. The homepage derives showNews from
- *  posts.length; it never renders a news empty state (Amendment v1.1 §1). */
-export const posts: Post[] = [];
+/** Client-safe post shape for the homepage NewsPreview prop (NEWS-01). It mirrors
+ *  the fields NewsCard consumes and is structurally compatible with the reader's
+ *  PostWithMeta, so `readLatest(3)` output types this prop directly. The homepage
+ *  load supplies posts at build (+page.server.ts); this module no longer holds a
+ *  stub — the shared `aktualnosci` reader is the single source (Amendment v1.1 §1). */
+export type Post = {
+	tytul: string;
+	href: string;
+	iso: string;
+	dataDisplay: string;
+	excerpt: string;
+	obraz?: string;
+	obraz_alt?: string;
+};
