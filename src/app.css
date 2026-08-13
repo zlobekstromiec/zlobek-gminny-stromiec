@@ -55,6 +55,14 @@
 	--color-expr-yellow: #facc15;
 	--color-expr-orange: #fb923c;
 
+	/* decorative TINT surfaces (Amendment v1.2): surfaces only (icon chips, panels,
+	   decorative slots); any text/icon ON them draws from the accessible tier */
+	--color-tint-yellow: #ffe29a;
+	--color-tint-blue: #cfe8fc;
+	--color-tint-orange: #fbd5c0;
+	--color-tint-pink: #fbe3e3;
+	--color-tint-green: #dff0d8;
+
 	/* typography */
 	--font-display: 'Baloo 2', system-ui, sans-serif;
 	--font-body: 'Nunito', system-ui, sans-serif;
