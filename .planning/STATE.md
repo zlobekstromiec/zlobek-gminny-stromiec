@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 3
-current_phase_name: Aktualności
+current_phase: 03
+current_phase_name: news-aktualno-ci
 status: executing
 stopped_at: Phase 3 context gathered
-last_updated: "2026-08-13T20:37:40.103Z"
+last_updated: "2026-08-13T21:08:13.438Z"
 last_activity: 2026-08-13
-last_activity_desc: Phase 02 complete, transitioned to Phase 3
+last_activity_desc: Phase 03 execution started
 progress:
   total_phases: 7
   completed_phases: 2
-  total_plans: 11
-  completed_plans: 11
+  total_plans: 15
+  completed_plans: 12
   percent: 29
 ---
 
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-12)
 
 **Core value:** A parent lands on the site and, within seconds, both feels the żłobek's warmth and finds the exact information they need (enrollment, documents, contact) — on any device.
-**Current focus:** Phase 02 — about-documents-cms
+**Current focus:** Phase 03 — news-aktualno-ci
 
 ## Current Position
 
-Phase: 3 — News (Aktualności)
-Plan: Not started
+Phase: 03 (news-aktualno-ci) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-08-13 — Phase 02 complete, transitioned to Phase 3
+Last activity: 2026-08-13 — Phase 03 execution started
 
 Progress: [████████░░] 80%
 
@@ -66,6 +66,7 @@ Progress: [████████░░] 80%
 | Phase 02 P03 | 3 | 2 tasks | 5 files |
 | Phase 02 P04 | 6 | 3 tasks | 7 files |
 | Phase 02 P05 | 15 | 3 tasks | 8 files |
+| Phase 03 P01 | 15 | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -92,6 +93,7 @@ Recent decisions affecting current work:
 - [Phase 02]: [02-02] /dokumenty shipped (DOCS-01): build-time statSync meta resolver (src/lib/server/dokumenty.ts, reusable by homepage Plan 03); dormant RODO category (D-13); 3-doc placeholder-flagged BIP seed; meta-inside-link WCAG rows; crawler now enforces /dokumenty.
 - [Phase ?]: [02-04] Sveltia CMS shell + config landed: self-hosted pinned @sveltia/cms 0.189.0 at /admin (no CDN, vendored bundle + cms:sync refresh script), all-Polish strict-widget config.yml mapping 1:1 to o-nas.json/day-plan.json/dokumenty (JSON keys unchanged, markdown limited to bold+link, fixed category select), path-scoped /admin/* CSP (tight connect-src, site-page kit.csp untouched). Worker origin is a placeholder finalized in Plan 05.
 - [Phase ?]: [02-05] Staff-editor vertical slice proven LIVE on *.pages.dev: self-hosted sveltia-cms-auth OAuth Worker (devzlobekstromiec.workers.dev, ALLOWED_DOMAINS=live Pages origin), config.yml base_url + _headers connect-src finalized to the real origin, Polish instrukcja shipped; GitHub login to Polish edit to commit main to Pages rebuild to live confirmed (CMS-01/02/03). Secrets Worker-only. npm audit sharp/libvips CVEs NOT force-fixed (breaking enhanced-img 0.4.1 downgrade rejected). CMS-03 chrome caveat narrowed by gap-closure plan 02-06.
+- [Phase 03]: [03-01] Aktualności list route (NEWS-01) shipped: build-time readAktualnosci()/readLatest(n) reader (slug from filename, genitive Polish dates, no runtime locale formatter), shared NewsCard (self-contained cover by basename + tint fallback), zero-JS prerendered /aktualnosci newest-first; svelte.config.js untouched so [slug] card links are tolerated known-future 404s until Plan 02.
 
 ### Pending Todos
 
@@ -120,6 +122,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-13T17:28:01.575Z
+Last session: 2026-08-13T21:07:39.847Z
 Stopped at: Phase 3 context gathered
 Resume file: .planning/phases/03-news-aktualno-ci/03-CONTEXT.md

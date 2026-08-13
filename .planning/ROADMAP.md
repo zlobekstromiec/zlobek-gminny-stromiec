@@ -118,11 +118,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Staff can create, edit, and publish a news post via the CMS without a developer, and it appears live after rebuild.
   4. The homepage's latest-Aktualności preview shows the most recently published posts.
 
-**Plans**: 4 plans
+**Plans**: 1/4 plans executed
 
 **Wave 1**
 
-- [ ] 03-01-PLAN.md — News list slice (NEWS-01): build-time reader (aktualnosci.ts) + D-01 seed + D-02 fixture + shared NewsCard + /aktualnosci list route
+- [x] 03-01-PLAN.md — News list slice (NEWS-01): build-time reader (aktualnosci.ts) + D-01 seed + D-02 fixture + shared NewsCard + /aktualnosci list route
 
 **Wave 2** *(blocked on Wave 1)*
 
@@ -222,7 +222,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Live Homepage & Design Foundation | 5/5 | Complete    | 2026-08-12 |
 | 2. About, Documents & CMS | 6/6 | Complete    | 2026-08-13 |
-| 3. News (Aktualności) | 0/4 | Not started | - |
+| 3. News (Aktualności) | 1/4 | In Progress|  |
 | 4. Enrollment, Contact & Email Pipeline | 0/TBD | Not started | - |
 | 5. Gallery & Fees | 0/TBD | Not started | - |
 | 6. Accessibility, Legal Compliance & Launch | 0/TBD | Not started | - |
