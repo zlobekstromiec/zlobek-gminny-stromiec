@@ -121,6 +121,10 @@ collections:
     label: 'Dokumenty'
     label_singular: 'Dokument'
     description: 'Dokumenty do pobrania na stronie Dokumenty (dwa dokumenty rekrutacyjne widać też na stronie głównej). Nazwij dokument po polsku, wybierz kategorię i dodaj plik. Zmiany pojawią się na stronie po ok. 2 minutach.'
+    # No entry thumbnails: PDF/DOC previews cannot render under the strict
+    # /admin/* CSP (pdfjs comes from a blocked CDN), leaving inconsistent
+    # empty boxes. The document name and category are the identity here.
+    thumbnail: false
     folder: src/lib/content/dokumenty
     create: true
     extension: json
