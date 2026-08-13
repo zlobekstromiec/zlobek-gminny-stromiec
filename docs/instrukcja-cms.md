@@ -104,7 +104,66 @@ klauzule RODO). Każdy dokument to osobny wpis.
 
 ---
 
-## 5. Treść zastępcza (do potwierdzenia)
+## 5. Aktualności: dodawanie i publikowanie wpisów
+
+Sekcja "Aktualności" to wpisy z bieżącymi informacjami żłobka (ogłoszenia,
+wydarzenia, zaproszenia). Wpisy pokazują się na stronie Aktualności, od
+najnowszego na górze. Trzy najnowsze wpisy pojawiają się dodatkowo na stronie
+głównej. Każdy wpis to osobny element listy.
+
+### Dodawanie nowego wpisu
+
+1. W sekcji "Aktualności" kliknij przycisk tworzenia nowego wpisu (New, po polsku
+   Nowy).
+2. Wypełnij pola:
+   - Tytuł: tytuł wpisu po polsku (widoczny na liście i na stronie wpisu).
+   - Data publikacji: wybierz datę wpisu (format DD.MM.RRRR). Data ustala
+     kolejność na liście, wpisy są sortowane od najnowszego.
+   - Zajawka: krótkie streszczenie (2-3 zdania) pokazywane na kafelku listy. Pole
+     jest opcjonalne, jeśli zostawisz je puste, na kafelku pokaże się początek
+     treści.
+   - Treść: pełna treść wpisu. Dozwolone formatowanie to pogrubienie, odnośniki
+     oraz listy (wypunktowane i numerowane). Nagłówki i zdjęcia w treści nie są
+     dostępne.
+   - Zdjęcie (opcjonalnie): zdjęcie nagłówkowe wpisu. Bez identyfikowalnych dzieci
+     bez zgody. Zostanie zoptymalizowane automatycznie.
+   - Opis alternatywny zdjęcia (alt): krótki opis zdjęcia dla osób korzystających
+     z czytników ekranu (uzupełnij, gdy dodasz zdjęcie).
+   - Treść zastępcza (do potwierdzenia): zostaw zaznaczone, dopóki treść wpisu nie
+     została ostatecznie potwierdzona.
+3. Zapisz wpis.
+
+### Publikowanie wpisu
+
+Zapisanie wpisu oznacza jego publikację. Nie ma osobnego trybu roboczego (wersji
+szkicowej): po zapisaniu wpis trafia na stronę po ok. 2 minutach (zobacz sekcję
+o opóźnieniu publikacji). Kolejność jest taka sama jak przy innych treściach:
+zapisz, poczekaj ok. 2 min, odśwież stronę.
+
+Wpis pojawia się na stronie niezależnie od pola Data publikacji. Data steruje
+wyłącznie kolejnością wpisów i wyświetlaną datą. Nie ma publikacji zaplanowanej
+na przyszłość: nawet jeśli ustawisz datę z przyszłości, wpis będzie widoczny od
+razu po przebudowie strony.
+
+### Poprawianie i usuwanie wpisu
+
+Aby poprawić wpis, otwórz go z listy, wprowadź zmiany i zapisz. Poprawienie tytułu
+po publikacji nie zmienia adresu wpisu: adres (URL) jest ustalany raz, w chwili
+utworzenia wpisu, i pozostaje stały. Dzięki temu wcześniej udostępnione odnośniki
+do wpisu nadal działają.
+
+Aby usunąć wpis, otwórz go z listy i użyj funkcji usuwania wpisu edytora (przycisk
+"Delete", po polsku Usuń), a następnie potwierdź. Wpis zniknie ze strony po
+przebudowie.
+
+Przypomnienie tłumaczeń przycisków edytora: Save to Zapisz, Publish to Opublikuj,
+Delete to Usuń (pełna tabela w sekcji "Język i wygląd edytora").
+
+<!-- PLACEHOLDER: screenshot - lista wpisów Aktualności oraz formularz nowego wpisu -->
+
+---
+
+## 6. Treść zastępcza (do potwierdzenia)
 
 Każda sekcja ma pole "Treść zastępcza (do potwierdzenia)" w postaci przełącznika.
 Gdy jest zaznaczone, oznacza to, że treść jest tymczasowa i czeka na potwierdzenie.
@@ -114,7 +173,7 @@ Gdy jest zaznaczone, oznacza to, że treść jest tymczasowa i czeka na potwierd
 
 ---
 
-## 6. Publikowanie i opóźnienie
+## 7. Publikowanie i opóźnienie
 
 Po zapisaniu zmiany trafiają automatycznie na stronę internetową. Publikacja nie
 jest natychmiastowa: strona przebudowuje się w tle. Zwykle trwa to około 2 minut.
@@ -126,7 +185,7 @@ pominąć pamięć podręczną przeglądarki).
 
 ---
 
-## 7. Język i wygląd edytora
+## 8. Język i wygląd edytora
 
 Panel otwiera się w jasnym, ciepłym motywie graficznym i po polsku. Motyw oraz
 język można zmienić w ustawieniach edytora (menu konta, pozycja Ustawienia,
@@ -146,7 +205,7 @@ z nich:
 
 ---
 
-## 8. Weryfikacja (lista kontrolna, wykonywana na żywo)
+## 9. Weryfikacja (lista kontrolna, wykonywana na żywo)
 
 Ta lista służy do jednorazowej weryfikacji pełnego obiegu na działającej stronie
 (nie lokalnie). Przejdź kolejno przez wszystkie kroki i wykonaj zrzuty ekranu,
@@ -166,11 +225,15 @@ które wklejasz w miejsca oznaczone powyżej jako "PLACEHOLDER: screenshot".
    lokalnie).
 5. Dodaj lub zamień dokument w sekcji Dokumenty i potwierdź, że pojawia się on na
    żywo na stronie `/dokumenty` po przebudowie (DOCS-02).
-6. Wklej polskie zrzuty ekranu z opisami w miejsca oznaczone w tej instrukcji
+6. Dodaj testowy wpis w sekcji Aktualności (wypełnij Tytuł, Data publikacji oraz
+   Treść), zapisz, poczekaj ok. 2 min na przebudowę i potwierdź, że wpis pojawia
+   się na żywo na stronie `/aktualnosci` (a gdy należy do trzech najnowszych,
+   także na stronie głównej) (NEWS-03).
+7. Wklej polskie zrzuty ekranu z opisami w miejsca oznaczone w tej instrukcji
    (zastępując znaczniki "PLACEHOLDER: screenshot").
-7. Zanotuj napotkane angielskie napisy (tłumaczenie programu nie jest jeszcze
-   kompletne) i w razie potrzeby uzupełnij tabelę tłumaczeń w sekcji 7.
-8. Potwierdź akceptację ograniczenia CMS-03 (pojedyncze angielskie napisy w
+8. Zanotuj napotkane angielskie napisy (tłumaczenie programu nie jest jeszcze
+   kompletne) i w razie potrzeby uzupełnij tabelę tłumaczeń w sekcji 8.
+9. Potwierdź akceptację ograniczenia CMS-03 (pojedyncze angielskie napisy w
    edytorze do czasu ukończenia polskiego tłumaczenia programu) oraz przyjęcie
    do wiadomości uwagi o zależnościach: pakiety zostały zainstalowane w
    przypiętych wersjach.
