@@ -1,6 +1,6 @@
 ---
 phase: 03-news-aktualno-ci
-reviewed: 2026-08-13T21:39:30Z
+reviewed: 2026-08-13T22:54:52Z
 depth: standard
 files_reviewed: 19
 files_reviewed_list:
@@ -20,138 +20,79 @@ files_reviewed_list:
   - src/routes/aktualnosci/+page.server.ts
   - src/routes/aktualnosci/+page.svelte
   - static/admin/config.yml
-  - svelte.config.js
+  - tests/aktualnosci-reader.unit.ts
   - tests/aktualnosci.spec.ts
   - tests/home.spec.ts
 findings:
-  critical: 1
-  warning: 7
-  info: 4
-  total: 12
+  critical: 0
+  warning: 6
+  info: 7
+  total: 13
 status: issues_found
 ---
 
 # Phase 3: Code Review Report
 
-**Reviewed:** 2026-08-13T21:39:30Z
+**Reviewed:** 2026-08-13T22:54:52Z
 **Depth:** standard
 **Files Reviewed:** 19
 **Status:** issues_found
 
 ## Summary
 
-Reviewed the Phase 3 Aktualności implementation: the build-time news reader, the hardened Markdown renderers (the T-03-01 stored-XSS surface), the shared NewsCard and its basename cover resolution (the T-03-03 path-traversal surface), the list/single-post/homepage routes, the Sveltia collection config, the staff manual, and the acceptance tests.
+Fresh review of the Phase 3 Aktualności implementation after the two gap-closure plans (03-05: CR-01 ISO slug storage; 03-06: WR-02 reader resilience + WR-04 error-page title). The three targeted fixes are verified as landed:
 
-The two designated security surfaces are in good shape: the Markdown renderers escape raw HTML, flatten images to alt text, neutralize headings/tables, and filter link protocols; the cover lookup resolves strictly by basename against a static glob, so traversal input degrades to the tint fallback. The CSP second layer is correctly configured.
+- **Prior CR-01 (slug) is fixed.** `static/admin/config.yml` now stores `data` as ISO (`format: 'YYYY-MM-DD'`), the slug template substitutes it verbatim (`{{fields.data}}-{{fields.tytul}}`) with no fragile `date` transformation, both seed JSON files carry ISO dates, and `parseData` parses ISO. Display stays Polish via `date_format` and the genitive month map.
+- **Prior WR-02 (reader resilience) is largely fixed.** `parseData` accepts `unknown` and type-guards; month and day ranges are checked; `postFromEntry` skips malformed entries with a build warning; a `node --test` unit suite (`tests/aktualnosci-reader.unit.ts`, wired as `npm run test:unit`) pins the guards. **However, one crash path survived the fix** — see WR-01 below.
+- **Prior WR-04 (error title) is fixed.** `+error.svelte` emits a static Polish `<title>` built only from fixed strings (correctly avoiding reflected `page.error` content), and the 404 Playwright case now asserts a non-empty title.
 
-However, the review found one Critical defect that the passing test suite cannot see: the CMS slug template's `date` transformation cannot parse the collection's own stored `DD.MM.YYYY` date format. I verified this against the pinned `@sveltia/cms@0.189.0` bundle shipped in `static/admin/sveltia-cms.js`: the transformation dayjs-parses the raw stored string with no format hint, falling back to V8 `Date` parsing, which reads `01.08.2026` as January 8 and returns Invalid Date for any day above 12. Every post created through the CMS therefore gets a permanently wrong or dateless URL, violating D-05/D-06 and unrepairable later under D-07 (slugs are fixed at creation). The seed files mask this because their filenames were hand-authored.
+The two designated security surfaces remain sound: `renderPost`/`renderInline` escape raw HTML, flatten images to alt text, neutralize headings, drop tables, and protocol-filter links; the cover lookup resolves strictly by basename against a static glob, so traversal input degrades to the tint fallback.
 
-Beyond that: the reader's malformed-entry resilience contract is not actually met (missing `data`/`tresc` crashes the build instead of skipping), the excerpt fallback leaks raw Markdown syntax into cards and meta descriptions, the error page ships with no document title (WCAG 2.4.2 on a legally AA-required site), and the "narrowed" block grammar still lets GFM task-list checkboxes and code blocks through.
-
-## Critical Issues
-
-### CR-01: CMS slug `date` transformation cannot parse the stored `DD.MM.YYYY` value; every CMS-created post gets a wrong or dateless permanent URL
-
-**File:** `static/admin/config.yml:197` (with `src/lib/server/aktualnosci.ts:47` as the coordinated fix site)
-**Issue:** The aktualnosci collection stores `data` as `DD.MM.YYYY` (`date_format: 'DD.MM.YYYY'`, `time_format: false` -- in Sveltia, with no explicit `format` option, `date_format` IS the storage format; confirmed in the pinned bundle: `format: o || [date_format, time_format].join(' ')`). The slug template `{{fields.data | date('YYYY-MM-DD')}}` then feeds that stored string to the bundle's `date` transformation, which calls `dayjs(value)` with NO parse format (bundle: `Dz=(e,{format:t,...})=>{...(dz.default)(i); return s.isValid()?s.format(t):''}`; the ISO fast-path regex `/^\d{4}-[01]\d-[0-3]\d$/` does not match `DD.MM.YYYY`). dayjs falls back to `new Date("01.08.2026")`, which V8 parses as US `MM.DD.YYYY`. Verified empirically:
-
-```
-new Date('01.08.2026')  // Thu Jan 08 2026  -> slug "2026-01-08-..." (day/month swapped)
-new Date('15.07.2026')  // Invalid Date     -> transformation returns '' -> dateless slug
-```
-
-Consequences: a post dated 1 sierpnia gets slug prefix `2026-01-08` (silently wrong for all days <= 12); any post dated the 13th or later gets an empty date prefix (and two same-titled posts can then collide). Under D-07 the slug is fixed at creation and never regenerated, so every URL minted this way is permanently wrong. The config comment says the filter was "verified present in the pinned bundle" -- presence was verified, parse behavior was not. The Playwright suite cannot catch this because the seed filenames were hand-authored, never generated by the CMS.
-**Fix:** Store the date in ISO and keep the Polish display format, then drop the fragile transformation entirely:
-
-```yaml
-# static/admin/config.yml (aktualnosci collection)
-- name: data
-  label: 'Data publikacji'
-  widget: datetime
-  format: 'YYYY-MM-DD'        # storage: ISO (slug- and sort-safe)
-  date_format: 'DD.MM.YYYY'   # display in the editor stays Polish
-  time_format: false
-  hint: 'Data wpisu (DD.MM.RRRR). Wpisy sortowane od najnowszego.'
-...
-slug: '{{fields.data}}-{{fields.tytul}}'
-```
-
-Coordinated changes: (1) update `parseData` in `src/lib/server/aktualnosci.ts` to parse `YYYY-MM-DD` (the `iso` value then needs no reordering); (2) migrate the two seed JSON files' `data` values to `2026-07-15` / `2026-08-01`. Visitor-facing display is unaffected -- `dataDisplay` is derived in the reader. If ISO storage is rejected for consistency with dokumenty `wersja`, the transformation must not be used at all (it can never reliably parse `DD.MM.YYYY`); do not ship the current template.
+The remaining findings are: one residual build-crash path in the reader (the class of bug the WR-02 fix was supposed to close), plus the five previously-deferred warnings, all verified still present in the current code, and seven info items (four carried, three new).
 
 ## Warnings
 
-### WR-01: `SAFE_HREF` allows protocol-relative URLs (`//evil.example`), contradicting the documented allow-list
+### WR-01: Residual WR-02 gap — `postFromEntry` passes unvalidated `tresc`/`obraz` through; a post with `zajawka` set but missing `tresc` still aborts the whole-site prerender
+
+**File:** `src/lib/server/aktualnosci.ts:95-112` (crash sites: `src/routes/aktualnosci/[slug]/+page.svelte:42`, `src/lib/components/NewsCard.svelte:44`)
+**Issue:** `postFromEntry` validates `tytul`, `data`, and the excerpt *source* — but `tresc` is only type-checked in the excerpt fallback branch (line 99), which is skipped whenever `zajawka` is a non-empty string. The final `return { ...entry, ... }` then spreads the unvalidated fields through. A hand-edited entry with `zajawka` present but `tresc` missing (or non-string) passes the reader, gets an `entries()` route, and crashes at prerender: `renderPost(post.tresc)` calls `blockMarked.parse(undefined)`, and the installed marked 18.0.9 throws `Error("marked(): input parameter is undefined or null")` (verified in `node_modules/marked/lib/marked.esm.js`; `silent` is not set). That aborts the entire build — exactly the failure mode the module's own contract rules out ("a single bad post can never abort the whole-site prerender (WR-02)", lines 76-77). The same spread also passes a non-string truthy `obraz` (e.g. a number or object) through, where `post.obraz.split('/')` throws `TypeError` during prerender of the list, homepage, and post pages. The CMS marks `tresc` required, but the WR-02 contract exists precisely for hand-edited / partially-committed git JSON — and the unit suite tests only the missing-`tresc`-AND-missing-`zajawka` case (`tests/aktualnosci-reader.unit.ts:65-68`), so this path is unpinned.
+**Fix:** Require `tresc` unconditionally and sanitize the optional fields before the spread:
+
+```ts
+if (typeof entry.tresc !== 'string' || entry.tresc.trim() === '') {
+	console.warn(`aktualnosci: skipping "${path}" (missing tresc)`);
+	return null;
+}
+const zajawka = typeof entry.zajawka === 'string' ? entry.zajawka.trim() : '';
+const excerpt = zajawka || firstParagraph(entry.tresc);
+const obraz = typeof entry.obraz === 'string' ? entry.obraz : undefined;
+const obraz_alt = typeof entry.obraz_alt === 'string' ? entry.obraz_alt : undefined;
+return { ...entry, obraz, obraz_alt, slug, href: `/aktualnosci/${slug}`, iso: parsed.iso, dataDisplay: parsed.display, excerpt };
+```
+
+Add unit cases: `{ tytul, data, zajawka: 'x' }` (no `tresc`) returns null; `{ ..., obraz: 42 }` yields `obraz: undefined`.
+
+### WR-02: `SAFE_HREF` allows protocol-relative URLs (`//evil.example`), contradicting the documented allow-list (carried over, previously deferred)
 
 **File:** `src/lib/markdown.ts:22` (used at lines 34 and 71)
-**Issue:** The allow-list `/^(?:https?:|mailto:|tel:|\/|#)/i` is documented as "http(s), mailto, tel, same-site relative paths and fragments only", but the `\/` branch also matches network-path references: `[tekst](//evil.example/phish)` renders as a live link that the browser resolves to `https://evil.example/phish` while looking same-site in the source. Not script execution (CSP is irrelevant to navigation), but it defeats the stated same-site guarantee for editor-controlled links -- exactly the kind of off-site redirect a compromised CMS account would use.
-**Fix:** Exclude the `//` form:
+**Issue:** Unchanged since the prior review. The allow-list `/^(?:https?:|mailto:|tel:|\/|#)/i` is documented as "same-site relative paths ... only", but the `\/` branch also matches network-path references: `[tekst](//evil.example/phish)` renders as a live link the browser resolves to `https://evil.example/phish` while looking same-site in the Markdown source. Not script execution, but it defeats the stated same-site guarantee for editor-controlled links.
+**Fix:**
 
 ```ts
 const SAFE_HREF = /^(?:https?:|mailto:|tel:|\/(?!\/)|#)/i;
 ```
 
-### WR-02: Reader crashes the whole prerender on entries missing `data` or `tresc`, breaking its own "skip with warning" contract; day-of-month is not range-checked
+### WR-03: Excerpt fallback leaks raw Markdown syntax into cards and meta descriptions (carried over, previously deferred)
 
-**File:** `src/lib/server/aktualnosci.ts:60,77,82` (contract stated at lines 64-66)
-**Issue:** The doc comment promises "a malformed entry ... is skipped with a build warning rather than aborting the whole prerender (dokumenty.ts precedent)", but:
-- `parseData(entry.data)` calls `ddmmyyyy.trim()` before any type check -- an entry missing `data` (or with a non-string value) throws `TypeError` and aborts the entire build of every consuming route (homepage, list, all posts).
-- When `zajawka` is empty, `firstParagraph(entry.tresc)` calls `entry.tresc.split` -- a missing `tresc` throws the same way.
-- `parseData` validates the month index but not the day: `45.05.2026` passes the regex (`\d{2}`), producing invalid `iso: "2026-05-45"` in `<time datetime>` and a corrupt sort key instead of being skipped.
+**File:** `src/lib/server/aktualnosci.ts:70-72,95-104` (rendered as plain text at `src/lib/components/NewsCard.svelte:69` and as the Seo description at `src/routes/aktualnosci/[slug]/+page.svelte:45`)
+**Issue:** Unchanged since the prior review. When `zajawka` is empty, `excerpt` is the verbatim first paragraph of `tresc`, which is Markdown the CMS explicitly invites to contain bold, links, and lists (`buttons: [bold, link, bulleted-list, numbered-list]`). A body opening with `**Uwaga!** Zapraszamy [tutaj](https://...)` renders literal `**` and `[tutaj](https://...)` on the news card, the homepage preview, and the post's `<meta name="description">`. A body opening with a list makes the whole marker-laden block the excerpt. Additionally, `firstParagraph` splits only on `\n\n` — CRLF content (`\r\n\r\n`) never splits, so the entire body becomes the excerpt.
+**Fix:** Strip Markdown in the fallback (links to text, emphasis markers removed, list markers removed), normalize newlines first (`tresc.replace(/\r\n/g, '\n')`), and consider truncating to ~200 chars for the meta description.
 
-The CMS marks these fields required, but the contract exists precisely for hand-edited or partially-committed JSON, which is a normal failure mode of a git-based CMS. Compare `dokumenty.ts` `withMeta`, which guards and skips.
-**Fix:**
-
-```ts
-function parseData(ddmmyyyy: unknown): { iso: string; display: string } | null {
-	if (typeof ddmmyyyy !== 'string') return null;
-	const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(ddmmyyyy.trim());
-	if (!m) return null;
-	const [, dd, mm, yyyy] = m;
-	const day = Number(dd);
-	const monthIdx = Number(mm) - 1;
-	if (day < 1 || day > 31 || monthIdx < 0 || monthIdx > 11) return null;
-	...
-}
-```
-
-and in the loop guard `typeof entry.tresc === 'string'` (skip with the existing warning otherwise) before deriving the excerpt.
-
-### WR-03: Excerpt fallback leaks raw Markdown syntax into cards and meta descriptions
-
-**File:** `src/lib/server/aktualnosci.ts:60-62,82` (rendered as plain text at `src/lib/components/NewsCard.svelte:69` and `src/routes/aktualnosci/[slug]/+page.svelte:45`)
-**Issue:** When `zajawka` is empty, `excerpt` is the first paragraph of `tresc` verbatim. `tresc` is Markdown, and the CMS explicitly invites bold, links, and lists (`buttons: [bold, link, bulleted-list, numbered-list]`; the staff manual repeats this). A post whose body opens with `**Uwaga!** Zapraszamy [tutaj](https://...)` renders literal `**` and `[tutaj](https://...)` on the news card, on the homepage preview, and in the `<meta name="description">`/OG description of the post page. A body that opens with a list makes the entire list block (with `-` markers) the excerpt.
-**Fix:** Strip Markdown when deriving the excerpt, e.g. render the first paragraph through the existing hardened pipeline and take its text content at build time, or apply a minimal stripper:
-
-```ts
-function stripInlineMd(s: string): string {
-	return s
-		.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1') // links -> text
-		.replace(/(\*\*|__|\*|_)/g, '')          // emphasis markers
-		.replace(/^[-*+]\s+|^\d+\.\s+/gm, '');   // list markers
-}
-```
-
-Apply to the `firstParagraph` fallback (and consider truncating to ~200 chars for the meta description).
-
-### WR-04: Error page has no document title (WCAG 2.4.2, Level A) -- the D-08 friendly 404 ships without one
-
-**File:** `src/routes/+error.svelte` (no `<svelte:head>`; `src/app.html` contains no fallback `<title>`)
-**Issue:** `+error.svelte` renders headings and copy but never emits a `<title>`. `app.html` has no static title and no layout provides one, so every error response -- including the phase's own D-08 deliverable, the unknown-slug 404 -- is served with an untitled document. WCAG 2.4.2 (Page Titled) is a Level A criterion; this site is legally required to meet AA and publishes a Deklaracja dostępności. The axe run in `tests/aktualnosci.spec.ts` only covers 200 pages, so this is untested. Browser tabs and screen readers fall back to announcing the raw URL.
-**Fix:**
-
-```svelte
-<svelte:head>
-	<title>{is404 ? 'Nie znaleziono strony' : 'Wystąpił błąd'}: Żłobek Gminny w Stromcu</title>
-</svelte:head>
-```
-
-Optionally extend the 404 Playwright case to assert `page.title()` is non-empty and run axe on the 404 response.
-
-### WR-05: `renderPost`'s grammar narrowing is incomplete -- GFM task-list checkboxes, code blocks, blockquotes, and `<hr>` still reach the DOM
+### WR-04: `renderPost`'s grammar narrowing is incomplete — GFM task-list checkboxes, code blocks, blockquotes, and `<hr>` still reach the DOM (carried over, previously deferred)
 
 **File:** `src/lib/markdown.ts:60-85`
-**Issue:** The renderer's stated contract is a narrowed block grammar (headings neutralized, tables dropped), but only `html`, `image`, `link`, `heading`, and `table` are overridden. With `gfm: true`, an editor typing `- [ ] przynieść kapcie` produces `<li><input type="checkbox" disabled>` -- a disabled form control injected into the article from CMS content (unstyled, confusing to screen-reader users tabbing an "article"). Fenced/indented code blocks emit unstyled `<pre><code>`, and `>`-prefixed lines emit `<blockquote>` -- all outside the D-08 "bold + links + lists" editing contract and outside `.prose`'s styled set (`p`, `a`, `strong`). No XSS (content is escaped by marked defaults), but innocent editor input degrades the page contract the comment claims to protect.
-**Fix:** Neutralize the remaining out-of-contract constructs in the `blockMarked` renderer:
+**Issue:** Unchanged since the prior review. Only `html`, `image`, `link`, `heading`, and `table` are overridden. With `gfm: true`, an editor typing `- [ ] przynieść kapcie` injects `<li><input type="checkbox" disabled>` — a disabled form control inside the article, confusing for screen-reader users. Fenced/indented code emits unstyled `<pre><code>`; `>`-prefixed lines emit `<blockquote>` — all outside the D-08 "bold + links + lists" contract and outside `.prose`'s styled element set (`p`, `a`, `strong`). No XSS (marked escapes content), but innocent editor input degrades the page contract the module's comment claims to protect.
+**Fix:** In the `blockMarked` renderer add:
 
 ```ts
 checkbox() { return ''; },
@@ -160,46 +101,75 @@ blockquote(token) { return this.parser.parse(token.tokens); },
 hr() { return ''; }
 ```
 
-### WR-06: The T-03-01 sanitizer has zero regression tests -- removing the hardening would pass the entire suite
+### WR-05: The T-03-01 sanitizer still has zero regression tests — removing the hardening would pass the entire suite (carried over, previously deferred)
 
-**File:** `src/lib/markdown.ts` (suite: `tests/aktualnosci.spec.ts`, `package.json` `"test": "playwright test"`)
-**Issue:** `renderPost`/`renderInline` are the designated stored-XSS mitigation for this phase, yet no test exercises them: the seed posts contain only benign paragraphs, and the Playwright suite asserts layout/a11y, never sanitization. Deleting the `html` override (re-enabling raw HTML passthrough) or gutting `SAFE_HREF` would ship green. For a security boundary explicitly called out as "the DOM boundary must not rely on CSP alone", the boundary itself must be pinned by tests.
-**Fix:** Add a unit-level test file (the module is pure TypeScript with no Svelte/Vite dependency beyond `marked`, so a minimal vitest -- or even a `node --test` script wired into `npm run test` -- suffices) asserting at minimum: raw `<script>`/`<img onerror>` input is escaped to text; `[x](javascript:alert(1))` renders without an `<a>`; `//evil.example` is rejected (after WR-01); `# Nagłówek` renders as `<p>`; image syntax collapses to alt text; a GFM table renders nothing.
+**File:** `src/lib/markdown.ts` (suites: `tests/aktualnosci.spec.ts`, `tests/aktualnosci-reader.unit.ts`)
+**Issue:** The 03-06 plan added a `node --test` unit harness for the *reader*, but `renderPost`/`renderInline` — the designated stored-XSS mitigation for this phase — remain untested. The seed posts contain only benign paragraphs and the Playwright suite asserts layout/a11y, never sanitization. Deleting the `html` override (re-enabling raw HTML passthrough) or gutting `SAFE_HREF` would ship green. The blocker that previously justified deferral is gone: the `test:unit` runner and file-naming convention now exist, so a `tests/markdown.unit.ts` is a drop-in addition.
+**Fix:** Add `tests/markdown.unit.ts` to the `test:unit` script asserting at minimum: `<script>`/`<img onerror>` input is escaped to text; `[x](javascript:alert(1))` renders without an `<a>`; `//evil.example` is rejected (after WR-02); `# Nagłówek` renders as `<p>`; image syntax collapses to alt text; a GFM table renders nothing. Extend the script: `node --test tests/*.unit.ts`.
 
-### WR-07: Staff manual's login/overview sections omit the Aktualności section the same document teaches
+### WR-06: Staff manual's intro and login sections omit the Aktualności section the same document teaches (carried over, previously deferred)
 
 **File:** `docs/instrukcja-cms.md:5-7,24-25`
-**Issue:** The intro ("Prowadzi krok po kroku przez ... edycję planu dnia oraz dodawanie, zamianę i usuwanie dokumentów") and login step 4 ("wróci widok panelu z listą sekcji: O nas, Plan dnia oraz Dokumenty") were not updated when section 5 (Aktualności) was added. This is the CMS-04 printed handoff manual for non-technical staff; the panel they see lists four sections while the manual says three, and the intro promises no news coverage at all.
-**Fix:** Update both lists to include Aktualności, e.g. line 24-25: "... z listą sekcji: O nas, Plan dnia, Dokumenty oraz Aktualności." and extend the intro sentence with "oraz dodawanie wpisów Aktualności".
+**Issue:** Unchanged since the prior review. The intro ("Prowadzi krok po kroku przez logowanie, edycję treści strony O nas, edycję planu dnia oraz dodawanie, zamianę i usuwanie dokumentów") and login step 4 ("wróci widok panelu z listą sekcji: O nas, Plan dnia oraz Dokumenty") predate section 5 (Aktualności). This is the printed handoff manual for non-technical staff: the panel they see lists four sections while the manual's own orientation steps say three.
+**Fix:** Update both lists, e.g. lines 24-25: "... z listą sekcji: O nas, Plan dnia, Dokumenty oraz Aktualności." and extend the intro sentence with "oraz dodawanie wpisów Aktualności".
 
 ## Info
 
-### IN-01: NewsPreview's empty-state branch is dead code and its comment misstates reuse
+### IN-01: NewsPreview's empty-state branch is dead code and its comment misstates reuse (carried over)
 
-**File:** `src/lib/components/NewsPreview.svelte:37-49` (duplicate at `src/routes/aktualnosci/+page.svelte:54-64`)
-**Issue:** The homepage gates `NewsPreview` on `posts.length > 0` (`+page.svelte:41`), so the `{:else}` branch never renders anywhere -- `/aktualnosci` does not use it either; it carries its own byte-identical copy of the markup and ~30 lines of duplicated styles. The comment "also used by /aktualnosci" is false.
-**Fix:** Extract a small `NewsEmpty.svelte` used by `/aktualnosci` and delete the dead branch from `NewsPreview` (or correct the comment and accept the duplication consciously).
+**File:** `src/lib/components/NewsPreview.svelte:37-49` (duplicate markup/styles at `src/routes/aktualnosci/+page.svelte:54-64,148-181`)
+**Issue:** The homepage gates `NewsPreview` on `posts.length > 0` (`src/routes/+page.svelte:41`), so the `{:else}` branch never renders anywhere; `/aktualnosci` carries its own byte-identical copy. The branch comment "also used by /aktualnosci" (line 38) is false.
+**Fix:** Extract a `NewsEmpty.svelte` used by `/aktualnosci` and delete the dead branch, or correct the comment and accept the duplication consciously.
 
-### IN-02: Uploads glob + basename map duplicated in NewsCard and the single-post page
+### IN-02: Uploads glob + basename map duplicated in NewsCard and the single-post page (carried over)
 
 **File:** `src/lib/components/NewsCard.svelte:34-44`, `src/routes/aktualnosci/[slug]/+page.svelte:28-40`
-**Issue:** The `import.meta.glob` over `$lib/assets/uploads` and the `byName` basename map (the T-03-03 defense) are copy-pasted in two files this phase (a third copy exists in `o-nas`). Divergence risk: if one copy's extension list or lookup changes, the traversal defense and cover behavior silently fork.
-**Fix:** Extract to `$lib/uploads.ts` exporting `coverByBasename(obraz?: string): Picture | undefined` (the glob literal must stay statically analyzable, which a shared module preserves).
+**Issue:** The `import.meta.glob` over `$lib/assets/uploads` and the `byName` basename map (the T-03-03 traversal defense) are copy-pasted in two files this phase (a third copy exists in o-nas). If one copy's extension list or lookup logic changes, the defense silently forks.
+**Fix:** Extract to `$lib/uploads.ts` exporting `coverByBasename(obraz?: string): Picture | undefined` (a shared module keeps the glob literal statically analyzable).
 
-### IN-03: List and homepage payloads carry the full `tresc` body of every post
+### IN-03: List and homepage payloads serialize the full `tresc` body of every post (carried over)
 
-**File:** `src/routes/aktualnosci/+page.server.ts:7`, `src/routes/+page.server.ts:24-25`
-**Issue:** `readAktualnosci()`/`readLatest(3)` return `PostWithMeta` including the complete Markdown body, which the list and homepage never render (cards use `excerpt`); the full text of every post is nonetheless serialized into those pages' data payloads. Not a correctness or security issue (content is public), but the boundary leaks unused fields and the embedded data grows linearly with the archive.
-**Fix:** Map to the card shape before returning, e.g. `posts.map(({ tresc, placeholder, ...card }) => card)` (the `Post` type in `site.ts` already defines exactly that shape).
+**File:** `src/routes/aktualnosci/+page.server.ts:7`, `src/routes/+page.server.ts:24`
+**Issue:** `readAktualnosci()`/`readLatest(3)` return `PostWithMeta` including the complete Markdown body, which the list and homepage never render (cards use `excerpt`). The full text of every post is embedded in those pages' data payloads and grows linearly with the archive.
+**Fix:** Map to the card shape before returning, e.g. `posts.map(({ tresc, placeholder, ...card }) => card)` — the `Post` type in `src/lib/content/site.ts` already defines exactly that shape.
 
-### IN-04: Staff manual example uses a spaced hyphen for a time range, against the en-dash copy rule
+### IN-04: Staff manual example uses a spaced hyphen for a time range, against the en-dash copy rule (carried over)
 
 **File:** `docs/instrukcja-cms.md:62`
 **Issue:** The Plan dnia example reads `8:00 - 9:00` while the project copy rule (and the CMS hint at `static/admin/config.yml:117`, "Np. 7:00–8:30.") requires an en dash in numeric ranges. Staff will copy the manual's format straight onto the public site.
 **Fix:** Change the example to `8:00–9:00`.
 
+### IN-05: `parseData` admits impossible calendar dates (e.g. 2026-02-30), despite the comment claiming out-of-range days are rejected
+
+**File:** `src/lib/server/aktualnosci.ts:60-61` (comment at 50-52)
+**Issue:** The 03-06 fix range-checks the day only generically (`1..31`), so `2026-02-30`, `2026-04-31`, or `2026-02-31` all pass, emitting an invalid `<time datetime="2026-02-30">` (the HTML `time` element requires a *valid* date string) and a nonsense display "30 lutego 2026". The T-03-06-02 comment overstates what the guard does. Reachable only via hand-edited JSON (the CMS picker cannot produce it), and the lexicographic sort key stays consistent, so impact is low.
+**Fix:** Round-trip through `Date.UTC`:
+
+```ts
+const d = new Date(Date.UTC(Number(yyyy), monthIdx, day));
+if (d.getUTCMonth() !== monthIdx || d.getUTCDate() !== day) return null;
+```
+
+### IN-06: A cover image with no `obraz_alt` ships `alt=""` (decorative), while the post-page comment promises an "informative alt"
+
+**File:** `src/routes/aktualnosci/[slug]/+page.svelte:59,65`, `src/lib/components/NewsCard.svelte:53`, `static/admin/config.yml:233-237`
+**Issue:** `obraz_alt` is `required: false` in the CMS (Sveltia cannot express "required when obraz is set"), and both render sites fall back to `alt={obraz_alt ?? ''}`. On the single-post page the code comment calls the cover "informative alt", yet a forgotten alt silently marks the image decorative — a WCAG 1.1.1 judgment gap that axe cannot detect (empty alt looks intentional). The staff manual's hint is the only guard.
+**Fix:** Emit a build warning from the reader when `obraz` is set without a non-empty `obraz_alt` (consistent with the existing skip warnings), so the gap surfaces in the deploy log instead of shipping silently. Keep `alt=""` as the render fallback (better than a missing attribute).
+
+### IN-07: The `link` renderer (the SAFE_HREF security logic) is hand-copied between the two Marked instances
+
+**File:** `src/lib/markdown.ts:32-38,69-74`
+**Issue:** The inline and block pipelines carry byte-identical `link` renderer bodies (and identical `html`/`image` overrides). This is the protocol allow-list — the one place a future fix like WR-02 must land twice; if the copies diverge, one pipeline silently loses the hardening.
+**Fix:** Extract the shared renderer functions once and pass them to both `Marked` constructors:
+
+```ts
+const sharedRenderers = { html(token) { ... }, image(token) { ... }, link(token) { ... } };
+const inlineMarked = new Marked({ renderer: { ...sharedRenderers } });
+const blockMarked = new Marked({ gfm: true, renderer: { ...sharedRenderers, heading(token) { ... }, table() { return ''; } } });
+```
+
 ---
 
-_Reviewed: 2026-08-13T21:39:30Z_
+_Reviewed: 2026-08-13T22:54:52Z_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: standard_
