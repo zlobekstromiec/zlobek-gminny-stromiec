@@ -3,7 +3,7 @@
 // build via import.meta.glob and derives each post's slug from the on-disk
 // filename (never re-derived from fields — the filename is authoritative, which
 // is what makes D-07 "title edits keep the URL" and D-08 "deleted posts 404"
-// true for free). Dates parse from the stored "DD.MM.YYYY" string and format via
+// true for free). Dates parse from the stored ISO "YYYY-MM-DD" string and format via
 // a pure genitive Polish month map (NEVER a runtime locale formatter — Cloudflare
 // prerender locale data is not guaranteed). Kept free of Svelte/UI concerns so the list
 // route (this plan), the [slug] route (Plan 02) and the homepage (Plan 04) all
@@ -11,7 +11,7 @@
 
 export interface PostEntry {
 	tytul: string;
-	data: string; // stored "DD.MM.YYYY" (matches dokumenty `wersja`)
+	data: string; // stored ISO "YYYY-MM-DD" (CMS saves ISO so the slug substitutes it verbatim; CR-01)
 	zajawka?: string;
 	tresc: string; // markdown-subset string
 	obraz?: string; // optional cover (basename or path under uploads)
@@ -44,10 +44,10 @@ const MIESIACE = [
 	'grudnia'
 ];
 
-function parseData(ddmmyyyy: string): { iso: string; display: string } | null {
-	const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(ddmmyyyy.trim());
+function parseData(iso: string): { iso: string; display: string } | null {
+	const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso.trim());
 	if (!m) return null;
-	const [, dd, mm, yyyy] = m;
+	const [, yyyy, mm, dd] = m;
 	const monthIdx = Number(mm) - 1;
 	if (monthIdx < 0 || monthIdx > 11) return null;
 	return {
