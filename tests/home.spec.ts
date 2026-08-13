@@ -61,7 +61,10 @@ test.describe('Homepage: Phase 1 + 01.1 acceptance', () => {
 		await expect(
 			page.getByRole('heading', { name: 'Wkrótce pojawią się aktualności' })
 		).toHaveCount(0);
-		await expect(page.getByRole('link', { name: 'Zobacz wszystkie' })).toHaveCount(0);
+		// exact: true so this targets ONLY the news CTA („Zobacz wszystkie"); the
+		// recruitment docs panel now owns a distinct „Zobacz wszystkie dokumenty"
+		// see-all link (D-18) that must not be matched by this news-empty guard.
+		await expect(page.getByRole('link', { name: 'Zobacz wszystkie', exact: true })).toHaveCount(0);
 	});
 
 	test('TopBar surfaces phone and opening hours on every viewport', async ({ page }) => {

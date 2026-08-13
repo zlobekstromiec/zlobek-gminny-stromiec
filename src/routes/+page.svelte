@@ -16,6 +16,9 @@
 	import ContactAndMap from '$lib/components/ContactAndMap.svelte';
 	import NewsPreview from '$lib/components/NewsPreview.svelte';
 	import { posts } from '$lib/content/site';
+	import type { PageData } from './$types';
+
+	let { data }: { data: PageData } = $props();
 
 	const showNews = posts.length > 0;
 </script>
@@ -29,7 +32,7 @@
 <KeyFacts />
 <Wave fill="var(--color-accent)" bg="var(--color-surface-warm)" />
 <Perks />
-<Recruitment />
+<Recruitment docs={data.docs} />
 <DayPlan />
 <AboutTeaser />
 <ContactAndMap />

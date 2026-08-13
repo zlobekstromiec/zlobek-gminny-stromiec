@@ -148,17 +148,11 @@ export const recruitment = {
 			title: 'Podpisz umowę',
 			body: 'Po zakwalifikowaniu dziecka zapraszamy rodziców na podpisanie umowy i spotkanie adaptacyjne.'
 		}
-	],
-	docs: [
-		// PLACEHOLDER: hrefs point at /dokumenty and meta stays 'PDF' until the real
-		// files land in Phase 2 (then each row links its file with real size + date).
-		{ name: 'Karta zgłoszenia dziecka', meta: 'PDF', href: '/dokumenty' },
-		{ name: 'Regulamin rekrutacji', meta: 'PDF', href: '/dokumenty' },
-		{ name: 'Statut żłobka', meta: 'PDF', href: '/dokumenty' },
-		{ name: 'Regulamin organizacyjny', meta: 'PDF', href: '/dokumenty' },
-		{ name: 'Upoważnienie do odbioru dziecka', meta: 'PDF', href: '/dokumenty' },
-		{ name: 'Oświadczenia RODO', meta: 'PDF', href: '/dokumenty' }
 	]
+	// The docs panel is no longer hard-coded here (D-18): the homepage now reads a
+	// curated subset from the shared `dokumenty` collection via +page.server.ts, so
+	// its names, meta, and hrefs stay in sync with /dokumenty and match the real BIP
+	// set. Heading, deadline, body, infoCard, and steps stay content-authored here.
 } as const;
 
 export type Post = { title: string; date: string; href: string; excerpt?: string };

@@ -6,8 +6,17 @@
 	// with the name (Polish public-sector expectation, WCAG 2.1 AA). Step 2's
 	// e-mail is deliberately plain text: the homepage carries exactly one mailto
 	// (in ContactAndMap).
+	//
+	// The docs panel is now a CURATED SUBSET sourced from the shared `dokumenty`
+	// collection via +page.server.ts (D-18): the parent gets the real BIP names +
+	// computed meta here, and a „Zobacz wszystkie dokumenty" link to the full
+	// /dokumenty page. The two pages read one resolver, so names/meta/hrefs cannot
+	// drift.
 	import Cta from './Cta.svelte';
 	import { recruitment } from '$lib/content/site';
+
+	type DocRow = { name: string; meta: string; href: string };
+	let { docs }: { docs: DocRow[] } = $props();
 </script>
 
 <section class="recruitment" aria-labelledby="rekrutacja-heading">
@@ -43,7 +52,7 @@
 				<div class="docs-panel">
 					<h3>Dokumenty do pobrania</h3>
 					<ul class="docs">
-						{#each recruitment.docs as doc (doc.name)}
+						{#each docs as doc (doc.name)}
 							<li>
 								<a class="doc-row" href={doc.href}>
 									<span class="doc-name">{doc.name}</span>
@@ -52,6 +61,7 @@
 							</li>
 						{/each}
 					</ul>
+					<a class="see-all" href="/dokumenty">Zobacz wszystkie dokumenty</a>
 				</div>
 			</div>
 		</div>
@@ -267,5 +277,19 @@
 		font-size: 13px;
 		font-weight: 700;
 		color: var(--color-muted);
+	}
+
+	.see-all {
+		display: inline-block;
+		margin-top: 18px;
+		font-family: var(--font-body);
+		font-size: 15px;
+		font-weight: 700;
+		color: var(--color-brand-blue);
+		text-decoration: underline;
+	}
+
+	.see-all:hover {
+		color: var(--color-brand-blue-hover);
 	}
 </style>

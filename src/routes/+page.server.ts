@@ -1,0 +1,16 @@
+// Build-time load for the homepage (DOCS-01, D-18). prerender = true is inherited
+// from +layout.ts, so this runs once at build (never at runtime): it re-sources
+// the Recruitment docs panel from the SAME shared resolver as /dokumenty so the
+// two pages can never drift (single source, D-18). It returns a curated subset,
+// the real recruitment documents (kategoria === 'rekrutacja'), each carrying the
+// Polish name, the computed type/size/wersja meta (D-14), and the real hosted file
+// path. The full set stays on /dokumenty, reached via the panel's see-all link.
+import type { PageServerLoad } from './$types';
+import { readDokumenty } from '$lib/server/dokumenty';
+
+export const load: PageServerLoad = () => {
+	const docs = readDokumenty()
+		.filter((entry) => entry.kategoria === 'rekrutacja')
+		.map((entry) => ({ name: entry.nazwa, meta: entry.meta, href: entry.plik }));
+	return { docs };
+};
