@@ -55,30 +55,33 @@
 			transform 150ms ease;
 	}
 
-	/* Primary — amber fill, ink label (AA 6.82:1). */
+	/* Primary: amber fill, ink label (AA 6.82:1), 3D toy shadow (v1.2 §4). */
 	.cta.primary {
 		background: var(--color-accent);
 		color: var(--color-ink);
 		border: 2px solid transparent;
-		box-shadow:
-			0 1px 2px rgb(15 23 42 / 0.06),
-			0 1px 3px rgb(15 23 42 / 0.08);
+		box-shadow: 0 3px 0 var(--color-accent-active);
 	}
 
 	.cta.primary:hover {
 		background: var(--color-accent-hover);
-		transform: translateY(-1px);
-		box-shadow: 0 4px 12px rgb(15 23 42 / 0.08);
+		transform: translateY(-2px);
+		box-shadow: 0 5px 0 var(--color-accent-active);
 	}
 
-	/* Active/pressed — darkest amber; label flips to WHITE to keep AA (4.6:1).
+	/* Active/pressed: darkest amber; label flips to WHITE to keep AA (4.6:1).
 	   Mirrored on :focus-visible (Amendment v1.1) so keyboard users get the same
 	   pressed appearance; the global 3px focus-ring outline still applies on top. */
 	.cta.primary:active,
 	.cta.primary:focus-visible {
 		background: var(--color-accent-active);
 		color: #ffffff;
-		transform: translateY(0);
+	}
+
+	/* Pressed depth: the button sinks into its own shadow (pointer only). */
+	.cta.primary:active {
+		transform: translateY(1px);
+		box-shadow: 0 1px 0 var(--color-accent-active);
 	}
 
 	/* Secondary — blue outline, never amber. */
