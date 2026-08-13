@@ -141,3 +141,41 @@ wspierane"): pola są po polsku, sam szkielet edytora pozostaje po angielsku,
 ponieważ program nie oferuje jeszcze polskiej wersji interfejsu.
 
 <!-- PLACEHOLDER: screenshot - przyciski Save, Publish, Delete z opisami po polsku -->
+
+---
+
+## 8. Weryfikacja (lista kontrolna, wykonywana na żywo)
+
+Ta lista służy do jednorazowej weryfikacji pełnego obiegu na działającej stronie
+(nie lokalnie). Przejdź kolejno przez wszystkie kroki i wykonaj zrzuty ekranu,
+które wklejasz w miejsca oznaczone powyżej jako "PLACEHOLDER: screenshot".
+
+1. Otwórz `/admin` na działającej stronie i zaloguj się kontem GitHub będącym
+   członkiem organizacji `zlobekstromiec`. Potwierdź, że okno logowania GitHub
+   kończy się powodzeniem i wczytuje się edytor (CMS-01).
+2. Potwierdź, że etykiety sekcji i pól oraz podpowiedzi są po polsku (CMS-03).
+   Wykonaj zrzut ekranu angielskich przycisków (Save, Publish, Delete) do
+   instrukcji.
+3. Zmień tekst misji w sekcji O nas, zapisz i opublikuj. Potwierdź, że powstał
+   zapis (commit) w repozytorium `zlobekstromiec/zlobek-gminny-stromiec` na
+   gałęzi `main` (CMS-02).
+4. Poczekaj ok. 2 min na przebudowę strony w Cloudflare, odśwież stronę `/o-nas`
+   na żywo i potwierdź, że zmiana jest widoczna publicznie (CMS-02, na żywo, nie
+   lokalnie).
+5. Dodaj lub zamień dokument w sekcji Dokumenty i potwierdź, że pojawia się on na
+   żywo na stronie `/dokumenty` po przebudowie (DOCS-02).
+6. Wklej polskie zrzuty ekranu z opisami w miejsca oznaczone w tej instrukcji
+   (zastępując znaczniki "PLACEHOLDER: screenshot").
+7. Ponownie sprawdź listę dostępnych języków interfejsu edytora w używanej,
+   przypiętej wersji programu i zanotuj, czy pojawiła się polska wersja
+   interfejsu.
+8. Potwierdź akceptację ograniczenia CMS-03 (angielski szkielet edytora
+   zaakceptowany "w zakresie, w jakim jest to wspierane") oraz przyjęcie do
+   wiadomości uwagi o zależnościach: pakiety zostały zainstalowane w przypiętych
+   wersjach.
+
+Uwaga techniczna: warunki możliwe do sprawdzenia automatycznie (strona `/admin`
+serwowana na żywo, `base_url` w pliku konfiguracji wskazuje na działający Worker,
+reguła `/admin/*` w nagłówkach wskazuje pochodzenie Workera, brak sekretu w
+repozytorium) są sprawdzane osobno. Powyższa lista obejmuje kroki, których nie da
+się zautomatyzować (logowanie OAuth).
