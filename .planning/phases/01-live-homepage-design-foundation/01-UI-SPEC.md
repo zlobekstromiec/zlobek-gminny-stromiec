@@ -413,3 +413,59 @@ CSS-first tokens for the executor to place in the global stylesheet (`app.css`).
    comments in `.ts` content modules (greppable token unchanged). FINAL (never
    marked): `zlobek@ugstromiec.pl`, the verbatim core message, age range
    „20 tyg. – 3 lata" (statutory).
+
+---
+
+## Amendment v1.2 (2026-08-13): merged tone (Design A structure + Design B warmth)
+
+> Merges the playful tone of the second design handoff ("Zlobek Stromiec website
+> design v2", banked in `.planning/DESIGN-BANK.md`) onto the locked foundation.
+> v1.1 stays in force except where superseded here (nav underline superseded by pill,
+> hero surface, footer contract). Locked body remains unchanged: Baloo 2 + Nunito,
+> weights 400/700 only, h1/h2 clamps, accessible-tier hard rules.
+
+### 1. New decorative TINT surface tokens
+`--color-tint-yellow #ffe29a` · `--color-tint-blue #cfe8fc` · `--color-tint-orange #fbd5c0` · `--color-tint-pink #fbe3e3` · `--color-tint-green #dff0d8`
+Rule: tints are SURFACES ONLY (icon chips, panels, decorative slots). Any text or icon on them draws from the accessible tier. Verified pairings:
+
+| Foreground | Surface | Ratio | Use |
+|---|---|---|---|
+| tint-yellow | brand-blue | 4.69:1 | footer column headings (no margin: never lighten brand-blue) |
+| band #E0F2FE | brand-blue | 5.17:1 | footer links/text |
+| white | brand-blue | 5.93:1 | TopBar, footer hours |
+| ink | accent | 6.82:1 | Perks h2, active nav pill |
+| accent-active | white / band | 5.02 / 4.38 | h1 highlight span, status pill text |
+| accent-active 19px Baloo 700 | tint-blue | 3.97:1 | DayPlan times (large text; 19px floor, never smaller) |
+| brand-blue stroke | all tints | 4.34 to 4.97 | icon strokes (>= 3:1 graphics) |
+| ink / muted | tint-yellow | 11.6 / 5.99 | recruitment info card |
+
+Ruling: the two-tone h1 highlight uses `--color-accent-active` (accent-hover fails 2.78:1 on the hero gradient's band region; gradient-backed text is invisible to axe, so this table is the gate).
+
+### 2. TopBar (all routes)
+Slim brand-blue utility bar above the header: tel link + "Czynne: pon.-pt. 6:30–16:30" (white Nunito 700 14px, 44px targets, flex-wrap at 375px). NO email in the bar (the homepage carries exactly one mailto, in ContactAndMap). Mounted in +layout.svelte between SkipLink and Header.
+
+### 3. Header v2
+52px accent circle logo badge (bespoke IconBear 28px, INK stroke: brand-blue on accent fails 2.76:1; hard shadow 0 3px 0 accent-active) + two-line wordmark: "Żłobek Gminny Stromiec" (Baloo 700 20px brand-blue) over "Publiczny żłobek w gminie Stromiec" (Nunito 700 12px muted; 12px legalized for this single use). Header keeps sticky + scroll shadow and gains a 4px accent bottom border. Nav links become chips: radius-sm, hover tint-yellow bg + ink, active (aria-current) accent bg + ink + 0 3px 0 accent-active. The v1 3px underline active state is superseded. MobileNav drawer mirrors the active pill.
+
+### 4. 3D button treatment (primary Cta)
+Rest: 0 3px 0 accent-active. Hover: accent-hover fill, translateY(-2px), 0 5px 0. Active: translateY(1px), 0 1px 0 (fill/label flip stays). Focus-visible mirrors pressed (v1.1 §7). All transforms live inside Cta's local reduced-motion block. Secondary unchanged.
+
+### 5. Wave divider
+Reusable aria-hidden SVG (viewBox 0 0 1440 60, height 44px), props fill/bg. Exactly two uses: warm-to-accent above Perks, white-to-brand-blue at the top of the footer (rendered inside Footer.svelte, so on band-colored pages a white seam precedes it: accepted).
+
+### 6. New/updated component contracts
+- **KeyFacts v2**: 46px tint icon chips (radius-md, brand-blue stroke, white duotone fill) supersede the v1.1 expressive left borders; dl semantics; facts: 10 mies. – 3 lata / 6:30–16:30 / 400 zł + wyżywienie 14 zł/dzień / 50 miejsc (all PLACEHOLDER).
+- **Perks** (new): accent band, centered ink h2 "Dlaczego rodzice nas wybierają?", 4 white cards (radius-lg, hard shadow 0 5px 0 rgb(15 23 42 / 0.12), NO hover transform), bespoke icon chips, titles ink Baloo 700 20px, body muted 15px.
+- **Recruitment v2**: FOUR steps (34px brand-blue circles); tint-yellow info card (2px accent border, radius-md) between intro and steps; docs panel with SIX rows (meta "PDF" until real files); step 2 e-mail stays plain text, never a mailto.
+- **DayPlan** (new): centered tint-blue panel (max-width 44rem, radius-lg) on white, h2 "Nasz dzień w żłobku", 7 rows: time Baloo 700 19px accent-active (min-width 104px), dashed separators, activity ink 15px. Placement: after Recruitment, before AboutTeaser (keeps surface alternation).
+- **ContactAndMap**: per v1.1 plus real facts (PLACEHOLDER), secretariat sub-line, and an external "Wyznacz trasę" OSM directions link (noopener/noreferrer + hidden new-tab suffix). No iframe ever (RODO).
+- **Footer v2**: wave into brand-blue; 4 columns (2 below 1024px, 1 below 640px): (1) white wordmark + band-color org/address/tel/email PLAIN TEXT + program-logo placeholder slots (Herb gminy, Aktywny Maluch); (2) "Na skróty": Aktualności, Rekrutacja, Dokumenty, Cennik, Galeria, Dojazd; (3) "Informacje": Deklaracja dostępności, Polityka prywatności (RODO), BIP (byte-identical contract), Kontakt; (4) "Godziny otwarcia" with white Baloo 700 20px hours. Headings Nunito 700 14px uppercase tint-yellow; links band-color underlined, hover white, 44px targets; single nav landmark "Odnośniki w stopce".
+
+### 7. Bespoke icon system
+`src/lib/icons/`: IconBear, IconSun, IconSmile, IconClock, IconCoins, IconHouse, IconShield, IconHeart, IconBlocks, IconTree. Contract: viewBox 24, stroke currentColor 2px round, one duotone plate shape with `fill="var(--icon-fill, none)"`, aria-hidden, focusable=false, size prop. Chips: 46px, radius-md, tint bg, `color: brand-blue`, `--icon-fill: #fff` (logo badge: ink stroke, tint-yellow fill). Lucide remains for utilitarian UI (contact rows, arrows, menu). NO EMOJI anywhere.
+
+### 8. Copy rules
+No emoji. No em dashes in authored copy or comments; use commas, colons, parentheses. En dash only inside numeric ranges (6:30–16:30, 7:00–15:00, 10 mies. – 3 lata); day abbreviations use plain hyphen (pon.-pt.). The verbatim client core message is byte-exempt (its em dash and typographic quotes stay).
+
+### 9. Facts register update (all PLACEHOLDER until written client confirmation)
+Age corrected: 10 mies. – 3 lata (the previous "20 tyg. – 3 lata" was WRONGLY marked statutory-final; a żłobek statute sets its own minimum). New: address ul. Radomska 5, 26-804 Stromiec; tel 48 619 10 25; 50 miejsc; opłata 400 zł/mies; wyżywienie 14 zł/dzień; sekretariat pon.-pt. 7:00–15:00; day-plan schedule; OSM coords 51.64222/21.09111. FINAL: zlobek@ugstromiec.pl, verbatim core message. Bank-only (never ship without consent): director name. `openingBanner` flag banked in site.ts (when used: accent bg + ink text, never danger, which stays semantic-only).
