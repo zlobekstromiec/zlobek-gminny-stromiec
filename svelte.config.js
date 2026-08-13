@@ -7,8 +7,9 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 // until each route lands. Tolerate 404 for exactly these known-future paths and
 // fail on any other broken link so real regressions still break the build.
 const KNOWN_FUTURE_ROUTES = [
-	'/aktualnosci',
-	// '/o-nas' is now a real prerendered route (Plan 02-01), so the crawler enforces it.
+	// '/aktualnosci' is now a real prerendered route (Plan 03-01) and the
+	// '/aktualnosci/[slug]' posts are prerendered via entries() (Plan 03-02), so
+	// the crawler enforces both the list and every post link (Pitfall 2).
 	'/rekrutacja',
 	// '/dokumenty' is now a real prerendered route (Plan 02-02), so the crawler enforces it.
 	'/kontakt',
