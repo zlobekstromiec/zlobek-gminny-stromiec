@@ -82,7 +82,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. The CMS admin portal presents to staff in Polish — all collection/field labels, hints, and help text are Polish (and the editor UI locale is Polish where supported).
   6. A CMS edit commits to the repo and triggers a Cloudflare rebuild that publishes the change live.
 
-**Plans**: 3/5 plans executed
+**Plans**: 4/5 plans executed
 
 **Wave 1**
 
@@ -95,7 +95,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Wave 3** *(blocked on Wave 2)*
 
 - [x] 02-03-PLAN.md — Homepage docs realignment (D-18): re-source recruitment panel from the shared collection + home.spec.ts lockstep
-- [ ] 02-04-PLAN.md — CMS config + admin (ABOUT-02, DOCS-02, CMS-03): self-hosted Sveltia bundle + Polish config.yml + /admin CSP
+- [x] 02-04-PLAN.md — CMS config + admin (ABOUT-02, DOCS-02, CMS-03): self-hosted Sveltia bundle + Polish config.yml + /admin CSP
 
 **Wave 4** *(blocked on Wave 3)*
 
@@ -205,7 +205,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Live Homepage & Design Foundation | 5/5 | Complete    | 2026-08-12 |
-| 2. About, Documents & CMS | 3/5 | In Progress|  |
+| 2. About, Documents & CMS | 4/5 | In Progress|  |
 | 3. News (Aktualności) | 0/TBD | Not started | - |
 | 4. Enrollment, Contact & Email Pipeline | 0/TBD | Not started | - |
 | 5. Gallery & Fees | 0/TBD | Not started | - |

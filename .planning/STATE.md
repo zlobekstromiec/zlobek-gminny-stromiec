@@ -6,14 +6,14 @@ current_phase: 02
 current_phase_name: about-documents-cms
 status: executing
 stopped_at: Phase 2 UI-SPEC approved
-last_updated: "2026-08-13T12:48:54.823Z"
+last_updated: "2026-08-13T12:57:47.171Z"
 last_activity: 2026-08-13
 last_activity_desc: Phase 02 execution started
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 10
-  completed_plans: 8
+  completed_plans: 9
   percent: 14
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-12)
 ## Current Position
 
 Phase: 02 (about-documents-cms) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 Status: Ready to execute
 Last activity: 2026-08-13 — Phase 02 execution started
 
@@ -63,6 +63,7 @@ Progress: [████████░░] 80%
 | Phase 02 P01 | 10 | 3 tasks | 13 files |
 | Phase 02 P02 | 6 | 3 tasks | 10 files |
 | Phase 02 P03 | 3 | 2 tasks | 5 files |
+| Phase 02 P04 | 6 | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -87,6 +88,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [01-05] Walking skeleton live: repo under Org zlobekstromiec/zlobek-gminny-stromiec + Cloudflare Pages git-integration; push to main auto-builds+deploys to https://zlobek-gminny-stromiec.pages.dev (SITE-01 proven). Reconnect gotcha: use the Pages deep link, NOT the Workers 'Import a repository' funnel.
 - [Phase ?]: [02-01] O nas page shipped (ABOUT-01): content migrated out of site.ts into shared day-plan.json (D-03) + strict o-nas.json singleton; enhanced-img + marked build pipeline wired; enhanced-img/marked exact-pinned per T-0201-SC.
 - [Phase 02]: [02-02] /dokumenty shipped (DOCS-01): build-time statSync meta resolver (src/lib/server/dokumenty.ts, reusable by homepage Plan 03); dormant RODO category (D-13); 3-doc placeholder-flagged BIP seed; meta-inside-link WCAG rows; crawler now enforces /dokumenty.
+- [Phase ?]: [02-04] Sveltia CMS shell + config landed: self-hosted pinned @sveltia/cms 0.189.0 at /admin (no CDN, vendored bundle + cms:sync refresh script), all-Polish strict-widget config.yml mapping 1:1 to o-nas.json/day-plan.json/dokumenty (JSON keys unchanged, markdown limited to bold+link, fixed category select), path-scoped /admin/* CSP (tight connect-src, site-page kit.csp untouched). Worker origin is a placeholder finalized in Plan 05.
 
 ### Pending Todos
 
@@ -115,6 +117,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-13T12:48:43.805Z
+Last session: 2026-08-13T12:57:02.647Z
 Stopped at: Phase 2 UI-SPEC approved
 Resume file: .planning/phases/02-about-documents-cms/02-UI-SPEC.md
