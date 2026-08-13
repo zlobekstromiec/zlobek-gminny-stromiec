@@ -42,7 +42,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Dokumenty (Documents)
 
-- [ ] **DOCS-01**: A visitor can browse and download documents (regulaminy, formularze)
+- [x] **DOCS-01**: A visitor can browse and download documents (regulaminy, formularze)
 - [ ] **DOCS-02**: Staff can upload, replace, and remove documents via the CMS without a developer
 
 ### Kontakt (Contact)
@@ -121,7 +121,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | SITE-06 | Phase 1 | Complete |
 | ABOUT-01 | Phase 2 | Complete |
 | ABOUT-02 | Phase 2 | Pending |
-| DOCS-01 | Phase 2 | Pending |
+| DOCS-01 | Phase 2 | Complete |
 | DOCS-02 | Phase 2 | Pending |
 | CMS-01 | Phase 2 | Pending |
 | CMS-02 | Phase 2 | Pending |

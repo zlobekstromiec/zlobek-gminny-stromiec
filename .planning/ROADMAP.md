@@ -82,7 +82,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. The CMS admin portal presents to staff in Polish — all collection/field labels, hints, and help text are Polish (and the editor UI locale is Polish where supported).
   6. A CMS edit commits to the repo and triggers a Cloudflare rebuild that publishes the change live.
 
-**Plans**: 1/5 plans executed
+**Plans**: 2/5 plans executed
 
 **Wave 1**
 
@@ -90,7 +90,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 02-02-PLAN.md — Dokumenty page (DOCS-01): folder-collection + seeded BIP files + build-time size/type resolver + /dokumenty route (RODO category dormant)
+- [x] 02-02-PLAN.md — Dokumenty page (DOCS-01): folder-collection + seeded BIP files + build-time size/type resolver + /dokumenty route (RODO category dormant)
 
 **Wave 3** *(blocked on Wave 2)*
 
@@ -205,7 +205,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Live Homepage & Design Foundation | 5/5 | Complete    | 2026-08-12 |
-| 2. About, Documents & CMS | 1/5 | In Progress|  |
+| 2. About, Documents & CMS | 2/5 | In Progress|  |
 | 3. News (Aktualności) | 0/TBD | Not started | - |
 | 4. Enrollment, Contact & Email Pipeline | 0/TBD | Not started | - |
 | 5. Gallery & Fees | 0/TBD | Not started | - |
