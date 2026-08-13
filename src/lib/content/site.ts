@@ -1,44 +1,112 @@
-// Single source for homepage facts & recruitment copy (UI-SPEC Amendment v1.1 §5).
+// Single source for homepage facts and recruitment copy (UI-SPEC Amendments v1.1/v1.2).
 // Phase 3 replaces `posts` with the CMS feed; staff-editable strings migrate to the
 // CMS content layer then. PLACEHOLDER convention (Phase 6 pre-launch grep gate)
 // extends to `// PLACEHOLDER:` line comments in this module.
+// Copy rules (v1.2 §8): no emoji, no em dashes; en dash only inside numeric ranges.
 
-/** Recruitment window switch — flipped by a human, never a date comparison
+/** VERBATIM client core message (PROJECT.md line 47). FINAL copy: do not alter a
+ *  single character. Its em dash and typographic quotes are byte-exempt from the
+ *  no-em-dash sweep. Kept single-line so the wording is contiguous (prettier-safe). */
+export const coreMessage =
+	'„Drogi Rodzicu, Kiedy Ty będziesz realizować swoje obowiązki, my będziemy czuwać nad każdym krokiem Twojej pociechy. Będziemy cierpliwie ocierać łzy, kołysać do snu i z autentycznym zachwytem świętować każde małe zwycięstwo — od samodzielnie zjedzonej zupki po pierwszy, odważny krok."';
+
+/** Recruitment window switch, flipped by a human, never a date comparison
  *  (a deadline that silently flips at midnight without staff knowing is worse
  *  than a stale one). CMS-editable in a later phase. */
 export const recruitmentOpen = true;
 
+/** Launch-week announcement bar flag: banked only, no component renders it yet.
+ *  Copy and rules live in .planning/DESIGN-BANK.md (accent bg, never danger). */
+export const openingBanner = false;
+
 export const contact = {
-	// PLACEHOLDER: street address — confirm before launch.
-	addressLines: ['ul. [do uzupełnienia]', '26-804 Stromiec'],
-	// PLACEHOLDER: phone number — confirm before launch.
-	phoneDisplay: '+48 00 000 00 00',
-	phoneHref: 'tel:+48000000000',
-	/** FINAL — confirmed public institutional inbox; do NOT mark placeholder. */
+	// PLACEHOLDER: street address, real value pending written client confirmation.
+	addressLines: ['ul. Radomska 5', '26-804 Stromiec'],
+	// PLACEHOLDER: phone number, pending written client confirmation.
+	phoneDisplay: '48 619 10 25',
+	phoneHref: 'tel:+48486191025',
+	/** FINAL: confirmed public institutional inbox; do NOT mark placeholder. */
 	email: 'zlobek@ugstromiec.pl',
-	// PLACEHOLDER: opening hours — confirm with the żłobek before launch.
-	hours: 'pon.–pt. 6:30–16:30'
+	// PLACEHOLDER: opening hours, pending written client confirmation.
+	hours: 'pon.-pt. 6:30–16:30',
+	// PLACEHOLDER: secretariat hours, pending written client confirmation.
+	secretariatHours: 'sekretariat: pon.-pt. 7:00–15:00'
 } as const;
 
 export type KeyFact = {
 	label: string;
 	value: string;
-	/** e.g. '+ wyżywienie' — rendered inline, Nunito 400 15px muted */
+	/** rendered inline after the value, Nunito 400 15px muted */
 	suffix?: string;
-	/** maps to a --color-expr-* left border — decorative only, carries no information */
-	accent: 'blue' | 'yellow' | 'orange';
+	/** bespoke duotone icon shown in the tint chip */
+	icon: 'smile' | 'clock' | 'coins' | 'house';
+	/** tint chip surface (decorative only; icon stroke stays accessible-tier) */
+	tint: 'yellow' | 'blue' | 'orange' | 'green';
 };
 
 export const keyFacts: KeyFact[] = [
-	// FINAL: statutory żłobek age range (ustawa o opiece nad dziećmi w wieku do lat 3).
-	{ label: 'Wiek dzieci', value: '20 tyg. – 3 lata', accent: 'blue' },
-	// PLACEHOLDER: opening hours — confirm before launch.
-	{ label: 'Godziny otwarcia', value: '6:30 – 16:30', accent: 'yellow' },
-	// PLACEHOLDER: monthly fee — confirm before launch.
-	{ label: 'Opłata miesięczna', value: '000 zł', suffix: '+ wyżywienie', accent: 'orange' },
-	// PLACEHOLDER: capacity — confirm before launch.
-	{ label: 'Liczba miejsc', value: '00 dzieci', accent: 'blue' }
+	// PLACEHOLDER: age range, pending written client confirmation. This CORRECTS the
+	// earlier "20 tyg. – 3 lata" which was wrongly marked statutory-final: a żłobek
+	// statute sets its own minimum age.
+	{ label: 'Wiek dzieci', value: '10 mies. – 3 lata', icon: 'smile', tint: 'yellow' },
+	// PLACEHOLDER: opening hours, pending written client confirmation.
+	{ label: 'Godziny otwarcia', value: '6:30–16:30', icon: 'clock', tint: 'blue' },
+	// PLACEHOLDER: fees, pending written client confirmation.
+	{
+		label: 'Opłata miesięczna',
+		value: '400 zł',
+		suffix: '+ wyżywienie 14 zł/dzień',
+		icon: 'coins',
+		tint: 'orange'
+	},
+	// PLACEHOLDER: capacity, pending written client confirmation.
+	{ label: 'Liczba miejsc', value: '50', icon: 'house', tint: 'green' }
 ];
+
+export type Perk = {
+	title: string;
+	body: string;
+	icon: 'shield' | 'heart' | 'blocks' | 'tree';
+	tint: 'blue' | 'pink' | 'yellow' | 'green';
+};
+
+export const perks: Perk[] = [
+	{
+		title: 'Bezpieczeństwo',
+		body: 'Nowy, monitorowany budynek zaprojektowany specjalnie dla maluchów.',
+		icon: 'shield',
+		tint: 'blue'
+	},
+	{
+		title: 'Troskliwa kadra',
+		body: 'Wykwalifikowane opiekunki z sercem do pracy z najmłodszymi.',
+		icon: 'heart',
+		tint: 'pink'
+	},
+	{
+		title: 'Rozwój przez zabawę',
+		body: 'Zajęcia muzyczne, plastyczne i ruchowe dopasowane do wieku.',
+		icon: 'blocks',
+		tint: 'yellow'
+	},
+	{
+		title: 'Plac zabaw',
+		body: 'Bezpieczny, kolorowy ogród do codziennych zabaw na powietrzu.',
+		icon: 'tree',
+		tint: 'green'
+	}
+];
+
+// PLACEHOLDER: daily schedule, pending written client confirmation.
+export const dayPlan = [
+	{ time: '6:30–8:30', what: 'Przyjmowanie dzieci, swobodna zabawa' },
+	{ time: '8:30–9:00', what: 'Śniadanie' },
+	{ time: '9:00–11:00', what: 'Zajęcia i zabawy, spacer lub plac zabaw' },
+	{ time: '11:00–11:30', what: 'Obiad: zupa' },
+	{ time: '11:30–13:30', what: 'Leżakowanie, odpoczynek' },
+	{ time: '13:30–14:00', what: 'Obiad: drugie danie' },
+	{ time: '14:00–16:30', what: 'Podwieczorek, zabawy, odbiór dzieci' }
+] as const;
 
 type RecruitmentStrings = {
 	pill: string;
@@ -48,53 +116,61 @@ type RecruitmentStrings = {
 };
 
 const openStrings: RecruitmentStrings = {
-	pill: 'Nabór 2026/2027 trwa — wolne miejsca',
+	pill: 'Nabór 2026/2027 trwa: wolne miejsca',
 	heading: 'Nabór na rok 2026/2027 trwa',
-	// PLACEHOLDER: deadline date — confirm the real recruitment window before launch.
-	deadline: 'Wnioski przyjmujemy do 31 marca 2026',
-	body: 'Przyjmujemy dzieci w wieku od 20 tygodni do 3 lat, zamieszkałe na terenie Gminy Stromiec. Wystarczą trzy kroki — a jeśli coś jest niejasne, po prostu zadzwoń.'
+	// PLACEHOLDER: recruitment window wording, pending written client confirmation.
+	deadline: 'Rekrutacja uzupełniająca: zapisy przez cały rok',
+	body: 'Wystarczą cztery kroki, a jeśli coś jest niejasne, po prostu zadzwoń.'
 };
 
 const closedStrings: RecruitmentStrings = {
-	pill: 'Nabór zakończony — lista rezerwowa otwarta',
+	pill: 'Nabór zakończony: lista rezerwowa otwarta',
 	heading: 'Nabór na rok 2026/2027 zakończony',
 	deadline: 'Zapisy na listę rezerwową przez cały rok',
 	body: 'Rekrutacja podstawowa została zakończona, ale w ciągu roku zwalniają się miejsca. Zgłoszenie na listę rezerwową możesz złożyć w dowolnym momencie.'
 };
 
-/** Derived once here — components import `recruitment`, never plumb the boolean. */
+/** Derived once here; components import `recruitment`, never plumb the boolean. */
 export const recruitment = {
 	...(recruitmentOpen ? openStrings : closedStrings),
+	// PLACEHOLDER: age range + admission rules, pending written client confirmation.
+	infoCard:
+		'Przyjmujemy dzieci w wieku od 10 miesięcy do 3 lat, zamieszkałe na terenie gminy Stromiec. Rekrutacja uzupełniająca trwa przez cały rok, w miarę wolnych miejsc.',
 	steps: [
 		{
-			title: 'Pobierz i wypełnij kartę zgłoszenia',
-			body: 'Formularz PDF znajdziesz obok — możesz też odebrać go w żłobku.'
+			title: 'Pobierz kartę zgłoszenia',
+			body: 'Formularz znajdziesz w panelu obok lub w sekretariacie żłobka.'
 		},
 		{
 			// Plain text e-mail by design: the homepage carries exactly ONE mailto
-			// (in ContactAndMap) — a second would break the acceptance test's
-			// strict-mode locator (Amendment v1.1 §6).
+			// (in ContactAndMap); a second would break the acceptance test's
+			// strict-mode locator (UI-SPEC v1.2 §6).
 			title: 'Złóż dokumenty',
-			body: 'Osobiście w żłobku lub e-mailem na zlobek@ugstromiec.pl.'
+			body: 'Osobiście w żłobku (pon.-pt. 7:00–15:00), e-mailem na zlobek@ugstromiec.pl lub przez ePUAP.'
 		},
 		{
-			// PLACEHOLDER: results date — confirm before launch.
-			title: 'Odbierz decyzję',
-			body: 'Wyniki ogłaszamy do 15 kwietnia i informujemy telefonicznie.'
+			title: 'Poczekaj na wyniki',
+			body: 'Komisja rekrutacyjna weryfikuje zgłoszenia. O przyjęciu dziecka poinformujemy telefonicznie i e-mailem.'
+		},
+		{
+			title: 'Podpisz umowę',
+			body: 'Po zakwalifikowaniu dziecka zapraszamy rodziców na podpisanie umowy i spotkanie adaptacyjne.'
 		}
 	],
 	docs: [
-		// PLACEHOLDER: file meta 'PDF · ---' + hrefs point at /dokumenty until the
-		// real PDFs land in Phase 2 (then each row links its file with real size).
-		{ name: 'Karta zgłoszenia dziecka', meta: 'PDF · ---', href: '/dokumenty' },
-		{ name: 'Statut żłobka', meta: 'PDF · ---', href: '/dokumenty' },
-		{ name: 'Regulamin organizacyjny', meta: 'PDF · ---', href: '/dokumenty' },
-		{ name: 'Uchwała w sprawie opłat', meta: 'PDF · ---', href: '/dokumenty' }
+		// PLACEHOLDER: hrefs point at /dokumenty and meta stays 'PDF' until the real
+		// files land in Phase 2 (then each row links its file with real size + date).
+		{ name: 'Karta zgłoszenia dziecka', meta: 'PDF', href: '/dokumenty' },
+		{ name: 'Regulamin rekrutacji', meta: 'PDF', href: '/dokumenty' },
+		{ name: 'Statut żłobka', meta: 'PDF', href: '/dokumenty' },
+		{ name: 'Regulamin organizacyjny', meta: 'PDF', href: '/dokumenty' },
+		{ name: 'Upoważnienie do odbioru dziecka', meta: 'PDF', href: '/dokumenty' },
+		{ name: 'Oświadczenia RODO', meta: 'PDF', href: '/dokumenty' }
 	]
 } as const;
 
 export type Post = { title: string; date: string; href: string; excerpt?: string };
 
 /** Empty until Phase 3 wires the CMS. The homepage derives showNews from
- *  posts.length — it never renders a news empty state (Amendment v1.1 §1). */
+ *  posts.length; it never renders a news empty state (Amendment v1.1 §1). */
 export const posts: Post[] = [];
