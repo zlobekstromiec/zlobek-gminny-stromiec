@@ -1,10 +1,11 @@
 ---
 phase: 2
 slug: about-documents-cms
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-08-13
+reviewed_at: 2026-08-13
 inherits: .planning/phases/01-live-homepage-design-foundation/01-UI-SPEC.md
 ---
 
@@ -49,7 +50,7 @@ inherits: .planning/phases/01-live-homepage-design-foundation/01-UI-SPEC.md
 - Page section vertical padding: `48px` (base) → `64–80px` (`lg`), matching existing content sections (DayPlan uses 48→64; AboutTeaser/Recruitment use 48→80).
 - Container: max-width `72rem`, centered, gutters `16px` → `24px` (`md`) → `32px` (`lg`).
 - Prose measure: running narrative capped at ~`52–65ch`.
-- Card inner padding: `16px` (mobile) → `24–28px` (desktop).
+- Card inner padding: `16px` (mobile) → `24px` (desktop).
 
 **Exceptions:** Interactive targets (document download links, CMS-driven links) keep the **minimum 44×44px hit area** (WCAG 2.5.5). Document rows follow the existing `.doc-row` pattern: `min-height: 48px`, `padding: 8px 0`.
 
@@ -103,6 +104,8 @@ Role mapping for the new pages (all drawn from the inherited scale):
 
 **Route:** `src/routes/o-nas/+page.svelte` (remove `/o-nas` from `svelte.config.js` `KNOWN_FUTURE_ROUTES` when it lands). Content sourced at build from the CMS singleton `src/lib/content/o-nas.json` (strict fields, D-05); narrative fields rendered with `marked` (D-08). Reuses `Seo`, `Wave`, `Cta`, existing icons.
 
+**Primary visual anchor:** the „Nasze miejsce" facility imagery/gallery section is the page's visual anchor; all other sections are text-led and subordinate to it.
+
 **Section order (D-01 — Claude's discretion, locked here):**
 1. **Page header** — `h1` „O nas" on `#FFFFFF`; short lead paragraph (Nunito 19px `muted`, ≤56ch). Optional decorative expressive blob/chip behind, `aria-hidden`.
 2. **Misja** — warm surface `#FBFAF7`; `h2` „Nasza misja"; narrative (16px body, ≤65ch). Single decorative accent flourish permitted.
@@ -121,6 +124,8 @@ Surface alternation across sections: white → warm → white → white(tint pan
 ### `/dokumenty` page (DOCS-01, DOCS-02) — prerendered, zero-JS
 
 **Route:** `src/routes/dokumenty/+page.svelte` (remove `/dokumenty` from `KNOWN_FUTURE_ROUTES` when it lands). Entries: folder collection `src/lib/content/dokumenty/*.json` read at build (`import.meta.glob`), grouped by `kategoria`. File type + size computed at build via `fs.statSync` + extension (D-14) — never stored/typed by staff. Download files live in `static/dokumenty/` (served verbatim).
+
+**Primary visual anchor:** the grouped document list itself is the page's visual anchor; there is no competing focal element (the header lead and optional flourish stay subordinate).
 
 **Composition:**
 1. **Page header** — `h1` „Dokumenty" on `#FFFFFF`; lead paragraph explaining the page and the download affordance (see Copywriting). Optional single decorative flourish, `aria-hidden`.
