@@ -4,8 +4,10 @@
 	// NO extra <main>/landmark, NO extra h1 beyond the page heading (layout owns <main>).
 	//
 	// Content is imported at build from the strict o-nas.json singleton (D-05). Narrative
-	// fields render with marked.parseInline so only paragraphs/bold/links reach the DOM,
-	// never block headings/images/tables/raw HTML (D-08). Facility images are optimized by
+	// fields render with renderInline ($lib/markdown): marked with a hardened renderer
+	// that escapes raw inline HTML, drops unsafe link protocols, and flattens images, so
+	// only paragraphs/bold/links reach the DOM (D-08); the public CSP (script-src 'self')
+	// is the second, not the only, layer. Facility images are optimized by
 	// enhanced-img (AVIF/WebP srcset, width/height, no CLS) and resolved by BASENAME so the
 	// route is decoupled from whether Plan 04's Sveltia config stores a filename or a path.
 	// Plan dnia reuses DayPlan verbatim (D-03: single shared source). Kadra is a collective
@@ -14,7 +16,7 @@
 	import Seo from '$lib/components/Seo.svelte';
 	import DayPlan from '$lib/components/DayPlan.svelte';
 	import Cta from '$lib/components/Cta.svelte';
-	import { marked } from 'marked';
+	import { renderInline } from '$lib/markdown';
 	import onas from '$lib/content/o-nas.json';
 
 	// Statically-analyzable glob: keys are absolute file paths, values are processed
@@ -33,11 +35,11 @@
 		.map((item) => ({ alt: item.alt, pic: byName[item.plik.split('/').pop() ?? item.plik] }))
 		.filter((item): item is { alt: string; pic: Picture } => Boolean(item.pic));
 
-	// D-08: inline render only (single paragraph, bold + links). Cast is safe because
-	// marked.parseInline is synchronous with the default (non-async) configuration.
-	const misjaHtml = marked.parseInline(onas.misja) as string;
-	const kadraHtml = marked.parseInline(onas.kadra_opis) as string;
-	const obiektHtml = marked.parseInline(onas.obiekt_opis) as string;
+	// D-08: inline render only (single paragraph, bold + links), sanitized by the
+	// hardened renderer in $lib/markdown (raw HTML escaped, unsafe hrefs dropped).
+	const misjaHtml = renderInline(onas.misja);
+	const kadraHtml = renderInline(onas.kadra_opis);
+	const obiektHtml = renderInline(onas.obiekt_opis);
 </script>
 
 <Seo
@@ -58,7 +60,7 @@
 <section class="band warm" aria-labelledby="misja-heading">
 	<div class="inner narrow">
 		<h2 id="misja-heading">Nasza misja</h2>
-		<!-- eslint-disable-next-line svelte/no-at-html-tags -- D-08: build-time trusted content, marked.parseInline limited to bold/links, CSP script-src 'self' (T-0201-01) -->
+		<!-- eslint-disable-next-line svelte/no-at-html-tags -- D-08: renderInline sanitizes (raw HTML escaped, link protocols filtered); CSP script-src 'self' is the second layer (T-0201-01) -->
 		<p class="prose">{@html misjaHtml}</p>
 	</div>
 </section>
@@ -85,7 +87,7 @@
 <section class="band warm" aria-labelledby="kadra-heading">
 	<div class="inner narrow">
 		<h2 id="kadra-heading">Nasza kadra</h2>
-		<!-- eslint-disable-next-line svelte/no-at-html-tags -- D-08: build-time trusted content, marked.parseInline limited to bold/links, CSP script-src 'self' (T-0201-01) -->
+		<!-- eslint-disable-next-line svelte/no-at-html-tags -- D-08: renderInline sanitizes (raw HTML escaped, link protocols filtered); CSP script-src 'self' is the second layer (T-0201-01) -->
 		<p class="prose">{@html kadraHtml}</p>
 		<dl class="headcount">
 			<div class="stat">
@@ -104,7 +106,7 @@
 <section class="band" aria-labelledby="obiekt-heading">
 	<div class="inner">
 		<h2 id="obiekt-heading">Nasze miejsce</h2>
-		<!-- eslint-disable-next-line svelte/no-at-html-tags -- D-08: build-time trusted content, marked.parseInline limited to bold/links, CSP script-src 'self' (T-0201-01) -->
+		<!-- eslint-disable-next-line svelte/no-at-html-tags -- D-08: renderInline sanitizes (raw HTML escaped, link protocols filtered); CSP script-src 'self' is the second layer (T-0201-01) -->
 		<p class="prose">{@html obiektHtml}</p>
 		{#if facility.length > 0}
 			<ul class="gallery">
