@@ -42,9 +42,10 @@ in the repo-root gitignored `.envrc` (see project CLAUDE.md).
    - `static/admin/config.yml` -> `backend.base_url`
    - `_headers` -> `/admin/*` `connect-src` entry
 
-   If the deployed origin equals `https://sveltia-cms-auth.zlobekstromiec.workers.dev`
-   (the value already committed), no edit is needed. Otherwise update both, commit,
-   and push to `main` (Cloudflare Pages rebuilds automatically).
+   The deployed origin is `https://sveltia-cms-auth.devzlobekstromiec.workers.dev`
+   (the account workers.dev subdomain is `devzlobekstromiec`), and both files carry
+   it. If the Worker is ever redeployed under a different origin, update both,
+   commit, and push to `main` (Cloudflare Pages rebuilds automatically).
 
 5. **Invite staff editors** as `zlobekstromiec` Org members with write access to
    the content repo (per-editor accounts for a per-person audit trail, D-19/D-22).

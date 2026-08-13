@@ -6,10 +6,10 @@ backend:
   name: github
   repo: zlobekstromiec/zlobek-gminny-stromiec
   branch: main
-  # TODO(Plan 05): replace with the real sveltia-cms-auth Worker origin once the
-  # OAuth proxy Worker is deployed. This placeholder origin MUST stay in sync with
-  # the connect-src entry in the /admin/* CSP block in `_headers`.
-  base_url: https://sveltia-cms-auth.zlobekstromiec.workers.dev
+  # Deployed sveltia-cms-auth Worker origin (account workers.dev subdomain:
+  # devzlobekstromiec). MUST stay in sync with the connect-src entry in the
+  # /admin/* CSP block in `_headers`.
+  base_url: https://sveltia-cms-auth.devzlobekstromiec.workers.dev
 
 # Direct publish to `main`, no editorial workflow (D-20).
 
