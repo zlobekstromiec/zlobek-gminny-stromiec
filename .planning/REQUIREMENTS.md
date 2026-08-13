@@ -25,7 +25,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **NEWS-01**: A visitor can view a list of news posts, newest first
 - [x] **NEWS-02**: A visitor can open a single news post and read its full content
-- [ ] **NEWS-03**: Staff can create, edit, and publish news posts via the CMS without a developer
+- [x] **NEWS-03**: Staff can create, edit, and publish news posts via the CMS without a developer
 
 ### O nas (About)
 
@@ -128,7 +128,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | CMS-03 | Phase 2 | Complete |
 | NEWS-01 | Phase 3 | Complete |
 | NEWS-02 | Phase 3 | Complete |
-| NEWS-03 | Phase 3 | Pending |
+| NEWS-03 | Phase 3 | Complete |
 | RECRUIT-01 | Phase 4 | Pending |
 | RECRUIT-02 | Phase 4 | Pending |
 | RECRUIT-03 | Phase 4 | Pending |
