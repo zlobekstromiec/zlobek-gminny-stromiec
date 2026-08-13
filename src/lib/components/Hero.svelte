@@ -1,23 +1,16 @@
 <script lang="ts">
-	// Hero (HOME-01) — leads with the żłobek's core message VERBATIM.
-	//
-	// CONTEXT D-01: a short Polish hook headline (h1, PLACEHOLDER) sits above the
-	// żłobek's full 4-sentence core message, which renders VERBATIM directly beneath
-	// as a styled lead quote. Per D-02 that message is FINAL client copy from
-	// PROJECT.md line 47 — it is NOT a placeholder and not a single character is
-	// altered. Only the hook headline is a marked PLACEHOLDER (LAUNCH-01).
+	// Hero v2 (HOME-01, UI-SPEC v1.2 §6): status pill, two-tone hook headline and
+	// a single-sentence emotional lead. The FULL verbatim core message lives in
+	// AboutTeaser further down the same homepage (Amendment v1.1 decision); the
+	// lead below quotes sentence 2 of it verbatim.
 	//
 	// D-03: the image slot is a non-identifiable warm placeholder (no child faces),
 	// shipped as AVIF/WebP with explicit width/height (no CLS) and fetchpriority="high"
 	// (PITFALLS #9). aria-hidden while purely decorative; a real Polish alt lands with
 	// consented photography in Phase 6.
 	import Cta from './Cta.svelte';
-
-	// VERBATIM core message (PROJECT.md line 47) — FINAL client copy (D-02). Kept as a
-	// single-line constant so the exact wording is contiguous and un-wrapped; do NOT
-	// alter a single character and do NOT mark it PLACEHOLDER.
-	const coreMessage =
-		'„Drogi Rodzicu, Kiedy Ty będziesz realizować swoje obowiązki, my będziemy czuwać nad każdym krokiem Twojej pociechy. Będziemy cierpliwie ocierać łzy, kołysać do snu i z autentycznym zachwytem świętować każde małe zwycięstwo — od samodzielnie zjedzonej zupki po pierwszy, odważny krok."';
+	import IconSun from '$lib/icons/IconSun.svelte';
+	import { contact, recruitment } from '$lib/content/site';
 </script>
 
 <section class="hero">
@@ -25,26 +18,40 @@
 	     the content at low z-index, hidden from assistive tech (UI-SPEC §Hero). -->
 	<div class="blob blob-blue" aria-hidden="true"></div>
 	<div class="blob blob-yellow" aria-hidden="true"></div>
-	<div class="blob blob-orange" aria-hidden="true"></div>
 
 	<div class="hero-inner">
 		<div class="hero-copy">
-			<!-- PLACEHOLDER: hook headline — replace with the final client hook line at
-			     launch (LAUNCH-01). Only the hook is a placeholder; the lead below is final. -->
-			<h1 class="hook">Miejsce pełne radości i troski</h1>
+			<p class="pill">
+				<span class="pill-icon" aria-hidden="true"><IconSun size={16} /></span>
+				{recruitment.pill}
+			</p>
 
-			<!-- VERBATIM core message (final copy, D-02) — rendered from the un-wrapped
-			     constant above so the exact wording is preserved character-for-character. -->
-			<blockquote class="lead">{coreMessage}</blockquote>
+			<!-- PLACEHOLDER: hook headline pending final client confirmation (LAUNCH-01).
+			     Two-tone highlight uses accent-active (v1.2 contrast ruling: accent-hover
+			     fails 3:1 on the band region of the gradient). -->
+			<h1 class="hook">Radosny start <span class="hl">dla najmłodszych</span></h1>
+
+			<!-- Sentence 2 of the VERBATIM core message (final copy, D-02): quoted
+			     exactly; the full message renders in AboutTeaser (same page). -->
+			<p class="lead">
+				Kiedy Ty będziesz realizować swoje obowiązki, my będziemy czuwać nad każdym krokiem Twojej
+				pociechy.
+			</p>
 
 			<div class="cta-row">
 				<Cta href="/rekrutacja" variant="primary" icon>Zapisz dziecko</Cta>
-				<Cta href="/o-nas" variant="secondary">Poznaj żłobek</Cta>
+				<Cta href="/kontakt" variant="secondary">Zadzwoń do nas</Cta>
 			</div>
+
+			<!-- PLACEHOLDER: phone number pending written client confirmation (site.ts). -->
+			<p class="phone-line">
+				Masz pytanie? Zadzwoń:
+				<a href={contact.phoneHref}>{contact.phoneDisplay}</a>
+			</p>
 		</div>
 
 		<div class="hero-media">
-			<!-- PLACEHOLDER decorative image (no child faces — consent-safe, D-03).
+			<!-- PLACEHOLDER decorative image (no child faces, consent-safe, D-03).
 			     Explicit width/height keep the 4:3 box reserved (no CLS); fetchpriority
 			     high because it is the LCP element. Swapped for consented photography in
 			     Phase 6, when it also gains a real Polish alt. -->
@@ -70,13 +77,13 @@
 	.hero {
 		position: relative;
 		overflow: hidden;
-		background: var(--color-surface);
+		background: linear-gradient(180deg, var(--color-band) 0%, var(--color-surface) 100%);
 		padding-block: 48px;
 	}
 
 	@media (min-width: 1024px) {
 		.hero {
-			padding-block: 96px;
+			padding-block: 72px;
 		}
 	}
 
@@ -99,10 +106,32 @@
 
 	@media (min-width: 1024px) {
 		.hero-inner {
-			grid-template-columns: 1.1fr 0.9fr;
+			grid-template-columns: 1.05fr 0.95fr;
 			padding-inline: 32px;
-			gap: 48px;
+			gap: 56px;
 		}
+	}
+
+	/* Status pill: white surface, accent border (decorative), accent-active text
+	   (5.02:1 on white). The recruitment state string comes from site.ts. */
+	.pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		margin: 0 0 20px;
+		padding: 6px 14px;
+		border-radius: var(--radius-pill);
+		background: var(--color-surface);
+		border: 2px solid var(--color-accent);
+		font-family: var(--font-body);
+		font-size: 14px;
+		font-weight: 700;
+		color: var(--color-accent-active);
+	}
+
+	.pill-icon {
+		display: inline-flex;
+		color: var(--color-accent-active);
 	}
 
 	.hook {
@@ -110,26 +139,50 @@
 		font-weight: 700;
 		font-size: clamp(2rem, 5vw, 2.75rem);
 		line-height: 1.1;
-		color: var(--color-ink);
+		color: var(--color-brand-blue);
 		margin: 0 0 16px;
+		text-wrap: balance;
+	}
+
+	.hook .hl {
+		color: var(--color-accent-active);
 	}
 
 	.lead {
 		font-family: var(--font-body);
 		font-weight: 400;
-		font-size: 18px;
-		line-height: 1.6;
+		font-size: 19px;
+		line-height: 1.55;
 		color: var(--color-muted);
-		max-width: 60ch;
-		margin: 0 0 24px;
-		padding-left: 16px;
-		border-left: 4px solid var(--color-band);
+		max-width: 46ch;
+		margin: 0 0 28px;
 	}
 
 	.cta-row {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 16px;
+		margin-bottom: 24px;
+	}
+
+	.phone-line {
+		font-family: var(--font-body);
+		font-size: 15px;
+		color: var(--color-muted);
+		margin: 0;
+	}
+
+	.phone-line a {
+		display: inline-flex;
+		align-items: center;
+		min-height: 44px;
+		color: var(--color-brand-blue);
+		font-weight: 700;
+		text-decoration: underline;
+	}
+
+	.phone-line a:hover {
+		color: var(--color-brand-blue-hover);
 	}
 
 	.hero-media {
@@ -143,41 +196,35 @@
 		height: auto;
 		aspect-ratio: 4 / 3;
 		object-fit: cover;
+		border: 6px solid var(--color-surface);
 		border-radius: var(--radius-lg);
-		box-shadow: 0 12px 28px rgb(15 23 42 / 0.12);
+		box-shadow: 0 16px 40px rgb(3 105 161 / 0.18);
 	}
 
-	/* Decorative blobs — expressive tier, non-text surfaces only. */
+	/* Decorative blobs: expressive tier, non-text surfaces only (two, per v1.2). */
 	.blob {
 		position: absolute;
 		z-index: 0;
 		border-radius: 9999px;
-		filter: blur(8px);
-		opacity: 0.35;
+		filter: blur(10px);
 		pointer-events: none;
 	}
 
 	.blob-blue {
-		width: 320px;
-		height: 320px;
+		width: 340px;
+		height: 340px;
 		background: var(--color-expr-blue);
-		top: -120px;
-		right: -80px;
+		opacity: 0.18;
+		top: -140px;
+		right: -60px;
 	}
 
 	.blob-yellow {
-		width: 220px;
-		height: 220px;
+		width: 200px;
+		height: 200px;
 		background: var(--color-expr-yellow);
-		bottom: -90px;
-		left: -60px;
-	}
-
-	.blob-orange {
-		width: 180px;
-		height: 180px;
-		background: var(--color-expr-orange);
-		top: 40%;
-		left: -70px;
+		opacity: 0.22;
+		bottom: -80px;
+		left: -50px;
 	}
 </style>
