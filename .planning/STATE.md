@@ -6,14 +6,14 @@ current_phase: 03
 current_phase_name: news-aktualno-ci
 status: executing
 stopped_at: Phase 3 context gathered
-last_updated: "2026-08-13T21:08:13.438Z"
+last_updated: "2026-08-13T21:16:02.531Z"
 last_activity: 2026-08-13
 last_activity_desc: Phase 03 execution started
 progress:
   total_phases: 7
   completed_phases: 2
   total_plans: 15
-  completed_plans: 12
+  completed_plans: 13
   percent: 29
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-12)
 ## Current Position
 
 Phase: 03 (news-aktualno-ci) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-08-13 — Phase 03 execution started
 
@@ -67,6 +67,7 @@ Progress: [████████░░] 80%
 | Phase 02 P04 | 6 | 3 tasks | 7 files |
 | Phase 02 P05 | 15 | 3 tasks | 8 files |
 | Phase 03 P01 | 15 | 3 tasks | 7 files |
+| Phase 03 P02 | 8 | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -94,6 +95,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [02-04] Sveltia CMS shell + config landed: self-hosted pinned @sveltia/cms 0.189.0 at /admin (no CDN, vendored bundle + cms:sync refresh script), all-Polish strict-widget config.yml mapping 1:1 to o-nas.json/day-plan.json/dokumenty (JSON keys unchanged, markdown limited to bold+link, fixed category select), path-scoped /admin/* CSP (tight connect-src, site-page kit.csp untouched). Worker origin is a placeholder finalized in Plan 05.
 - [Phase ?]: [02-05] Staff-editor vertical slice proven LIVE on *.pages.dev: self-hosted sveltia-cms-auth OAuth Worker (devzlobekstromiec.workers.dev, ALLOWED_DOMAINS=live Pages origin), config.yml base_url + _headers connect-src finalized to the real origin, Polish instrukcja shipped; GitHub login to Polish edit to commit main to Pages rebuild to live confirmed (CMS-01/02/03). Secrets Worker-only. npm audit sharp/libvips CVEs NOT force-fixed (breaking enhanced-img 0.4.1 downgrade rejected). CMS-03 chrome caveat narrowed by gap-closure plan 02-06.
 - [Phase 03]: [03-01] Aktualności list route (NEWS-01) shipped: build-time readAktualnosci()/readLatest(n) reader (slug from filename, genitive Polish dates, no runtime locale formatter), shared NewsCard (self-contained cover by basename + tint fallback), zero-JS prerendered /aktualnosci newest-first; svelte.config.js untouched so [slug] card links are tolerated known-future 404s until Plan 02.
+- [Phase 03]: [03-02] renderPost hardened full-block renderer reuses vetted escapeHtml/SAFE_HREF (declared once); headings neutralized to paragraphs to protect the post single-h1 and stored-XSS boundary; /aktualnosci/[slug] prerendered via entries() from the shared reader; /aktualnosci dropped from KNOWN_FUTURE_ROUTES so broken news links now fail the build; +error.svelte is the site-wide friendly Polish 404 via the app/state page rune (NEWS-02).
 
 ### Pending Todos
 
@@ -122,6 +124,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-13T21:07:39.847Z
+Last session: 2026-08-13T21:15:41.136Z
 Stopped at: Phase 3 context gathered
 Resume file: .planning/phases/03-news-aktualno-ci/03-CONTEXT.md
