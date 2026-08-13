@@ -14,23 +14,25 @@
 </script>
 
 <section class="facts" aria-label="Najważniejsze informacje">
-	<dl class="facts-grid">
+	<!-- Plain list semantics: axe's definition-list rule forbids the chip/text
+	     wrapper divs a <dl> layout would need here. -->
+	<ul class="facts-grid">
 		{#each keyFacts as fact (fact.label)}
 			{@const Icon = icons[fact.icon]}
-			<div class="fact">
+			<li class="fact">
 				<span class="chip chip-{fact.tint}" aria-hidden="true">
 					<Icon size={26} />
 				</span>
 				<div class="fact-text">
-					<dt class="fact-label">{fact.label}</dt>
-					<dd class="fact-value">
+					<span class="fact-label">{fact.label}</span>
+					<span class="fact-value">
 						{fact.value}
 						{#if fact.suffix}<span class="fact-suffix">{fact.suffix}</span>{/if}
-					</dd>
+					</span>
 				</div>
-			</div>
+			</li>
 		{/each}
-	</dl>
+	</ul>
 </section>
 
 <style>
@@ -45,6 +47,8 @@
 		margin-inline: auto;
 		padding-inline: 16px;
 		margin-block: 0;
+		list-style: none;
+		padding-block: 0;
 		display: grid;
 		grid-template-columns: 1fr;
 		gap: 24px;

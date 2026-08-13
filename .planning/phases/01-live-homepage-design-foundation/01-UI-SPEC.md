@@ -454,7 +454,7 @@ Rest: 0 3px 0 accent-active. Hover: accent-hover fill, translateY(-2px), 0 5px 0
 Reusable aria-hidden SVG (viewBox 0 0 1440 60, height 44px), props fill/bg. Exactly two uses: warm-to-accent above Perks, white-to-brand-blue at the top of the footer (rendered inside Footer.svelte, so on band-colored pages a white seam precedes it: accepted).
 
 ### 6. New/updated component contracts
-- **KeyFacts v2**: 46px tint icon chips (radius-md, brand-blue stroke, white duotone fill) supersede the v1.1 expressive left borders; dl semantics; facts: 10 mies. – 3 lata / 6:30–16:30 / 400 zł + wyżywienie 14 zł/dzień / 50 miejsc (all PLACEHOLDER).
+- **KeyFacts v2**: 46px tint icon chips (radius-md, brand-blue stroke, white duotone fill) supersede the v1.1 expressive left borders; plain list semantics (ul/li: axe's definition-list rule forbids the chip/text wrapper divs a dl layout needs); facts: 10 mies. – 3 lata / 6:30–16:30 / 400 zł + wyżywienie 14 zł/dzień / 50 miejsc (all PLACEHOLDER).
 - **Perks** (new): accent band, centered ink h2 "Dlaczego rodzice nas wybierają?", 4 white cards (radius-lg, hard shadow 0 5px 0 rgb(15 23 42 / 0.12), NO hover transform), bespoke icon chips, titles ink Baloo 700 20px, body muted 15px.
 - **Recruitment v2**: FOUR steps (34px brand-blue circles); tint-yellow info card (2px accent border, radius-md) between intro and steps; docs panel with SIX rows (meta "PDF" until real files); step 2 e-mail stays plain text, never a mailto.
 - **DayPlan** (new): centered tint-blue panel (max-width 44rem, radius-lg) on white, h2 "Nasz dzień w żłobku", 7 rows: time Baloo 700 19px accent-active (min-width 104px), dashed separators, activity ink 15px. Placement: after Recruitment, before AboutTeaser (keeps surface alternation).

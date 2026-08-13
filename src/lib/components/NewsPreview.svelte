@@ -13,12 +13,14 @@
 			<Cta href="/aktualnosci" variant="secondary">Zobacz wszystkie</Cta>
 		</div>
 
-		<!-- REQUIRED empty state — no posts until Phase 3 (UI-SPEC §Latest-Aktualności). -->
+		<!-- Empty state: shown on /aktualnosci until Phase 3 posts exist. The
+		     homepage no longer renders this component while posts.length is 0
+		     (UI-SPEC Amendment v1.1 §1). -->
 		<div class="empty">
 			<Newspaper class="empty-icon" size={40} aria-hidden="true" focusable="false" />
 			<h3 class="empty-heading">Wkrótce pojawią się aktualności</h3>
 			<p class="empty-body">
-				Nie opublikowaliśmy jeszcze żadnych wpisów. Zajrzyj tu wkrótce — będziemy informować o
+				Nie opublikowaliśmy jeszcze żadnych wpisów. Zajrzyj tu wkrótce, będziemy informować o
 				wydarzeniach i nowościach z życia żłobka.
 			</p>
 		</div>
