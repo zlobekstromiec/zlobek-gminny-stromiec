@@ -15,14 +15,14 @@ A parent lands on the site and, within seconds, **both feels the żłobek's warm
 - [x] Homepage hero that leads with the żłobek's core message and "pops with joy" the moment a parent opens it — *Validated in Phase 1: Live Homepage & Design Foundation (live on `zlobek-gminny-stromiec.pages.dev`, placeholder content)*
 - [x] Mobile-first responsive design that works across all device types — *Validated in Phase 1 (phone/tablet/desktop Playwright matrix green)*
 - [x] Deployed on Cloudflare (org-standard hosting) — *Validated in Phase 1 (Pages git-integration, push→auto-redeploy proven)*
+- [x] **O nas** — about the żłobek (mission, values, team, the care philosophy) — *Validated in Phase 2: About, Documents & CMS (prerendered `/o-nas`, axe AA green, placeholder content)*
+- [x] **Dokumenty** — downloadable documents (regulations, forms), uploadable by staff — *Validated in Phase 2 (self-hosted downloads with build-time type/size metadata; staff-manageable via CMS)*
+- [x] Git-based CMS (Sveltia/Decap) so staff self-edit news & documents at near-zero cost — *Validated in Phase 2 for O nas + documents (live login-edit-commit-rebuild loop proven on Pages; OAuth Worker; Polish light-theme admin). News collection lands in Phase 3.*
 
 ### Active
 - [ ] **Aktualności** — news/announcements section, editable by staff without a developer
-- [ ] **O nas** — about the żłobek (mission, values, team, the care philosophy)
 - [ ] **Rekrutacja** — enrollment info + downloadable PDF forms **and** an online application form that emails submissions to the żłobek (no data storage)
-- [ ] **Dokumenty** — downloadable documents (regulations, forms), uploadable by staff
 - [ ] **Kontakt** — contact details, location/map, and a contact form that emails the żłobek
-- [ ] Git-based CMS (Sveltia/Decap) so staff self-edit news & documents at near-zero cost
 - [ ] WCAG 2.1 AA accessibility + published **Deklaracja dostępności** (legal requirement for a public body)
 - [ ] Prominent **BIP** link out to the existing BIP (`https://ugstromiec.naszbip.pl/zlobek`)
 - [ ] RODO consent checkbox + *klauzula informacyjna* on all forms; spam protection (Cloudflare Turnstile)
@@ -92,4 +92,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-12 after Phase 1 completion — homepage live on Cloudflare Pages*
+*Last updated: 2026-08-13 after Phase 2 completion — O nas + Dokumenty live, staff-editable via the Polish Sveltia admin (OAuth Worker on Cloudflare)*
