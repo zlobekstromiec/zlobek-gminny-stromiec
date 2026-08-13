@@ -1,0 +1,141 @@
+# Sveltia CMS configuration for Żłobek Gminny w Stromcu (CMS-03: all labels/hints Polish).
+# Loaded by the self-hosted /admin/sveltia-cms.js bundle. No secrets live here
+# (the OAuth client secret lives only on the sveltia-cms-auth Worker; see Plan 05).
+
+backend:
+  name: github
+  repo: zlobekstromiec/zlobek-gminny-stromiec
+  branch: main
+  # TODO(Plan 05): replace with the real sveltia-cms-auth Worker origin once the
+  # OAuth proxy Worker is deployed. This placeholder origin MUST stay in sync with
+  # the connect-src entry in the /admin/* CSP block in `_headers`.
+  base_url: https://sveltia-cms-auth.zlobekstromiec.workers.dev
+
+# Direct publish to `main`, no editorial workflow (D-20).
+
+# Global media = images only, stored under a Vite-processed path so
+# @sveltejs/enhanced-img can optimize them at build (D-07, Pitfall 4).
+media_folder: src/lib/assets/uploads
+public_folder: /src/lib/assets/uploads
+media_libraries:
+  default:
+    config:
+      # Reject multi-MB originals and convert/cap on upload: the first layer of the
+      # two-layer image defence (D-07, Pitfall 9). enhanced-img is the second layer.
+      max_file_size: 5000000
+      transformations:
+        jpeg: { format: webp, quality: 82, width: 1600 }
+        png: { format: webp, quality: 82, width: 1600 }
+
+singletons:
+  - name: o_nas
+    label: 'O nas'
+    file: src/lib/content/o-nas.json
+    fields:
+      - name: lead
+        label: 'Wprowadzenie'
+        widget: text
+        hint: 'Krótki tekst wprowadzający na górze strony O nas.'
+      - name: misja
+        label: 'Misja'
+        widget: markdown
+        buttons: [bold, link]
+        hint: 'Krótki opis misji żłobka. Dozwolone: pogrubienie i odnośniki.'
+      - name: wartosci
+        label: 'Wartości'
+        widget: list
+        hint: 'Dodaj wartości żłobka. Każda ma tytuł i krótki opis.'
+        fields:
+          - { name: tytul, label: 'Tytuł wartości', widget: string }
+          - { name: opis, label: 'Opis', widget: text }
+      - name: kadra_opis
+        label: 'Kadra: opis'
+        widget: markdown
+        buttons: [bold, link]
+        hint: 'Ciepły opis zespołu (kwalifikacje, podejście). Bez nazwisk i zdjęć.'
+      - { name: kadra_opiekunki, label: 'Liczba opiekunek', widget: number, value_type: int, min: 0 }
+      - { name: kadra_personel, label: 'Personel pomocniczy (liczba)', widget: number, value_type: int, min: 0 }
+      - name: obiekt_opis
+        label: 'O budynku'
+        widget: markdown
+        buttons: [bold, link]
+        hint: 'Opis budynku, sali i placu zabaw.'
+      - name: obiekt_zdjecia
+        label: 'Zdjęcia (budynek, sala, plac zabaw)'
+        widget: list
+        hint: 'Zdjęcia bez osób. Zostaną zoptymalizowane automatycznie.'
+        fields:
+          - { name: plik, label: 'Zdjęcie', widget: image }
+          - name: alt
+            label: 'Opis alternatywny (alt)'
+            widget: string
+            hint: 'Krótki opis treści zdjęcia dla osób korzystających z czytników ekranu.'
+      - name: placeholder
+        label: 'Treść zastępcza (do potwierdzenia)'
+        widget: boolean
+        default: true
+        hint: 'Zaznacz, dopóki treść nie została potwierdzona.'
+
+  - name: day_plan
+    label: 'Plan dnia'
+    file: src/lib/content/day-plan.json
+    fields:
+      # JSON keys stay `time` / `what` so the file round-trips with Plan 01 (D-03/D-06);
+      # only the visible labels are Polish.
+      - name: rows
+        label: 'Godziny i zajęcia'
+        widget: list
+        hint: 'Kolejne punkty planu dnia. Każdy wiersz: godziny i opis.'
+        fields:
+          - { name: time, label: 'Godziny', widget: string }
+          - { name: what, label: 'Opis', widget: string }
+      - name: placeholder
+        label: 'Treść zastępcza (do potwierdzenia)'
+        widget: boolean
+        default: true
+        hint: 'Zaznacz, dopóki treść nie została potwierdzona.'
+
+collections:
+  - name: dokumenty
+    label: 'Dokumenty'
+    label_singular: 'Dokument'
+    folder: src/lib/content/dokumenty
+    create: true
+    extension: json
+    # Per-collection media: documents are served verbatim from /static (D-16/D-17),
+    # NOT Vite-processed like the O nas images above.
+    media_folder: /static/dokumenty
+    public_folder: /dokumenty
+    fields:
+      - name: nazwa
+        label: 'Nazwa dokumentu'
+        widget: string
+        hint: 'Czytelna nazwa po polsku (nie nazwa pliku).'
+      - name: kategoria
+        label: 'Kategoria'
+        widget: select
+        # Fixed dropdown so staff cannot typo new categories into existence (D-13/D-15).
+        options:
+          - { label: 'Rekrutacja', value: 'rekrutacja' }
+          - { label: 'Statut i uchwały', value: 'statut' }
+          - { label: 'RODO', value: 'rodo' }
+      - name: plik
+        label: 'Plik'
+        widget: file
+        hint: 'Prześlij plik PDF, DOC lub DOCX.'
+      - name: wersja
+        label: 'Wersja z dnia'
+        widget: datetime
+        date_format: 'DD.MM.YYYY'
+        time_format: false
+        hint: 'Data wersji dokumentu (DD.MM.RRRR).'
+      - name: zrodlo_bip
+        label: 'Źródło (BIP), opcjonalnie'
+        widget: string
+        required: false
+        hint: 'Odnośnik do dokumentu w BIP (opcjonalnie).'
+      - name: placeholder
+        label: 'Treść zastępcza (do potwierdzenia)'
+        widget: boolean
+        default: true
+        hint: 'Zaznacz, dopóki treść nie została potwierdzona.'
