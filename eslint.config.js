@@ -15,6 +15,9 @@ export default defineConfig(
 	// Vendored, pinned Sveltia CMS bundle (self-hosted third-party minified build,
 	// refreshed via `npm run cms:sync`) — not project source, do not lint.
 	{ ignores: ['static/admin/sveltia-cms.js'] },
+	// Vendored, pinned sveltia-cms-auth OAuth Worker (separate Cloudflare Worker
+	// deploy with its own upstream formatting) — not SvelteKit project source.
+	{ ignores: ['sveltia-cms-auth/**'] },
 	js.configs.recommended,
 	ts.configs.recommended,
 	svelte.configs.recommended,

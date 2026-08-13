@@ -14,5 +14,9 @@ worker-configuration.d.ts
 /.planning/
 /.claude/
 
+# Vendored, pinned sveltia-cms-auth OAuth Worker (separate deploy, upstream
+# formatting) — not SvelteKit project source, do not reformat.
+/sveltia-cms-auth/
+
 # Miscellaneous
 /static/
