@@ -7,11 +7,19 @@
 # nav drawer). The CSP is managed by kit.csp in svelte.config.js (hash/nonce
 # mode). Framing protection stays here via X-Frame-Options: DENY, because
 # frame-ancestors is ignored in <meta>-delivered CSP.
-# Phase 2 note: Sveltia /admin is static HTML outside SvelteKit — when it lands,
-# add a path-scoped /admin/* CSP block here.
 /*
   Strict-Transport-Security: max-age=31536000; includeSubDomains
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: DENY
   Permissions-Policy: geolocation=(), camera=(), microphone=()
+
+# Path-scoped CSP for the self-hosted Sveltia editor. This governs /admin (static
+# HTML outside SvelteKit); the prerendered site pages keep their own CSP in
+# svelte.config.js (kit.csp) which is NOT touched here (Pitfall 3). The Sveltia SPA
+# is served from a pinned local bundle (script-src 'self'); it talks only to the
+# GitHub API and to the OAuth proxy Worker, and opens the GitHub login in a popup.
+# TODO(Plan 05): the workers.dev origin below is a placeholder that MUST match
+# config.yml `base_url`; finalize both to the deployed sveltia-cms-auth Worker.
+/admin/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://avatars.githubusercontent.com https://raw.githubusercontent.com; font-src 'self' data:; connect-src 'self' https://api.github.com https://sveltia-cms-auth.zlobekstromiec.workers.dev; frame-src https://github.com; form-action 'self' https://github.com; base-uri 'self'; object-src 'none'
