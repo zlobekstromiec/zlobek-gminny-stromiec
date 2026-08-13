@@ -6,15 +6,15 @@ current_phase: 03
 current_phase_name: news-aktualno-ci
 status: executing
 stopped_at: Phase 3 context gathered
-last_updated: "2026-08-13T22:30:57.305Z"
+last_updated: "2026-08-13T22:49:59.265Z"
 last_activity: 2026-08-13
 last_activity_desc: Phase 03 execution started
 progress:
   total_phases: 7
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 17
-  completed_plans: 16
-  percent: 29
+  completed_plans: 17
+  percent: 43
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-12)
 ## Current Position
 
 Phase: 03 (news-aktualno-ci) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
 Last activity: 2026-08-13 — Phase 03 execution started
 
@@ -71,6 +71,7 @@ Progress: [████████░░] 80%
 | Phase 03 P03 | 8min | 2 tasks | 2 files |
 | Phase 03 P04 | 5min | 3 tasks | 5 files |
 | Phase 03 P05 | 4 | 2 tasks | 4 files |
+| Phase 03 P06 | 7min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -101,6 +102,7 @@ Recent decisions affecting current work:
 - [Phase 03]: [03-02] renderPost hardened full-block renderer reuses vetted escapeHtml/SAFE_HREF (declared once); headings neutralized to paragraphs to protect the post single-h1 and stored-XSS boundary; /aktualnosci/[slug] prerendered via entries() from the shared reader; /aktualnosci dropped from KNOWN_FUTURE_ROUTES so broken news links now fail the build; +error.svelte is the site-wide friendly Polish 404 via the app/state page rune (NEWS-02).
 - [Phase ?]: [03-03] Sveltia aktualnosci collection shipped (NEWS-03): all-Polish folder collection (create: true) mapping 1:1 to PostEntry, constrained tresc markdown (bold/link/lists), NO per-collection media override so covers inherit the global Vite-processed uploads (enhanced-img, Pitfall 3); global slug block encoding ascii + clean_accents transliterates Polish titles; date-prefixed slug via the date() filter (verified present in pinned @sveltia/cms 0.189.0, so data keeps DD.MM.YYYY and the reader is unchanged); Polish instrukcja section 5 documents save=publish ~2min/no-draft (D-04), live-regardless-of-date (D-03), title-edit-keeps-URL (D-07), English chrome mapping.
 - [Phase 03]: [03-05] CR-01 closed: aktualnosci data now stored ISO YYYY-MM-DD (Sveltia format key) while the Polish DD.MM.RRRR picker display stays; the slug substitutes the date verbatim (plain {{fields.data}}, no date transformation), so every day of the month yields a correct permanent URL. Reader parseData switched to ISO and both seeds migrated; dokumenty wersja left on DD.MM.YYYY (never slugged).
+- [Phase ?]: [03-06] WR-02/WR-04 closed: parseData accepts unknown (typeof + 1-31 day-range guards); new exported postFromEntry skip-with-warns malformed entries (dokumenty.ts withMeta precedent) so one bad post JSON never aborts the prerender, pinned by node:test suite tests/aktualnosci-reader.unit.ts via new test:unit script (built-in runner, no dependency, .unit.ts outside Playwright match); +error.svelte ships an is404-gated fixed-Polish title (never page.error), closing WCAG 2.4.2.
 
 ### Pending Todos
 
@@ -129,6 +131,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-13T22:30:28.110Z
+Last session: 2026-08-13T22:49:39.702Z
 Stopped at: Phase 3 context gathered
 Resume file: .planning/phases/03-news-aktualno-ci/03-CONTEXT.md

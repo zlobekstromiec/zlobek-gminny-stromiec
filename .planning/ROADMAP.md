@@ -118,7 +118,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Staff can create, edit, and publish a news post via the CMS without a developer, and it appears live after rebuild.
   4. The homepage's latest-Aktualności preview shows the most recently published posts.
 
-**Plans**: 5/6 plans executed
+**Plans**: 6/6 plans complete
 
 **Wave 1**
 
@@ -136,7 +136,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Wave 4 — gap closure** *(from 03-VERIFICATION.md: 2 blockers falsifying SC3b + Plan-01 must-have)*
 
 - [x] 03-05-PLAN.md — CR-01 fix (NEWS-03): store `data` as ISO in the Sveltia aktualnosci collection + plain slug template + ISO-parsing reader + migrate the two seed JSONs, so CMS-authored posts get correct permanent date-prefixed URLs
-- [ ] 03-06-PLAN.md — WR-02 + WR-04 (NEWS-01/02): type-guard the reader so one malformed post is skipped-with-warning instead of aborting the prerender (+ node:test resilience proof) and give +error.svelte a document title (WCAG 2.4.2 A)
+- [x] 03-06-PLAN.md — WR-02 + WR-04 (NEWS-01/02): type-guard the reader so one malformed post is skipped-with-warning instead of aborting the prerender (+ node:test resilience proof) and give +error.svelte a document title (WCAG 2.4.2 A)
 
 **UI hint**: yes
 
@@ -227,7 +227,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Live Homepage & Design Foundation | 5/5 | Complete    | 2026-08-12 |
 | 2. About, Documents & CMS | 6/6 | Complete    | 2026-08-13 |
-| 3. News (Aktualności) | 5/6 | In Progress|  |
+| 3. News (Aktualności) | 6/6 | Complete   | 2026-08-13 |
 | 4. Enrollment, Contact & Email Pipeline | 0/TBD | Not started | - |
 | 5. Gallery & Fees | 0/TBD | Not started | - |
 | 6. Accessibility, Legal Compliance & Launch | 0/TBD | Not started | - |
