@@ -3,7 +3,7 @@
 	// a keyboard-operable mobile navigation drawer. Below `md`, the five section
 	// links collapse behind a hamburger that opens a role="dialog" panel with a
 	// focus trap, ESC-to-close, focus restore, and body-scroll lock. Built from
-	// native <button>/<a> elements — no hand-rolled click-divs. Motion respects
+	// native <button>/<a> elements: no hand-rolled click-divs. Motion respects
 	// prefers-reduced-motion (UI-SPEC §Header/Nav mobile + §Motion).
 	import { fade, fly } from 'svelte/transition';
 	import { page } from '$app/state';
@@ -26,7 +26,7 @@
 	let closeBtnEl: HTMLButtonElement | undefined = $state();
 	let dialogEl: HTMLElement | undefined = $state();
 
-	/** Slide/fade duration — 0 (instant) when the user prefers reduced motion. */
+	/** Slide/fade duration: 0 (instant) when the user prefers reduced motion. */
 	function motionMs(): number {
 		if (typeof window === 'undefined') return 0;
 		return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : DRAWER_MS;

@@ -10,7 +10,7 @@ import AxeBuilder from '@axe-core/playwright';
  * axe-clean.
  */
 
-test.describe('Polityka prywatności — stub', () => {
+test.describe('Polityka prywatności: stub', () => {
 	test('route resolves with a 200 and a single Polish h1', async ({ page }) => {
 		const response = await page.goto('/polityka-prywatnosci');
 		expect(response?.status()).toBe(200);

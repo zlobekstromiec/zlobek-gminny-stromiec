@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 
-/* Self-hosted fonts (RODO — never the Google Fonts CDN). @fontsource bundles the
+/* Self-hosted fonts (RODO: never the Google Fonts CDN). @fontsource bundles the
    WOFF2 from our own origin; subset to latin + latin-ext for full Polish diacritic
    coverage (ą ć ę ł ń ó ś ź ż / Ą Ć Ę Ł Ń Ó Ś Ź Ż). font-display: swap is the
    @fontsource default. Weights: Regular 400 + Bold 700 only (no third weight). */
@@ -14,20 +14,20 @@
 @import '@fontsource/nunito/latin-ext-700.css';
 
 /* -----------------------------------------------------------------------------
-   Two-tier design tokens (SITE-04 — the single highest project risk).
+   Two-tier design tokens (SITE-04: the single highest project risk).
    Source: 01-UI-SPEC.md §Appendix @theme seed (verbatim, AA-verified).
 
-   HARD RULES — do not drift downstream:
+   HARD RULES: do not drift downstream:
    • The EXPRESSIVE tier (--color-expr-*) is decorative surfaces / blobs / shapes
      ONLY. Never place text, icons, or borders in an expressive color (e.g. no
-     `text-expr-yellow`) — they fail AA contrast on light backgrounds.
+     `text-expr-yellow`): they fail AA contrast on light backgrounds.
    • Every text / icon / border / focus / button-label color MUST draw from the
      ACCESSIBLE tier below (each pairing has a measured WCAG ratio in the UI-SPEC).
    • The Rekrutacja CTA label is `ink` (#1E293B) on amber for default + hover;
      switch to WHITE only on the darkest `active` state to stay ≥ 4.5:1. Never
-     white-on-amber otherwise (2.15:1 — fails).
-   • Body links are `brand-blue` (#0369A1) AND underlined — never colour alone.
-   • Red (danger) is semantic only (errors/alerts) — never decorative.
+     white-on-amber otherwise (2.15:1, fails).
+   • Body links are `brand-blue` (#0369A1) AND underlined: never colour alone.
+   • Red (danger) is semantic only (errors/alerts): never decorative.
 ----------------------------------------------------------------------------- */
 @theme {
 	/* surfaces */
@@ -39,7 +39,7 @@
 	--color-ink: #1e293b;
 	--color-muted: #475569;
 	--color-brand-blue: #0369a1;
-	/* link-hover darkening of brand-blue (Amendment v1.1) — AA on white/warm surfaces */
+	/* link-hover darkening of brand-blue (Amendment v1.1): AA on white/warm surfaces */
 	--color-brand-blue-hover: #075985;
 	--color-accent: #f59e0b;
 	--color-accent-hover: #d97706;
@@ -77,7 +77,7 @@
 }
 
 /* -----------------------------------------------------------------------------
-   Global accessibility base (WCAG 2.1 AA baseline — inherited by every route).
+   Global accessibility base (WCAG 2.1 AA baseline: inherited by every route).
 ----------------------------------------------------------------------------- */
 
 /* Visible focus ring on every interactive element (WCAG 2.4.7). Never use
@@ -87,7 +87,7 @@
 	outline-offset: 2px;
 }
 
-/* Reduced motion (WCAG 2.3.3 / A11Y-01) — hard requirement, not optional polish.
+/* Reduced motion (WCAG 2.3.3 / A11Y-01): hard requirement, not optional polish.
    Neutralise transforms/animation/transition and smooth scrolling at the base
    layer; keep only instant/opacity changes. */
 @media (prefers-reduced-motion: reduce) {

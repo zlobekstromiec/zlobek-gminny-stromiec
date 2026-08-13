@@ -1,5 +1,5 @@
 <!--
-  SkipLink — the first focusable element on every page (WCAG 2.4.1 Bypass Blocks,
+  SkipLink: the first focusable element on every page (WCAG 2.4.1 Bypass Blocks,
   UI-SPEC §Interaction). Visually hidden until it receives keyboard focus, then it
   reveals top-left and jumps to the <main id="main"> landmark.
 -->
@@ -11,7 +11,7 @@
 		top: 0;
 		left: 0;
 		z-index: 100;
-		/* Off-screen until focused — kept in the tab order (not display:none). */
+		/* Off-screen until focused: kept in the tab order (not display:none). */
 		transform: translateY(-120%);
 		padding: 12px 16px;
 		background: var(--color-surface);

@@ -1,5 +1,5 @@
 <!--
-  Accessibility-declaration STUB (resolves RESEARCH A4 / Open Q2 — planner decision: STUB it).
+  Accessibility-declaration STUB (resolves RESEARCH A4 / Open Q2: planner decision: STUB it).
   A minimal Polish "wkrótce" page so the footer's legally-sensitive
   „Deklaracja dostępności" link resolves instead of 404ing before Phase 6, where
   the full WCAG-conformant declaration is authored. Self-contained: no Seo.svelte
@@ -7,7 +7,7 @@
   the root +layout.ts. Colors are drawn from the accessible palette tier only.
 -->
 <svelte:head>
-	<title>Deklaracja dostępności — Żłobek Gminny Stromiec</title>
+	<title>Deklaracja dostępności | Żłobek Gminny Stromiec</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 

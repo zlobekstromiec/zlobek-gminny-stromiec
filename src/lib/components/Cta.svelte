@@ -4,7 +4,7 @@
 	// Colour hard rules (01-UI-SPEC §Color):
 	//  • primary: amber fill `accent` with `ink` label by default + hover; the label
 	//    switches to WHITE only on the darkest `active` state (the ONLY white-on-amber
-	//    state — never white on the default/hover fill, which fails AA at 2.15:1).
+	//    state: never white on the default/hover fill, which fails AA at 2.15:1).
 	//  • secondary: transparent, 2px brand-blue border + brand-blue label; hover fills
 	//    the `band` colour. NEVER amber.
 	// Focus ring is inherited from the global :focus-visible base (3px focus-ring, 2px
@@ -84,7 +84,7 @@
 		box-shadow: 0 1px 0 var(--color-accent-active);
 	}
 
-	/* Secondary — blue outline, never amber. */
+	/* Secondary: blue outline, never amber. */
 	.cta.secondary {
 		background: transparent;
 		color: var(--color-brand-blue);

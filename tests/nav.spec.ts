@@ -14,7 +14,7 @@ import { navLinks } from '../src/lib/nav';
  * Authoritative copy/URLs: 01-UI-SPEC.md §Footer + §Copywriting Contract.
  */
 
-test.describe('Navigation shell — Phase 1 acceptance', () => {
+test.describe('Navigation shell: Phase 1 acceptance', () => {
 	test('header exposes all five section links with correct hrefs (SITE-03)', async ({ page }) => {
 		await page.goto('/');
 		const nav = page.getByRole('navigation', { name: 'Główna nawigacja' });

@@ -1,5 +1,5 @@
 <!--
-  Privacy-policy STUB (UI-SPEC Amendment v1.1 §6 — same precedent as the
+  Privacy-policy STUB (UI-SPEC Amendment v1.1 §6: same precedent as the
   Deklaracja dostępności stub): a minimal Polish "wkrótce" page so the footer's
   legally-expected „Polityka prywatności (RODO)" link resolves instead of 404ing
   before Phase 6, where the full RODO policy is authored with the Gmina's IOD.
@@ -7,7 +7,7 @@
   prerender = true from the root +layout.ts. Accessible palette tier only.
 -->
 <svelte:head>
-	<title>Polityka prywatności — Żłobek Gminny Stromiec</title>
+	<title>Polityka prywatności | Żłobek Gminny Stromiec</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 

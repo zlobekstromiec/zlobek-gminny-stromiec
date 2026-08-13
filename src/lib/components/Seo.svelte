@@ -5,11 +5,11 @@
 	//
 	// D-11: while the site lives on *.pages.dev it must NOT be indexed. Because
 	// crawlers read the PRERENDERED HTML (not a client-side re-render), the noindex
-	// must be baked into the static output — so it is emitted unconditionally in
+	// must be baked into the static output: so it is emitted unconditionally in
 	// Phase 1 via `noindex` defaulting to true, paired with the robots.txt Disallow.
 	// Phase 6 passes `noindex={false}` once the real custom domain is live.
 	//
-	// D-12: NO JSON-LD structured data and NO Google Search Console token here —
+	// D-12: NO JSON-LD structured data and NO Google Search Console token here:
 	// both are deferred to Phase 6 (need confirmed NAP data + the real domain).
 	let {
 		title,

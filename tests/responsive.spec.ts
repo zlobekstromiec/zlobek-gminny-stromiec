@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * Responsive acceptance (SITE-02) — the homepage is mobile-first and adapts across
+ * Responsive acceptance (SITE-02): the homepage is mobile-first and adapts across
  * a phone/tablet/desktop viewport matrix without horizontal overflow, and the
  * navigation swaps between the hamburger drawer (phone) and the inline links
  * (desktop). Authoritative breakpoints: 01-UI-SPEC §Layout & Breakpoints
