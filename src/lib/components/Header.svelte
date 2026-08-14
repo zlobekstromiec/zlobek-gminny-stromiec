@@ -1,12 +1,12 @@
 <script lang="ts">
-	// Persistent sticky header (SITE-03, UI-SPEC v1.2 §3). Logo badge + two-line
-	// wordmark left, five section links right on >= md; below md the links collapse
-	// to the MobileNav hamburger drawer. Active section is an accent pill chip AND
-	// aria-current="page", never colour alone.
+	// Persistent sticky header (SITE-03, UI-SPEC v1.3 §3). Real circular brand
+	// emblem + two-line wordmark left, five section links right on >= md; below md
+	// the links collapse to the MobileNav hamburger drawer. Active section is an
+	// accent pill chip AND aria-current="page", never colour alone.
 	import { page } from '$app/state';
 	import { navLinks } from '$lib/nav';
 	import MobileNav from './MobileNav.svelte';
-	import IconBear from '$lib/icons/IconBear.svelte';
+	import logoMark from '$lib/assets/brand/logo-mark.png?enhanced';
 
 	// Reactive current path for the active-link state (Svelte 5 runes).
 	const pathname = $derived(page.url.pathname);
@@ -24,7 +24,9 @@
 <header class="site-header" class:scrolled>
 	<div class="bar">
 		<a class="wordmark" href="/">
-			<span class="badge" aria-hidden="true"><IconBear size={28} /></span>
+			<span class="brand-mark">
+				<enhanced:img src={logoMark} alt="" sizes="52px" />
+			</span>
 			<span class="wordmark-text">
 				<span class="wordmark-name">Żłobek Gminny Stromiec</span>
 				<span class="wordmark-tagline">Publiczny żłobek w gminie Stromiec</span>
@@ -103,19 +105,18 @@
 		text-decoration: none;
 	}
 
-	/* Logo badge: accent surface, INK icon stroke (brand-blue on accent fails
-	   contrast, v1.2 §3), tint-yellow duotone fill, hard toy shadow. */
-	.badge {
+	/* Brand emblem (v1.3 §3): the real mark is full-colour and self-contained, so
+	   it sits directly on the header surface with no accent circle behind it and
+	   no hard toy shadow. Decorative: the wordmark text names the link. */
+	.brand-mark {
 		flex: none;
-		width: 52px;
+		display: flex;
+	}
+
+	.brand-mark :global(img) {
+		display: block;
 		height: 52px;
-		border-radius: var(--radius-pill);
-		background: var(--color-accent);
-		display: grid;
-		place-items: center;
-		color: var(--color-ink);
-		--icon-fill: var(--color-tint-yellow);
-		box-shadow: 0 3px 0 var(--color-accent-active);
+		width: auto;
 	}
 
 	.wordmark-text {

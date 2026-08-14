@@ -6,6 +6,7 @@
 	// do NOT rebuild it (RESEARCH Pitfall 14).
 	import Wave from './Wave.svelte';
 	import { contact } from '$lib/content/site';
+	import logoFull from '$lib/assets/brand/logo-full.png?enhanced';
 </script>
 
 <footer class="site-footer">
@@ -13,6 +14,9 @@
 
 	<div class="inner">
 		<div class="col brand-col">
+			<div class="brand-lockup">
+				<enhanced:img src={logoFull} alt="" sizes="280px" />
+			</div>
 			<p class="footer-wordmark">Żłobek Gminny Stromiec</p>
 			<p class="org">
 				Żłobek Gminny w Stromcu, jednostka organizacyjna Gminy Stromiec<br />
@@ -121,6 +125,23 @@
 		.footer-links {
 			grid-template-columns: 1fr 1fr;
 		}
+	}
+
+	/* White card so the lockup's blue and orange wordmark stays legible on
+	   brand-blue (v1.3). Radius matches the .logo-slot chips below. Decorative:
+	   the .footer-wordmark text carries the name. */
+	.brand-lockup {
+		background: var(--color-surface);
+		border-radius: var(--radius-sm);
+		padding: 10px 12px;
+		max-width: 280px;
+		margin: 0 0 12px;
+	}
+
+	.brand-lockup :global(img) {
+		display: block;
+		width: 100%;
+		height: auto;
 	}
 
 	.footer-wordmark {
