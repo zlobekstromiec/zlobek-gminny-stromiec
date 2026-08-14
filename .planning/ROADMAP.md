@@ -118,7 +118,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Staff can create, edit, and publish a news post via the CMS without a developer, and it appears live after rebuild.
   4. The homepage's latest-Aktualności preview shows the most recently published posts.
 
-**Plans**: 6/6 plans complete
+**Plans**: 6/7 plans complete
 
 **Wave 1**
 
@@ -137,6 +137,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] 03-05-PLAN.md — CR-01 fix (NEWS-03): store `data` as ISO in the Sveltia aktualnosci collection + plain slug template + ISO-parsing reader + migrate the two seed JSONs, so CMS-authored posts get correct permanent date-prefixed URLs
 - [x] 03-06-PLAN.md — WR-02 + WR-04 (NEWS-01/02): type-guard the reader so one malformed post is skipped-with-warning instead of aborting the prerender (+ node:test resilience proof) and give +error.svelte a document title (WCAG 2.4.2 A)
+
+**Wave 5 — gap closure** *(from 03-VERIFICATION.md re-verification: 1 residual blocker, the Plan-01 prerender-resilience must-have)*
+
+- [ ] 03-07-PLAN.md — residual WR-02 (NEWS-01/02): require `tresc` unconditionally and guard `obraz`/`obraz_alt` in postFromEntry, construct the returned post from guarded locals instead of spreading the raw entry, and prove it red-then-green plus a malformed-fixture build
 
 **UI hint**: yes
 
