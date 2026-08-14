@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 04
 current_phase_name: Enrollment, Contact & Email Pipeline
 status: executing
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-08-14T15:38:04.734Z"
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-08-14T17:09:02.054Z"
 last_activity: 2026-08-14
 last_activity_desc: Phase 04 execution started
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 25
-  completed_plans: 19
+  completed_plans: 20
   percent: 43
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-14)
 ## Current Position
 
 Phase: 04 (Enrollment, Contact & Email Pipeline) — EXECUTING
-Plan: 2 of 7
+Plan: 3 of 7
 Status: Ready to execute
 Last activity: 2026-08-14 — Phase 04 execution started
 
@@ -75,6 +75,7 @@ Progress: [████████████████████] 18/18 p
 | Phase 03 P06 | 7min | 3 tasks | 5 files |
 | Phase 03 P07 | 4min | 2 tasks | 2 files |
 | Phase 04 P01 | 79min | 3 tasks tasks | 17 files files |
+| Phase 04 P02 | 24min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -110,6 +111,9 @@ Recent decisions affecting current work:
 - [Phase ?]: [03-07] News post field policy: required fields (tytul, data, tresc) reject the entry with a build warning; optional fields (zajawka, obraz, obraz_alt) degrade to undefined via readString, so a wrong cover costs the image (D-01 tint fallback) not the article. Proven at build level: npm run build exits 0 with a malformed post JSON present and still prerenders both valid seeds (D-03).
 - [Phase ?]: [quick-260814-6n1] Real client logo shipped across all brand surfaces: circular emblem in the header at 52px (accent circle and hard shadow removed, the mark is full-colour and self-contained), full lockup on a white radius-sm card in the footer brand column (its blue and orange wordmark is not legible directly on brand-blue), favicon.png 512x512 transparent plus apple-touch-icon.png 180x180 white plate regenerated from the emblem. Placeholder favicon.svg retired and de-referenced (manifest keeps exactly 2 PNG icons); delivered source logo-bg.png removed from the repo root; IconBear stays in src/lib/icons/ (only the logo-badge use is superseded). Both images decorative (empty alt) so the wordmark text remains the link's accessible name. Assets cut with an uncommitted scratchpad sharp script: sharp .trim() is a NO-OP on this source (top-left pixel is alpha=1 with faint 1-4 alpha noise), so crops come from a computed alpha bbox plus a per-column scan (emblem x 125-530, empty gap 531-593, wordmark from 594). package.json unchanged. UI-SPEC Amendment v1.3.
 - [Phase 04]: [04-01] Form pipeline landed behind POST /api/kontakt (first dynamic route). NO root .dev.vars: wrangler types bakes its keys into the committed worker-configuration.d.ts as required members, which Pages CI cannot reproduce, so wrangler types --check would fail every deploy; test-run secrets come from npm run preview:test --binding flags instead (identical platform.env, verified). obsluz() takes every side effect by injection so Plan 05's /api/rekrutacja is a thin adapter. Two rate-limit ceilings (5/h per salted-hash client key + 40/day site-wide) protect the Resend 100/day budget; both counters read before either is written. FROM/TO/BCC are module constants, subject static, payload text-only (no markup field). Per-field keys are brak/niepoprawny/zbyt-dlugi to match the UI-SPEC error copy. CONTACT-03/FORM-01/FORM-02 left UNMARKED: shared with Plans 03/04/05/07 and no form or real send exists yet. 101 unit + 9 endpoint tests green.
+- [Phase ?]: 04-02: enhanced-img literal src with w= widths, not the ?enhanced import: the import form emits 1x/2x density descriptors and browsers ignore sizes when densities are present, softening small map labels on DPR-1 desktops
+- [Phase ?]: 04-02: pre-launch grep gates stay literal-clean: comments explaining a ban are reworded to synonyms so the enforcing greps cannot report permanent false positives
+- [Phase ?]: 04-02: the invented zlobek secretariat-hours field was deleted, not relabelled; the Urzad wnioski window lives in its own exported urzad const so it cannot be mistaken for a zlobek fact
 
 ### Pending Todos
 
@@ -150,6 +154,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-14T15:37:53.147Z
-Stopped at: Completed 04-01-PLAN.md
+Last session: 2026-08-14T17:08:55.477Z
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None
