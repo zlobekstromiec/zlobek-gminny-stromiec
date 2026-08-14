@@ -52,13 +52,17 @@ Inherited unchanged from Phase 1 (8-point scale, all multiples of 4):
 | `3xl` | 64px | Page-level spacing |
 | `4xl` | 96px | Section vertical padding (desktop, `lg`) |
 
-**Exceptions (all multiples of 4, all inherited or WCAG-mandated):**
+**Exceptions (inherited or WCAG-mandated), all multiples of 4:**
 - **44×44px minimum hit area** on every interactive element (Phase 1 rule): inputs, selects, checkbox row, `<summary>`, submit button, tel/mailto links, table links.
 - **Input / select height:** 48px minimum (`12px` vertical padding + 16px text at 1.5 line-height). Exceeds the 44px floor deliberately, forms are the phase's primary interaction.
 - **Textarea:** 160px minimum height, `resize: vertical` only.
 - **Checkbox control box:** 24×24px, inside a label row of 44px minimum height.
-- **Turnstile widget slot:** reserved 300×65px minimum so the hydrating widget causes no layout shift.
 - **Map panel:** 260px minimum height (inherited from v1.1 ContactAndMap).
+
+**Deliberate exception to the multiple-of-4 rule (exactly one, vendor-fixed):**
+- **Turnstile widget slot:** reserved **300×65px** minimum so the hydrating widget causes no layout shift. 65px is Cloudflare's own rendered widget height, a vendor-fixed component dimension we do not control, not a layout, grid or rhythm value. Rounding down to 64px would clip the rendered widget by 1px; rounding up to 68px would leave 3px of dead space inside the reserved slot and still not match the widget. The vendor value is therefore used verbatim.
+- Scope of the exception: it is the **only** non-multiple-of-4 value in the spacing and layout system, it applies solely to the reserved footprint of a third-party embed, and it is never used as a padding, margin, gap or section-rhythm value. Every spacing value the design system itself owns stays on the 4px grid.
+- Not covered by this rule, and unchanged: the inherited type scale (13/14/15/16/17/20px), icon glyph sizes (18px, 22px, 44px) and the inherited v1.2 34px step circle. Those are glyph and type dimensions, not spacing tokens, and the multiple-of-4 rule has never applied to them in this project.
 
 ---
 
@@ -202,7 +206,7 @@ The klauzula informacyjna required by D-14 ships **inside** the form card as the
 
 ### 5. Turnstile slot (`TurnstileWidget`)
 
-- Container reserves **300×65px minimum** before hydration so the widget causes no layout shift. Placed after the last field, before the consent block, 24px gaps.
+- Container reserves **300×65px minimum** before hydration so the widget causes no layout shift. 65px is the vendor-fixed Cloudflare widget height and is the single declared exception to the multiple-of-4 spacing rule (see Spacing Scale). Placed after the last field, before the consent block, 24px gaps.
 - `language: 'pl'`, light theme (matches the white card).
 - On any failed submit the island calls `turnstile.reset(widgetId)` before re-enabling the submit button (tokens are single-use, 300s TTL: research Pitfall 4).
 - If the widget fails to load or expires, the submit button stays enabled and the failure surfaces as the Polish `turnstile` error copy with the phone fallback. It never blocks the UI silently.
