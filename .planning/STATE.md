@@ -6,7 +6,7 @@ current_phase: 04
 current_phase_name: Enrollment, Contact & Email Pipeline
 status: executing
 stopped_at: Completed 04-04-PLAN.md
-last_updated: "2026-08-14T18:29:52.172Z"
+last_updated: "2026-08-14T19:20:59.184Z"
 last_activity: 2026-08-14
 last_activity_desc: Phase 04 execution started
 progress:
@@ -154,6 +154,8 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 - [Rename 260814-hwf] Official name "Publiczny Żłobek w Stromcu" now in code seeds, but `o-nas.json` and the aktualnosci seeds are CMS-editable; staff edits via /admin could reintroduce old wording.
 - [Phase 4] Do NOT create a root .dev.vars file: wrangler types writes its keys into the committed worker-configuration.d.ts as required members, so wrangler types --check fails locally and on the Cloudflare Pages deploy. Use npm run preview:test (wrangler pages dev --binding flags) for local and Playwright runs. FORM_DRY_RUN must never become a Cloudflare Pages variable. See .dev.vars.example.
 - [Phase 4] frame-src in the svelte.config.js CSP is still unproven in a browser: the always-pass dummy Turnstile sitekey renders no frame at all. Re-run the /kontakt and /rekrutacja axe scans after Plan 07 swaps in the real site key, and confirm the visible widget is keyboard reachable and passes contrast
+- [Phase 4 / 04-07] The scoped CLOUDFLARE_API_TOKEN in .envrc is Pages + Turnstile ONLY: no Workers KV and no zone DNS permission (both return Authentication error code 10000). Blocks (a) creating the FORMS_KV namespace, so wrangler.jsonc still holds PLACEHOLDER_FORMS_KV_ID and production has no real rate-limit counter (T-04-38), and (b) the two proxied CNAMEs for the already-attached custom domains. Fix: add 'Workers KV Storage: Edit' and 'Zone: DNS: Edit' to the token, or do both in the dashboard.
+- [Phase 4 / 04-07] The recipient mailbox zlobek@ugstromiec.pl DOES NOT EXIST yet (pending Gmina approval), so the to: leg of every form mail hard-bounces and the BCC backup devzlobekstromiec@gmail.com is the only mailbox receiving submissions. Interim risk: a parent enquiry lands only in the backup Gmail inbox. Do NOT change the hard-coded recipient and do NOT remove the BCC. Re-test once the mailbox exists is a single form submission, zero deploys.
 
 ### Quick Tasks Completed
 
