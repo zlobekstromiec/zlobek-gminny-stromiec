@@ -142,8 +142,12 @@ test.describe('Rekrutacja: RECRUIT-01 / RECRUIT-02 / RECRUIT-03 acceptance', () 
 		for (const punkty of ['50', '20', '10']) {
 			await expect(tabela.locator('tbody td', { hasText: punkty }).first()).toBeVisible();
 		}
-		// Zasada remisu jest prozą pod tabelą, bo dotyczy całej tabeli.
-		await expect(page.getByText(REMIS)).toBeVisible();
+		// Zasada remisu jest prozą pod tabelą, bo dotyczy całej tabeli. Lokalizator
+		// celuje w ten konkretny akapit: to samo zdanie występuje także w kroku
+		// procedury o punktacji, bo tam również jest prawdziwe.
+		const remis = page.locator('.remis');
+		await expect(remis).toHaveCount(1);
+		await expect(remis).toHaveText(REMIS);
 	});
 
 	test('procedura mówi o złożeniu osobistym, podaje pokój i termin odwołania', async ({ page }) => {
@@ -198,7 +202,11 @@ test.describe('Rekrutacja: RECRUIT-01 / RECRUIT-02 / RECRUIT-03 acceptance', () 
 		page
 	}) => {
 		await page.goto('/rekrutacja');
-		const bip = page.locator(`a[href="${BIP_ZLOBEK.url}"]`);
+		// Lokalizator jest zawężony do sekcji z wnioskami: ten sam adres BIP jest
+		// linkowany także ze stopki na każdej podstronie (wymóg dla jednostki
+		// publicznej), a tu sprawdzamy link należący do tej sekcji.
+		const sekcja = page.locator('section[aria-labelledby="wnioski-heading"]');
+		const bip = sekcja.locator(`a[href="${BIP_ZLOBEK.url}"]`);
 		await expect(bip).toHaveCount(1);
 		await expect(bip).toBeVisible();
 		await expect(bip).toHaveAttribute('target', '_blank');

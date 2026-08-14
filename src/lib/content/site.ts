@@ -15,9 +15,14 @@ export const coreMessage =
  *  than a stale one). CMS-editable in a later phase.
  *
  *  Set to `false` per D-06: the nabór for 2026/2027 is finished (Regulamin
- *  rekrutacji, Zarządzenie 29.2026 harmonogram ran 01.04-12.05.2026), and the
- *  lista rezerwowa is the open channel. Flip back to `true` only when the Urząd
- *  Gminy announces the next nabór. */
+ *  rekrutacji, Zarządzenie 29.2026: its stages ran in the spring of 2026 and are
+ *  archival), and the lista rezerwowa is the open channel. Flip back to `true`
+ *  only when the Urząd Gminy announces the next nabór.
+ *
+ *  The exact archival stage dates are deliberately NOT repeated here. They live in
+ *  the committed source document, whose section 10.3 forbids presenting them as
+ *  current, and a repository-wide gate (Plan 04-06) keeps them out of src/ so no
+ *  future edit can lift them out of a comment and into shipped copy. */
 export const recruitmentOpen = false;
 
 /** Launch-week announcement bar flag: banked only, no component renders it yet.
