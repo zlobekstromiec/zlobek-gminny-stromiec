@@ -96,12 +96,25 @@ test.describe('Homepage: Phase 1 + 01.1 acceptance', () => {
 		await expect(page.locator('a[href^="tel:"]')).toHaveCount(3);
 	});
 
+	// LOCKSTEP CHANGE (D-05, D-09): the placeholder facts are replaced by the
+	// [BIP]-confirmed values from .planning/dane-bip-zlobek-stromiec.md (statut age
+	// range; uchwała XXIII.134.2026 fee). The VALUES were corrected, the matchers were
+	// not relaxed: the count assertion is untouched and the fee assertions are now
+	// STRONGER, because they additionally pin the dane-bip §10.1 hard gate that the
+	// zero amount may never appear without the ZUS „Aktywnie w żłobku" condition.
 	test('key-facts strip answers the arrival questions', async ({ page }) => {
 		await page.goto('/');
 		const facts = page.locator('section[aria-label="Najważniejsze informacje"]');
 		await expect(facts.locator('.fact-label')).toHaveCount(4);
-		await expect(facts.getByText('10 mies. – 3 lata')).toBeVisible();
-		await expect(facts.getByText('wyżywienie 14 zł/dzień', { exact: false })).toBeVisible();
+		await expect(facts.getByText('od 20. tyg. życia do 3 lat')).toBeVisible();
+		await expect(facts.getByText('wyjątkowo do 4 lat')).toBeVisible();
+		await expect(facts.getByText('1 500 zł')).toBeVisible();
+		await expect(facts.getByText('wyżywienie maks. 20 zł/dzień', { exact: false })).toBeVisible();
+		// The zero amount is never unconditional: it is rendered only inside the same
+		// string as the ZUS condition (dane-bip §10.1).
+		await expect(
+			facts.getByText('możliwe 0 zł ze świadczeniem ZUS „Aktywnie w żłobku"', { exact: false })
+		).toBeVisible();
 	});
 
 	test('perks band renders four value cards', async ({ page }) => {
@@ -119,12 +132,28 @@ test.describe('Homepage: Phase 1 + 01.1 acceptance', () => {
 	// (6) and the „Karta zgłoszenia dziecka" name are replaced by the curated
 	// two-row subset and the real name „Wniosek o przyjęcie dziecka". The
 	// meta-inside-the-link (WCAG) assertion is preserved, only its shape changes.
+	//
+	// LOCKSTEP CHANGE (D-06): `recruitmentOpen` is flipped to false because the nabór
+	// for 2026/2027 is finished per the Regulamin rekrutacji, so the module now renders
+	// the closed-state heading from `closedStrings`. The heading VALUE was corrected,
+	// the matcher was not relaxed: it is still an exact accessible-name match on a
+	// heading role, and the four-step and two-document counts are unchanged.
 	test('recruitment module: heading, four steps, curated BIP docs panel (HOME-02, D-18)', async ({
 		page
 	}) => {
 		await page.goto('/');
-		await expect(page.getByRole('heading', { name: 'Nabór na rok 2026/2027 trwa' })).toBeVisible();
+		await expect(
+			page.getByRole('heading', { name: 'Nabór na rok 2026/2027 zakończony' })
+		).toBeVisible();
+		// A closed nabór is neutral information: the waitlist channel stays advertised.
+		await expect(page.getByText('Zapisy na listę rezerwową przez cały rok')).toBeVisible();
 		await expect(page.locator('.step')).toHaveCount(4);
+		// D-05: the wniosek is filed in person at the Urząd Gminy. The old step 2 offered
+		// an e-mail address and an ePUAP route, both factually wrong.
+		await expect(
+			page.getByText('Nie ma możliwości złożenia wniosku', { exact: false })
+		).toBeVisible();
+		await expect(page.getByText('pokój 17', { exact: false })).toBeVisible();
 		// Curated subset: exactly the two real rekrutacja documents from the shared
 		// collection (Wniosek o przyjęcie dziecka, Regulamin rekrutacji). The three
 		// non-BIP docs (Regulamin organizacyjny, Upoważnienie do odbioru dziecka,
@@ -157,6 +186,44 @@ test.describe('Homepage: Phase 1 + 01.1 acceptance', () => {
 		await expect(directions).toHaveAttribute('href', /openstreetmap\.org\/directions/);
 		await expect(directions).toHaveAttribute('target', '_blank');
 		const rel = (await directions.getAttribute('rel')) ?? '';
+		expect(rel).toContain('noopener');
+		expect(rel).toContain('noreferrer');
+	});
+
+	// NEW (CONTACT-02, D-17): the „Mapa pojawi się wkrótce" placeholder is replaced by
+	// a committed static snapshot rendered through MapPanel.svelte. These two cases lock
+	// the contract in: an informative alt (the map carries information, so it is never
+	// decorative) and the mandatory, visible, linked OpenStreetMap attribution.
+	test('map panel renders a real snapshot with an informative alt (CONTACT-02)', async ({
+		page
+	}) => {
+		await page.goto('/');
+		const mapImg = page.locator('figure.map-figure img');
+		await expect(mapImg).toHaveCount(1);
+		await expect(mapImg).toBeVisible();
+		const alt = (await mapImg.getAttribute('alt')) ?? '';
+		expect(alt.trim().length).toBeGreaterThan(0);
+		// Intrinsic dimensions ship with the image so the panel causes no layout shift.
+		await expect(mapImg).toHaveAttribute('width', /\d+/);
+		await expect(mapImg).toHaveAttribute('height', /\d+/);
+		// Same-origin asset: no third-party tile request fires when a parent loads the
+		// page (locked RODO decision). The src is a hashed local build asset.
+		await expect(mapImg).toHaveAttribute('src', /^\/_app\/immutable\/assets\//);
+	});
+
+	test('OpenStreetMap attribution is visible and links to the copyright page (D-17)', async ({
+		page
+	}) => {
+		await page.goto('/');
+		const attribution = page.locator(
+			'figure.map-figure figcaption a[href="https://www.openstreetmap.org/copyright"]'
+		);
+		await expect(attribution).toHaveCount(1);
+		// Mandatory under the OSMF tile policy: never hidden, clipped or collapsed.
+		await expect(attribution).toBeVisible();
+		await expect(attribution).toContainText('OpenStreetMap');
+		await expect(attribution).toHaveAttribute('target', '_blank');
+		const rel = (await attribution.getAttribute('rel')) ?? '';
 		expect(rel).toContain('noopener');
 		expect(rel).toContain('noreferrer');
 	});
