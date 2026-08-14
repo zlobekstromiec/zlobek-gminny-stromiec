@@ -1,9 +1,9 @@
 {
-  "tytul": "test",
-  "data": "2026-08-14",
-  "zajawka": "test",
-  "tresc": "test",
-  "obraz": "",
-  "obraz_alt": "",
-  "placeholder": true
+	"tytul": "test",
+	"data": "2026-08-14",
+	"zajawka": "test",
+	"tresc": "test",
+	"obraz": "",
+	"obraz_alt": "",
+	"placeholder": true
 }

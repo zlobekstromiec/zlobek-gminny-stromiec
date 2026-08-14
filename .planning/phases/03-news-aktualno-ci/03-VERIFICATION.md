@@ -1,7 +1,7 @@
 ---
 phase: 03-news-aktualno-ci
 verified: 2026-08-14T03:15:00Z
-status: human_needed
+status: passed
 score: 9/10 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
@@ -9,12 +9,14 @@ re_verification:
   previous_status: gaps_found
   previous_score: 8/10
   gaps_closed:
+
     - "A malformed post entry never aborts the whole prerender (Plan 01 must-have) — the residual crash path (entry with zajawka present, tresc missing/non-string; non-string obraz) is now closed by plan 03-07: postFromEntry takes `entry: unknown`, guards `tresc` unconditionally before any excerpt logic, guards obraz/obraz_alt with readString, guards against non-object entries, and constructs its return value key by key (no raw-entry spread), pinned by a 12-key EXPECTED_POST_KEYS equality assertion."
   gaps_remaining: []
   regressions: []
 gaps: []
 deferred: []
 human_verification:
+
   - test: "Log into /admin on the deployed *.pages.dev CMS, create a test Aktualności post, save, wait ~2 minutes, and confirm it appears on /aktualnosci and (if among the three newest) on the homepage, and that the resulting URL's date prefix matches the entered Data publikacji."
     expected: "The post round-trips through the live GitHub-OAuth login -> create -> commit -> Cloudflare rebuild -> live loop, renders correctly on both surfaces, and the URL date prefix is correct for whatever day of the month was entered (CR-01 fix should now make this true for every day, not just days 1-12)."
     why_human: "Requires a live GitHub OAuth session against the deployed CMS Worker; cannot be Playwright-driven. Deferred by Plan 03's human_verify_mode: end-of-phase. Unchanged by plan 03-07 (that plan touched only the reader's field-validation logic, not the CMS collection config or the slug template)."
