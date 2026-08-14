@@ -34,11 +34,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Rekrutacja (Enrollment)
 
-- [ ] **RECRUIT-01**: A visitor can read enrollment information (harmonogram, kryteria, zasady)
-- [ ] **RECRUIT-02**: A visitor can download the PDF enrollment forms (wnioski)
+- [x] **RECRUIT-01**: A visitor can read enrollment information (harmonogram, kryteria, zasady)
+- [x] **RECRUIT-02**: A visitor can download the PDF enrollment forms (wnioski)
 - [ ] **RECRUIT-03**: A visitor can submit an online enrollment application that is emailed to the żłobek (no storage)
 - [ ] **RECRUIT-04**: The enrollment form requires explicit RODO consent, shows the klauzula informacyjna, and is spam-protected (Turnstile)
-- [ ] **RECRUIT-05**: Staff can edit enrollment info/dates and manage enrollment documents via the CMS
+- [x] **RECRUIT-05**: Staff can edit enrollment info/dates and manage enrollment documents via the CMS
 
 ### Dokumenty (Documents)
 
@@ -129,11 +129,11 @@ Which phases cover which requirements. Populated during roadmap creation.
 | NEWS-01 | Phase 3 | Complete |
 | NEWS-02 | Phase 3 | Complete |
 | NEWS-03 | Phase 3 | Complete |
-| RECRUIT-01 | Phase 4 | Pending |
-| RECRUIT-02 | Phase 4 | Pending |
+| RECRUIT-01 | Phase 4 | Complete |
+| RECRUIT-02 | Phase 4 | Complete |
 | RECRUIT-03 | Phase 4 | Pending |
 | RECRUIT-04 | Phase 4 | Pending |
-| RECRUIT-05 | Phase 4 | Pending |
+| RECRUIT-05 | Phase 4 | Complete |
 | CONTACT-01 | Phase 4 | Complete |
 | CONTACT-02 | Phase 4 | Complete |
 | CONTACT-03 | Phase 4 | Complete |

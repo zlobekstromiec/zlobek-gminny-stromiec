@@ -158,7 +158,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. A visitor can see contact details (address, phone, email, opening hours) and the location on a map with directions (mapa dojazdu).
   5. Staff can manage enrollment documents via the CMS, and those documents surface on /rekrutacja through the shared resolver. **AMENDED 2026-08-14:** the "edit enrollment info/dates via the CMS" half of RECRUIT-05 is explicitly descoped for v1 by user decision (04-CONTEXT.md Phase Boundary, D-18); recruitment information stays code-authored in `site.ts` and `rekrutacja.ts` pending the planned CMS replacement.
 
-**Plans**: 5/7 plans executed
+**Plans**: 6/7 plans executed
 
 Plans:
 **Wave 1**
@@ -177,7 +177,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 04-06-PLAN.md — /rekrutacja route live: status banner, zgłoszenie form, kryteria and punktacja table, procedura, compact fee box and wnioski downloads
+- [x] 04-06-PLAN.md — /rekrutacja route live: status banner, zgłoszenie form, kryteria and punktacja table, procedura, compact fee box and wnioski downloads
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
@@ -256,6 +256,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Live Homepage & Design Foundation | 5/5 | Complete    | 2026-08-12 |
 | 2. About, Documents & CMS | 6/6 | Complete    | 2026-08-13 |
 | 3. News (Aktualności) | 7/7 | Complete    | 2026-08-13 |
-| 4. Enrollment, Contact & Email Pipeline | 5/7 | In Progress|  |
+| 4. Enrollment, Contact & Email Pipeline | 6/7 | In Progress|  |
 | 5. Gallery & Fees | 0/TBD | Not started | - |
 | 6. Accessibility, Legal Compliance & Launch | 0/TBD | Not started | - |
