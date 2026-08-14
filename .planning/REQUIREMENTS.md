@@ -49,7 +49,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **CONTACT-01**: A visitor can see contact details (address, phone, email, opening hours)
 - [x] **CONTACT-02**: A visitor can see the location on a map with directions (mapa dojazdu)
-- [ ] **CONTACT-03**: A visitor can submit a contact form that is emailed to the żłobek (RODO consent + Turnstile, no storage)
+- [x] **CONTACT-03**: A visitor can submit a contact form that is emailed to the żłobek (RODO consent + Turnstile, no storage)
 
 ### Galeria (Gallery)
 
@@ -136,7 +136,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | RECRUIT-05 | Phase 4 | Pending |
 | CONTACT-01 | Phase 4 | Complete |
 | CONTACT-02 | Phase 4 | Complete |
-| CONTACT-03 | Phase 4 | Pending |
+| CONTACT-03 | Phase 4 | Complete |
 | FORM-01 | Phase 4 | Pending |
 | FORM-02 | Phase 4 | Pending |
 | GALLERY-01 | Phase 5 | Pending |

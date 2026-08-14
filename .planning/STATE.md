@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 04
 current_phase_name: Enrollment, Contact & Email Pipeline
 status: executing
-stopped_at: Completed 04-03-PLAN.md
-last_updated: "2026-08-14T17:33:30.540Z"
+stopped_at: Completed 04-04-PLAN.md
+last_updated: "2026-08-14T17:53:05.012Z"
 last_activity: 2026-08-14
 last_activity_desc: Phase 04 execution started
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 25
-  completed_plans: 21
+  completed_plans: 22
   percent: 43
 ---
 
@@ -29,11 +29,11 @@ See: .planning/PROJECT.md (updated 2026-08-14)
 ## Current Position
 
 Phase: 04 (Enrollment, Contact & Email Pipeline) — EXECUTING
-Plan: 4 of 7
+Plan: 5 of 7
 Status: Ready to execute
 Last activity: 2026-08-14 — Phase 04 execution started
 
-Progress: [████████████████████] 18/18 plans (100%)
+Progress: [██████████████████░░] 22/25 plans (88%)
 
 ## Performance Metrics
 
@@ -77,6 +77,7 @@ Progress: [████████████████████] 18/18 p
 | Phase 04 P01 | 79min | 3 tasks tasks | 17 files files |
 | Phase 04 P02 | 24min | 3 tasks | 8 files |
 | Phase 04 P03 | 15min | 3 tasks | 7 files |
+| Phase 04 P04 | 12min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -118,6 +119,9 @@ Recent decisions affecting current work:
 - [Phase 04]: 04-03: the endpoint returns machine codes only; all Polish prose (including the klauzula informacyjna) lives in src/lib/content/forms.ts, so long-copy rules never reach server code
 - [Phase 04]: 04-03: the klauzula never says a blanket 'nie przechowujemy danych'. It separates our infrastructure (nothing stored) from Resend's own approximately 30-day US-hosted copy, and tests/forms-copy.unit.ts fails if that disclosure, the standardowe klauzule umowne mechanism, the BCC backup sentence or the salted-hash sentence goes missing
 - [Phase 04]: 04-03: CONTACT-03 and RECRUIT-04 stay unmarked until a parent can actually reach a form (Plan 04) and the enrollment island exists (Plan 06), following the Plan 01 precedent
+- [Phase 04]: 04-04: /kontakt is live and crawler-enforced. The form section takes its accessible name from the island's card h2 (new id=formularz-naglowek) instead of duplicating a heading, and the D-16 info-box copy was resplit so the nominative urzad.name never lands after a preposition that needs the locative
+- [Phase 04]: 04-04: Turnstile test seam. The always-pass dummy sitekey renders NO frame and no visible challenge, only a hidden cf-turnstile-response field, so widget readiness is detected through that field, never a frame and never a sleep. script-src and connect-src are now browser-proven; frame-src stays unproven until Plan 07 swaps in the real key
+- [Phase 04]: 04-04: Playwright form fields are located by ROLE plus accessible name, because the approved consent sentence ends with the word the message label uses, which makes getByLabel ambiguous on both forms
 
 ### Pending Todos
 
@@ -140,6 +144,7 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 - [Rename 260814-hwf] `static/og-placeholder.png` share card still renders the old branding/name; regenerate from real brand assets in Phase 6.
 - [Rename 260814-hwf] Official name "Publiczny Żłobek w Stromcu" now in code seeds, but `o-nas.json` and the aktualnosci seeds are CMS-editable; staff edits via /admin could reintroduce old wording.
 - [Phase 4] Do NOT create a root .dev.vars file: wrangler types writes its keys into the committed worker-configuration.d.ts as required members, so wrangler types --check fails locally and on the Cloudflare Pages deploy. Use npm run preview:test (wrangler pages dev --binding flags) for local and Playwright runs. FORM_DRY_RUN must never become a Cloudflare Pages variable. See .dev.vars.example.
+- [Phase 4] frame-src in the svelte.config.js CSP is still unproven in a browser: the always-pass dummy Turnstile sitekey renders no frame at all. Re-run the /kontakt and /rekrutacja axe scans after Plan 07 swaps in the real site key, and confirm the visible widget is keyboard reachable and passes contrast
 
 ### Quick Tasks Completed
 
@@ -158,6 +163,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-14T17:33:30.536Z
-Stopped at: Completed 04-03-PLAN.md
+Last session: 2026-08-14T17:52:56.422Z
+Stopped at: Completed 04-04-PLAN.md
 Resume file: None
