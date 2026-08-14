@@ -239,7 +239,10 @@
 </noscript>
 
 <div class="karta">
-	<h2>{KOPIA_KONTAKT.naglowek}</h2>
+	<!-- The id is the accessible name of the surrounding page section: the route
+	     points its aria-labelledby here rather than emitting a second, invisible
+	     heading that would duplicate this one. -->
+	<h2 id="formularz-naglowek">{KOPIA_KONTAKT.naglowek}</h2>
 	<p class="intro">{KOPIA_KONTAKT.intro}</p>
 
 	{#if statusFormularza === 'ok'}
