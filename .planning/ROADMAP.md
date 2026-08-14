@@ -156,9 +156,19 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. A visitor can submit an online enrollment application and a contact message; each is delivered by email via Resend to the fixed żłobek address, with no database or stored submission body.
   3. Both forms require ticking an explicit (unticked-by-default) RODO consent, display the klauzula informacyjna, and are spam-protected by Cloudflare Turnstile verified server-side, with the endpoint rate-limiting abuse.
   4. A visitor can see contact details (address, phone, email, opening hours) and the location on a map with directions (mapa dojazdu).
-  5. Staff can edit enrollment info/dates and manage enrollment documents via the CMS.
+  5. Staff can manage enrollment documents via the CMS, and those documents surface on /rekrutacja through the shared resolver. **AMENDED 2026-08-14:** the "edit enrollment info/dates via the CMS" half of RECRUIT-05 is explicitly descoped for v1 by user decision (04-CONTEXT.md Phase Boundary, D-18); recruitment information stays code-authored in `site.ts` and `rekrutacja.ts` pending the planned CMS replacement.
 
-**Plans**: TBD
+**Plans**: 7 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — Kontakt e-mail pipeline: shared form server module (sanitize, validate, Turnstile, KV rate limit, Resend mailer, orchestrator) plus the POST /api/kontakt endpoint, platform bindings and Turnstile CSP
+- [ ] 04-02-PLAN.md — Real-data sweep of site.ts to the confirmed BIP facts, nabor flipped to closed, and the real static OpenStreetMap snapshot replacing the homepage map placeholder
+- [ ] 04-03-PLAN.md — Form UI kit (Polish copy module, klauzula informacyjna, FormField, ConsentBlock, TurnstileWidget) and the KontaktForm island
+- [ ] 04-04-PLAN.md — /kontakt route live: contact cards, map panel, contact form and the Urząd Gminy info box, crawler-enforced and axe-clean
+- [ ] 04-05-PLAN.md — Zgłoszenie pipeline: minimal-data validators, POST /api/rekrutacja and the ZgloszenieForm island
+- [ ] 04-06-PLAN.md — /rekrutacja route live: status banner, zgłoszenie form, kryteria and punktacja table, procedura, compact fee box and wnioski downloads
+- [ ] 04-07-PLAN.md — Go live: Resend sending domain and DNS, Turnstile widget, KV namespace, Cloudflare Pages secrets and the real end-to-end delivery test
+
 **UI hint**: yes
 
 ### Phase 5: Gallery & Fees
