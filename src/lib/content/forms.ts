@@ -163,6 +163,18 @@ export const KOPIA_POL: Readonly<Record<string, Readonly<Partial<Record<PowodPol
 			brak: 'Wybierz miesiąc i rok urodzenia dziecka.',
 			niepoprawny: 'Wybierz miesiąc i rok urodzenia dziecka.'
 		}),
+		// The server reports the birth date under two separate keys, one per select,
+		// because it validates them separately. The visible message is the SAME
+		// sentence as `urodzenie`: the two controls are one question to the parent, and
+		// the UI-SPEC error table has exactly one message for it.
+		miesiac: Object.freeze({
+			brak: 'Wybierz miesiąc i rok urodzenia dziecka.',
+			niepoprawny: 'Wybierz miesiąc i rok urodzenia dziecka.'
+		}),
+		rok: Object.freeze({
+			brak: 'Wybierz miesiąc i rok urodzenia dziecka.',
+			niepoprawny: 'Wybierz miesiąc i rok urodzenia dziecka.'
+		}),
 		telefon: Object.freeze({
 			niepoprawny: 'Podaj numer telefonu, używając tylko cyfr, bez spacji i innych znaków.'
 		})
@@ -196,6 +208,48 @@ export const KOPIA_KONTAKT = {
 	statusWysylania: 'Wysyłanie wiadomości, proszę czekać.',
 	sukcesNaglowek: 'Dziękujemy, wiadomość została wysłana',
 	sukcesTresc: 'Odpowiemy na podany adres e-mail, zwykle w ciągu kilku dni roboczych.'
+} as const;
+
+/** Every string the enrollment island renders (UI-SPEC "Zgłoszenie form", "Success
+ *  panels" and Component Contracts 2, 6 and 7).
+ *
+ *  The intro and the success body carry decision D-01 in plain language: this is an
+ *  expression of interest for the waiting list, and the formal wniosek is filed in
+ *  person at the Urząd Gminy. Being honest about that here is the whole point of the
+ *  copy, because an online form that looks like an application would leave a parent
+ *  believing their child is enrolled when nothing has been filed at all.
+ *
+ *  The office name, street, room and hours are interpolated from `urzad`, never
+ *  pasted. Both sentences are phrased so the nominative `urzad.name` follows a verb
+ *  rather than a preposition that would need the locative, which is the same
+ *  constraint the /kontakt info box works under. */
+export const KOPIA_ZGLOSZENIE = {
+	naglowek: 'Zgłoszenie na listę rezerwową',
+	intro: `Zostaw kontakt, a odezwiemy się, gdy zwolni się miejsce. To zgłoszenie zainteresowania, a nie formalny wniosek: wniosek o przyjęcie dziecka trzeba złożyć osobiście, przyjmuje go ${urzad.name}, ${urzad.addressLines[0]}, ${urzad.room}, w godzinach ${urzad.wnioskiHours}.`,
+	wymaganeNota: 'Pola oznaczone gwiazdką (*) są wymagane.',
+	imieEtykieta: 'Imię i nazwisko rodzica',
+	emailEtykieta: 'Adres e-mail',
+	emailPodpowiedz: 'Na ten adres wyślemy odpowiedź.',
+	telefonEtykieta: 'Telefon (opcjonalnie)',
+	telefonPodpowiedz: 'Ułatwi nam szybki kontakt.',
+	urodzenieLegenda: 'Miesiąc i rok urodzenia dziecka',
+	/** The hint that carries data minimisation to the parent (D-02, T-04-24): the
+	 *  form asks for an age, not an identity, and it says so where the parent is
+	 *  looking rather than only in the klauzula. */
+	urodzeniePodpowiedz: 'Potrzebujemy tylko wieku dziecka. Nie podawaj jego imienia ani nazwiska.',
+	miesiacEtykieta: 'Miesiąc',
+	rokEtykieta: 'Rok',
+	wybierz: 'Wybierz',
+	wiadomoscEtykieta: 'Wiadomość (opcjonalnie)',
+	wiadomoscPodpowiedz: 'Napisz, o co chcesz zapytać. Maksymalnie 2000 znaków.',
+	zgoda:
+		'Wyrażam zgodę na przetwarzanie moich danych osobowych podanych w formularzu w celu obsługi zgłoszenia i kontaktu zwrotnego.',
+	klauzulaEtykieta: 'Klauzula informacyjna RODO',
+	wyslij: 'Wyślij zgłoszenie',
+	wysylanie: 'Wysyłanie...',
+	statusWysylania: 'Wysyłanie zgłoszenia, proszę czekać.',
+	sukcesNaglowek: 'Dziękujemy, zgłoszenie zostało wysłane',
+	sukcesTresc: `Odezwiemy się na podany adres e-mail, zwykle w ciągu kilku dni roboczych. Pamiętaj, że formalny wniosek o przyjęcie dziecka trzeba złożyć osobiście, przyjmuje go ${urzad.name}, ${urzad.addressLines[0]}, ${urzad.room}.`
 } as const;
 
 /** Static fallback panel. Always in the prerendered HTML above the form card, so

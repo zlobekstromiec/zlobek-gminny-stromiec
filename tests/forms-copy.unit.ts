@@ -25,11 +25,14 @@ import {
 	KOPIA_KONTAKT,
 	KOPIA_NOSCRIPT,
 	KOPIA_POL,
+	KOPIA_ZGLOSZENIE,
+	MIESIACE_WYBOR,
 	TURNSTILE_SITEKEY,
 	komunikatPola,
+	nazwaMiesiaca,
 	tekstBledu
 } from '../src/lib/content/forms.ts';
-import { contact } from '../src/lib/content/site.ts';
+import { contact, urzad } from '../src/lib/content/site.ts';
 import type { FormCode } from '../src/lib/forms/types.ts';
 
 /** Every FormCode the server can return. Written out rather than derived from the
@@ -54,8 +57,10 @@ const WSZYSTKIE_STRINGI = zbierz([
 	KOPIA_BLEDOW,
 	KOPIA_POL,
 	KOPIA_KONTAKT,
+	KOPIA_ZGLOSZENIE,
 	KOPIA_FALLBACK,
 	KOPIA_NOSCRIPT,
+	MIESIACE_WYBOR,
 	KLAUZULA
 ]);
 
@@ -211,4 +216,69 @@ test('the kontakt copy carries every string the island needs', () => {
 	}
 	assert.equal(KOPIA_KONTAKT.wyslij, 'Wyślij wiadomość');
 	assert.equal(KOPIA_KONTAKT.wysylanie, 'Wysyłanie...');
+});
+
+test('the zgłoszenie copy carries every string the enrollment island needs', () => {
+	for (const [klucz, wartosc] of Object.entries(KOPIA_ZGLOSZENIE)) {
+		assert.equal(typeof wartosc, 'string', `${klucz} nie jest tekstem`);
+		assert.ok((wartosc as string).trim().length > 0, `${klucz} jest puste`);
+	}
+	assert.equal(KOPIA_ZGLOSZENIE.wyslij, 'Wyślij zgłoszenie');
+	assert.equal(KOPIA_ZGLOSZENIE.wysylanie, 'Wysyłanie...');
+	assert.equal(KOPIA_ZGLOSZENIE.naglowek, 'Zgłoszenie na listę rezerwową');
+});
+
+// D-01. The form is a waiting-list enquiry, and the copy has to say so: recruitment
+// wnioski are accepted in person only, so a parent who mistakes this for an
+// application would believe a filing exists when none does.
+test('the zgłoszenie intro frames the form as an enquiry, not a formal wniosek (D-01)', () => {
+	assert.match(KOPIA_ZGLOSZENIE.intro, /zgłoszenie zainteresowania, a nie formalny wniosek/);
+	assert.match(KOPIA_ZGLOSZENIE.intro, /osobiście/);
+	assert.ok(KOPIA_ZGLOSZENIE.intro.includes(urzad.name));
+	assert.ok(KOPIA_ZGLOSZENIE.intro.includes(urzad.room));
+	assert.ok(KOPIA_ZGLOSZENIE.intro.includes(urzad.wnioskiHours));
+});
+
+test('the zgłoszenie success body repeats where the formal wniosek goes (D-01)', () => {
+	assert.match(KOPIA_ZGLOSZENIE.sukcesTresc, /osobiście/);
+	assert.ok(KOPIA_ZGLOSZENIE.sukcesTresc.includes(urzad.name));
+	assert.ok(KOPIA_ZGLOSZENIE.sukcesTresc.includes(urzad.room));
+});
+
+// D-02 / T-04-24. The instruction not to supply the child's name is part of the
+// data-minimisation contract, not decoration, so its absence must fail the suite.
+test('the birth-date hint tells the parent not to supply the child name (D-02)', () => {
+	assert.match(KOPIA_ZGLOSZENIE.urodzeniePodpowiedz, /Nie podawaj jego imienia ani nazwiska/);
+	assert.match(KOPIA_ZGLOSZENIE.urodzenieLegenda, /Miesiąc i rok urodzenia dziecka/);
+});
+
+test('the enrollment copy asks for no child name anywhere', () => {
+	const wszystkie = zbierz(KOPIA_ZGLOSZENIE).join('\n');
+	assert.equal(/imię dziecka|nazwisko dziecka|imie dziecka/i.test(wszystkie), false);
+});
+
+test('MIESIACE_WYBOR lists the twelve Polish months in order, values 1 to 12', () => {
+	assert.equal(MIESIACE_WYBOR.length, 12);
+	assert.deepEqual(
+		MIESIACE_WYBOR.map((pozycja) => pozycja.wartosc),
+		[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+	);
+	for (const { nazwa } of MIESIACE_WYBOR) {
+		assert.ok(nazwa.trim().length > 0);
+	}
+	assert.equal(MIESIACE_WYBOR[0].nazwa, 'styczeń');
+	assert.equal(MIESIACE_WYBOR[11].nazwa, 'grudzień');
+});
+
+test('nazwaMiesiaca maps a valid month to its Polish name and never renders undefined', () => {
+	assert.equal(nazwaMiesiaca(3), 'marzec');
+	assert.equal(nazwaMiesiaca(12), 'grudzień');
+	assert.equal(nazwaMiesiaca(0), '0');
+	assert.equal(nazwaMiesiaca(13).includes('undefined'), false);
+});
+
+test('komunikatPola answers for the two birth-date keys the server returns', () => {
+	assert.equal(komunikatPola('miesiac', 'brak'), 'Wybierz miesiąc i rok urodzenia dziecka.');
+	assert.equal(komunikatPola('rok', 'niepoprawny'), 'Wybierz miesiąc i rok urodzenia dziecka.');
+	assert.ok((komunikatPola('telefon', 'niepoprawny') ?? '').length > 0);
 });
