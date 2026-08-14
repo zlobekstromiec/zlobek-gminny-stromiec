@@ -6,7 +6,7 @@ current_phase: 4
 current_phase_name: Enrollment, Contact & Email Pipeline
 status: verifying
 stopped_at: Phase 03 complete (UAT passed), ready to plan Phase 4
-last_updated: "2026-08-14T03:41:13.470Z"
+last_updated: "2026-08-14T04:00:03.657Z"
 last_activity: 2026-08-14
 last_activity_desc: Phase 03 complete, transitioned to Phase 4
 progress:
@@ -31,7 +31,7 @@ See: .planning/PROJECT.md (updated 2026-08-14)
 Phase: 4 — Enrollment, Contact & Email Pipeline
 Plan: Not started
 Status: Ready to plan (Phase 03 closed: UAT 1/1 passed, verification passed, security threats_open 0)
-Last activity: 2026-08-14 — Phase 03 complete, transitioned to Phase 4
+Last activity: 2026-08-14 — Completed quick task 260814-6n1: new brand logo in header, footer and favicons
 
 Progress: [████████████████████] 18/18 plans (100%)
 
@@ -107,6 +107,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [03-06] WR-02/WR-04 closed: parseData accepts unknown (typeof + 1-31 day-range guards); new exported postFromEntry skip-with-warns malformed entries (dokumenty.ts withMeta precedent) so one bad post JSON never aborts the prerender, pinned by node:test suite tests/aktualnosci-reader.unit.ts via new test:unit script (built-in runner, no dependency, .unit.ts outside Playwright match); +error.svelte ships an is404-gated fixed-Polish title (never page.error), closing WCAG 2.4.2.
 - [Phase ?]: [03-07] Residual WR-02 closed structurally: postFromEntry's entry param is now `unknown`, a plain-object guard runs before any property access, `tresc` is validated unconditionally (a present zajawka no longer skips it, so marked.parse(undefined) can never abort the entries()-driven prerender), and the return value is an explicit 12-key literal built from guarded locals instead of a raw-entry spread — pinned by an EXPECTED_POST_KEYS key-set assertion and mutation-checked (removing any of the tytul/data/tresc/obraz guards, or reintroducing the spread, turns test:unit red). The reader is the single validation boundary; NewsCard.svelte and [slug]/+page.svelte carry no defensive guards.
 - [Phase ?]: [03-07] News post field policy: required fields (tytul, data, tresc) reject the entry with a build warning; optional fields (zajawka, obraz, obraz_alt) degrade to undefined via readString, so a wrong cover costs the image (D-01 tint fallback) not the article. Proven at build level: npm run build exits 0 with a malformed post JSON present and still prerenders both valid seeds (D-03).
+- [Phase ?]: [quick-260814-6n1] Real client logo shipped across all brand surfaces: circular emblem in the header at 52px (accent circle and hard shadow removed, the mark is full-colour and self-contained), full lockup on a white radius-sm card in the footer brand column (its blue and orange wordmark is not legible directly on brand-blue), favicon.png 512x512 transparent plus apple-touch-icon.png 180x180 white plate regenerated from the emblem. Placeholder favicon.svg retired and de-referenced (manifest keeps exactly 2 PNG icons); delivered source logo-bg.png removed from the repo root; IconBear stays in src/lib/icons/ (only the logo-badge use is superseded). Both images decorative (empty alt) so the wordmark text remains the link's accessible name. Assets cut with an uncommitted scratchpad sharp script: sharp .trim() is a NO-OP on this source (top-left pixel is alpha=1 with faint 1-4 alpha noise), so crops come from a computed alpha bbox plus a per-column scan (emblem x 125-530, empty gap 531-593, wordmark from 594). package.json unchanged. UI-SPEC Amendment v1.3.
 
 ### Pending Todos
 
@@ -126,6 +127,12 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 - [Phase 2] Confirm staff GitHub account model (per-editor vs shared) and invite staff as zlobekstromiec Org members with write access before CMS handover (D-19/D-20).
 - [Phase 3 UAT] CMS-authored JSON commits use 2-space indent while the repo prettier standard is tabs, so the `prettier --check .` pre-commit hook blocks ALL local commits until CMS files are reformatted (hit live with `2026-08-14-test.json`, fixed by `prettier --write`). Decide a policy before staff publish regularly: add `src/lib/content/aktualnosci/` (and uploads) to `.prettierignore`, or accept reformat-on-touch.
 - [Phase 3 UAT] Placeholder test post `2026-08-14-test.json` is live on the site; delete it via /admin (or replace with the real opening-day post) before handover.
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260814-6n1 | Implement new brand logo across header, footer and favicons | 2026-08-14 | f09af5d | [260814-6n1-implement-new-brand-logo-across-header-f](./quick/260814-6n1-implement-new-brand-logo-across-header-f/) |
 
 ## Deferred Items
 
