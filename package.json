@@ -7,6 +7,7 @@
 		"dev": "vite dev",
 		"build": "wrangler types --check && vite build",
 		"preview": "wrangler pages dev .svelte-kit/cloudflare --port 4173",
+		"preview:test": "wrangler pages dev .svelte-kit/cloudflare --port 4173 -b TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA -b RESEND_API_KEY=test -b FORM_DRY_RUN=1 -b RATE_LIMIT_SALT=lokalna-sol-testowa -b RATE_LIMIT_MAX=200",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "wrangler types --check && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
@@ -14,7 +15,7 @@
 		"format": "prettier --write .",
 		"cms:sync": "node scripts/cms-sync.mjs",
 		"test": "playwright test",
-		"test:unit": "node --test tests/aktualnosci-reader.unit.ts",
+		"test:unit": "node --test tests/*.unit.ts",
 		"gen": "wrangler types"
 	},
 	"devDependencies": {

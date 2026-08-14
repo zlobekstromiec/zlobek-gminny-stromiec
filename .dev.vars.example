@@ -1,0 +1,46 @@
+# Form pipeline variables (Phase 4, FORM-01 / FORM-02). Reference document only.
+# NEVER put a real key in this file: it is tracked by git.
+#
+# READ THIS FIRST, it is a real trap:
+# `wrangler types` reads a root `.dev.vars` file and writes every key it finds into
+# the committed worker-configuration.d.ts as a REQUIRED member. Cloudflare Pages CI
+# has no `.dev.vars` (it is gitignored), so the moment this file is copied to
+# `.dev.vars` the generated types stop matching and BOTH `npm run check` and
+# `npm run build` fail with "Types at worker-configuration.d.ts are out of date",
+# on your machine and then on the deploy. It also collides with the optional
+# declarations in src/app.d.ts, which are the single source of truth for these five
+# variables.
+#
+# So DO NOT create `.dev.vars`. The two supported paths instead:
+#
+#   Local + Playwright runs -> `npm run preview:test`, which passes the always-pass
+#     Cloudflare dummy values below to `wrangler pages dev` as --binding flags.
+#     Wrangler treats them exactly like .dev.vars secrets (verified: they appear as
+#     env.* bindings) but `wrangler types` never sees them. This is what
+#     playwright.config.ts runs, so the endpoint suite needs no setup at all.
+#
+#   Production -> set the real values as Cloudflare Pages environment variables
+#     (encrypted) in Plan 07. FORM_DRY_RUN is NEVER set in production.
+
+# Turnstile secret for server-side siteverify. Never the sitekey.
+# Cloudflare's published always-passes dummy secret, paired with sitekey
+# 1x00000000000000000000AA. Always-fails pair: 2x0000000000000000000000000000000AA.
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
+
+# Resend API key. Unused while the dry-run seam below is on.
+RESEND_API_KEY=test
+
+# Test-only seam: '1' short-circuits the Resend call so local runs and the
+# Playwright suite never send real mail. Set ONLY by npm run preview:test, NEVER as
+# a Cloudflare Pages variable, or production would silently stop delivering.
+FORM_DRY_RUN=1
+
+# Salt for the rate-limit key hash. Production uses a real secret so the hash is
+# not reversible by rainbow table over the IPv4 space.
+RATE_LIMIT_SALT=lokalna-sol-testowa
+
+# Submissions allowed per client per hour. Deliberately high in the test harness so
+# the Playwright suite, which shares one client IP, cannot trip the limiter.
+# Production leaves this UNSET and uses the module defaults: 5 per hour per client
+# and 40 per day site-wide.
+RATE_LIMIT_MAX=200

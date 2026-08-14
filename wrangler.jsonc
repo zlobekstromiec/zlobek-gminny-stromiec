@@ -3,5 +3,26 @@
 	"name": "scaffold",
 	"compatibility_date": "2026-08-12",
 	"compatibility_flags": ["nodejs_als"],
-	"pages_build_output_dir": ".svelte-kit/cloudflare"
+	"pages_build_output_dir": ".svelte-kit/cloudflare",
+	// Form rate-limit counter (FORM-02). The binding name is what `wrangler types`
+	// puts on `platform.env`, so it must exist here before any endpoint can read it.
+	// The real namespace id is provisioned against the live Cloudflare account in
+	// Plan 07; until then this placeholder keeps the config valid. `wrangler pages dev`
+	// simulates the binding locally in .wrangler/state (verified: it reports
+	// "env.FORMS_KV ... Mode local"), so local runs and the Playwright suite never
+	// need the remote namespace.
+	//
+	// The five form SECRETS are deliberately NOT declared here and NOT in a root
+	// `.dev.vars`. Declaring them here would ship them in the Pages config and could
+	// shadow the encrypted dashboard values; a `.dev.vars` file makes `wrangler types`
+	// emit them into the committed worker-configuration.d.ts, which Cloudflare Pages
+	// CI cannot reproduce, so `wrangler types --check` would fail every deploy. They
+	// are typed as optional in src/app.d.ts and supplied at runtime by the Pages
+	// dashboard (production) or by `npm run preview:test` --binding flags (tests).
+	"kv_namespaces": [
+		{
+			"binding": "FORMS_KV",
+			"id": "PLACEHOLDER_FORMS_KV_ID"
+		}
+	]
 }
