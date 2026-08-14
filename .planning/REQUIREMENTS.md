@@ -36,8 +36,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **RECRUIT-01**: A visitor can read enrollment information (harmonogram, kryteria, zasady)
 - [x] **RECRUIT-02**: A visitor can download the PDF enrollment forms (wnioski)
-- [ ] **RECRUIT-03**: A visitor can submit an online enrollment application that is emailed to the żłobek (no storage)
-- [ ] **RECRUIT-04**: The enrollment form requires explicit RODO consent, shows the klauzula informacyjna, and is spam-protected (Turnstile)
+- [x] **RECRUIT-03**: A visitor can submit an online enrollment application that is emailed to the żłobek (no storage)
+- [x] **RECRUIT-04**: The enrollment form requires explicit RODO consent, shows the klauzula informacyjna, and is spam-protected (Turnstile)
 - [x] **RECRUIT-05**: Staff can edit enrollment info/dates and manage enrollment documents via the CMS
 
 ### Dokumenty (Documents)
@@ -66,7 +66,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **CMS-02**: CMS edits commit to the repo and trigger a Cloudflare rebuild/deploy
 - [x] **CMS-03**: The CMS admin portal is in Polish — all field labels, hints, and help text (and the editor UI where supported) — so non-English-speaking staff can manage content
 - [ ] **FORM-01**: Form submissions are delivered by email via a Cloudflare function + email provider (Resend) — sent from our owned domain `zlobekstromiec.pl` and delivered to the Gmina mailbox `zlobek@ugstromiec.pl` — with no database
-- [ ] **FORM-02**: The email endpoint verifies Turnstile server-side, sends only to the fixed, hard-coded żłobek address (`zlobek@ugstromiec.pl`, confirmed), and rate-limits abuse
+- [x] **FORM-02**: The email endpoint verifies Turnstile server-side, sends only to the fixed, hard-coded żłobek address (`zlobek@ugstromiec.pl`, confirmed), and rate-limits abuse
 
 ### Accessibility & Legal
 
@@ -131,14 +131,14 @@ Which phases cover which requirements. Populated during roadmap creation.
 | NEWS-03 | Phase 3 | Complete |
 | RECRUIT-01 | Phase 4 | Complete |
 | RECRUIT-02 | Phase 4 | Complete |
-| RECRUIT-03 | Phase 4 | Pending |
-| RECRUIT-04 | Phase 4 | Pending |
+| RECRUIT-03 | Phase 4 | Complete |
+| RECRUIT-04 | Phase 4 | Complete |
 | RECRUIT-05 | Phase 4 | Complete |
 | CONTACT-01 | Phase 4 | Complete |
 | CONTACT-02 | Phase 4 | Complete |
 | CONTACT-03 | Phase 4 | Complete |
 | FORM-01 | Phase 4 | Pending |
-| FORM-02 | Phase 4 | Pending |
+| FORM-02 | Phase 4 | Complete |
 | GALLERY-01 | Phase 5 | Pending |
 | GALLERY-02 | Phase 5 | Pending |
 | FEES-01 | Phase 5 | Pending |

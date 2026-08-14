@@ -4,9 +4,9 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 04
 current_phase_name: Enrollment, Contact & Email Pipeline
-status: executing
-stopped_at: Completed 04-04-PLAN.md
-last_updated: "2026-08-14T19:20:59.184Z"
+status: verifying
+stopped_at: Completed 04-07-PLAN.md (phase 04 execution complete)
+last_updated: "2026-08-14T20:08:00.346Z"
 last_activity: 2026-08-14
 last_activity_desc: Phase 04 execution started
 progress:
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-08-14)
 
 Phase: 04 (Enrollment, Contact & Email Pipeline) — EXECUTING
 Plan: 7 of 7
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-08-14 — Phase 04 execution started
 
 Progress: [██████████████████░░] 22/25 plans (88%)
@@ -80,6 +80,7 @@ Progress: [██████████████████░░] 22/25 p
 | Phase 04 P04 | 12min | 3 tasks | 6 files |
 | Phase 04 P05 | 15min | 3 tasks tasks | 8 files files |
 | Phase 04 P06 | 14min | 3 tasks tasks | 10 files files |
+| Phase 04 P07 | 68min | 3 tasks tasks | 7 files files |
 
 ## Accumulated Context
 
@@ -131,6 +132,12 @@ Recent decisions affecting current work:
 - [Phase 04]: 04-06: the source-document do-not-publish gate is now enforced three ways for the archival 2026/2027 stage dates: absent from the content module (grep), absent from the delivered HTML (Playwright), and absent from the whole src tree including comments (repository grep, which required rewording a site.ts comment written in 04-02). A forbidden fact sitting in a comment is one copy-paste from being shipped copy.
 - [Phase 04]: 04-06: the fee box is structurally unable to separate an amount from its ZUS condition (one content block, one rendered panel), and the literal '0 zł' grep gate is unsatisfiable because '1 500 zł' contains it; the enforced form is the boundary-anchored grep plus a rendered-text assertion.
 - [Phase 04]: 04-06: page-level uniqueness assertions on this site must be section-scoped, because the footer links to the BIP on every route; and the tie-break sentence is legitimately rendered twice (kryteria table prose and procedura step 3), so both locators were narrowed to the element under test rather than removed.
+- [Phase ?]: [04-07] Go-live wiring landed: real Turnstile widget (widget-zlobekstromiec), real FORMS_KV namespace 55f55448fe1345e28a79da5a3e9e9ca9, and exactly three Pages secrets (RESEND_API_KEY, TURNSTILE_SECRET_KEY, RATE_LIMIT_SALT) with FORM_DRY_RUN and RATE_LIMIT_MAX deliberately unset, all confirmed on live deployment 4c35fd82.
+- [Phase ?]: [04-07] DOMAIN MIGRATION (checkpoint-approved, supersedes the plan): zlobekstromiec.pl DNS now on Cloudflare (zone b86f4808a59379c48e9a8beeee6c19cb), registration still home.pl. Apex and www attached to Pages as active custom domains with active certs. Resend SPF and MX live at send.send.zlobekstromiec.pl, one level DEEPER than the plan assumed, because Resend's Return-Path prefix is itself 'send'.
+- [Phase ?]: [04-07] A real managed Turnstile widget cannot be driven by an automated browser, headless or headful: it refuses to issue a token, which is exactly its purpose. The browser-side live delivery test is an irreducible HUMAN check; no automation shortcut was taken because every option required weakening production bot protection.
+- [Phase ?]: [04-07] The Resend API key is correctly send-only, so per-recipient delivery and bounce status is NOT API-readable ('restricted to only send emails'). Reading the delivery log is a dashboard/human step; a broader key was deliberately NOT minted.
+- [Phase ?]: [04-07] A placeholder KV id is not untidy but undeployable: Pages validates the id when publishing the Function and fails the deploy with Error 8000022 'Not a valid hex string'. Proven with a throwaway preview deployment so production was never risked.
+- [Phase ?]: [04-07] The rate limiter only guarded an ABSENT binding (!kv). A present-but-unusable binding or any transient KV failure made get/put reject, escaping obsluz as an opaque 500 on every submission of both forms. Every KV operation is now wrapped and fails OPEN, matching the documented degrade policy: Turnstile remains the real gate and a rejected enquiry is stored nowhere, so lost for good.
 
 ### Pending Todos
 
@@ -174,6 +181,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-14T18:29:36.403Z
-Stopped at: Completed 04-04-PLAN.md
+Last session: 2026-08-14T20:08:00.342Z
+Stopped at: Completed 04-07-PLAN.md (phase 04 execution complete)
 Resume file: None
