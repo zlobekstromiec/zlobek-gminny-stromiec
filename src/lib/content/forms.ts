@@ -26,11 +26,18 @@ import type { FormCode } from '../forms/types.ts';
  *  content module and not in a secret. The matching secret key never leaves
  *  `platform.env`.
  *
- *  PLACEHOLDER: this is Cloudflare's published always-passes dummy site key. The
- *  real widget is created against the live Cloudflare account in Plan 07, and THIS
- *  CONSTANT IS THE SINGLE LINE that must be swapped before the forms do any real
- *  bot filtering in production. */
-export const TURNSTILE_SITEKEY = '1x00000000000000000000AA';
+ *  This is the live key of the managed widget `widget-zlobekstromiec`, whose allowed
+ *  hostnames are the Pages origin plus the apex and www of the custom domain. It
+ *  MUST always be paired with that same widget's secret, set as the Cloudflare Pages
+ *  secret `TURNSTILE_SECRET_KEY`: a site key from one widget and a secret from
+ *  another makes every siteverify call fail, and because verification fails closed
+ *  that silently blocks every submission on both forms.
+ *
+ *  Local and CI runs never use this key. TurnstileWidget.svelte substitutes
+ *  Cloudflare's always-passes dummy pair on localhost, because this widget is
+ *  hostname-scoped and issues no token off its allowed origins. See that component
+ *  for why the substitution cannot weaken production. */
+export const TURNSTILE_SITEKEY = '0x4AAAAAAEQGTDA3in-HRJJ4';
 
 /** The twelve Polish month names in the nominative, paired with the value the
  *  enrollment form's month `<select>` posts. Ordered, so the island renders the list

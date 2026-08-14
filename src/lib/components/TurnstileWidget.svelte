@@ -28,6 +28,24 @@
 		onToken: (token: string | null) => void;
 	} = $props();
 
+	// Local test seam (Plan 07). The live widget is hostname-scoped to the Pages
+	// origin and the custom domain, so off those origins Cloudflare renders an
+	// unknown-domain error and issues NO token at all. The Playwright suite serves the
+	// built site on localhost and drives both form success paths, so with the live key
+	// hard-coded every one of those runs would wait forever for a token that can never
+	// arrive. Substituting Cloudflare's published always-passes dummy site key on
+	// localhost keeps that suite meaningful.
+	//
+	// This CANNOT weaken production, and the reason is worth stating: the site key only
+	// selects which widget challenges the visitor, while the decision to accept a
+	// submission is made server-side by siteverify using the secret in
+	// `platform.env.TURNSTILE_SECRET_KEY`, which in production is the LIVE secret. A
+	// dummy token presented to the live secret is rejected, so forcing this branch in a
+	// browser buys an attacker nothing: it fails closed, exactly like a mismatched pair.
+	// The dummy key is a published Cloudflare constant, not a credential.
+	const SITEKEY_TESTOWY = '1x00000000000000000000AA';
+	const HOSTY_TESTOWE = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
+
 	let kontener: HTMLDivElement | undefined = $state();
 	/** Not $state: nothing renders from it, and the effect owns its whole lifetime. */
 	let widgetId: string | undefined;
@@ -44,9 +62,13 @@
 		if (typeof window === 'undefined' || !kontener) return;
 		const cel = kontener;
 
+		// Resolved inside the effect, which is browser-only, so the prerendered HTML
+		// never depends on a hostname the build cannot know.
+		const kluczEfektywny = HOSTY_TESTOWE.has(window.location.hostname) ? SITEKEY_TESTOWY : sitekey;
+
 		const rysuj = () => {
 			widgetId = window.turnstile?.render(cel, {
-				sitekey,
+				sitekey: kluczEfektywny,
 				// Polish UI to match the rest of the page (SITE-06), light theme to match
 				// the white form card.
 				language: 'pl',
