@@ -3,9 +3,10 @@
 	// the open/closed recruitment window comes pre-derived from site.ts (a human
 	// flips `recruitmentOpen` there, never a date comparison). The docs panel
 	// rows keep their file meta INSIDE the link so screen readers announce it
-	// with the name (Polish public-sector expectation, WCAG 2.1 AA). Step 2's
-	// e-mail is deliberately plain text: the homepage carries exactly one mailto
-	// (in ContactAndMap).
+	// with the name (Polish public-sector expectation, WCAG 2.1 AA). No step
+	// carries an e-mail address: wnioski are filed in person at the Urząd Gminy
+	// ([BIP] regulamin, D-05), so the homepage keeps exactly one mailto (in
+	// ContactAndMap).
 	//
 	// The docs panel is now a CURATED SUBSET sourced from the shared `dokumenty`
 	// collection via +page.server.ts (D-18): the parent gets the real BIP names +
@@ -46,7 +47,7 @@
 						{/each}
 					</ol>
 
-					<Cta href="/dokumenty" variant="primary" icon>Pobierz kartę zgłoszenia</Cta>
+					<Cta href="/dokumenty" variant="primary" icon>Pobierz wniosek</Cta>
 				</div>
 
 				<div class="docs-panel">

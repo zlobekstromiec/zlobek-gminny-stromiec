@@ -20,7 +20,7 @@
 
 		<div class="grid">
 			<ul class="contact-grid">
-				<!-- PLACEHOLDER: street address pending written client confirmation. -->
+				<!-- FINAL: [BIP]-confirmed street address (statut + fee uchwała). -->
 				<li class="item">
 					<MapPin class="item-icon" size={22} aria-hidden="true" focusable="false" />
 					<div class="item-text">
@@ -29,13 +29,14 @@
 					</div>
 				</li>
 
-				<!-- PLACEHOLDER: phone + secretariat hours pending written client confirmation. -->
+				<!-- PLACEHOLDER: phone published by user decision (D-08), launch gate in
+				     site.ts. The invented żłobek secretariat-hours line is deliberately
+				     gone: the source document has no such fact. -->
 				<li class="item">
 					<Phone class="item-icon" size={22} aria-hidden="true" focusable="false" />
 					<div class="item-text">
 						<span class="item-label">Telefon</span>
 						<a class="item-link" href={contact.phoneHref}>{contact.phoneDisplay}</a>
-						<span class="item-sub">{contact.secretariatHours}</span>
 					</div>
 				</li>
 
@@ -171,13 +172,6 @@
 	.item-value {
 		font-family: var(--font-body);
 		font-size: 16px;
-		line-height: 1.5;
-		color: var(--color-muted);
-	}
-
-	.item-sub {
-		font-family: var(--font-body);
-		font-size: 14px;
 		line-height: 1.5;
 		color: var(--color-muted);
 	}

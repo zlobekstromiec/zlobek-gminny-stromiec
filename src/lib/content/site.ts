@@ -12,25 +12,46 @@ export const coreMessage =
 
 /** Recruitment window switch, flipped by a human, never a date comparison
  *  (a deadline that silently flips at midnight without staff knowing is worse
- *  than a stale one). CMS-editable in a later phase. */
-export const recruitmentOpen = true;
+ *  than a stale one). CMS-editable in a later phase.
+ *
+ *  Set to `false` per D-06: the nabór for 2026/2027 is finished (Regulamin
+ *  rekrutacji, Zarządzenie 29.2026 harmonogram ran 01.04-12.05.2026), and the
+ *  lista rezerwowa is the open channel. Flip back to `true` only when the Urząd
+ *  Gminy announces the next nabór. */
+export const recruitmentOpen = false;
 
 /** Launch-week announcement bar flag: banked only, no component renders it yet.
  *  Copy and rules live in .planning/DESIGN-BANK.md (accent bg, never danger). */
 export const openingBanner = false;
 
 export const contact = {
-	// PLACEHOLDER: street address, real value pending written client confirmation.
-	addressLines: ['ul. Radomska 5', '26-804 Stromiec'],
-	// PLACEHOLDER: phone number, pending written client confirmation.
-	phoneDisplay: '48 619 10 25',
-	phoneHref: 'tel:+48486191025',
+	/** FINAL: [BIP]-confirmed by both the statut (uchwała XXIII.133.2026) and the
+	 *  fee uchwała XXIII.134.2026 (.planning/dane-bip-zlobek-stromiec.md §1). */
+	addressLines: ['ul. Radomska 72', '26-804 Stromiec'],
+	// PLACEHOLDER: published by explicit user decision (D-08), overriding the
+	// source document's `[?]` marker. LAUNCH GATE: confirm this is a służbowy
+	// line and not Kamila Dobosz's private number before go-live (Phase 6).
+	phoneDisplay: '510 094 051',
+	phoneHref: 'tel:+48510094051',
 	/** FINAL: confirmed public institutional inbox; do NOT mark placeholder. */
 	email: 'zlobek@ugstromiec.pl',
-	// PLACEHOLDER: opening hours, pending written client confirmation.
-	hours: 'pon.-pt. 6:30–16:30',
-	// PLACEHOLDER: secretariat hours, pending written client confirmation.
-	secretariatHours: 'sekretariat: pon.-pt. 7:00–15:00'
+	// PLACEHOLDER: [KD]-sourced (confirmed by e-mail, not by a BIP document) and
+	// recorded as "może ulec zmianie"; re-confirm before launch.
+	hours: 'pon.-pt. 6:30–16:30'
+	// The former żłobek office-hours field is deliberately GONE: the source
+	// document records no such hours, so the old value was invented. Where a
+	// wniosek is filed is an Urząd Gminy fact, see `urzad` below.
+} as const;
+
+/** FINAL [BIP]: recruitment is run by the Wójt through the Komisja Rekrutacyjna,
+ *  not by the żłobek (Zarządzenie 29.2026), and wnioski are filed at the Urząd
+ *  Gminy. Every surface that tells a parent where to file reads THIS object, so
+ *  the homepage, /rekrutacja and /kontakt can never drift apart. */
+export const urzad = {
+	name: 'Urząd Gminy w Stromcu',
+	addressLines: ['ul. Piaski 4', '26-804 Stromiec'],
+	room: 'pokój 17',
+	wnioskiHours: 'pon.-pt. 8:00–15:00'
 } as const;
 
 export type KeyFact = {
@@ -45,21 +66,29 @@ export type KeyFact = {
 };
 
 export const keyFacts: KeyFact[] = [
-	// PLACEHOLDER: age range, pending written client confirmation. This CORRECTS the
-	// earlier "20 tyg. – 3 lata" which was wrongly marked statutory-final: a żłobek
-	// statute sets its own minimum age.
-	{ label: 'Wiek dzieci', value: '10 mies. – 3 lata', icon: 'smile', tint: 'yellow' },
-	// PLACEHOLDER: opening hours, pending written client confirmation.
+	/** FINAL: [BIP] statut range (od ukończenia 20. tygodnia życia do 3 lat,
+	 *  wyjątkowo do 4). */
+	{
+		label: 'Wiek dzieci',
+		value: 'od 20. tyg. życia do 3 lat',
+		suffix: 'wyjątkowo do 4 lat',
+		icon: 'smile',
+		tint: 'yellow'
+	},
+	// PLACEHOLDER: [KD]-sourced hours, recorded as "może ulec zmianie".
 	{ label: 'Godziny otwarcia', value: '6:30–16:30', icon: 'clock', tint: 'blue' },
-	// PLACEHOLDER: fees, pending written client confirmation.
+	// PLACEHOLDER: exact fee wording pending client confirmation (D-09). The amount
+	// itself is [BIP] (uchwała XXIII.134.2026: 2 337 zł minus 837 zł obniżki).
+	// HARD RULE (dane-bip §10.1): the zero figure may appear ONLY attached to the
+	// ZUS „Aktywnie w żłobku" condition. An unconditional zero is a publishing defect.
 	{
 		label: 'Opłata miesięczna',
-		value: '400 zł',
-		suffix: '+ wyżywienie 14 zł/dzień',
+		value: '1 500 zł',
+		suffix: '+ wyżywienie maks. 20 zł/dzień; możliwe 0 zł ze świadczeniem ZUS „Aktywnie w żłobku"',
 		icon: 'coins',
 		tint: 'orange'
 	},
-	// PLACEHOLDER: capacity, pending written client confirmation.
+	/** FINAL: [BIP] 50 miejsc utworzonych w programie Aktywny Maluch. */
 	{ label: 'Liczba miejsc', value: '50', icon: 'house', tint: 'green' }
 ];
 
@@ -115,6 +144,10 @@ const openStrings: RecruitmentStrings = {
 	body: 'Wystarczą cztery kroki, a jeśli coś jest niejasne, po prostu zadzwoń.'
 };
 
+/** Live copy since D-06. Verified string by string against 04-UI-SPEC.md
+ *  „Status banner (closed state)" and the Regulamin rekrutacji digest: a closed
+ *  nabór is neutral information, never an error state, and the archival
+ *  2026/2027 harmonogram is never presented as current (dane-bip §10.3). */
 const closedStrings: RecruitmentStrings = {
 	pill: 'Nabór zakończony: lista rezerwowa otwarta',
 	heading: 'Nabór na rok 2026/2027 zakończony',
@@ -125,24 +158,32 @@ const closedStrings: RecruitmentStrings = {
 /** Derived once here; components import `recruitment`, never plumb the boolean. */
 export const recruitment = {
 	...(recruitmentOpen ? openStrings : closedStrings),
-	// PLACEHOLDER: age range + admission rules, pending written client confirmation.
+	// PLACEHOLDER: the date of the next nabór is unconfirmed. The archival
+	// 2026/2027 harmonogram may NEVER be presented as current (dane-bip §10.3),
+	// so this line points at the announcing authority instead of a date.
+	nastepnyNabor: 'Termin kolejnego naboru ogłosi Urząd Gminy w Stromcu.',
+	/** [BIP] Regulamin rekrutacji (Zarządzenie 29.2026) + statut age range.
+	 *  Eligibility here is ZAMIESZKANIE only: the statut's employment-based
+	 *  criterion contradicts the regulamin and is an unresolved discrepancy
+	 *  (dane-bip §10.5), so it must not ship as a fact. */
 	infoCard:
-		'Przyjmujemy dzieci w wieku od 10 miesięcy do 3 lat, zamieszkałe na terenie gminy Stromiec. Rekrutacja uzupełniająca trwa przez cały rok, w miarę wolnych miejsc.',
+		'Przyjmujemy dzieci od ukończenia 20. tygodnia życia do 3 lat (wyjątkowo do 4 lat), zamieszkałe na terenie Gminy Stromiec. Dzieci nieprzyjęte trafiają na listę oczekujących. W kolejnych latach pobyt przedłuża się na podstawie deklaracji kontynuacji, bez ponownego naboru.',
+	/** Exactly FOUR steps: the homepage acceptance suite asserts the count, and
+	 *  the addresses come from `urzad` so no component hard-codes them. Step 2
+	 *  carries no e-mail and no electronic route: filing is in person only ([BIP]
+	 *  regulamin), which also keeps the homepage's single-mailto rule intact. */
 	steps: [
 		{
-			title: 'Pobierz kartę zgłoszenia',
-			body: 'Formularz znajdziesz w panelu obok lub w sekretariacie żłobka.'
+			title: 'Pobierz wniosek',
+			body: 'Wniosek o przyjęcie dziecka wraz z załącznikami znajdziesz w sekcji Dokumenty.'
 		},
 		{
-			// Plain text e-mail by design: the homepage carries exactly ONE mailto
-			// (in ContactAndMap); a second would break the acceptance test's
-			// strict-mode locator (UI-SPEC v1.2 §6).
-			title: 'Złóż dokumenty',
-			body: 'Osobiście w żłobku (pon.-pt. 7:00–15:00), e-mailem na zlobek@ugstromiec.pl lub przez ePUAP.'
+			title: 'Złóż wniosek osobiście',
+			body: `Wnioski przyjmuje ${urzad.name}, ${urzad.addressLines[0]}, ${urzad.room}, w godzinach ${urzad.wnioskiHours}. Nie ma możliwości złożenia wniosku drogą elektroniczną ani pocztą.`
 		},
 		{
 			title: 'Poczekaj na wyniki',
-			body: 'Komisja rekrutacyjna weryfikuje zgłoszenia. O przyjęciu dziecka poinformujemy telefonicznie i e-mailem.'
+			body: 'Wnioski weryfikuje i punktuje Komisja Rekrutacyjna powołana przez Wójta Gminy Stromiec. Przy równej liczbie punktów decyduje data wpływu wniosku. Od rozstrzygnięcia możesz odwołać się do Wójta w ciągu 7 dni.'
 		},
 		{
 			title: 'Podpisz umowę',
@@ -159,7 +200,7 @@ export const recruitment = {
  *  the fields NewsCard consumes and is structurally compatible with the reader's
  *  PostWithMeta, so `readLatest(3)` output types this prop directly. The homepage
  *  load supplies posts at build (+page.server.ts); this module no longer holds a
- *  stub — the shared `aktualnosci` reader is the single source (Amendment v1.1 §1). */
+ *  stub: the shared `aktualnosci` reader is the single source (Amendment v1.1 §1). */
 export type Post = {
 	tytul: string;
 	href: string;
