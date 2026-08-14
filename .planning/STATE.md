@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 03
-current_phase_name: news-aktualno-ci
-status: executing
-stopped_at: Completed 03-07-PLAN.md (phase 03 gap closure)
-last_updated: "2026-08-14T02:59:53.334Z"
+current_phase: 4
+current_phase_name: Enrollment, Contact & Email Pipeline
+status: verifying
+stopped_at: Phase 03 complete (UAT passed), ready to plan Phase 4
+last_updated: "2026-08-14T03:41:13.470Z"
 last_activity: 2026-08-14
-last_activity_desc: Phase 03 execution started
+last_activity_desc: Phase 03 complete, transitioned to Phase 4
 progress:
   total_phases: 7
   completed_phases: 3
@@ -21,25 +21,25 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-08-12)
+See: .planning/PROJECT.md (updated 2026-08-14)
 
 **Core value:** A parent lands on the site and, within seconds, both feels the żłobek's warmth and finds the exact information they need (enrollment, documents, contact) — on any device.
-**Current focus:** Phase 03 — news-aktualno-ci
+**Current focus:** Phase 4 — Enrollment, Contact & Email Pipeline
 
 ## Current Position
 
-Phase: 03 (news-aktualno-ci) — EXECUTED
-Plan: 7 of 7
-Status: All 7 plans executed (03-07 gap closure complete) — ready to re-verify
-Last activity: 2026-08-14 — Completed 03-07-PLAN.md (reader output fully guarded)
+Phase: 4 — Enrollment, Contact & Email Pipeline
+Plan: Not started
+Status: Ready to plan (Phase 03 closed: UAT 1/1 passed, verification passed, security threats_open 0)
+Last activity: 2026-08-14 — Phase 03 complete, transitioned to Phase 4
 
-Progress: [██████████] 100%
+Progress: [████████████████████] 18/18 plans (100%)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 11
+- Total plans completed: 18
 - Average duration: — min
 - Total execution time: 0.0 hours
 
@@ -49,6 +49,7 @@ Progress: [██████████] 100%
 |-------|-------|-------|----------|
 | 01 | 5 | - | - |
 | 02 | 6 | - | - |
+| 03 | 7 | - | - |
 
 **Recent Trend:**
 
@@ -123,6 +124,8 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 - [Phase 4/6] RODO: Gmina (controller) to sign Resend DPA + SCCs and Cloudflare DPA, list both as sub-processors in the RCPD, select Resend EU region.
 - [Phase 4/6] Obtain koordynator dostępności / IOD contact for klauzula informacyjna and Deklaracja dostępności.
 - [Phase 2] Confirm staff GitHub account model (per-editor vs shared) and invite staff as zlobekstromiec Org members with write access before CMS handover (D-19/D-20).
+- [Phase 3 UAT] CMS-authored JSON commits use 2-space indent while the repo prettier standard is tabs, so the `prettier --check .` pre-commit hook blocks ALL local commits until CMS files are reformatted (hit live with `2026-08-14-test.json`, fixed by `prettier --write`). Decide a policy before staff publish regularly: add `src/lib/content/aktualnosci/` (and uploads) to `.prettierignore`, or accept reformat-on-touch.
+- [Phase 3 UAT] Placeholder test post `2026-08-14-test.json` is live on the site; delete it via /admin (or replace with the real opening-day post) before handover.
 
 ## Deferred Items
 
@@ -134,6 +137,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-14T02:59:48.482Z
-Stopped at: Completed 03-07-PLAN.md (phase 03 gap closure)
+Last session: 2026-08-14T03:45:00Z
+Stopped at: Phase 03 complete (UAT passed, transitioned), ready to plan Phase 4
 Resume file: None

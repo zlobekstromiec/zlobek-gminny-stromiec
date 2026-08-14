@@ -17,10 +17,10 @@ A parent lands on the site and, within seconds, **both feels the żłobek's warm
 - [x] Deployed on Cloudflare (org-standard hosting) — *Validated in Phase 1 (Pages git-integration, push→auto-redeploy proven)*
 - [x] **O nas** — about the żłobek (mission, values, team, the care philosophy) — *Validated in Phase 2: About, Documents & CMS (prerendered `/o-nas`, axe AA green, placeholder content)*
 - [x] **Dokumenty** — downloadable documents (regulations, forms), uploadable by staff — *Validated in Phase 2 (self-hosted downloads with build-time type/size metadata; staff-manageable via CMS)*
-- [x] Git-based CMS (Sveltia/Decap) so staff self-edit news & documents at near-zero cost — *Validated in Phase 2 for O nas + documents (live login-edit-commit-rebuild loop proven on Pages; OAuth Worker; Polish light-theme admin). News collection lands in Phase 3.*
+- [x] Git-based CMS (Sveltia/Decap) so staff self-edit news & documents at near-zero cost — *Validated in Phase 2 for O nas + documents (live login-edit-commit-rebuild loop proven on Pages; OAuth Worker; Polish light-theme admin). News collection validated in Phase 3.*
+- [x] **Aktualności** — news/announcements section, editable by staff without a developer — *Validated in Phase 3: News (prerendered `/aktualnosci` list + post pages + homepage preview; UAT proved the full staff round trip: /admin create → GitHub commit → Pages rebuild → live post with correct date-prefixed URL)*
 
 ### Active
-- [ ] **Aktualności** — news/announcements section, editable by staff without a developer
 - [ ] **Rekrutacja** — enrollment info + downloadable PDF forms **and** an online application form that emails submissions to the żłobek (no data storage)
 - [ ] **Kontakt** — contact details, location/map, and a contact form that emails the żłobek
 - [ ] WCAG 2.1 AA accessibility + published **Deklaracja dostępności** (legal requirement for a public body)
@@ -65,13 +65,15 @@ A parent lands on the site and, within seconds, **both feels the żłobek's warm
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Git-based CMS (Sveltia/Decap) over paid headless CMS | Staff self-edit news/documents at near-zero cost, no database, commits to repo → Cloudflare rebuilds | — Pending |
+| Git-based CMS (Sveltia/Decap) over paid headless CMS | Staff self-edit news/documents at near-zero cost, no database, commits to repo → Cloudflare rebuilds | ✓ Working (Phases 2-3: live edit→commit→rebuild loop proven for O nas, Dokumenty and Aktualności) |
+| News dates stored ISO (`YYYY-MM-DD`), Polish `DD.MM.RRRR` only in the picker display; slug substitutes the stored date verbatim | Date-transformed slugs minted wrong/dateless URLs for most days of the month (CR-01) | ✓ Working (verified live with a day-14 post) |
+| Aktualności reader is the single validation boundary: malformed CMS entry is skipped with a build warning, required fields reject the entry, optional fields degrade | One bad staff edit must never take down the site build; components stay guard-free | ✓ Working (pinned by unit suite + malformed-entry build test) |
 | Rekrutacja & Kontakt forms are email-only (no storage) via Cloudflare Worker + email provider (Resend) | Lowest cost + minimizes RODO surface; volume is tiny | — Pending |
 | Send form email **from** our owned domain `zlobekstromiec.pl` (DNS on Cloudflare) → **deliver to** Gmina mailbox `zlobek@ugstromiec.pl` | We control SPF/DKIM/DMARC on our own domain, so deliverability no longer depends on Gmina IT or `ugstromiec.pl` DNS | ✓ Decided |
 | Cloudflare Turnstile for form spam protection | Free, Cloudflare-native, no third-party CAPTCHA cost | — Pending |
 | BIP handled by linking to existing naszbip page (not rebuilt) | Legal obligation met externally; avoids duplicating a regulated system | — Pending |
 | Placeholder content first, real content later | Keeps build momentum while client gathers assets | — Pending |
-| Host on Cloudflare | Org standard; CLI already connected | — Pending |
+| Host on Cloudflare | Org standard; CLI already connected | ✓ Working (Pages git-integration live since Phase 1) |
 | Polish across the whole product, including CMS admin portal | Staff and visitors in Stromiec assumed not to read English; Polish field labels/hints written in CMS config | — Pending |
 
 ## Evolution
@@ -92,4 +94,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-13 after Phase 2 completion — O nas + Dokumenty live, staff-editable via the Polish Sveltia admin (OAuth Worker on Cloudflare)*
+*Last updated: 2026-08-14 after Phase 3 completion — Aktualności live end-to-end (list, post pages, homepage preview); staff publishing round trip proven in UAT via the Polish Sveltia admin*
