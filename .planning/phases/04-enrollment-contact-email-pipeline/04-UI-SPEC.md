@@ -1,7 +1,7 @@
 ---
 phase: 4
 slug: enrollment-contact-email-pipeline
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-08-14
