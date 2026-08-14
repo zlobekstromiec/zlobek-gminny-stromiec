@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 4
+current_phase: 04
 current_phase_name: Enrollment, Contact & Email Pipeline
-status: verifying
-stopped_at: Phase 4 UI-SPEC approved
-last_updated: "2026-08-14T13:24:47.468Z"
+status: executing
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-08-14T15:38:04.734Z"
 last_activity: 2026-08-14
-last_activity_desc: "Completed quick task 260814-hwf: official name Publiczny Żłobek w Stromcu + corrected logo"
+last_activity_desc: Phase 04 execution started
 progress:
   total_phases: 7
   completed_phases: 3
-  total_plans: 18
-  completed_plans: 18
+  total_plans: 25
+  completed_plans: 19
   percent: 43
 ---
 
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-14)
 
 **Core value:** A parent lands on the site and, within seconds, both feels the żłobek's warmth and finds the exact information they need (enrollment, documents, contact) — on any device.
-**Current focus:** Phase 4 — Enrollment, Contact & Email Pipeline
+**Current focus:** Phase 04 — Enrollment, Contact & Email Pipeline
 
 ## Current Position
 
-Phase: 4 — Enrollment, Contact & Email Pipeline
-Plan: Not started
-Status: Ready to plan (Phase 03 closed: UAT 1/1 passed, verification passed, security threats_open 0)
-Last activity: 2026-08-14 — Completed quick task 260814-hwf: official name Publiczny Żłobek w Stromcu + corrected logo
+Phase: 04 (Enrollment, Contact & Email Pipeline) — EXECUTING
+Plan: 2 of 7
+Status: Ready to execute
+Last activity: 2026-08-14 — Phase 04 execution started
 
 Progress: [████████████████████] 18/18 plans (100%)
 
@@ -74,6 +74,7 @@ Progress: [████████████████████] 18/18 p
 | Phase 03 P05 | 4 | 2 tasks | 4 files |
 | Phase 03 P06 | 7min | 3 tasks | 5 files |
 | Phase 03 P07 | 4min | 2 tasks | 2 files |
+| Phase 04 P01 | 79min | 3 tasks tasks | 17 files files |
 
 ## Accumulated Context
 
@@ -108,6 +109,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [03-07] Residual WR-02 closed structurally: postFromEntry's entry param is now `unknown`, a plain-object guard runs before any property access, `tresc` is validated unconditionally (a present zajawka no longer skips it, so marked.parse(undefined) can never abort the entries()-driven prerender), and the return value is an explicit 12-key literal built from guarded locals instead of a raw-entry spread — pinned by an EXPECTED_POST_KEYS key-set assertion and mutation-checked (removing any of the tytul/data/tresc/obraz guards, or reintroducing the spread, turns test:unit red). The reader is the single validation boundary; NewsCard.svelte and [slug]/+page.svelte carry no defensive guards.
 - [Phase ?]: [03-07] News post field policy: required fields (tytul, data, tresc) reject the entry with a build warning; optional fields (zajawka, obraz, obraz_alt) degrade to undefined via readString, so a wrong cover costs the image (D-01 tint fallback) not the article. Proven at build level: npm run build exits 0 with a malformed post JSON present and still prerenders both valid seeds (D-03).
 - [Phase ?]: [quick-260814-6n1] Real client logo shipped across all brand surfaces: circular emblem in the header at 52px (accent circle and hard shadow removed, the mark is full-colour and self-contained), full lockup on a white radius-sm card in the footer brand column (its blue and orange wordmark is not legible directly on brand-blue), favicon.png 512x512 transparent plus apple-touch-icon.png 180x180 white plate regenerated from the emblem. Placeholder favicon.svg retired and de-referenced (manifest keeps exactly 2 PNG icons); delivered source logo-bg.png removed from the repo root; IconBear stays in src/lib/icons/ (only the logo-badge use is superseded). Both images decorative (empty alt) so the wordmark text remains the link's accessible name. Assets cut with an uncommitted scratchpad sharp script: sharp .trim() is a NO-OP on this source (top-left pixel is alpha=1 with faint 1-4 alpha noise), so crops come from a computed alpha bbox plus a per-column scan (emblem x 125-530, empty gap 531-593, wordmark from 594). package.json unchanged. UI-SPEC Amendment v1.3.
+- [Phase 04]: [04-01] Form pipeline landed behind POST /api/kontakt (first dynamic route). NO root .dev.vars: wrangler types bakes its keys into the committed worker-configuration.d.ts as required members, which Pages CI cannot reproduce, so wrangler types --check would fail every deploy; test-run secrets come from npm run preview:test --binding flags instead (identical platform.env, verified). obsluz() takes every side effect by injection so Plan 05's /api/rekrutacja is a thin adapter. Two rate-limit ceilings (5/h per salted-hash client key + 40/day site-wide) protect the Resend 100/day budget; both counters read before either is written. FROM/TO/BCC are module constants, subject static, payload text-only (no markup field). Per-field keys are brak/niepoprawny/zbyt-dlugi to match the UI-SPEC error copy. CONTACT-03/FORM-01/FORM-02 left UNMARKED: shared with Plans 03/04/05/07 and no form or real send exists yet. 101 unit + 9 endpoint tests green.
 
 ### Pending Todos
 
@@ -129,6 +131,7 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 - ~~[Phase 3 UAT] Placeholder test post `2026-08-14-test.json` live on the site + breaking `tests/aktualnosci.spec.ts:55`~~ — **RESOLVED 2026-08-14**: deleted via /admin (Sveltia commit c5c3dc0, also proving the CMS delete flow); full Playwright suite 55/55 green again.
 - [Rename 260814-hwf] `static/og-placeholder.png` share card still renders the old branding/name; regenerate from real brand assets in Phase 6.
 - [Rename 260814-hwf] Official name "Publiczny Żłobek w Stromcu" now in code seeds, but `o-nas.json` and the aktualnosci seeds are CMS-editable; staff edits via /admin could reintroduce old wording.
+- [Phase 4] Do NOT create a root .dev.vars file: wrangler types writes its keys into the committed worker-configuration.d.ts as required members, so wrangler types --check fails locally and on the Cloudflare Pages deploy. Use npm run preview:test (wrangler pages dev --binding flags) for local and Playwright runs. FORM_DRY_RUN must never become a Cloudflare Pages variable. See .dev.vars.example.
 
 ### Quick Tasks Completed
 
@@ -147,6 +150,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-14T13:24:47.464Z
-Stopped at: Phase 4 UI-SPEC approved
-Resume file: .planning/phases/04-enrollment-contact-email-pipeline/04-UI-SPEC.md
+Last session: 2026-08-14T15:37:53.147Z
+Stopped at: Completed 04-01-PLAN.md
+Resume file: None
