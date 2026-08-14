@@ -22,13 +22,13 @@ editors — can be handed over intact to a future maintainer / the Gmina (D-07).
 
 ## Toolchain
 
-| Tool       | Pin / source                                     | Notes                                                                                                                                                     |
-| ---------- | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Node.js    | `.tool-versions` → **nodejs 22.23.2** (even LTS) | Do **not** build on Node 25 (Current/odd). Matches the Cloudflare Pages build runtime.                                                                    |
-| npm        | bundled with Node 22                             | Lockfile committed (`package-lock.json`).                                                                                                                 |
-| asdf       | `.tool-versions`                                 | Run `asdf install` in the repo to match the pinned Node.                                                                                                  |
-| direnv     | `.envrc` (gitignored)                            | Loads the scoped `CLOUDFLARE_API_TOKEN` for Wrangler. No real app secrets in Phase 1 (Resend/Turnstile arrive Phase 4). Run `direnv allow` after editing. |
-| pre-commit | `.pre-commit-config.yaml`                        | Install with `brew install pre-commit` (or `pipx install pre-commit`), then `pre-commit install`.                                                         |
+| Tool       | Pin / source                                     | Notes                                                                                                                                                                                                    |
+| ---------- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Node.js    | `.tool-versions` → **nodejs 22.23.2** (even LTS) | Do **not** build on Node 25 (Current/odd). Matches the Cloudflare Pages build runtime.                                                                                                                   |
+| npm        | bundled with Node 22                             | Lockfile committed (`package-lock.json`).                                                                                                                                                                |
+| asdf       | `.tool-versions`                                 | Run `asdf install` in the repo to match the pinned Node.                                                                                                                                                 |
+| direnv     | `.envrc` (gitignored)                            | Loads the scoped `CLOUDFLARE_API_TOKEN` for Wrangler. **Pages + Turnstile scope only**: no Workers KV, no zone DNS. App secrets live in the Pages project, never here. Run `direnv allow` after editing. |
+| pre-commit | `.pre-commit-config.yaml`                        | Install with `brew install pre-commit` (or `pipx install pre-commit`), then `pre-commit install`.                                                                                                        |
 
 ## First-time setup
 
@@ -71,8 +71,105 @@ Confirmed-live settings on the Pages project (push to `main` → auto build + de
 | Build output directory | `.svelte-kit/cloudflare`                       |
 | Node version           | `NODE_VERSION = 22` (matches `.tool-versions`) |
 
-Phase 1 ships to the free `*.pages.dev` subdomain; the custom domain
-`zlobekstromiec.pl` is added at launch (Phase 6).
+The free `*.pages.dev` subdomain stays the working origin. The custom domain
+`zlobekstromiec.pl` (and `www.`) is **attached** to the Pages project, but the site
+stays `noindex` + robots-disallowed on every origin until the Phase 6 launch
+hardening removes the placeholder guard.
+
+> **`wrangler.jsonc` is the source of truth for Pages bindings.** While that file
+> exists, the equivalent settings are visible but **not editable** in the dashboard.
+> Secrets are the one exception: they are never written to `wrangler.jsonc` and are
+> set with `wrangler pages secret put`. A secret only reaches deployments created
+> **after** it was set, so set secrets before the push that needs them.
+
+## Forms: secrets and local runs (FORM-01 / FORM-02)
+
+Set once against the Pages project, encrypted, never readable back and never in git:
+
+| Secret                 | Purpose                                                               | Where it comes from                           |
+| ---------------------- | --------------------------------------------------------------------- | --------------------------------------------- |
+| `RESEND_API_KEY`       | Authenticates the Resend send call. Sending permission only.          | Resend dashboard, shown once at creation.     |
+| `TURNSTILE_SECRET_KEY` | Server-side `siteverify`. Must be the pair of the committed site key. | Turnstile widget `widget-zlobekstromiec`.     |
+| `RATE_LIMIT_SALT`      | Salts the SHA-256 rate-limit key so stored hashes are not reversible. | Freshly generated random value, never reused. |
+
+```bash
+# set (value on stdin, so it never lands in shell history or a file)
+openssl rand -hex 32 | npx wrangler pages secret put RATE_LIMIT_SALT --project-name zlobek-gminny-stromiec
+# confirm: prints NAMES ONLY, never values
+npx wrangler pages secret list --project-name zlobek-gminny-stromiec
+```
+
+Two further variables are **local-only and must never become Cloudflare Pages
+variables**:
+
+| Variable         | Why it must stay out of production                                                                                                                |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `FORM_DRY_RUN`   | `1` short-circuits the Resend call. Set in production, the site would silently stop delivering enrollment enquiries while still showing success.  |
+| `RATE_LIMIT_MAX` | Deliberately loose in tests (the suite shares one IP). Left unset, production uses the strict module defaults: 5/hour/client and 40/day sitewide. |
+
+`wrangler pages secret list` must therefore show **exactly the three secrets above
+and neither of these two**.
+
+### Local and CI runs: do NOT create `.dev.vars`
+
+`.dev.vars.example` is a reference document only. Copying it to `.dev.vars` breaks
+both `npm run check` and the Pages deploy: `wrangler types` reads `.dev.vars` and
+writes every key into the committed `worker-configuration.d.ts` as a **required**
+member, which Pages CI (no such file, it is gitignored) cannot reproduce, so
+`wrangler types --check` fails with "types are out of date".
+
+Use `npm run preview:test` instead. It is `wrangler pages dev` plus `--binding`
+flags carrying the test values, which produce an identical `platform.env` while
+`wrangler types` never sees them. `playwright.config.ts` already runs it, so the
+endpoint suite needs no setup.
+
+### The dummy Turnstile pair the test suite depends on
+
+Cloudflare publishes an always-passes key pair. These are documented constants, not
+credentials:
+
+| Item       | Value                                 |
+| ---------- | ------------------------------------- |
+| Site key   | `1x00000000000000000000AA`            |
+| Secret key | `1x0000000000000000000000000000000AA` |
+
+The whole local suite rests on them. The **live** widget is hostname-scoped to the
+Pages origin and the custom domain, so on `localhost` it issues no token at all and
+every form success-path test would hang. `TurnstileWidget.svelte` therefore
+substitutes the dummy site key on localhost, while `preview:test` supplies the
+matching dummy secret. This cannot weaken production: acceptance is decided
+server-side by `siteverify` against the live secret, so a dummy token fails closed.
+
+### KV binding
+
+`FORMS_KV` (declared in `wrangler.jsonc`) holds the rate-limit counters: integers
+only, under a salted one-way hash of the client IP, with a one-hour TTL. No
+submission content and no IP is ever stored. Free tier is 100k reads, 1k writes and
+1 GB per day, orders of magnitude above two low-traffic forms capped at 40 sends a
+day. If the binding is ever absent the limiter warns and degrades to Turnstile-only
+protection rather than throwing.
+
+Creating the namespace needs a token with **Workers KV Storage: Edit**; the scoped
+`.envrc` token is Pages + Turnstile only, so `wrangler kv namespace create` fails
+with `Authentication error [code: 10000]` until the token is widened.
+
+### Mail path
+
+Mail is sent from the **verified** sending domain `send.zlobekstromiec.pl`
+(Resend, **EU region `eu-west-1`**). DNS for `zlobekstromiec.pl` is hosted on
+**Cloudflare** (registration remains at home.pl). Because Resend's Return-Path
+prefix is itself `send`, SPF and MX sit one level deeper than the sending domain:
+
+| Record | Name                                                                         |
+| ------ | ---------------------------------------------------------------------------- |
+| SPF    | TXT `send.send.zlobekstromiec.pl`                                            |
+| MX     | `send.send.zlobekstromiec.pl` (priority 10)                                  |
+| DKIM   | TXT `resend._domainkey.send.zlobekstromiec.pl` (a TXT record, never a CNAME) |
+| DMARC  | TXT `_dmarc.zlobekstromiec.pl` (`p=none`)                                    |
+
+The recipient `zlobek@ugstromiec.pl` is hard-coded and **does not exist yet**
+(pending Gmina approval), so the `to:` leg bounces and the BCC backup mailbox is
+currently the only one that receives submissions.
 
 ### Redeploy / handoff gotcha — create a **Pages** project, not a Worker
 
