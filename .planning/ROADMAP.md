@@ -118,7 +118,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Staff can create, edit, and publish a news post via the CMS without a developer, and it appears live after rebuild.
   4. The homepage's latest-Aktualności preview shows the most recently published posts.
 
-**Plans**: 6/7 plans complete
+**Plans**: 7/7 plans complete
 
 **Wave 1**
 
@@ -140,7 +140,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 **Wave 5 — gap closure** *(from 03-VERIFICATION.md re-verification: 1 residual blocker, the Plan-01 prerender-resilience must-have)*
 
-- [ ] 03-07-PLAN.md — residual WR-02 (NEWS-01/02): require `tresc` unconditionally and guard `obraz`/`obraz_alt` in postFromEntry, construct the returned post from guarded locals instead of spreading the raw entry, and prove it red-then-green plus a malformed-fixture build
+- [x] 03-07-PLAN.md — residual WR-02 (NEWS-01/02): require `tresc` unconditionally and guard `obraz`/`obraz_alt` in postFromEntry, construct the returned post from guarded locals instead of spreading the raw entry, and prove it red-then-green plus a malformed-fixture build
 
 **UI hint**: yes
 
@@ -231,7 +231,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Live Homepage & Design Foundation | 5/5 | Complete    | 2026-08-12 |
 | 2. About, Documents & CMS | 6/6 | Complete    | 2026-08-13 |
-| 3. News (Aktualności) | 6/6 | Complete   | 2026-08-13 |
+| 3. News (Aktualności) | 7/7 | Complete   | 2026-08-13 |
 | 4. Enrollment, Contact & Email Pipeline | 0/TBD | Not started | - |
 | 5. Gallery & Fees | 0/TBD | Not started | - |
 | 6. Accessibility, Legal Compliance & Launch | 0/TBD | Not started | - |

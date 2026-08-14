@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 03
 current_phase_name: news-aktualno-ci
 status: executing
-stopped_at: Phase 3 context gathered
-last_updated: "2026-08-13T22:49:59.265Z"
-last_activity: 2026-08-13
+stopped_at: Completed 03-07-PLAN.md (phase 03 gap closure)
+last_updated: "2026-08-14T02:59:53.334Z"
+last_activity: 2026-08-14
 last_activity_desc: Phase 03 execution started
 progress:
   total_phases: 7
   completed_phases: 3
-  total_plans: 17
-  completed_plans: 17
+  total_plans: 18
+  completed_plans: 18
   percent: 43
 ---
 
@@ -28,12 +28,12 @@ See: .planning/PROJECT.md (updated 2026-08-12)
 
 ## Current Position
 
-Phase: 03 (news-aktualno-ci) — EXECUTING
-Plan: 3 of 6
-Status: Ready to execute
-Last activity: 2026-08-13 — Phase 03 execution started
+Phase: 03 (news-aktualno-ci) — EXECUTED
+Plan: 7 of 7
+Status: All 7 plans executed (03-07 gap closure complete) — ready to re-verify
+Last activity: 2026-08-14 — Completed 03-07-PLAN.md (reader output fully guarded)
 
-Progress: [████████░░] 80%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -72,6 +72,7 @@ Progress: [████████░░] 80%
 | Phase 03 P04 | 5min | 3 tasks | 5 files |
 | Phase 03 P05 | 4 | 2 tasks | 4 files |
 | Phase 03 P06 | 7min | 3 tasks | 5 files |
+| Phase 03 P07 | 4min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -103,6 +104,8 @@ Recent decisions affecting current work:
 - [Phase ?]: [03-03] Sveltia aktualnosci collection shipped (NEWS-03): all-Polish folder collection (create: true) mapping 1:1 to PostEntry, constrained tresc markdown (bold/link/lists), NO per-collection media override so covers inherit the global Vite-processed uploads (enhanced-img, Pitfall 3); global slug block encoding ascii + clean_accents transliterates Polish titles; date-prefixed slug via the date() filter (verified present in pinned @sveltia/cms 0.189.0, so data keeps DD.MM.YYYY and the reader is unchanged); Polish instrukcja section 5 documents save=publish ~2min/no-draft (D-04), live-regardless-of-date (D-03), title-edit-keeps-URL (D-07), English chrome mapping.
 - [Phase 03]: [03-05] CR-01 closed: aktualnosci data now stored ISO YYYY-MM-DD (Sveltia format key) while the Polish DD.MM.RRRR picker display stays; the slug substitutes the date verbatim (plain {{fields.data}}, no date transformation), so every day of the month yields a correct permanent URL. Reader parseData switched to ISO and both seeds migrated; dokumenty wersja left on DD.MM.YYYY (never slugged).
 - [Phase ?]: [03-06] WR-02/WR-04 closed: parseData accepts unknown (typeof + 1-31 day-range guards); new exported postFromEntry skip-with-warns malformed entries (dokumenty.ts withMeta precedent) so one bad post JSON never aborts the prerender, pinned by node:test suite tests/aktualnosci-reader.unit.ts via new test:unit script (built-in runner, no dependency, .unit.ts outside Playwright match); +error.svelte ships an is404-gated fixed-Polish title (never page.error), closing WCAG 2.4.2.
+- [Phase ?]: [03-07] Residual WR-02 closed structurally: postFromEntry's entry param is now `unknown`, a plain-object guard runs before any property access, `tresc` is validated unconditionally (a present zajawka no longer skips it, so marked.parse(undefined) can never abort the entries()-driven prerender), and the return value is an explicit 12-key literal built from guarded locals instead of a raw-entry spread — pinned by an EXPECTED_POST_KEYS key-set assertion and mutation-checked (removing any of the tytul/data/tresc/obraz guards, or reintroducing the spread, turns test:unit red). The reader is the single validation boundary; NewsCard.svelte and [slug]/+page.svelte carry no defensive guards.
+- [Phase ?]: [03-07] News post field policy: required fields (tytul, data, tresc) reject the entry with a build warning; optional fields (zajawka, obraz, obraz_alt) degrade to undefined via readString, so a wrong cover costs the image (D-01 tint fallback) not the article. Proven at build level: npm run build exits 0 with a malformed post JSON present and still prerenders both valid seeds (D-03).
 
 ### Pending Todos
 
@@ -131,6 +134,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-13T22:49:39.702Z
-Stopped at: Phase 3 context gathered
-Resume file: .planning/phases/03-news-aktualno-ci/03-CONTEXT.md
+Last session: 2026-08-14T02:59:48.482Z
+Stopped at: Completed 03-07-PLAN.md (phase 03 gap closure)
+Resume file: None
