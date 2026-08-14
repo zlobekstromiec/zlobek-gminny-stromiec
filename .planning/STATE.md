@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 04
 current_phase_name: Enrollment, Contact & Email Pipeline
 status: executing
-stopped_at: Completed 04-02-PLAN.md
-last_updated: "2026-08-14T17:09:40.063Z"
+stopped_at: Completed 04-03-PLAN.md
+last_updated: "2026-08-14T17:33:30.540Z"
 last_activity: 2026-08-14
 last_activity_desc: Phase 04 execution started
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 25
-  completed_plans: 20
+  completed_plans: 21
   percent: 43
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-14)
 ## Current Position
 
 Phase: 04 (Enrollment, Contact & Email Pipeline) — EXECUTING
-Plan: 3 of 7
+Plan: 4 of 7
 Status: Ready to execute
 Last activity: 2026-08-14 — Phase 04 execution started
 
@@ -76,6 +76,7 @@ Progress: [████████████████████] 18/18 p
 | Phase 03 P07 | 4min | 2 tasks | 2 files |
 | Phase 04 P01 | 79min | 3 tasks tasks | 17 files files |
 | Phase 04 P02 | 24min | 3 tasks | 8 files |
+| Phase 04 P03 | 15min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -114,6 +115,9 @@ Recent decisions affecting current work:
 - [Phase ?]: 04-02: enhanced-img literal src with w= widths, not the ?enhanced import: the import form emits 1x/2x density descriptors and browsers ignore sizes when densities are present, softening small map labels on DPR-1 desktops
 - [Phase ?]: 04-02: pre-launch grep gates stay literal-clean: comments explaining a ban are reworded to synonyms so the enforcing greps cannot report permanent false positives
 - [Phase ?]: 04-02: the invented zlobek secretariat-hours field was deleted, not relabelled; the Urzad wnioski window lives in its own exported urzad const so it cannot be mistaken for a zlobek fact
+- [Phase 04]: 04-03: the endpoint returns machine codes only; all Polish prose (including the klauzula informacyjna) lives in src/lib/content/forms.ts, so long-copy rules never reach server code
+- [Phase 04]: 04-03: the klauzula never says a blanket 'nie przechowujemy danych'. It separates our infrastructure (nothing stored) from Resend's own approximately 30-day US-hosted copy, and tests/forms-copy.unit.ts fails if that disclosure, the standardowe klauzule umowne mechanism, the BCC backup sentence or the salted-hash sentence goes missing
+- [Phase 04]: 04-03: CONTACT-03 and RECRUIT-04 stay unmarked until a parent can actually reach a form (Plan 04) and the enrollment island exists (Plan 06), following the Plan 01 precedent
 
 ### Pending Todos
 
@@ -154,6 +158,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-14T17:08:55.477Z
-Stopped at: Completed 04-02-PLAN.md
+Last session: 2026-08-14T17:33:30.536Z
+Stopped at: Completed 04-03-PLAN.md
 Resume file: None
