@@ -1,17 +1,16 @@
 <script lang="ts">
 	// Contact + map section (HOME-02, UI-SPEC v1.2 §6). Values come from site.ts
 	// (PLACEHOLDER markers there; e-mail FINAL). This section owns the homepage's
-	// ONLY mailto. The map is a placeholder panel: a static image lands once the
-	// address is confirmed; NEVER a third-party iframe (RODO). Directions open
+	// ONLY mailto. The map is the real static OpenStreetMap snapshot, rendered by
+	// the shared MapPanel component so this section and /kontakt can never drift;
+	// NEVER an embedded third-party map frame (RODO, D-17). Directions open
 	// externally with the same new-tab safety pattern as the BIP link.
 	import MapPin from '@lucide/svelte/icons/map-pin';
 	import Phone from '@lucide/svelte/icons/phone';
 	import Mail from '@lucide/svelte/icons/mail';
 	import Clock from '@lucide/svelte/icons/clock';
+	import MapPanel from './MapPanel.svelte';
 	import { contact } from '$lib/content/site';
-
-	// PLACEHOLDER: coords pending confirmed address (banked in DESIGN-BANK).
-	const directionsUrl = 'https://www.openstreetmap.org/directions?to=51.64222%2C21.09111';
 </script>
 
 <section class="contact" aria-labelledby="contact-heading">
@@ -59,15 +58,7 @@
 				</li>
 			</ul>
 
-			<div class="map-col">
-				<div class="map-panel">
-					<span class="map-title">Mapa dojazdu</span>
-					<span class="map-note">Mapa pojawi się wkrótce.</span>
-				</div>
-				<a class="map-link" href={directionsUrl} target="_blank" rel="noopener noreferrer">
-					Wyznacz trasę<span class="visually-hidden"> (otwiera się w nowej karcie)</span>
-				</a>
-			</div>
+			<MapPanel />
 		</div>
 	</div>
 </section>
@@ -192,66 +183,7 @@
 		color: var(--color-brand-blue-hover);
 	}
 
-	.map-col {
-		display: flex;
-		flex-direction: column;
-		gap: 8px;
-	}
-
-	/* PLACEHOLDER panel: replaced by a static map image once the address is confirmed. */
-	.map-panel {
-		flex: 1;
-		min-height: 260px;
-		border-radius: var(--radius-md);
-		background: var(--color-surface-warm);
-		border: 1px solid var(--color-border-strong);
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		gap: 6px;
-		text-align: center;
-		padding: 24px;
-	}
-
-	.map-title {
-		font-family: var(--font-display);
-		font-weight: 700;
-		font-size: 20px;
-		color: var(--color-ink);
-	}
-
-	.map-note {
-		font-family: var(--font-body);
-		font-size: 14px;
-		color: var(--color-muted);
-	}
-
-	.map-link {
-		display: inline-flex;
-		align-items: center;
-		align-self: flex-start;
-		min-height: 44px;
-		font-family: var(--font-body);
-		font-size: 15px;
-		font-weight: 700;
-		color: var(--color-brand-blue);
-		text-decoration: underline;
-	}
-
-	.map-link:hover {
-		color: var(--color-brand-blue-hover);
-	}
-
-	.visually-hidden {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		padding: 0;
-		margin: -1px;
-		overflow: hidden;
-		clip: rect(0 0 0 0);
-		white-space: nowrap;
-		border: 0;
-	}
+	/* The map column, its figure, attribution caption, directions button and the
+	   local .visually-hidden utility now live in MapPanel.svelte, which /kontakt
+	   renders too. Nothing map-shaped is styled here any more. */
 </style>
