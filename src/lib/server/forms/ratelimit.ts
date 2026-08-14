@@ -69,14 +69,37 @@ export async function podLimitem(
 	}
 
 	const klucz = await kluczLimitu(formularz, ip, sol);
-	const biezace = licznik(await kv.get(klucz));
-	if (biezace >= limit) return false;
 
-	const dobowe = licznik(await kv.get(KLUCZ_DOBOWY));
-	if (dobowe >= limitDobowy) return false;
+	// Every KV operation is inside the guard deliberately. The `!kv` branch above
+	// only catches an ABSENT binding; a binding that is present but unusable (an id
+	// pointing at a namespace that does not exist, or a transient KV failure) makes
+	// get/put REJECT, and an unguarded rejection escapes obsluz entirely and becomes
+	// an opaque 500 on every submission of both forms. +error.svelte does not fire
+	// for a +server.ts, so the island would receive a body it cannot map to any
+	// Polish message, breaking the D-12 promise precisely when a parent is trying to
+	// enroll. Mirrors the try/catch already guarding the Resend call in mailer.ts.
+	//
+	// A KV failure therefore fails OPEN, exactly like the missing-binding branch: the
+	// limiter is an abuse control, not the security gate. Turnstile still verifies
+	// every submission server-side, so failing open costs a rate-limit window, while
+	// failing closed would reject genuine enrollment enquiries that are stored
+	// nowhere and thus lost for good. An over-limit result still returns false: only
+	// a thrown KV error reaches the catch.
+	try {
+		const biezace = licznik(await kv.get(klucz));
+		if (biezace >= limit) return false;
 
-	// expirationTtl restarts on every write: a fixed window that self-cleans.
-	await kv.put(klucz, String(biezace + 1), { expirationTtl: OKNO_S });
-	await kv.put(KLUCZ_DOBOWY, String(dobowe + 1), { expirationTtl: DOBA_S });
-	return true;
+		const dobowe = licznik(await kv.get(KLUCZ_DOBOWY));
+		if (dobowe >= limitDobowy) return false;
+
+		// expirationTtl restarts on every write: a fixed window that self-cleans.
+		await kv.put(klucz, String(biezace + 1), { expirationTtl: OKNO_S });
+		await kv.put(KLUCZ_DOBOWY, String(dobowe + 1), { expirationTtl: DOBA_S });
+		return true;
+	} catch {
+		// Nothing from the request is logged: the key is a salted hash, but the error
+		// object could carry anything, so it is deliberately not interpolated.
+		console.warn('ratelimit: operacja KV nieudana, limit nieaktywny dla tego zgloszenia');
+		return true;
+	}
 }

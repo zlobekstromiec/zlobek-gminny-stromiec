@@ -433,6 +433,46 @@ test('podLimitem degrades to Turnstile-only protection when the KV binding is mi
 	assert.equal(await podLimitem(undefined, 'kontakt', IP, SOL, 5, 40), true);
 });
 
+/** A binding can be PRESENT but unusable: an id pointing at a namespace that does
+ *  not exist, or a transient KV failure. That is a different branch from `!kv`, and
+ *  an unguarded rejection here becomes a 500 on every submission of both forms. */
+function stubKVRzucajacy(gdzie: 'get' | 'put'): KVNamespace {
+	const magazyn = new Map<string, string>();
+	return {
+		get: async (key: string) => {
+			if (gdzie === 'get') throw new Error('KV unavailable');
+			return magazyn.get(key) ?? null;
+		},
+		put: async (key: string, value: string) => {
+			if (gdzie === 'put') throw new Error('KV unavailable');
+			magazyn.set(key, value);
+		}
+	} as unknown as KVNamespace;
+}
+
+test('podLimitem fails open when a KV read throws, instead of rejecting the submission', async () => {
+	assert.equal(await podLimitem(stubKVRzucajacy('get'), 'kontakt', IP, SOL, 5, 40), true);
+});
+
+test('podLimitem fails open when a KV write throws, so a counter failure never loses an enquiry', async () => {
+	assert.equal(await podLimitem(stubKVRzucajacy('put'), 'kontakt', IP, SOL, 5, 40), true);
+});
+
+test('podLimitem never lets a KV error escape as a rejected promise (would be an opaque 500)', async () => {
+	for (const gdzie of ['get', 'put'] as const) {
+		await assert.doesNotReject(() => podLimitem(stubKVRzucajacy(gdzie), 'kontakt', IP, SOL, 5, 40));
+	}
+});
+
+test('a KV error still fails open through the whole obsluz pipeline, never a 500', async () => {
+	const { zaleznosci } = zaleznosciTestowe({
+		podLimitem: () => podLimitem(stubKVRzucajacy('get'), 'kontakt', IP, SOL, 5, 40)
+	});
+	const { wynik, status } = await obsluz(CIALO_OK, IP, zaleznosci);
+	assert.equal(wynik.ok, true);
+	assert.equal(status, 200);
+});
+
 // ---------------------------------------------------------------------------
 // handle.ts: the full decision table, driven by stubs and no network
 // ---------------------------------------------------------------------------
