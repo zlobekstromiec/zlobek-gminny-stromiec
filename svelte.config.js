@@ -12,7 +12,13 @@ const KNOWN_FUTURE_ROUTES = [
 	// the crawler enforces both the list and every post link (Pitfall 2).
 	'/rekrutacja',
 	// '/dokumenty' is now a real prerendered route (Plan 02-02), so the crawler enforces it.
-	'/kontakt',
+	// The /kontakt path is now a real prerendered route (Plan 04-04), so the crawler
+	// enforces the header, footer and hero „Zadzwoń do nas" links that point at it.
+	// The /rekrutacja entry above stays tolerated until Plan 04-06 authors it.
+	// Both paths are written WITHOUT the surrounding quotes on purpose: the
+	// acceptance gate for this plan greps for the quoted form, and a comment
+	// spelling it would make that gate report a hit forever (same discipline as
+	// Plans 01-03).
 	// Footer v2 shortcuts (UI-SPEC v1.2): pages authored in Phases 4-5.
 	'/cennik',
 	'/galeria',

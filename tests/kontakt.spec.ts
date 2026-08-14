@@ -43,14 +43,18 @@ const WIADOMOSC = 'Dzień dobry, proszę o informację o wolnych miejscach.';
 
 const OSM_COPYRIGHT = 'https://www.openstreetmap.org/copyright';
 
+/** The field Turnstile injects into its own container. It is the only DOM signal
+ *  the widget gives us: with the always-pass dummy sitekey Cloudflare renders NO
+ *  visible challenge and NO frame at all, so waiting for a frame would wait
+ *  forever (verified against the real widget on the real runtime). */
+const POLE_TOKENU = 'input[name="cf-turnstile-response"]';
+
 /** Navigate and wait until the Turnstile widget has rendered, so every later
  *  assertion (and every axe scan) sees a settled DOM instead of a page that is
- *  still inserting the challenge frame. */
+ *  still hydrating the island and inserting the challenge. */
 async function otworzKontakt(page: Page): Promise<void> {
 	await page.goto('/kontakt');
-	await expect(page.locator('iframe[src*="challenges.cloudflare.com"]')).toBeAttached({
-		timeout: 30_000
-	});
+	await expect(page.locator(POLE_TOKENU)).toBeAttached({ timeout: 30_000 });
 }
 
 /** The always-pass dummy sitekey issues a token without any interaction, but not
@@ -58,15 +62,18 @@ async function otworzKontakt(page: Page): Promise<void> {
  *  makes the success path deterministic; the alternative (submitting early and
  *  hoping) would turn a real integration bug into a flaky test. */
 async function poczekajNaToken(page: Page): Promise<void> {
-	await expect(page.locator('input[name="cf-turnstile-response"]')).toHaveValue(/.+/, {
-		timeout: 30_000
-	});
+	await expect(page.locator(POLE_TOKENU)).toHaveValue(/.+/, { timeout: 30_000 });
 }
 
+/** Fields are addressed by ROLE plus accessible name, not by label text alone: the
+ *  consent sentence legitimately ends with the word „wiadomość", so a label-only
+ *  query for the message field also matches the consent checkbox. Going through the
+ *  textbox role keeps the locator unambiguous and still proves the label is wired
+ *  to the control, which is the whole point of asserting on the accessible name. */
 async function wypelnijFormularz(page: Page): Promise<void> {
-	await page.getByLabel(KOPIA_KONTAKT.imieEtykieta).fill(IMIE);
-	await page.getByLabel(KOPIA_KONTAKT.emailEtykieta).fill(EMAIL);
-	await page.getByLabel(KOPIA_KONTAKT.wiadomoscEtykieta).fill(WIADOMOSC);
+	await page.getByRole('textbox', { name: KOPIA_KONTAKT.imieEtykieta }).fill(IMIE);
+	await page.getByRole('textbox', { name: KOPIA_KONTAKT.emailEtykieta }).fill(EMAIL);
+	await page.getByRole('textbox', { name: KOPIA_KONTAKT.wiadomoscEtykieta }).fill(WIADOMOSC);
 }
 
 test.describe('Kontakt: CONTACT-01 / CONTACT-02 / CONTACT-03 acceptance', () => {
