@@ -6,11 +6,15 @@
 	"pages_build_output_dir": ".svelte-kit/cloudflare",
 	// Form rate-limit counter (FORM-02). The binding name is what `wrangler types`
 	// puts on `platform.env`, so it must exist here before any endpoint can read it.
-	// The real namespace id is provisioned against the live Cloudflare account in
-	// Plan 07; until then this placeholder keeps the config valid. `wrangler pages dev`
-	// simulates the binding locally in .wrangler/state (verified: it reports
-	// "env.FORMS_KV ... Mode local"), so local runs and the Playwright suite never
-	// need the remote namespace.
+	// The id below is the REAL namespace, created against the live Cloudflare account
+	// with `wrangler kv namespace create FORMS_KV` in Plan 07 and confirmed through the
+	// API. It must stay a 32-character hex string: Pages validates it when it publishes
+	// the Function, and an invalid value fails the whole deploy with
+	// "Error 8000022: Invalid KV namespace ID ... Not a valid hex string" (observed with
+	// the previous placeholder, which is why a placeholder can never be deployed).
+	// `wrangler pages dev` simulates the binding locally in .wrangler/state (verified:
+	// it reports "env.FORMS_KV ... Mode local"), so local runs and the Playwright suite
+	// never touch the remote namespace.
 	//
 	// The five form SECRETS are deliberately NOT declared here and NOT in a root
 	// `.dev.vars`. Declaring them here would ship them in the Pages config and could
@@ -22,7 +26,7 @@
 	"kv_namespaces": [
 		{
 			"binding": "FORMS_KV",
-			"id": "PLACEHOLDER_FORMS_KV_ID"
+			"id": "55f55448fe1345e28a79da5a3e9e9ca9"
 		}
 	]
 }
