@@ -9,6 +9,33 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseData, postFromEntry } from '../src/lib/server/aktualnosci.ts';
 import type { PostEntry } from '../src/lib/server/aktualnosci.ts';
+import { renderPost } from '../src/lib/markdown.ts';
+
+// The exact key set a returned post may expose, pre-sorted. This is a key-set
+// equality on purpose: it is the durable proof that postFromEntry CONSTRUCTS its
+// result from guarded locals. Reintroducing an object-spread of the raw on-disk
+// entry leaks unknown keys and turns this red (T-03-07-03).
+const EXPECTED_POST_KEYS = [
+	'data',
+	'dataDisplay',
+	'excerpt',
+	'href',
+	'iso',
+	'obraz',
+	'obraz_alt',
+	'placeholder',
+	'slug',
+	'tresc',
+	'tytul',
+	'zajawka'
+];
+
+/** Call the reader with a deliberately malformed value. The compile-time
+ *  PostEntry type is a lie for hand-edited git content, so the cast keeps the
+ *  existing suite idiom without weakening any assertion. */
+function readEntry(path: string, entry: unknown): ReturnType<typeof postFromEntry> {
+	return postFromEntry(path, entry as PostEntry);
+}
 
 test('parseData returns null for a non-string argument (undefined)', () => {
 	assert.equal(parseData(undefined), null);
@@ -74,3 +101,96 @@ test('postFromEntry derives the excerpt from the first paragraph of tresc when z
 	);
 	assert.equal(post?.excerpt, 'Pierwszy akapit.');
 });
+
+// Residual WR-02 shapes. A present zajawka used to skip the tresc guard entirely
+// and the return statement spread the raw entry, so tresc and obraz reached the
+// prerender unvalidated.
+
+test('postFromEntry returns null when zajawka is present but tresc is missing', () => {
+	const broken = { tytul: 'Bez tresci', data: '2026-08-01', zajawka: 'Krotki opis' };
+	assert.equal(readEntry('/lib/content/aktualnosci/bez-tresci-z-zajawka.json', broken), null);
+});
+
+test('postFromEntry degrades a non-string obraz to undefined', () => {
+	const post = readEntry('/lib/content/aktualnosci/zly-obraz.json', { ...validEntry, obraz: 42 });
+	assert.notEqual(post, null);
+	assert.equal(post?.obraz, undefined);
+});
+
+test('postFromEntry degrades a non-string obraz_alt to undefined', () => {
+	const post = readEntry('/lib/content/aktualnosci/zly-opis-obrazu.json', {
+		...validEntry,
+		obraz_alt: 7
+	});
+	assert.notEqual(post, null);
+	assert.equal(post?.obraz_alt, undefined);
+});
+
+test('postFromEntry returns null without throwing when the entry is null', () => {
+	let result: ReturnType<typeof postFromEntry> = null;
+	assert.doesNotThrow(() => {
+		result = readEntry('/lib/content/aktualnosci/pusty-wpis.json', null);
+	});
+	assert.equal(result, null);
+});
+
+test('postFromEntry returns null without throwing when the entry is a bare string', () => {
+	let result: ReturnType<typeof postFromEntry> = null;
+	assert.doesNotThrow(() => {
+		result = readEntry('/lib/content/aktualnosci/nie-obiekt.json', 'nie obiekt');
+	});
+	assert.equal(result, null);
+});
+
+test('postFromEntry exposes exactly the known post keys and drops unknown source fields', () => {
+	const post = readEntry('/lib/content/aktualnosci/dodatkowe-pole.json', {
+		...validEntry,
+		nieznanePole: 'wartosc'
+	});
+	assert.notEqual(post, null);
+	assert.deepEqual(Object.keys(post ?? {}).sort(), EXPECTED_POST_KEYS);
+});
+
+// Consumer contract: whatever survives the reader must be safe for the two call
+// sites that crash today, renderPost(post.tresc) during the entries()-driven
+// prerender and the cover basename split in NewsCard.svelte / [slug]/+page.svelte.
+const MALFORMED_SHAPES: { nazwa: string; entry: unknown }[] = [
+	{ nazwa: 'tresc missing', entry: { tytul: 'Bez tresci', data: '2026-08-01' } },
+	{
+		nazwa: 'tresc as a number',
+		entry: { tytul: 'Liczbowa tresc', data: '2026-08-01', tresc: 42 }
+	},
+	{
+		nazwa: 'zajawka present without tresc',
+		entry: { tytul: 'Tylko zajawka', data: '2026-08-01', zajawka: 'Krotki opis' }
+	},
+	{ nazwa: 'obraz as a number', entry: { ...validEntry, obraz: 42 } },
+	{ nazwa: 'obraz as an object', entry: { ...validEntry, obraz: { plik: 'zdjecie.jpg' } } },
+	{ nazwa: 'data missing', entry: { tytul: 'Bez daty', tresc: 'Tresc.' } },
+	{ nazwa: 'entry is null', entry: null },
+	{ nazwa: 'entry is an array', entry: [] },
+	{ nazwa: 'entry is a number', entry: 7 }
+];
+
+for (const { nazwa, entry } of MALFORMED_SHAPES) {
+	test(`postFromEntry hands consumers a safe post or null for: ${nazwa}`, () => {
+		let post: ReturnType<typeof postFromEntry> = null;
+		let thrown: unknown = null;
+		try {
+			post = readEntry('/lib/content/aktualnosci/tabela-ksztaltow.json', entry);
+		} catch (error) {
+			thrown = error;
+		}
+		assert.equal(thrown, null, `postFromEntry threw for shape: ${nazwa}`);
+		if (post === null) return;
+		const survivor = post;
+		let html = '';
+		assert.doesNotThrow(() => {
+			html = renderPost(survivor.tresc);
+		}, `renderPost threw for shape: ${nazwa}`);
+		assert.ok(html.length > 0, `renderPost produced no HTML for shape: ${nazwa}`);
+		assert.doesNotThrow(() => {
+			if (survivor.obraz) survivor.obraz.split('/').pop();
+		}, `cover basename split threw for shape: ${nazwa}`);
+	});
+}
