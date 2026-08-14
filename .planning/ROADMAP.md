@@ -161,12 +161,26 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 7 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 04-01-PLAN.md — Kontakt e-mail pipeline: shared form server module (sanitize, validate, Turnstile, KV rate limit, Resend mailer, orchestrator) plus the POST /api/kontakt endpoint, platform bindings and Turnstile CSP
 - [ ] 04-02-PLAN.md — Real-data sweep of site.ts to the confirmed BIP facts, nabor flipped to closed, and the real static OpenStreetMap snapshot replacing the homepage map placeholder
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 04-03-PLAN.md — Form UI kit (Polish copy module, klauzula informacyjna, FormField, ConsentBlock, TurnstileWidget) and the KontaktForm island
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 04-04-PLAN.md — /kontakt route live: contact cards, map panel, contact form and the Urząd Gminy info box, crawler-enforced and axe-clean
 - [ ] 04-05-PLAN.md — Zgłoszenie pipeline: minimal-data validators, POST /api/rekrutacja and the ZgloszenieForm island
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 04-06-PLAN.md — /rekrutacja route live: status banner, zgłoszenie form, kryteria and punktacja table, procedura, compact fee box and wnioski downloads
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 04-07-PLAN.md — Go live: Resend sending domain and DNS, Turnstile widget, KV namespace, Cloudflare Pages secrets and the real end-to-end delivery test
 
 **UI hint**: yes
