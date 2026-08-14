@@ -6,14 +6,14 @@ current_phase: 04
 current_phase_name: Enrollment, Contact & Email Pipeline
 status: executing
 stopped_at: Completed 04-04-PLAN.md
-last_updated: "2026-08-14T17:53:05.012Z"
+last_updated: "2026-08-14T18:11:31.521Z"
 last_activity: 2026-08-14
 last_activity_desc: Phase 04 execution started
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 25
-  completed_plans: 22
+  completed_plans: 23
   percent: 43
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-14)
 ## Current Position
 
 Phase: 04 (Enrollment, Contact & Email Pipeline) — EXECUTING
-Plan: 5 of 7
+Plan: 6 of 7
 Status: Ready to execute
 Last activity: 2026-08-14 — Phase 04 execution started
 
@@ -78,6 +78,7 @@ Progress: [██████████████████░░] 22/25 p
 | Phase 04 P02 | 24min | 3 tasks | 8 files |
 | Phase 04 P03 | 15min | 3 tasks | 7 files |
 | Phase 04 P04 | 12min | 3 tasks | 6 files |
+| Phase 04 P05 | 15min | 3 tasks tasks | 8 files files |
 
 ## Accumulated Context
 
@@ -122,6 +123,9 @@ Recent decisions affecting current work:
 - [Phase 04]: 04-04: /kontakt is live and crawler-enforced. The form section takes its accessible name from the island's card h2 (new id=formularz-naglowek) instead of duplicating a heading, and the D-16 info-box copy was resplit so the nominative urzad.name never lands after a preposition that needs the locative
 - [Phase 04]: 04-04: Turnstile test seam. The always-pass dummy sitekey renders NO frame and no visible challenge, only a hidden cf-turnstile-response field, so widget readiness is detected through that field, never a frame and never a sleep. script-src and connect-src are now browser-proven; frame-src stays unproven until Plan 07 swaps in the real key
 - [Phase 04]: 04-04: Playwright form fields are located by ROLE plus accessible name, because the approved consent sentence ends with the word the message label uses, which makes getByLabel ambiguous on both forms
+- [Phase 04]: 04-05: zgloszenie pipeline shipped. POST /api/rekrutacja is a thin SECOND caller of obsluz() (two endpoint files kept deliberately; a shared parameterised handler was rejected) with its own static subject and its own KV counter keyed on the form name 'rekrutacja', so a busy contact form cannot lock a parent out of an enrollment enquiry. The child's name is excluded STRUCTURALLY: no field in ZgloszenieDane, the validated object is an explicit key literal (never a spread of the body), no line in the mail body, no control in ZgloszenieForm; a forged child-name key is dropped SILENTLY (200, not 400) so probing cannot learn the accepted shape. Birth-year window is deliberately narrow (server current -6 to +2, select +1 down to -4) so a 1926 or 2226 typo cannot pass unnoticed.
+- [Phase 04]: 04-05: one Polish month table lives in src/lib/content/forms.ts and is INJECTED into the server-side mail-body builder, so the mail always names the month the parent picked. The birth date is one question with two server keys (miesiac, rok): the island renders a single message associated with the fieldset via aria-describedby and uses two selects, never input type=month, whose picker chrome cannot be forced to Polish.
+- [Phase 04]: 04-05: tests/forms-copy.unit.ts sweeps an EXPLICIT list of exports, so every new copy export must be added to it or it silently escapes the em-dash, emoji and single-source-contact assertions (KOPIA_ZGLOSZENIE and MIESIACE_WYBOR added). The Urzad Gminy name stays nominative in the intro and success body (rephrased to 'przyjmuje go Urzad Gminy w Stromcu, ...'), the same locative constraint Plan 04-04 hit. RECRUIT-03/04 and FORM-01/02 stay UNMARKED until Plan 06 mounts the island and Plan 07 swaps in the real Turnstile key.
 
 ### Pending Todos
 
@@ -163,6 +167,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-14T17:52:56.422Z
+Last session: 2026-08-14T18:10:47.499Z
 Stopped at: Completed 04-04-PLAN.md
 Resume file: None
