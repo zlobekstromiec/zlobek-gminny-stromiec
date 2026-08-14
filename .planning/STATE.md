@@ -126,7 +126,7 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 - [Phase 4/6] Obtain koordynator dostępności / IOD contact for klauzula informacyjna and Deklaracja dostępności.
 - [Phase 2] Confirm staff GitHub account model (per-editor vs shared) and invite staff as zlobekstromiec Org members with write access before CMS handover (D-19/D-20).
 - [Phase 3 UAT] CMS-authored JSON commits use 2-space indent while the repo prettier standard is tabs, so the `prettier --check .` pre-commit hook blocks ALL local commits until CMS files are reformatted (hit live with `2026-08-14-test.json`, fixed by `prettier --write`). Decide a policy before staff publish regularly: add `src/lib/content/aktualnosci/` (and uploads) to `.prettierignore`, or accept reformat-on-touch.
-- [Phase 3 UAT] Placeholder test post `2026-08-14-test.json` is live on the site; delete it via /admin (or replace with the real opening-day post) before handover. NOW ALSO breaks `tests/aktualnosci.spec.ts:55` (newest-card assertion) deterministically, so `npm run test` is red until it is removed.
+- ~~[Phase 3 UAT] Placeholder test post `2026-08-14-test.json` live on the site + breaking `tests/aktualnosci.spec.ts:55`~~ — **RESOLVED 2026-08-14**: deleted via /admin (Sveltia commit c5c3dc0, also proving the CMS delete flow); full Playwright suite 55/55 green again.
 - [Rename 260814-hwf] `static/og-placeholder.png` share card still renders the old branding/name; regenerate from real brand assets in Phase 6.
 - [Rename 260814-hwf] Official name "Publiczny Żłobek w Stromcu" now in code seeds, but `o-nas.json` and the aktualnosci seeds are CMS-editable; staff edits via /admin could reintroduce old wording.
 
