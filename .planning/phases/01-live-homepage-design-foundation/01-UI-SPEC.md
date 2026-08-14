@@ -469,3 +469,24 @@ No emoji. No em dashes in authored copy or comments; use commas, colons, parenth
 
 ### 9. Facts register update (all PLACEHOLDER until written client confirmation)
 Age corrected: 10 mies. – 3 lata (the previous "20 tyg. – 3 lata" was WRONGLY marked statutory-final; a żłobek statute sets its own minimum). New: address ul. Radomska 5, 26-804 Stromiec; tel 48 619 10 25; 50 miejsc; opłata 400 zł/mies; wyżywienie 14 zł/dzień; sekretariat pon.-pt. 7:00–15:00; day-plan schedule; OSM coords 51.64222/21.09111. FINAL: zlobek@ugstromiec.pl, verbatim core message. Bank-only (never ship without consent): director name. `openingBanner` flag banked in site.ts (when used: accent bg + ink text, never danger, which stays semantic-only).
+
+---
+
+## Amendment v1.3 (2026-08-14): real brand assets
+
+> The client delivered the final logo, so every brand surface now shows the real
+> identity. v1.2 stays in force except where superseded here (the header logo badge,
+> the footer brand column head, the icon set). Locked tokens, type scale, and the
+> accessible-tier hard rules are unchanged.
+
+### 1. Header emblem supersedes the placeholder badge (§3)
+The real circular brand emblem (`src/lib/assets/brand/logo-mark.png`, rendered through `enhanced:img` at 52px height, width auto) replaces the 52px accent-circle IconBear placeholder badge. The accent circle background and its `0 3px 0 accent-active` hard shadow are GONE: the emblem is a full-colour, self-contained mark placed directly on the header surface. The two-line wordmark stays the accessible name of the link, so the image is decorative with an empty alt (no duplicate accessible name). Sticky header, scroll shadow, the 4px accent bottom border, the 44px minimum link height, and the nav chip contract (§3, §6) are unchanged.
+
+### 2. Footer brand lockup (§6, Footer v2)
+The full lockup (`src/lib/assets/brand/logo-full.png`) is added at the TOP of the brand column, above the white wordmark text, on a white card: `--color-surface` background, `--radius-sm` (matching the existing program-logo slots), 10px 12px padding, max-width 280px, image `width: 100%` and `height: auto`. The card exists because the lockup's blue and orange wordmark would not stay legible directly on brand-blue. Decorative, empty alt, since the `.footer-wordmark` text carries the name. The wave divider, all four columns, the plain-text contact lines, the program-logo placeholder slots, the BIP link contract, and the copyright line are unchanged.
+
+### 3. Favicons regenerated from the emblem
+`static/favicon.png` (512x512, transparent, emblem centered) and `static/apple-touch-icon.png` (180x180, white plate, emblem at about 80 percent to respect the maskable safe zone) are regenerated from the emblem. The placeholder vector icon `static/favicon.svg` is retired and its references are removed from `src/app.html` and `static/site.webmanifest`, so exactly two PNG icon entries remain (512x512 `purpose: any`, 180x180 `purpose: maskable`). The delivered source file `logo-bg.png` is removed from the repo root now that its content lives under `src/lib/assets/brand/`.
+
+### 4. Bespoke icon system otherwise unchanged (§7)
+IconBear remains in `src/lib/icons/` and the whole bespoke icon contract (viewBox 24, 2px round currentColor stroke, duotone `--icon-fill` plate, 46px tint chips) stands. Only the logo badge use of IconBear is superseded: nothing else changes, and NO EMOJI still applies.
