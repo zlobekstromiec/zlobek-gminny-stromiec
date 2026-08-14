@@ -1,4 +1,4 @@
-# Development environment — Żłobek Gminny Stromiec
+# Development environment — Publiczny Żłobek w Stromcu
 
 Machine-contract onboarding doc (D-08). Read this first when setting up the
 project on a new machine or handing it over to a future maintainer. Global dev

@@ -163,7 +163,7 @@ test.describe('Homepage: Phase 1 + 01.1 acceptance', () => {
 
 	test('emits Polish per-route SEO metadata with noindex (D-10, D-11)', async ({ page }) => {
 		await page.goto('/');
-		await expect(page).toHaveTitle(/Żłobek Gminny w Stromcu/);
+		await expect(page).toHaveTitle(/Publiczny Żłobek w Stromcu/);
 		await expect(page.locator('head meta[name="description"]')).toHaveAttribute('content', /.+/);
 		await expect(page.locator('head link[rel="canonical"]')).toHaveCount(1);
 		await expect(page.locator('head meta[property="og:image"]')).toHaveCount(1);

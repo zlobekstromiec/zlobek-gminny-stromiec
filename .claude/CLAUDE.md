@@ -1,9 +1,9 @@
-# CLAUDE.md — Żłobek Gminny Stromiec (public website)
+# CLAUDE.md — Publiczny Żłobek w Stromcu (public website)
 
 High-signal project instructions. Deep detail lives in `.planning/` — this file summarizes and points; follow the links for specifics. Global dev-env/tooling conventions live in `~/.claude/CLAUDE.md` and are not repeated here.
 
 ## What this is
-A joyful, mobile-first public website for the municipal nursery (**żłobek gminny**) in Stromiec — a unit of Gmina Stromiec (Urząd Gminy Stromiec, `ugstromiec.pl`). Five sections: Aktualności, O nas, Rekrutacja, Dokumenty, Kontakt.
+A joyful, mobile-first public website for **Publiczny Żłobek w Stromcu**, the municipal nursery in Stromiec and a unit of Gmina Stromiec (Urząd Gminy Stromiec, `ugstromiec.pl`). Five sections: Aktualności, O nas, Rekrutacja, Dokumenty, Kontakt.
 **Core value:** a parent instantly feels the żłobek's warmth AND finds what they need (enrol, documents, contact) on any device.
 
 ## Non-negotiable constraints

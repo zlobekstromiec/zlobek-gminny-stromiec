@@ -1,6 +1,6 @@
 # Instrukcja obsługi systemu redakcyjnego (CMS)
 
-Żłobek Gminny w Stromcu, panel redakcyjny pod adresem `/admin`
+Publiczny Żłobek w Stromcu, panel redakcyjny pod adresem `/admin`
 
 Ten dokument jest przeznaczony do wydruku. Prowadzi krok po kroku przez logowanie,
 edycję treści strony O nas, edycję planu dnia oraz dodawanie, zamianę i usuwanie
