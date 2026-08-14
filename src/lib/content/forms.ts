@@ -32,6 +32,37 @@ import type { FormCode } from '../forms/types.ts';
  *  bot filtering in production. */
 export const TURNSTILE_SITEKEY = '1x00000000000000000000AA';
 
+/** The twelve Polish month names in the nominative, paired with the value the
+ *  enrollment form's month `<select>` posts. Ordered, so the island renders the list
+ *  as it stands.
+ *
+ *  This lives in the content module and NOT in `src/lib/server/forms/mailer.ts`
+ *  because both sides need the same names: the select the parent reads and the mail
+ *  body staff read. The endpoint injects `nazwaMiesiaca` into the body builder, so
+ *  there is exactly one month table in the project and the two can never disagree
+ *  about what the parent chose. */
+export const MIESIACE_WYBOR: readonly { wartosc: number; nazwa: string }[] = Object.freeze([
+	{ wartosc: 1, nazwa: 'styczeń' },
+	{ wartosc: 2, nazwa: 'luty' },
+	{ wartosc: 3, nazwa: 'marzec' },
+	{ wartosc: 4, nazwa: 'kwiecień' },
+	{ wartosc: 5, nazwa: 'maj' },
+	{ wartosc: 6, nazwa: 'czerwiec' },
+	{ wartosc: 7, nazwa: 'lipiec' },
+	{ wartosc: 8, nazwa: 'sierpień' },
+	{ wartosc: 9, nazwa: 'wrzesień' },
+	{ wartosc: 10, nazwa: 'październik' },
+	{ wartosc: 11, nazwa: 'listopad' },
+	{ wartosc: 12, nazwa: 'grudzień' }
+]);
+
+/** Month number to Polish name. The validator guarantees 1 to 12 reaches the mail
+ *  body, and the fallback returns the number as text so an unexpected value can
+ *  never render the word "undefined" in a message to staff. */
+export function nazwaMiesiaca(miesiac: number): string {
+	return MIESIACE_WYBOR.find((pozycja) => pozycja.wartosc === miesiac)?.nazwa ?? String(miesiac);
+}
+
 /** One inline run of body text. `{ mocne }` renders inside a `<strong>`, which is
  *  how the D-12 "not sent" emphasis is carried without putting markup into a
  *  copy string (capitals-only emphasis is banned by the UI-SPEC). */

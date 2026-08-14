@@ -5,7 +5,7 @@
 // so the endpoint can tell the truth about whether the message left.
 //
 // Nothing here logs. A submission body may never reach a log (RODO, C-03).
-import type { KontaktDane } from './validate.ts';
+import type { KontaktDane, ZgloszenieDane } from './validate.ts';
 
 /** Hard-coded sender, never request-derived (FORM-02). The dedicated send.
  *  subdomain isolates sending reputation from the apex. The display name is kept
@@ -28,6 +28,12 @@ export const BCC = 'devzlobekstromiec@gmail.com';
  *  this is a constant and the parent's name goes in the body instead. Resend
  *  encodes the UTF-8 subject per RFC 2047. */
 export const TEMAT_KONTAKT = 'Nowa wiadomość z formularza kontaktowego';
+
+/** STATIC subject for the enrollment form, deliberately different from the contact
+ *  one so staff can filter the two flows into separate folders. Same hard rule: no
+ *  submitted value may ever reach a mail header (T-04-27), so this is a constant and
+ *  the parent's name goes in the body instead. */
+export const TEMAT_ZGLOSZENIE = 'Nowe zgłoszenie na listę rezerwową';
 
 const RESEND = 'https://api.resend.com/emails';
 
@@ -52,6 +58,34 @@ export function zbudujTrescKontakt(dane: KontaktDane): string {
 		'',
 		'Wiadomość:',
 		dane.wiadomosc
+	].join('\n');
+}
+
+/** Explicit Polish wording for an optional field the parent left blank. A bare
+ *  label with nothing after it reads like a delivery bug; this reads like a choice,
+ *  and staff can tell the two apart at a glance. */
+const NIE_PODANO = 'nie podano';
+const BRAK_WIADOMOSCI = 'brak wiadomości';
+
+/** Plain-text enrollment body with labelled lines. There is NO line for a child's
+ *  name: the validated type has no such field, so one cannot be rendered here
+ *  (T-04-24).
+ *
+ *  The month NAME arrives as an injected lookup rather than a table declared in this
+ *  module. A second month table in server code could drift from the one the select
+ *  renders, and the mail would then disagree with what the parent actually chose. */
+export function zbudujTrescZgloszenie(
+	dane: ZgloszenieDane,
+	nazwaMiesiaca: (miesiac: number) => string
+): string {
+	return [
+		`Imię i nazwisko rodzica: ${dane.imie}`,
+		`E-mail: ${dane.email}`,
+		`Telefon: ${dane.telefon ?? NIE_PODANO}`,
+		`Miesiąc i rok urodzenia dziecka: ${nazwaMiesiaca(dane.miesiac)} ${dane.rok}`,
+		'',
+		'Wiadomość:',
+		dane.wiadomosc ?? BRAK_WIADOMOSCI
 	].join('\n');
 }
 

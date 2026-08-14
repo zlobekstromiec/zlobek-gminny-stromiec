@@ -16,16 +16,19 @@ import {
 	bezpiecznyTekst,
 	bezpiecznyTelefon
 } from '../src/lib/server/forms/sanitize.ts';
-import { walidujKontakt } from '../src/lib/server/forms/validate.ts';
+import { walidujKontakt, walidujZgloszenie } from '../src/lib/server/forms/validate.ts';
 import {
 	BCC,
 	FROM,
 	TEMAT_KONTAKT,
+	TEMAT_ZGLOSZENIE,
 	TO,
 	wyslij,
 	zbudujPayload,
-	zbudujTrescKontakt
+	zbudujTrescKontakt,
+	zbudujTrescZgloszenie
 } from '../src/lib/server/forms/mailer.ts';
+import { nazwaMiesiaca } from '../src/lib/content/forms.ts';
 import {
 	DOBA_S,
 	KLUCZ_DOBOWY,
@@ -653,4 +656,214 @@ test('obsluz never returns ok true or status 200 on any failure branch', async (
 			`status must come from STATUS_DLA_KODU for: ${nazwa}`
 		);
 	}
+});
+
+// ---------------------------------------------------------------------------
+// validate.ts + mailer.ts, zgłoszenie shape: D-02 minimal data and T-04-24, the
+// child's name that is structurally impossible to submit
+// ---------------------------------------------------------------------------
+
+const BIEZACY_ROK = new Date().getUTCFullYear();
+
+const ZGLOSZENIE_OK = {
+	imie: 'Anna Kowalska',
+	email: 'anna@example.com',
+	miesiac: '3',
+	rok: String(BIEZACY_ROK),
+	zgoda: true
+};
+
+test('walidujZgloszenie returns code walidacja for a non-object input', () => {
+	const wynik = walidujZgloszenie('nie obiekt');
+	assert.equal(wynik.ok, false);
+	assert.equal(wynik.ok ? null : wynik.code, 'walidacja');
+});
+
+test('walidujZgloszenie accepts the minimal body and returns only the whitelisted fields', () => {
+	const wynik = walidujZgloszenie(ZGLOSZENIE_OK);
+	assert.equal(wynik.ok, true);
+	assert.deepEqual(wynik.ok ? wynik.dane : null, {
+		imie: 'Anna Kowalska',
+		email: 'anna@example.com',
+		miesiac: 3,
+		rok: BIEZACY_ROK
+	});
+});
+
+test('walidujZgloszenie reports an absent month under the miesiac key as brak', () => {
+	const { miesiac, ...bezMiesiaca } = ZGLOSZENIE_OK;
+	assert.equal(miesiac, '3');
+	const wynik = walidujZgloszenie(bezMiesiaca);
+	assert.equal(wynik.ok, false);
+	assert.equal(wynik.ok ? null : wynik.code, 'walidacja');
+	assert.deepEqual(wynik.ok ? null : wynik.pola, { miesiac: 'brak' });
+});
+
+// The two off-by-one values on either side of the range. A month of 0 is what a
+// mishandled zero-based index produces, and 13 is what a forged body sends.
+for (const miesiac of ['0', '13', '-1', '3.5', '3abc']) {
+	test(`walidujZgloszenie rejects the month value ${miesiac} as niepoprawny`, () => {
+		const wynik = walidujZgloszenie({ ...ZGLOSZENIE_OK, miesiac });
+		assert.equal(wynik.ok, false);
+		assert.equal(wynik.ok ? null : wynik.code, 'walidacja');
+		assert.deepEqual(wynik.ok ? null : wynik.pola, { miesiac: 'niepoprawny' });
+	});
+}
+
+for (const miesiac of [1, 12]) {
+	test(`walidujZgloszenie accepts the boundary month ${miesiac}`, () => {
+		const wynik = walidujZgloszenie({ ...ZGLOSZENIE_OK, miesiac });
+		assert.equal(wynik.ok, true);
+		assert.equal(wynik.ok ? wynik.dane.miesiac : null, miesiac);
+	});
+}
+
+test('walidujZgloszenie accepts the current year', () => {
+	const wynik = walidujZgloszenie({ ...ZGLOSZENIE_OK, rok: BIEZACY_ROK });
+	assert.equal(wynik.ok, true);
+	assert.equal(wynik.ok ? wynik.dane.rok : null, BIEZACY_ROK);
+});
+
+for (const rok of [1926, 2226, BIEZACY_ROK - 7, BIEZACY_ROK + 3]) {
+	test(`walidujZgloszenie rejects the out-of-window year ${rok}`, () => {
+		const wynik = walidujZgloszenie({ ...ZGLOSZENIE_OK, rok });
+		assert.equal(wynik.ok, false);
+		assert.deepEqual(wynik.ok ? null : wynik.pola, { rok: 'niepoprawny' });
+	});
+}
+
+test('walidujZgloszenie treats an absent telefon as valid and leaves the field out', () => {
+	const wynik = walidujZgloszenie(ZGLOSZENIE_OK);
+	assert.equal(wynik.ok, true);
+	assert.equal(wynik.ok ? 'telefon' in wynik.dane : null, false);
+});
+
+test('walidujZgloszenie treats an empty telefon string as an untouched control', () => {
+	const wynik = walidujZgloszenie({ ...ZGLOSZENIE_OK, telefon: '   ' });
+	assert.equal(wynik.ok, true);
+	assert.equal(wynik.ok ? 'telefon' in wynik.dane : null, false);
+});
+
+test('walidujZgloszenie keeps a well-formed telefon', () => {
+	const wynik = walidujZgloszenie({ ...ZGLOSZENIE_OK, telefon: ' +48 510 094 051 ' });
+	assert.equal(wynik.ok, true);
+	assert.equal(wynik.ok ? wynik.dane.telefon : null, '+48 510 094 051');
+});
+
+test('walidujZgloszenie reports a telefon carrying letters under the telefon key', () => {
+	const wynik = walidujZgloszenie({ ...ZGLOSZENIE_OK, telefon: '510 094 051 wew. 3' });
+	assert.equal(wynik.ok, false);
+	assert.equal(wynik.ok ? null : wynik.code, 'walidacja');
+	assert.deepEqual(wynik.ok ? null : wynik.pola, { telefon: 'niepoprawny' });
+});
+
+test('walidujZgloszenie treats an absent wiadomosc as valid and leaves the field out', () => {
+	const wynik = walidujZgloszenie(ZGLOSZENIE_OK);
+	assert.equal(wynik.ok, true);
+	assert.equal(wynik.ok ? 'wiadomosc' in wynik.dane : null, false);
+});
+
+test('walidujZgloszenie reports an over-long wiadomosc as zbyt-dlugi', () => {
+	const wynik = walidujZgloszenie({ ...ZGLOSZENIE_OK, wiadomosc: 'x'.repeat(2001) });
+	assert.equal(wynik.ok, false);
+	assert.deepEqual(wynik.ok ? null : wynik.pola, { wiadomosc: 'zbyt-dlugi' });
+});
+
+test('walidujZgloszenie returns code zgoda when the consent flag is absent', () => {
+	const { zgoda, ...bezZgody } = ZGLOSZENIE_OK;
+	assert.equal(zgoda, true);
+	const wynik = walidujZgloszenie(bezZgody);
+	assert.equal(wynik.ok, false);
+	assert.equal(wynik.ok ? null : wynik.code, 'zgoda');
+});
+
+test('walidujZgloszenie collects every field problem before it looks at consent', () => {
+	const wynik = walidujZgloszenie({ imie: '', email: 'anna(at)example.com' });
+	assert.equal(wynik.ok, false);
+	assert.equal(wynik.ok ? null : wynik.code, 'walidacja');
+	assert.deepEqual(wynik.ok ? null : wynik.pola, {
+		imie: 'brak',
+		email: 'niepoprawny',
+		miesiac: 'brak',
+		rok: 'brak'
+	});
+});
+
+test('walidujZgloszenie rejects a header-injection e-mail, never repairs it (T-04-27)', () => {
+	const wynik = walidujZgloszenie({
+		...ZGLOSZENIE_OK,
+		email: 'anna@example.com\r\nBcc: atakujacy@example.com'
+	});
+	assert.equal(wynik.ok, false);
+	assert.equal(wynik.ok ? null : wynik.code, 'walidacja');
+});
+
+// T-04-24, the case that matters most. A forged body carrying a child's name is not
+// rejected (that would tell an attacker what the shape is), it is simply dropped:
+// the validated object has no key holding the value and the mail body cannot render
+// what it does not have.
+test('walidujZgloszenie ignores a child-name key entirely, in the object and in the mail body', () => {
+	const wynik = walidujZgloszenie({
+		...ZGLOSZENIE_OK,
+		imie_dziecka: 'Zosia Kowalska',
+		nazwisko_dziecka: 'Kowalska',
+		dziecko: 'Zosia'
+	});
+	assert.equal(wynik.ok, true);
+	const dane = wynik.ok ? wynik.dane : null;
+	assert.notEqual(dane, null);
+	assert.deepEqual(Object.keys(dane ?? {}).sort(), ['email', 'imie', 'miesiac', 'rok']);
+	assert.equal(JSON.stringify(dane).includes('Zosia'), false);
+
+	const tresc = zbudujTrescZgloszenie(
+		dane ?? { imie: '', email: '', miesiac: 1, rok: BIEZACY_ROK },
+		nazwaMiesiaca
+	);
+	assert.equal(tresc.includes('Zosia'), false);
+	assert.equal(tresc.includes('Kowalska'), true, 'the PARENT surname must still be there');
+});
+
+test('zbudujTrescZgloszenie renders the parent data and the Polish month name', () => {
+	const tresc = zbudujTrescZgloszenie(
+		{
+			imie: 'Anna Kowalska',
+			email: 'anna@example.com',
+			telefon: '+48 510 094 051',
+			miesiac: 3,
+			rok: 2026,
+			wiadomosc: 'Pierwsza linia.\nDruga linia.'
+		},
+		nazwaMiesiaca
+	);
+	assert.equal(tresc.includes('Anna Kowalska'), true);
+	assert.equal(tresc.includes('anna@example.com'), true);
+	assert.equal(tresc.includes('+48 510 094 051'), true);
+	assert.equal(tresc.includes('marzec 2026'), true);
+	assert.equal(tresc.includes('Pierwsza linia.\nDruga linia.'), true);
+});
+
+// An empty label after "Telefon:" reads like a delivery bug. The explicit wording is
+// how staff can tell a blank optional field from a broken message.
+test('zbudujTrescZgloszenie renders explicit wording for an absent phone and an absent message', () => {
+	const tresc = zbudujTrescZgloszenie(
+		{ imie: 'Anna Kowalska', email: 'anna@example.com', miesiac: 5, rok: 2026 },
+		nazwaMiesiaca
+	);
+	assert.match(tresc, /Telefon: nie podano/);
+	assert.match(tresc, /Wiadomość:\nbrak wiadomości/);
+	assert.equal(/Telefon:\s*$/m.test(tresc), false);
+});
+
+test('TEMAT_ZGLOSZENIE is a static constant, distinct from the contact subject', () => {
+	assert.equal(typeof TEMAT_ZGLOSZENIE, 'string');
+	assert.ok(TEMAT_ZGLOSZENIE.length > 0);
+	assert.notEqual(TEMAT_ZGLOSZENIE, TEMAT_KONTAKT);
+	const payload = zbudujPayload(TEMAT_ZGLOSZENIE, 'Tresc', 'anna@example.com');
+	assert.equal(payload.subject, TEMAT_ZGLOSZENIE);
+	assert.equal(payload.subject.includes('anna@example.com'), false);
+	// The enrollment mail reuses the SAME sending identity: one definition for both
+	// forms, so a recipient change is impossible to make in only one place (T-04-25).
+	assert.equal(payload.from, FROM);
+	assert.deepEqual(payload.to, [TO]);
+	assert.deepEqual(payload.bcc, [BCC]);
 });
