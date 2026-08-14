@@ -111,6 +111,11 @@ test('postFromEntry returns null when zajawka is present but tresc is missing', 
 	assert.equal(readEntry('/lib/content/aktualnosci/bez-tresci-z-zajawka.json', broken), null);
 });
 
+test('postFromEntry returns null when tytul is missing', () => {
+	const broken = { data: '2026-08-01', tresc: 'Tresc bez tytulu.' };
+	assert.equal(readEntry('/lib/content/aktualnosci/bez-tytulu.json', broken), null);
+});
+
 test('postFromEntry degrades a non-string obraz to undefined', () => {
 	const post = readEntry('/lib/content/aktualnosci/zly-obraz.json', { ...validEntry, obraz: 42 });
 	assert.notEqual(post, null);

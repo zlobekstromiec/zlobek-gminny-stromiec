@@ -65,17 +65,41 @@ export function parseData(value: unknown): { iso: string; display: string } | nu
 	};
 }
 
-/** Text before the first blank line, trimmed — the excerpt fallback. Only ever
- *  called after a `typeof entry.tresc === 'string'` guard in postFromEntry. */
+/** Text before the first blank line, trimmed — the excerpt fallback. Unreachable
+ *  with a non-string: postFromEntry only calls it with an already-guarded
+ *  `tresc` local, never with a raw field off the on-disk entry. */
 function firstParagraph(tresc: string): string {
 	return tresc.split('\n\n')[0].trim();
 }
 
+/** Return `value` when it is a string with non-whitespace content, otherwise
+ *  undefined. Returns the ORIGINAL string, never the trimmed one, so Markdown
+ *  body whitespace is preserved. This is the single narrowing primitive of the
+ *  reader: every field postFromEntry emits passes through it (or through
+ *  parseData), which is what stops an unvalidated value reaching a consumer. */
+function readString(value: unknown): string | undefined {
+	return typeof value === 'string' && value.trim() !== '' ? value : undefined;
+}
+
 /** Map one on-disk entry to a PostWithMeta, or skip it with a build warning
- *  (never throw) when its slug, tytul, data, or excerpt source is malformed —
- *  the `dokumenty.ts` `withMeta` precedent applied to hand-edited news JSON so a
- *  single bad post can never abort the whole-site prerender (WR-02). */
-export function postFromEntry(path: string, entry: PostEntry): PostWithMeta | null {
+ *  (never throw) when it is malformed — the `dokumenty.ts` `withMeta` precedent
+ *  applied to hand-edited news JSON so a single bad post can never abort the
+ *  whole-site prerender (WR-02).
+ *
+ *  `entry` is typed `unknown` on purpose. The PostEntry compile-time shape is a
+ *  lie for git-CMS content that staff hand-edit and partially commit, and three
+ *  successive crash shapes reached production behind that lie. Typing the
+ *  parameter `unknown` makes the compiler enforce a guard on every field, and the
+ *  result is CONSTRUCTED key by key (never spread from the raw entry) so nothing
+ *  unvalidated can leak through.
+ *
+ *  This reader is therefore the single validation boundary of the news pipeline:
+ *  consumers may rely on `tresc` being a non-empty string (so `renderPost` can
+ *  never receive undefined during the entries()-driven prerender) and on `obraz`
+ *  / `obraz_alt` being `string | undefined` (so the cover basename split never
+ *  runs on a non-string, and a bad cover degrades into the D-01 tint fallback).
+ *  Neither NewsCard.svelte nor the [slug] route needs its own guard. */
+export function postFromEntry(path: string, entry: unknown): PostWithMeta | null {
 	// Slug = on-disk filename (basename minus .json). NEVER re-derive from
 	// data + tytul: the committed filename is authoritative (D-07/D-08).
 	const slug = (path.split('/').pop() ?? '').replace(/\.json$/, '');
@@ -83,27 +107,48 @@ export function postFromEntry(path: string, entry: PostEntry): PostWithMeta | nu
 		console.warn(`aktualnosci: skipping "${path}" (bad slug)`);
 		return null;
 	}
-	if (typeof entry.tytul !== 'string' || entry.tytul.trim() === '') {
+	// A post JSON holding null, an array, a bare string or a number would throw on
+	// the first property access, before any field guard could run (T-03-07-04).
+	if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) {
+		console.warn(`aktualnosci: skipping "${path}" (entry is not a JSON object)`);
+		return null;
+	}
+	const record = entry as Record<string, unknown>;
+	const tytul = readString(record.tytul);
+	if (!tytul) {
 		console.warn(`aktualnosci: skipping "${path}" (missing tytul)`);
 		return null;
 	}
-	const parsed = parseData(entry.data);
+	const parsed = parseData(record.data);
 	if (!parsed) {
 		console.warn(`aktualnosci: skipping "${path}" (missing or invalid data)`);
 		return null;
 	}
-	const zajawka = typeof entry.zajawka === 'string' ? entry.zajawka.trim() : '';
-	let excerpt: string;
-	if (zajawka) {
-		excerpt = zajawka;
-	} else if (typeof entry.tresc === 'string') {
-		excerpt = firstParagraph(entry.tresc);
-	} else {
-		console.warn(`aktualnosci: skipping "${path}" (missing tresc and zajawka)`);
+	// UNCONDITIONAL, and before any excerpt logic. The previous version validated
+	// tresc only in the excerpt fallback branch, so a present zajawka skipped the
+	// guard entirely and marked.parse(undefined) aborted the whole build
+	// (T-03-07-01). A post with no body is not a post.
+	const tresc = readString(record.tresc);
+	if (!tresc) {
+		console.warn(`aktualnosci: skipping "${path}" (missing or non-string tresc)`);
 		return null;
 	}
+	// Optional fields degrade to undefined instead of rejecting the post: a wrong
+	// cover costs the image, not the article (D-01 tint fallback, T-03-07-02).
+	const zajawka = readString(record.zajawka);
+	const obraz = readString(record.obraz);
+	const obraz_alt = readString(record.obraz_alt);
+	const excerpt = zajawka ? zajawka.trim() : firstParagraph(tresc);
+	// Constructed key by key from guarded locals only — never `...entry`, which is
+	// how unvalidated fields survived two prior fixes (T-03-07-03).
 	return {
-		...entry,
+		tytul,
+		data: parsed.iso,
+		zajawka,
+		tresc,
+		obraz,
+		obraz_alt,
+		placeholder: record.placeholder === true,
 		slug,
 		href: `/aktualnosci/${slug}`,
 		iso: parsed.iso,
