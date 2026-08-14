@@ -17,8 +17,8 @@
 </script>
 
 <Seo
-	title="Aktualności: Żłobek Gminny w Stromcu"
-	description="Wydarzenia, ogłoszenia i nowości z życia Żłobka Gminnego w Stromcu. Najnowsze wpisy znajdziesz na górze."
+	title="Aktualności: Publiczny Żłobek w Stromcu"
+	description="Wydarzenia, ogłoszenia i nowości z życia Publicznego Żłobka w Stromcu. Najnowsze wpisy znajdziesz na górze."
 	canonical="/aktualnosci"
 />
 

@@ -7,7 +7,7 @@
   prerender = true from the root +layout.ts. Accessible palette tier only.
 -->
 <svelte:head>
-	<title>Polityka prywatności | Żłobek Gminny Stromiec</title>
+	<title>Polityka prywatności | Publiczny Żłobek w Stromcu</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 

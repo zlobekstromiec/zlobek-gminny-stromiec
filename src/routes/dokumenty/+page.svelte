@@ -17,8 +17,8 @@
 </script>
 
 <Seo
-	title="Dokumenty: Żłobek Gminny w Stromcu"
-	description="Pobierz dokumenty rekrutacyjne oraz statut i uchwały dotyczące Żłobka Gminnego w Stromcu. Każdy dokument otwierasz jednym kliknięciem."
+	title="Dokumenty: Publiczny Żłobek w Stromcu"
+	description="Pobierz dokumenty rekrutacyjne oraz statut i uchwały dotyczące Publicznego Żłobka w Stromcu. Każdy dokument otwierasz jednym kliknięciem."
 	canonical="/dokumenty"
 />
 

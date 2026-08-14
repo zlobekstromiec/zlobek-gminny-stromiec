@@ -13,7 +13,7 @@
 	// Polish strings + the constant site name. NEVER interpolate page.error or any
 	// request-derived text here — that would reflect attacker-controllable content
 	// into <head> (T-03-06-03).
-	const title = $derived(`${heading} | Żłobek Gminny w Stromcu`);
+	const title = $derived(`${heading} | Publiczny Żłobek w Stromcu`);
 	const body = $derived(
 		is404
 			? 'Strona, której szukasz, nie istnieje lub została przeniesiona. Sprawdź adres albo wróć na stronę główną.'

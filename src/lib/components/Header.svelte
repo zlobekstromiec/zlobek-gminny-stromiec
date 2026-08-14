@@ -28,8 +28,8 @@
 				<enhanced:img src={logoMark} alt="" sizes="52px" />
 			</span>
 			<span class="wordmark-text">
-				<span class="wordmark-name">Żłobek Gminny Stromiec</span>
-				<span class="wordmark-tagline">Publiczny żłobek w gminie Stromiec</span>
+				<span class="wordmark-name">Publiczny Żłobek w Stromcu</span>
+				<span class="wordmark-tagline">Jednostka organizacyjna Gminy Stromiec</span>
 			</span>
 		</a>
 

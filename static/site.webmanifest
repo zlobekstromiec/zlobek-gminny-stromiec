@@ -1,8 +1,8 @@
 {
-  "name": "Żłobek Gminny Stromiec",
+  "name": "Publiczny Żłobek w Stromcu",
   "short_name": "Żłobek Stromiec",
   "lang": "pl",
-  "description": "Żłobek Gminny w Stromcu — jednostka organizacyjna Gminy Stromiec.",
+  "description": "Publiczny Żłobek w Stromcu, jednostka organizacyjna Gminy Stromiec.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

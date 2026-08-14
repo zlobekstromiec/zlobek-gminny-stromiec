@@ -43,8 +43,8 @@
 </script>
 
 <Seo
-	title="O nas: Żłobek Gminny w Stromcu"
-	description="Poznaj żłobek gminny w Stromcu: naszą misję, wartości, plan dnia, kadrę oraz miejsce, w którym Twoje dziecko spędza dzień."
+	title="O nas: Publiczny Żłobek w Stromcu"
+	description="Poznaj Publiczny Żłobek w Stromcu: naszą misję, wartości, plan dnia, kadrę oraz miejsce, w którym Twoje dziecko spędza dzień."
 	canonical="/o-nas"
 />
 

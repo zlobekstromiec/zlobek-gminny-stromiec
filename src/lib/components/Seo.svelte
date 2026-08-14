@@ -25,7 +25,7 @@
 		noindex?: boolean;
 	} = $props();
 
-	const siteName = 'Żłobek Gminny w Stromcu';
+	const siteName = 'Publiczny Żłobek w Stromcu';
 </script>
 
 <svelte:head>

@@ -17,9 +17,9 @@
 			<div class="brand-lockup">
 				<enhanced:img src={logoFull} alt="" sizes="280px" />
 			</div>
-			<p class="footer-wordmark">Żłobek Gminny Stromiec</p>
+			<p class="footer-wordmark">Publiczny Żłobek w Stromcu</p>
 			<p class="org">
-				Żłobek Gminny w Stromcu, jednostka organizacyjna Gminy Stromiec<br />
+				Publiczny Żłobek w Stromcu, jednostka organizacyjna Gminy Stromiec<br />
 				<!-- PLACEHOLDER: address + phone pending written client confirmation (site.ts). -->
 				{contact.addressLines[0]}, {contact.addressLines[1]}<br />
 				tel. {contact.phoneDisplay}<br />
@@ -82,7 +82,7 @@
 		</div>
 	</div>
 
-	<p class="copyright">© Żłobek Gminny w Stromcu</p>
+	<p class="copyright">© Publiczny Żłobek w Stromcu</p>
 </footer>
 
 <style>

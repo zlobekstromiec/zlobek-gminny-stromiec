@@ -7,7 +7,7 @@
   the root +layout.ts. Colors are drawn from the accessible palette tier only.
 -->
 <svelte:head>
-	<title>Deklaracja dostępności | Żłobek Gminny Stromiec</title>
+	<title>Deklaracja dostępności | Publiczny Żłobek w Stromcu</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 

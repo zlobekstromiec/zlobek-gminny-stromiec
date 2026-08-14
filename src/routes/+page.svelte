@@ -26,8 +26,8 @@
 </script>
 
 <Seo
-	title="Żłobek Gminny w Stromcu: ciepła, bezpieczna opieka dla najmłodszych"
-	description="Żłobek Gminny w Stromcu: ciepła i bezpieczna opieka nad najmłodszymi. Zapisz dziecko, poznaj naszą ofertę oraz dane kontaktowe."
+	title="Publiczny Żłobek w Stromcu: ciepła, bezpieczna opieka dla najmłodszych"
+	description="Publiczny Żłobek w Stromcu: ciepła i bezpieczna opieka nad najmłodszymi. Zapisz dziecko, poznaj naszą ofertę oraz dane kontaktowe."
 />
 
 <Hero />
