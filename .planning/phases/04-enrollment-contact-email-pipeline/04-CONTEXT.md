@@ -68,6 +68,7 @@ Parents can read enrollment information on `/rekrutacja` (kryteria + punktacja, 
 
 ### Source data (user-flagged 2026-08-14 - HIGHEST priority for content)
 - `dane-bip-zlobek-stromiec.md` (repo root) - THE source of truth for all real facts: identity, oplaty (uchwala XXIII.134.2026), full rekrutacja regulamin digest (kryteria/punktacja/procedura/harmonogram-archiwalny), statut digest, dofinansowanie duties, and the section-10 DO-NOT-PUBLISH list. Its `[BIP]`/`[KD]`/`[?]`/`[BRAK]` legend governs what may ship. Currently untracked - commit it (or a copy under `.planning/`) so downstream agents and CI can read it.
+- `https://echodnia.eu/radomskie/uroczyste-otwarcie-zlobka-w-stromcu-bedzie-to-pierwsza-taka-placowka-w-gminie/gh/c1p2-29260989` (user-flagged 2026-08-14) - press coverage of the uroczyste otwarcie. Verified from the gallery page: photos credited **"fot. UG Stromiec"** (the Gmina owns the originals - request them from Urzad Gminy, do NOT reuse the portal's copies), and the caption states **dzien otwarty sroda 19 sierpnia** + **1 wrzesnia rozpoczecie roku**. Public confirmation of Aktywny Maluch/EU funding (already `[BIP]` in dane-bip doc). Treat the two dates as near-confirmed but press-sourced: fine for an Aktualnosci post, still confirm with the client before hard-coding as site facts.
 
 ### Email pipeline spec (LOCKED)
 - `.planning/ROADMAP.md` §"Email Sending - Implementation Notes (Phase 4)" - authoritative sending spec: identity, exact DNS records, anti-silent-loss, security, RODO. Supersedes point-in-time research notes.
@@ -143,6 +144,8 @@ Parents can read enrollment information on `/rekrutacja` (kryteria + punktacja, 
 - **Fee wording confirmation** ("0 zl" conditional phrasing) - client survey question 1; keyFact placeholder-flagged until then (D-09).
 - **Statut-vs-regulamin eligibility discrepancy** (zatrudnienie w gminie vs zamieszkanie) - survey question 26; do not publish the zatrudnienie criterion as fact until resolved.
 - **/cennik full fee breakdown page** - Phase 5 (compact box on /rekrutacja until then).
+- **Opening-event photos from UG Stromiec** - the echodnia gallery photos are "fot. UG Stromiec": ask Urzad Gminy for the originals + written permission (one email; zlobek is the Gmina's own jednostka). Use for the Phase 5 gallery and the Phase 6 o-nas/hero placeholder swap. Wizerunek rule applies: prefer building/interior/wide-crowd shots; identifiable children need documented consent (LAUNCH-01). Never scrape the compressed/watermarked copies from echodnia/ppstatic.
+- **Aktualnosci post about the opening + dzien otwarty 19.08** - timely real content (today is 14.08); a staff CMS content edit, not Phase 4 code. Could carry 1-2 UG-sourced photos once permission lands.
 
 </deferred>
 
