@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 04
-current_phase_name: Enrollment, Contact & Email Pipeline
+current_phase_name: enrollment-contact-email-pipeline
 status: executing
-stopped_at: Completed 04-07-PLAN.md (phase 04 execution complete)
-last_updated: "2026-08-15T16:05:20.071Z"
-last_activity: 2026-08-14
+stopped_at: Completed 04-09-PLAN.md
+last_updated: "2026-08-15T16:20:29.721Z"
+last_activity: 2026-08-15
 last_activity_desc: Phase 04 execution started
 progress:
   total_phases: 7
   completed_phases: 3
-  total_plans: 25
-  completed_plans: 24
+  total_plans: 27
+  completed_plans: 26
   percent: 43
 ---
 
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-14)
 
 **Core value:** A parent lands on the site and, within seconds, both feels the żłobek's warmth and finds the exact information they need (enrollment, documents, contact) — on any device.
-**Current focus:** Phase 04 — Enrollment, Contact & Email Pipeline
+**Current focus:** Phase 04 — enrollment-contact-email-pipeline
 
 ## Current Position
 
-Phase: 04 (Enrollment, Contact & Email Pipeline) — EXECUTING
-Plan: 7 of 7
+Phase: 04 (enrollment-contact-email-pipeline) — EXECUTING
+Plan: 2 of 9
 Status: Ready to execute
-Last activity: 2026-08-14 — Phase 04 execution started
+Last activity: 2026-08-15 — Phase 04 execution started
 
 Progress: [██████████████████░░] 22/25 plans (88%)
 
@@ -81,6 +81,7 @@ Progress: [██████████████████░░] 22/25 p
 | Phase 04 P05 | 15min | 3 tasks tasks | 8 files files |
 | Phase 04 P06 | 14min | 3 tasks tasks | 10 files files |
 | Phase 04 P07 | 68min | 3 tasks tasks | 7 files files |
+| Phase 04 P09 | 4min | 1 task tasks | 2 files files |
 
 ## Accumulated Context
 
@@ -138,6 +139,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [04-07] The Resend API key is correctly send-only, so per-recipient delivery and bounce status is NOT API-readable ('restricted to only send emails'). Reading the delivery log is a dashboard/human step; a broader key was deliberately NOT minted.
 - [Phase ?]: [04-07] A placeholder KV id is not untidy but undeployable: Pages validates the id when publishing the Function and fails the deploy with Error 8000022 'Not a valid hex string'. Proven with a throwaway preview deployment so production was never risked.
 - [Phase ?]: [04-07] The rate limiter only guarded an ABSENT binding (!kv). A present-but-unusable binding or any transient KV failure made get/put reject, escaping obsluz as an opaque 500 on every submission of both forms. Every KV operation is now wrapped and fails OPEN, matching the documented degrade policy: Turnstile remains the real gate and a rejected enquiry is stored nowhere, so lost for good.
+- [Phase ?]: [04-09] WR-02 closed: the Turnstile $effect now owns the lifetime of everything it installs. Cleanup clears window.__onTurnstileLoad ONLY when it is identity-equal to that instance's own rysuj closure (an unconditional clear was rejected: a fast-path instance that installed nothing would delete a waiting instance's callback, the same cross-instance bug inverted), and rysuj returns early when the bound container is no longer connected, so a late loader callback or a re-executed svelte:head script after client-side navigation between /kontakt and /rekrutacja cannot orphan a widget. Pinned by a Playwright case observed RED (typeof was 'function') then GREEN, with a window sentinel proving the navigation was client side. Token contract, sitekey constants, host allow-list, render options and .slot sizing byte-identical; the ambient turnstile declarations were already optional so no d.ts change was needed. The live real-widget check across client-side navigation stays a human step.
 
 ### Pending Todos
 
@@ -181,6 +183,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-14T20:08:00.342Z
-Stopped at: Completed 04-07-PLAN.md (phase 04 execution complete)
+Last session: 2026-08-15T16:20:24.444Z
+Stopped at: Completed 04-09-PLAN.md
 Resume file: None
