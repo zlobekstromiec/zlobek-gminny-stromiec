@@ -106,9 +106,19 @@ the real managed Turnstile widget rendered visibly, Cloudflare-branded, in its c
 - The widget successfully issued a token to a human, so the acceptance path is intact
   end to end up to submission.
 
-Still human-only after this: keyboard reachability and contrast of the widget, and
-confirmation that a delivered message actually lands in the devzlobekstromiec@gmail.com BCC
-backup.
+### Delivery confirmed by tester (2026-08-15T19:39Z)
+
+Tester confirmed that the submissions accepted before the limiter tripped DID arrive in the
+devzlobekstromiec@gmail.com BCC backup mailbox. The full pipeline is therefore proven end to
+end in production with a real Turnstile token: form submit, server-side siteverify, Resend
+send from send.zlobekstromiec.pl, delivery to the BCC backup.
+
+This does NOT mark FORM-01 complete. FORM-01 requires delivery to the Gmina mailbox
+zlobek@ugstromiec.pl, which still does not exist, so the to: leg continues to hard-bounce and
+the BCC remains the only receiving mailbox. That is an external Gmina dependency, not a code
+gap, and re-testing once the mailbox exists is a single form submission with no deploy.
+
+Still human-only after this: keyboard reachability and contrast of the Turnstile widget.
 
 ## Summary
 
