@@ -31,9 +31,11 @@ import {
 import { nazwaMiesiaca } from '../src/lib/content/forms.ts';
 import {
 	DOBA_S,
-	KLUCZ_DOBOWY,
+	MNOZNIK_TTL,
 	OKNO_S,
+	kluczDobowy,
 	kluczLimitu,
+	kubelekGodzinowy,
 	podLimitem
 } from '../src/lib/server/forms/ratelimit.ts';
 import { obsluz } from '../src/lib/server/forms/handle.ts';
@@ -352,77 +354,152 @@ function stubKV(wstepne: Record<string, string> = {}): {
 const IP = '203.0.113.7';
 const SOL = 'sol-testowa';
 
-test('kluczLimitu never contains the raw IP and is a salted hex digest scoped to the form', async () => {
-	const klucz = await kluczLimitu('kontakt', IP, SOL);
+// Frozen instants. The window lives in the KV KEY, so every rate-limit case passes
+// an explicit clock: a case that read the real clock could straddle a real hour or
+// a real midnight and go red for reasons unrelated to the code under test.
+/** 2026-08-14T10:30:00Z */
+const TERAZ = Date.UTC(2026, 7, 14, 10, 30, 0);
+/** Same UTC date, six hours later, so a different hour bucket. */
+const TERAZ_POZNIEJ_TEGO_DNIA = TERAZ + 6 * OKNO_S * 1000;
+const TERAZ_NASTEPNA_GODZINA = TERAZ + OKNO_S * 1000;
+/** 2026-08-15T10:30:00Z */
+const TERAZ_NASTEPNY_DZIEN = TERAZ + DOBA_S * 1000;
+
+test('kluczDobowy buckets the site-wide counter by UTC calendar date', () => {
+	assert.equal(kluczDobowy(TERAZ), 'rl:doba:2026-08-14');
+	assert.equal(kluczDobowy(TERAZ_NASTEPNY_DZIEN), 'rl:doba:2026-08-15');
+});
+
+test('kubelekGodzinowy advances by exactly one across an hour boundary', () => {
+	assert.equal(kubelekGodzinowy(TERAZ), Math.floor(TERAZ / 1000 / OKNO_S));
+	assert.equal(kubelekGodzinowy(TERAZ_NASTEPNA_GODZINA), kubelekGodzinowy(TERAZ) + 1);
+});
+
+test('kluczLimitu never contains the raw IP and is a salted hex digest scoped to the form and hour', async () => {
+	const klucz = await kluczLimitu('kontakt', IP, SOL, TERAZ);
 	assert.equal(klucz.includes(IP), false);
-	assert.match(klucz, /^rl:kontakt:[0-9a-f]{16}$/);
+	assert.match(klucz, /^rl:kontakt:[0-9a-f]{16}:[0-9]+$/);
+});
+
+// The digest is stable; only the appended bucket moves. That is what makes the
+// window fixed without ever needing the stored expiration to define it.
+test('kluczLimitu keeps the hash stable across hour buckets and moves only the bucket segment', async () => {
+	const a = (await kluczLimitu('kontakt', IP, SOL, TERAZ)).split(':');
+	const b = (await kluczLimitu('kontakt', IP, SOL, TERAZ_NASTEPNA_GODZINA)).split(':');
+	assert.deepEqual(a.slice(0, 3), b.slice(0, 3));
+	assert.notEqual(a[3], b[3]);
 });
 
 test('kluczLimitu gives the two forms independent counters for the same client', async () => {
-	const kontakt = await kluczLimitu('kontakt', IP, SOL);
-	const rekrutacja = await kluczLimitu('rekrutacja', IP, SOL);
+	const kontakt = await kluczLimitu('kontakt', IP, SOL, TERAZ);
+	const rekrutacja = await kluczLimitu('rekrutacja', IP, SOL, TERAZ);
 	assert.notEqual(kontakt, rekrutacja);
 });
 
 test('kluczLimitu changes when the salt changes, so the hash is not rainbow-tableable', async () => {
-	const a = await kluczLimitu('kontakt', IP, SOL);
-	const b = await kluczLimitu('kontakt', IP, 'inna-sol');
+	const a = await kluczLimitu('kontakt', IP, SOL, TERAZ);
+	const b = await kluczLimitu('kontakt', IP, 'inna-sol', TERAZ);
 	assert.notEqual(a, b);
 });
 
 test('podLimitem returns true under the per-client limit', async () => {
 	const { kv } = stubKV();
-	assert.equal(await podLimitem(kv, 'kontakt', IP, SOL, 5, 40), true);
+	assert.equal(await podLimitem(kv, 'kontakt', IP, SOL, 5, 40, TERAZ), true);
 });
 
 test('podLimitem returns false exactly at the per-client limit', async () => {
-	const klucz = await kluczLimitu('kontakt', IP, SOL);
+	const klucz = await kluczLimitu('kontakt', IP, SOL, TERAZ);
 	const { kv } = stubKV({ [klucz]: '5' });
-	assert.equal(await podLimitem(kv, 'kontakt', IP, SOL, 5, 40), false);
+	assert.equal(await podLimitem(kv, 'kontakt', IP, SOL, 5, 40, TERAZ), false);
 });
 
 test('podLimitem returns false past the per-client limit', async () => {
-	const klucz = await kluczLimitu('kontakt', IP, SOL);
+	const klucz = await kluczLimitu('kontakt', IP, SOL, TERAZ);
 	const { kv } = stubKV({ [klucz]: '9' });
-	assert.equal(await podLimitem(kv, 'kontakt', IP, SOL, 5, 40), false);
+	assert.equal(await podLimitem(kv, 'kontakt', IP, SOL, 5, 40, TERAZ), false);
 });
 
 test('podLimitem writes nothing once the per-client limit is reached', async () => {
-	const klucz = await kluczLimitu('kontakt', IP, SOL);
+	const klucz = await kluczLimitu('kontakt', IP, SOL, TERAZ);
 	const { kv, zapisy } = stubKV({ [klucz]: '5' });
-	await podLimitem(kv, 'kontakt', IP, SOL, 5, 40);
+	await podLimitem(kv, 'kontakt', IP, SOL, 5, 40, TERAZ);
 	assert.equal(zapisy.length, 0);
+});
+
+// CR-01. Under the pre-fix code the refused client stayed refused until the whole
+// site fell silent for a full window, because every accepted write restarted the
+// stored expiration. The hour bucket in the key removes that dependency entirely.
+test('a client refused at the per-client ceiling is accepted again in the next hour bucket', async () => {
+	const klucz = await kluczLimitu('kontakt', IP, SOL, TERAZ);
+	const { kv } = stubKV({ [klucz]: '5' });
+	assert.equal(await podLimitem(kv, 'kontakt', IP, SOL, 5, 40, TERAZ), false);
+	assert.equal(await podLimitem(kv, 'kontakt', IP, SOL, 5, 40, TERAZ_NASTEPNA_GODZINA), true);
 });
 
 // The per-client window protects a parent from a neighbour; the daily ceiling
 // protects the Resend 100/day budget from a distributed flood of verified humans.
 test('podLimitem returns false once the global daily ceiling is reached even when the per-client counter is low', async () => {
-	const { kv } = stubKV({ [KLUCZ_DOBOWY]: '40' });
-	assert.equal(await podLimitem(kv, 'kontakt', IP, SOL, 5, 40), false);
+	const { kv } = stubKV({ 'rl:doba:2026-08-14': '40' });
+	assert.equal(await podLimitem(kv, 'kontakt', IP, SOL, 5, 40, TERAZ), false);
 });
 
 test('podLimitem writes neither counter once the global daily ceiling is reached', async () => {
-	const { kv, zapisy } = stubKV({ [KLUCZ_DOBOWY]: '40' });
-	await podLimitem(kv, 'kontakt', IP, SOL, 5, 40);
+	const { kv, zapisy } = stubKV({ 'rl:doba:2026-08-14': '40' });
+	await podLimitem(kv, 'kontakt', IP, SOL, 5, 40, TERAZ);
 	assert.equal(zapisy.length, 0);
 });
 
-test('podLimitem writes an increasing integer with an expirationTtl for both counters', async () => {
-	const klucz = await kluczLimitu('kontakt', IP, SOL);
+// CR-01, the Blocker case: a site-wide ceiling reached on one UTC date must not
+// refuse a parent on the next one. This is the self-inflicted denial of service.
+test('the site-wide daily ceiling reopens on the next UTC calendar date without any site silence', async () => {
+	const { kv, zapisy } = stubKV({ 'rl:doba:2026-08-14': '40' });
+	assert.equal(await podLimitem(kv, 'kontakt', IP, SOL, 5, 40, TERAZ), false);
+	assert.equal(await podLimitem(kv, 'kontakt', IP, SOL, 5, 40, TERAZ_NASTEPNY_DZIEN), true);
+	const dobowe = zapisy.filter((zapis) => zapis.key.startsWith('rl:doba:'));
+	assert.deepEqual(dobowe, [{ key: 'rl:doba:2026-08-15', value: '1', ttl: MNOZNIK_TTL * DOBA_S }]);
+});
+
+// Sustained legitimate traffic must never accumulate across buckets: this is the
+// monotonic-growth defect, pinned dead.
+test('three accepted submissions spanning two UTC dates leave the second date at 1, never 3', async () => {
 	const { kv, zapisy } = stubKV();
-	assert.equal(await podLimitem(kv, 'kontakt', IP, SOL, 5, 40), true);
-	assert.equal(await podLimitem(kv, 'kontakt', IP, SOL, 5, 40), true);
+	assert.equal(await podLimitem(kv, 'kontakt', IP, SOL, 5, 40, TERAZ), true);
+	assert.equal(await podLimitem(kv, 'kontakt', IP, SOL, 5, 40, TERAZ_POZNIEJ_TEGO_DNIA), true);
+	assert.equal(await podLimitem(kv, 'kontakt', IP, SOL, 5, 40, TERAZ_NASTEPNY_DZIEN), true);
+	const dobowe = zapisy.filter((zapis) => zapis.key.startsWith('rl:doba:'));
+	assert.deepEqual(dobowe, [
+		{ key: 'rl:doba:2026-08-14', value: '1', ttl: MNOZNIK_TTL * DOBA_S },
+		{ key: 'rl:doba:2026-08-14', value: '2', ttl: MNOZNIK_TTL * DOBA_S },
+		{ key: 'rl:doba:2026-08-15', value: '1', ttl: MNOZNIK_TTL * DOBA_S }
+	]);
+});
+
+// Widening the window's honesty must not widen the ceiling: inside one bucket both
+// limits still refuse the over-limit submission.
+test('the daily ceiling still bites inside one UTC date even across hour buckets', async () => {
+	const { kv } = stubKV({ 'rl:doba:2026-08-14': '39' });
+	assert.equal(await podLimitem(kv, 'kontakt', IP, SOL, 5, 40, TERAZ), true);
+	assert.equal(await podLimitem(kv, 'kontakt', IP, SOL, 5, 40, TERAZ_POZNIEJ_TEGO_DNIA), false);
+});
+
+// The stored lifetime is twice the window and only sweeps abandoned buckets. A bare
+// window length here would be restarted by every write, which is the CR-01 defect.
+test('podLimitem writes an increasing integer with a cleanup-only lifetime for both counters', async () => {
+	const klucz = await kluczLimitu('kontakt', IP, SOL, TERAZ);
+	const { kv, zapisy } = stubKV();
+	assert.equal(await podLimitem(kv, 'kontakt', IP, SOL, 5, 40, TERAZ), true);
+	assert.equal(await podLimitem(kv, 'kontakt', IP, SOL, 5, 40, TERAZ), true);
 	assert.deepEqual(zapisy, [
-		{ key: klucz, value: '1', ttl: OKNO_S },
-		{ key: KLUCZ_DOBOWY, value: '1', ttl: DOBA_S },
-		{ key: klucz, value: '2', ttl: OKNO_S },
-		{ key: KLUCZ_DOBOWY, value: '2', ttl: DOBA_S }
+		{ key: klucz, value: '1', ttl: MNOZNIK_TTL * OKNO_S },
+		{ key: 'rl:doba:2026-08-14', value: '1', ttl: MNOZNIK_TTL * DOBA_S },
+		{ key: klucz, value: '2', ttl: MNOZNIK_TTL * OKNO_S },
+		{ key: 'rl:doba:2026-08-14', value: '2', ttl: MNOZNIK_TTL * DOBA_S }
 	]);
 });
 
 test('podLimitem stores only integers, never a submitted value or an IP', async () => {
 	const { kv, magazyn } = stubKV();
-	await podLimitem(kv, 'kontakt', IP, SOL, 5, 40);
+	await podLimitem(kv, 'kontakt', IP, SOL, 5, 40, TERAZ);
 	for (const [key, value] of magazyn) {
 		assert.equal(key.includes(IP), false);
 		assert.match(value, /^[0-9]+$/);
@@ -430,7 +507,7 @@ test('podLimitem stores only integers, never a submitted value or an IP', async 
 });
 
 test('podLimitem degrades to Turnstile-only protection when the KV binding is missing', async () => {
-	assert.equal(await podLimitem(undefined, 'kontakt', IP, SOL, 5, 40), true);
+	assert.equal(await podLimitem(undefined, 'kontakt', IP, SOL, 5, 40, TERAZ), true);
 });
 
 /** A binding can be PRESENT but unusable: an id pointing at a namespace that does
@@ -451,22 +528,24 @@ function stubKVRzucajacy(gdzie: 'get' | 'put'): KVNamespace {
 }
 
 test('podLimitem fails open when a KV read throws, instead of rejecting the submission', async () => {
-	assert.equal(await podLimitem(stubKVRzucajacy('get'), 'kontakt', IP, SOL, 5, 40), true);
+	assert.equal(await podLimitem(stubKVRzucajacy('get'), 'kontakt', IP, SOL, 5, 40, TERAZ), true);
 });
 
 test('podLimitem fails open when a KV write throws, so a counter failure never loses an enquiry', async () => {
-	assert.equal(await podLimitem(stubKVRzucajacy('put'), 'kontakt', IP, SOL, 5, 40), true);
+	assert.equal(await podLimitem(stubKVRzucajacy('put'), 'kontakt', IP, SOL, 5, 40, TERAZ), true);
 });
 
 test('podLimitem never lets a KV error escape as a rejected promise (would be an opaque 500)', async () => {
 	for (const gdzie of ['get', 'put'] as const) {
-		await assert.doesNotReject(() => podLimitem(stubKVRzucajacy(gdzie), 'kontakt', IP, SOL, 5, 40));
+		await assert.doesNotReject(() =>
+			podLimitem(stubKVRzucajacy(gdzie), 'kontakt', IP, SOL, 5, 40, TERAZ)
+		);
 	}
 });
 
 test('a KV error still fails open through the whole obsluz pipeline, never a 500', async () => {
 	const { zaleznosci } = zaleznosciTestowe({
-		podLimitem: () => podLimitem(stubKVRzucajacy('get'), 'kontakt', IP, SOL, 5, 40)
+		podLimitem: () => podLimitem(stubKVRzucajacy('get'), 'kontakt', IP, SOL, 5, 40, TERAZ)
 	});
 	const { wynik, status } = await obsluz(CIALO_OK, IP, zaleznosci);
 	assert.equal(wynik.ok, true);

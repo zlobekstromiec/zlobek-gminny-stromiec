@@ -2,9 +2,10 @@
 // threat T-04-04). Two independent ceilings, both plain integer counters.
 //
 // RODO note: the per-client key is a one-way salted SHA-256 truncated to 8 bytes
-// with a one-hour lifetime, and the daily key is a fixed constant. The stored
-// values are integers. KV therefore holds no identifying data and no submission
-// content at any point, which is what lets the klauzula say we store nothing.
+// followed by a coarse hour-of-epoch bucket, and the daily key is a fixed prefix
+// followed by a UTC calendar date. Every stored value is an integer. KV therefore
+// holds no identifying data and no submission content at any point, which is what
+// lets the klauzula say we store nothing.
 //
 // Durability note: an in-memory Map would look like a limiter and be none. Worker
 // isolates are ephemeral and numerous, so the counter has to live in KV.
@@ -15,8 +16,15 @@ export const DOMYSLNY_LIMIT = 5;
 /** Site-wide daily window. */
 export const DOBA_S = 86400;
 export const DOMYSLNY_LIMIT_DOBOWY = 40;
-/** Fixed, non-derived key: the daily counter is deliberately not per client. */
-export const KLUCZ_DOBOWY = 'rl:doba';
+/** Prefix of the site-wide daily key, which is deliberately not per client. The
+ *  UTC calendar date is appended, so the key itself names the window. */
+export const PREFIKS_DOBOWY = 'rl:doba';
+/** Cleanup-only lifetime multiplier. The bucket inside the key IS the window; the
+ *  stored lifetime exists only so abandoned buckets do not pile up in KV. It has to
+ *  be longer than the window it sweeps, because a KV write overwrites the previous
+ *  expiration, so a lifetime equal to the window would be restarted by every
+ *  accepted request and would never sweep a busy key. */
+export const MNOZNIK_TTL = 2;
 
 /** A stored counter that is missing, empty or corrupt reads as zero rather than
  *  NaN, so a bad value can never make the comparison silently pass. */
@@ -25,19 +33,41 @@ function licznik(surowy: string | null): number {
 	return Number.isFinite(wartosc) && wartosc > 0 ? Math.floor(wartosc) : 0;
 }
 
+/** Site-wide daily key: the prefix plus the UTC calendar date, for example
+ *  rl:doba:2026-08-14. The date IS the window, so the counter starts from zero at
+ *  the UTC day boundary no matter how much traffic arrived before it. `teraz` is
+ *  required and has no default, so no call site can read a second clock. */
+export function kluczDobowy(teraz: number): string {
+	return `${PREFIKS_DOBOWY}:${new Date(teraz).toISOString().slice(0, 10)}`;
+}
+
+/** Hour-of-epoch bucket for the per-client window. Required parameter, no default,
+ *  for the same single-clock reason as kluczDobowy. */
+export function kubelekGodzinowy(teraz: number): number {
+	return Math.floor(teraz / 1000 / OKNO_S);
+}
+
 /** Build the per-client KV key. The form name is part of the key so the two
  *  endpoints keep independent counters: a busy contact form must not be able to
  *  lock a parent out of the enrollment form. 16 hex characters is ample collision
  *  resistance for a one-hour counter and keeps the key far under the 512-byte
- *  limit. Never hand-roll the hash: crypto.subtle is in the runtime. */
-export async function kluczLimitu(formularz: string, ip: string, sol: string): Promise<string> {
+ *  limit. The hour bucket is appended OUTSIDE the digest on purpose: it stays
+ *  readable so an operator can tell which window a key belongs to, and being
+ *  derived from the clock alone it adds nothing identifying to the key. Never
+ *  hand-roll the hash: crypto.subtle is in the runtime. */
+export async function kluczLimitu(
+	formularz: string,
+	ip: string,
+	sol: string,
+	teraz: number
+): Promise<string> {
 	const bajty = new TextEncoder().encode(`${sol}:${formularz}:${ip}`);
 	const skrot = await crypto.subtle.digest('SHA-256', bajty);
 	const hex = [...new Uint8Array(skrot)]
 		.slice(0, 8)
 		.map((bajt) => bajt.toString(16).padStart(2, '0'))
 		.join('');
-	return `rl:${formularz}:${hex}`;
+	return `rl:${formularz}:${hex}:${kubelekGodzinowy(teraz)}`;
 }
 
 /**
@@ -52,6 +82,17 @@ export async function kluczLimitu(formularz: string, ip: string, sol: string): P
  * retries and for the BCC copy while making it impossible for a distributed flood
  * of Turnstile-verified submissions to exhaust the quota and silently stop
  * delivering real enrollment enquiries.
+ *
+ * Both windows are defined by the BUCKET INSIDE THE KEY: the hour of epoch for the
+ * per-client counter, the UTC calendar date for the site-wide one. A refused parent
+ * is therefore accepted again the moment the next bucket opens, with no need for the
+ * site to fall silent first.
+ *
+ * `teraz` is the clock and is the LAST parameter on purpose: both endpoints call
+ * this function positionally, so appending it is what keeps their call sites
+ * untouched. It is read exactly once per call and the same instant feeds both key
+ * builders, so the hourly and the daily key can never straddle a boundary within one
+ * request.
  */
 export async function podLimitem(
 	kv: KVNamespace | undefined,
@@ -59,7 +100,8 @@ export async function podLimitem(
 	ip: string,
 	sol: string,
 	limit = DOMYSLNY_LIMIT,
-	limitDobowy = DOMYSLNY_LIMIT_DOBOWY
+	limitDobowy = DOMYSLNY_LIMIT_DOBOWY,
+	teraz: number = Date.now()
 ): Promise<boolean> {
 	if (!kv) {
 		// A not-yet-provisioned namespace degrades to Turnstile-only protection
@@ -68,7 +110,8 @@ export async function podLimitem(
 		return true;
 	}
 
-	const klucz = await kluczLimitu(formularz, ip, sol);
+	const klucz = await kluczLimitu(formularz, ip, sol, teraz);
+	const kluczDnia = kluczDobowy(teraz);
 
 	// Every KV operation is inside the guard deliberately. The `!kv` branch above
 	// only catches an ABSENT binding; a binding that is present but unusable (an id
@@ -85,16 +128,27 @@ export async function podLimitem(
 	// failing closed would reject genuine enrollment enquiries that are stored
 	// nowhere and thus lost for good. An over-limit result still returns false: only
 	// a thrown KV error reaches the catch.
+	//
+	// The read-modify-write below is not atomic and KV is eventually consistent, so a
+	// burst of simultaneous requests can undercount by a slot or two. That is accepted
+	// for an abuse control and deliberately left unchanged: the ceiling is a budget
+	// guard, not a transaction.
 	try {
 		const biezace = licznik(await kv.get(klucz));
 		if (biezace >= limit) return false;
 
-		const dobowe = licznik(await kv.get(KLUCZ_DOBOWY));
+		const dobowe = licznik(await kv.get(kluczDnia));
 		if (dobowe >= limitDobowy) return false;
 
-		// expirationTtl restarts on every write: a fixed window that self-cleans.
-		await kv.put(klucz, String(biezace + 1), { expirationTtl: OKNO_S });
-		await kv.put(KLUCZ_DOBOWY, String(dobowe + 1), { expirationTtl: DOBA_S });
+		// The window is the bucket inside the key, never the stored lifetime. A KV write
+		// overwrites the previous expiration, so passing the bare window length here
+		// would restart the clock on every accepted request: the single site-wide
+		// counter would then climb without ever expiring and refuse every parent on both
+		// forms until the whole site fell silent for a full day. The lifetime below is
+		// twice the window and only sweeps buckets nobody writes to any more; rewriting
+		// a key never moves its boundary.
+		await kv.put(klucz, String(biezace + 1), { expirationTtl: MNOZNIK_TTL * OKNO_S });
+		await kv.put(kluczDnia, String(dobowe + 1), { expirationTtl: MNOZNIK_TTL * DOBA_S });
 		return true;
 	} catch {
 		// Nothing from the request is logged: the key is a salted hash, but the error
