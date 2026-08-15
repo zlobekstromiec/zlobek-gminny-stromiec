@@ -38,7 +38,27 @@ awaiting: user response
 
 expected: The 6th same-hour submission from one client is blocked (429, Polish limit message); a submission from the same client in the next clock hour is accepted with no site silence required; the daily KV key rolls over to a new UTC date rather than accumulating.
 why_human: The unit suite proves the bucketing arithmetic against a frozen clock (180/180 pass, including 9 cases exercising hour and day rollover plus the no-accumulation invariant), but real Cloudflare KV edge behaviour (cross-colo propagation, actual expirationTtl handling) can only be observed in production. FORM-02 is deliberately left unmarked in REQUIREMENTS.md pending this check.
-result: [pending]
+result: [partial]
+part_a_refusal_inside_bucket: pass
+part_a_evidence: >-
+  Tester submitted the live /kontakt form repeatedly from one device at approximately
+  2026-08-15T19:35Z and was refused with the "Za duzo prob wysylki" panel: "Z tego
+  urzadzenia wyslano juz kilka wiadomosci. Sprobuj ponownie za godzine albo zadzwon pod
+  numer 510 094 051." Correct Polish limit copy, and the refusal offers a phone fallback
+  rather than dead-ending the enquiry. NOTE: refusal inside the bucket is NOT the fix
+  under test; the pre-fix build refused here too.
+part_b_reset_next_bucket: pending
+part_b_what_is_needed: >-
+  One further submission from the SAME device at or after 2026-08-15T20:00Z (21:00 local,
+  the top of the next UTC hour, since the per-client key is bucketed on hour-of-epoch),
+  with no period of site silence in between. Acceptance proves CR-01 is genuinely fixed on
+  real Cloudflare KV. Continued refusal means the fix did not survive production and the
+  gap reopens.
+part_c_daily_rollover: pending
+part_c_what_is_needed: >-
+  Separately, on a new UTC date, confirm a fresh rl:doba:<new-date> key is used rather than
+  the previous date's counter continuing to climb. Lower priority than part B: the daily
+  ceiling is 40 site-wide and shares the same bucketing mechanism part B validates.
 
 ### 2. Live Turnstile submission on both forms, including client-side navigation
 
@@ -72,6 +92,23 @@ assertions could not run. The sharded challenge host `brunhild.challenges.cloudf
 resolves IPv6-only and the sandboxed browser has no IPv6 route, so the request failed at DNS
 (`ERR_NAME_NOT_RESOLVED`) before any iframe was attempted. Visible widget render, keyboard
 reachability, contrast and the `frame-src` CSP directive therefore remain human checks.
+
+### Resolved by tester screenshot (2026-08-15T19:35Z)
+
+The tester's live browser closed most of the inconclusive set. Their /kontakt screenshot shows
+the real managed Turnstile widget rendered visibly, Cloudflare-branded, in its completed
+"Powodzenie!" state. That single observation establishes:
+
+- The real widget RENDERS visibly on the deployed site (not just the dummy-sitekey seam).
+- `frame-src` in the svelte.config.js CSP genuinely permits the challenge iframe. This
+  directive had been unproven since 04-04, because the always-pass dummy sitekey renders no
+  frame at all. It is now proven in a real browser.
+- The widget successfully issued a token to a human, so the acceptance path is intact
+  end to end up to submission.
+
+Still human-only after this: keyboard reachability and contrast of the widget, and
+confirmation that a delivered message actually lands in the devzlobekstromiec@gmail.com BCC
+backup.
 
 ## Summary
 
