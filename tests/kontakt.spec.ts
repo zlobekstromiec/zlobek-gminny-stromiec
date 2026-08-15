@@ -253,6 +253,38 @@ test.describe('Kontakt: CONTACT-01 / CONTACT-02 / CONTACT-03 acceptance', () => 
 		await expect(page.getByText(KOPIA_KONTAKT.sukcesNaglowek)).toHaveCount(0);
 	});
 
+	test('nawigacja klientem sprząta globalny callback Turnstile (WR-02)', async ({ page }) => {
+		// Pełne wczytanie dokumentu, więc window.turnstile jeszcze nie istnieje i
+		// komponent instaluje własny globalny callback ładowarki.
+		await otworzKontakt(page);
+
+		// Znacznik na window przeżywa nawigację po stronie klienta, a ginie przy
+		// pełnym przeładowaniu dokumentu. Bez niego asercja o callbacku mogłaby
+		// przejść przypadkiem, bo świeże window i tak go nie ma.
+		await page.evaluate(() => {
+			(window as unknown as Record<string, unknown>).__znacznikNawigacji = 'kontakt';
+		});
+
+		// Nawigacja po stronie klienta: klikamy link marki w nagłówku, nigdy page.goto.
+		await page
+			.getByRole('banner')
+			.getByRole('link', { name: /Publiczny Żłobek w Stromcu/ })
+			.click();
+		await page.waitForURL('http://localhost:4173/');
+
+		const znacznik = await page.evaluate(
+			() => (window as unknown as Record<string, unknown>).__znacznikNawigacji
+		);
+		expect(znacznik).toBe('kontakt');
+
+		// Efekt komponentu jest właścicielem wszystkiego, co zainstalował, więc po
+		// odmontowaniu globalnego callbacku już nie ma.
+		const typCallbacku = await page.evaluate(
+			() => typeof (window as unknown as Record<string, unknown>).__onTurnstileLoad
+		);
+		expect(typCallbacku).toBe('undefined');
+	});
+
 	test('brak naruszeń WCAG 2.1 AA na /kontakt (SITE-04 / A11Y baseline)', async ({ page }) => {
 		await otworzKontakt(page);
 		const results = await new AxeBuilder({ page })
