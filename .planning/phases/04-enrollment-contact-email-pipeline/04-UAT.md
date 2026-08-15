@@ -1,9 +1,9 @@
 ---
-status: testing
+status: complete
 phase: 04-enrollment-contact-email-pipeline
 source: [04-VERIFICATION.md]
 started: 2026-08-15T17:35:00Z
-updated: 2026-08-15T18:05:00Z
+updated: 2026-08-15T19:45:00Z
 deploy:
   note: >-
     UAT was initially blocked: both tests target production, but at UAT start all 15
@@ -22,15 +22,7 @@ deploy:
 
 ## Current Test
 
-number: 1
-name: Live rate-limit re-check on the deployed site
-expected: |
-  The 6th /kontakt submission inside one clock hour, from one client, is blocked with the
-  Polish limit message (429). In the NEXT clock hour a submission from that same client is
-  ACCEPTED, with no period of site silence needed in between. Separately, the site-wide daily
-  counter rolls over: a fresh `rl:doba:<new-UTC-date>` key appears on a new UTC date rather
-  than the previous date's key continuing to grow.
-awaiting: user response
+[testing complete]
 
 ## Tests
 
@@ -38,7 +30,15 @@ awaiting: user response
 
 expected: The 6th same-hour submission from one client is blocked (429, Polish limit message); a submission from the same client in the next clock hour is accepted with no site silence required; the daily KV key rolls over to a new UTC date rather than accumulating.
 why_human: The unit suite proves the bucketing arithmetic against a frozen clock (180/180 pass, including 9 cases exercising hour and day rollover plus the no-accumulation invariant), but real Cloudflare KV edge behaviour (cross-colo propagation, actual expirationTtl handling) can only be observed in production. FORM-02 is deliberately left unmarked in REQUIREMENTS.md pending this check.
-result: [partial]
+result: skipped
+reason: >-
+  Tester elected on 2026-08-15 not to wait for the clock-hour boundary and asked to move on.
+  Part A (refusal inside the bucket) genuinely PASSED in production. Parts B and C were not
+  run. CONSEQUENCE, recorded deliberately: the CR-01 fix is proven at code level (180/180
+  unit tests, 9 of them bucketing cases) and its defect shape is confirmed absent from
+  ratelimit.ts, but the RESET behaviour has never been observed on real Cloudflare KV. Part A
+  passing is NOT evidence of the fix: the pre-fix build refused inside the bucket too. FORM-02
+  therefore stays unmarked in REQUIREMENTS.md and this remains open verification debt.
 part_a_refusal_inside_bucket: pass
 part_a_evidence: >-
   Tester submitted the live /kontakt form repeatedly from one device at approximately
@@ -67,7 +67,21 @@ why_human: A managed Turnstile widget refuses to issue a token to any automated 
 scope_narrowed_by_automation: >-
   Part of this test was verified automatically against the deployed site, so only the
   human-only remainder is being asked of the tester. See automated_evidence below.
-result: [pending]
+result: pass
+evidence: >-
+  Verified in production across three independent channels. (1) Tester screenshot: the real
+  managed Turnstile widget renders visibly on /kontakt in its completed "Powodzenie!" state,
+  which also proves the frame-src CSP directive permits the challenge iframe (unproven since
+  04-04, because the dummy sitekey renders no frame at all). (2) Automated live run: after a
+  client-side navigation between the two form pages, typeof window.__onTurnstileLoad is
+  "undefined" on the deployed build, versus "function" on the pre-deploy build, so the WR-02
+  fix is confirmed live and the assertion genuinely discriminates. (3) Tester confirmed the
+  accepted submissions arrived in the devzlobekstromiec@gmail.com BCC backup mailbox.
+not_covered: >-
+  Keyboard reachability and colour contrast OF THE WIDGET ITSELF were not manually checked
+  (tester deprioritised). The axe scans on /kontakt and /rekrutacja pass, but axe cannot see
+  inside a cross-origin iframe, so the widget's own focus ring and contrast remain unverified.
+  Low risk: the widget is Cloudflare-rendered chrome, not project-authored markup.
 
 ## Automated Evidence
 
@@ -123,10 +137,10 @@ Still human-only after this: keyboard reachability and contrast of the Turnstile
 ## Summary
 
 total: 2
-passed: 0
+passed: 1
 issues: 0
-pending: 2
-skipped: 0
+pending: 0
+skipped: 1
 blocked: 0
 
 ## Gaps
