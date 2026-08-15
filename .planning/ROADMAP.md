@@ -158,7 +158,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. A visitor can see contact details (address, phone, email, opening hours) and the location on a map with directions (mapa dojazdu).
   5. Staff can manage enrollment documents via the CMS, and those documents surface on /rekrutacja through the shared resolver. **AMENDED 2026-08-14:** the "edit enrollment info/dates via the CMS" half of RECRUIT-05 is explicitly descoped for v1 by user decision (04-CONTEXT.md Phase Boundary, D-18); recruitment information stays code-authored in `site.ts` and `rekrutacja.ts` pending the planned CMS replacement.
 
-**Plans**: 8/9 plans executed
+**Plans**: 9/9 plans complete
 
 Plans:
 **Wave 1**
@@ -185,7 +185,7 @@ Plans:
 
 **Wave 6** *(gap closure, blocked on Wave 5 completion)*
 
-- [ ] 04-08-PLAN.md — CR-01: put the rate-limit window in the KV key (UTC date and hour buckets, cleanup-only expiration) so legitimate traffic can never lock both forms out, plus WR-01 refuse to hash without a salt, plus the FORM-02 mark correction
+- [x] 04-08-PLAN.md — CR-01: put the rate-limit window in the KV key (UTC date and hour buckets, cleanup-only expiration) so legitimate traffic can never lock both forms out, plus WR-01 refuse to hash without a salt, plus the FORM-02 mark correction
 - [x] 04-09-PLAN.md — WR-02: the Turnstile widget effect clears the loader callback it installed and never renders into a detached container
 
 **UI hint**: yes
@@ -261,6 +261,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Live Homepage & Design Foundation | 5/5 | Complete    | 2026-08-12 |
 | 2. About, Documents & CMS | 6/6 | Complete    | 2026-08-13 |
 | 3. News (Aktualności) | 7/7 | Complete    | 2026-08-13 |
-| 4. Enrollment, Contact & Email Pipeline | 8/9 | In Progress|  |
+| 4. Enrollment, Contact & Email Pipeline | 9/9 | Complete   | 2026-08-15 |
 | 5. Gallery & Fees | 0/TBD | Not started | - |
 | 6. Accessibility, Legal Compliance & Launch | 0/TBD | Not started | - |
