@@ -5,8 +5,8 @@ milestone_name: milestone
 current_phase: 04
 current_phase_name: enrollment-contact-email-pipeline
 status: executing
-stopped_at: Completed 04-09-PLAN.md
-last_updated: "2026-08-15T16:20:29.721Z"
+stopped_at: Completed 04-08-PLAN.md
+last_updated: "2026-08-15T16:32:34.640Z"
 last_activity: 2026-08-15
 last_activity_desc: Phase 04 execution started
 progress:
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-14)
 ## Current Position
 
 Phase: 04 (enrollment-contact-email-pipeline) — EXECUTING
-Plan: 2 of 9
+Plan: 3 of 9
 Status: Ready to execute
 Last activity: 2026-08-15 — Phase 04 execution started
 
@@ -82,6 +82,7 @@ Progress: [██████████████████░░] 22/25 p
 | Phase 04 P06 | 14min | 3 tasks tasks | 10 files files |
 | Phase 04 P07 | 68min | 3 tasks tasks | 7 files files |
 | Phase 04 P09 | 4min | 1 task tasks | 2 files files |
+| Phase 04 P08 | 16 | 3 tasks tasks | 5 files files |
 
 ## Accumulated Context
 
@@ -140,6 +141,8 @@ Recent decisions affecting current work:
 - [Phase ?]: [04-07] A placeholder KV id is not untidy but undeployable: Pages validates the id when publishing the Function and fails the deploy with Error 8000022 'Not a valid hex string'. Proven with a throwaway preview deployment so production was never risked.
 - [Phase ?]: [04-07] The rate limiter only guarded an ABSENT binding (!kv). A present-but-unusable binding or any transient KV failure made get/put reject, escaping obsluz as an opaque 500 on every submission of both forms. Every KV operation is now wrapped and fails OPEN, matching the documented degrade policy: Turnstile remains the real gate and a rejected enquiry is stored nowhere, so lost for good.
 - [Phase ?]: [04-09] WR-02 closed: the Turnstile $effect now owns the lifetime of everything it installs. Cleanup clears window.__onTurnstileLoad ONLY when it is identity-equal to that instance's own rysuj closure (an unconditional clear was rejected: a fast-path instance that installed nothing would delete a waiting instance's callback, the same cross-instance bug inverted), and rysuj returns early when the bound container is no longer connected, so a late loader callback or a re-executed svelte:head script after client-side navigation between /kontakt and /rekrutacja cannot orphan a widget. Pinned by a Playwright case observed RED (typeof was 'function') then GREEN, with a window sentinel proving the navigation was client side. Token contract, sitekey constants, host allow-list, render options and .slot sizing byte-identical; the ambient turnstile declarations were already optional so no d.ts change was needed. The live real-widget check across client-side navigation stays a human step.
+- [Phase 04]: [04-08] CR-01 closed by moving the rate-limit WINDOW INTO THE KV KEY: the per-client key gains an hour-of-epoch bucket appended outside the digest and the site-wide counter becomes rl:doba:YYYY-MM-DD (UTC). expirationTtl is demoted to a cleanup-only MNOZNIK_TTL(2) x window lifetime, because a KV write overwrites the stored expiration, so the old bare-window value made the single daily counter monotonic: ordinary traffic drove it to 40 and returned 429 to every parent on BOTH forms until 24h of total site silence. podLimitem takes the clock as the SEVENTH parameter with a Date.now() default, which is what keeps both positional endpoint call sites byte-identical; the clock is read once and feeds both key builders so no request can straddle a boundary.
+- [Phase 04]: [04-08] WR-01 closed: podLimitem returns true and stores nothing when sol.trim() is empty. trim is deliberate (both endpoints pass env.RATE_LIMIT_SALT ?? ''), and the guard sits BEFORE kluczLimitu so zero KV reads and zero writes happen: an unsalted truncated SHA-256 of a client address is enumerable across IPv4 and would turn the stored key into a reversible pseudonym, contradicting the klauzula sentence pinned by tests/forms-copy.unit.ts. Skipping is the same documented fail-open degrade as an absent binding; failing closed would discard enquiries stored nowhere.
 
 ### Pending Todos
 
@@ -184,6 +187,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-15T16:20:24.444Z
-Stopped at: Completed 04-09-PLAN.md
+Last session: 2026-08-15T16:32:34.636Z
+Stopped at: Completed 04-08-PLAN.md
 Resume file: None
