@@ -34,3 +34,6 @@ vite.config.ts.timestamp-*
 /test-results
 /playwright-report
 /playwright/.cache
+
+# GSD research fetch cache (local only)
+.planning/research/.cache/
