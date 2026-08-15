@@ -337,18 +337,26 @@ interface Zapis {
 function stubKV(wstepne: Record<string, string> = {}): {
 	kv: KVNamespace;
 	zapisy: Zapis[];
+	odczyty: string[];
 	magazyn: Map<string, string>;
 } {
 	const magazyn = new Map<string, string>(Object.entries(wstepne));
 	const zapisy: Zapis[] = [];
+	// Reads are recorded too, so a case can prove the salt guard runs BEFORE any key
+	// is built: a guard that only skipped the writes would still have hashed the
+	// client address on the way to the first get.
+	const odczyty: string[] = [];
 	const kv = {
-		get: async (key: string) => magazyn.get(key) ?? null,
+		get: async (key: string) => {
+			odczyty.push(key);
+			return magazyn.get(key) ?? null;
+		},
 		put: async (key: string, value: string, opcje?: { expirationTtl?: number }) => {
 			magazyn.set(key, value);
 			zapisy.push({ key, value, ttl: opcje?.expirationTtl });
 		}
 	};
-	return { kv: kv as unknown as KVNamespace, zapisy, magazyn };
+	return { kv: kv as unknown as KVNamespace, zapisy, odczyty, magazyn };
 }
 
 const IP = '203.0.113.7';
@@ -508,6 +516,47 @@ test('podLimitem stores only integers, never a submitted value or an IP', async 
 
 test('podLimitem degrades to Turnstile-only protection when the KV binding is missing', async () => {
 	assert.equal(await podLimitem(undefined, 'kontakt', IP, SOL, 5, 40, TERAZ), true);
+});
+
+// WR-01. Both endpoints read the salt as `env.RATE_LIMIT_SALT ?? ''`, so an unset
+// secret arrives here as an empty string. An unsalted truncated SHA-256 of a client
+// address is enumerable across the whole IPv4 space, which would turn the stored key
+// into a reversible pseudonym of the visitor and contradict the klauzula. The
+// limiter therefore skips rather than storing anything, the same documented degrade
+// as an absent binding.
+test('podLimitem degrades to Turnstile-only protection when the salt is missing', async () => {
+	const { kv } = stubKV();
+	assert.equal(await podLimitem(kv, 'kontakt', IP, '', 5, 40, TERAZ), true);
+});
+
+test('podLimitem stores no digest at all when the salt is missing', async () => {
+	const { kv, zapisy, magazyn } = stubKV();
+	await podLimitem(kv, 'kontakt', IP, '', 5, 40, TERAZ);
+	assert.equal(zapisy.length, 0);
+	assert.equal(magazyn.size, 0);
+});
+
+test('a blank salt is the same misconfiguration as an absent one and stores nothing', async () => {
+	const { kv, zapisy, magazyn } = stubKV();
+	assert.equal(await podLimitem(kv, 'kontakt', IP, '   ', 5, 40, TERAZ), true);
+	assert.equal(zapisy.length, 0);
+	assert.equal(magazyn.size, 0);
+});
+
+test('the salt guard runs before any key is built, so KV is never even read', async () => {
+	const { kv, odczyty } = stubKV();
+	await podLimitem(kv, 'kontakt', IP, '', 5, 40, TERAZ);
+	assert.deepEqual(odczyty, []);
+});
+
+test('the salt guard leaves the normal path untouched', async () => {
+	const klucz = await kluczLimitu('kontakt', IP, SOL, TERAZ);
+	const { kv, zapisy } = stubKV();
+	assert.equal(await podLimitem(kv, 'kontakt', IP, SOL, 5, 40, TERAZ), true);
+	assert.deepEqual(zapisy, [
+		{ key: klucz, value: '1', ttl: MNOZNIK_TTL * OKNO_S },
+		{ key: 'rl:doba:2026-08-14', value: '1', ttl: MNOZNIK_TTL * DOBA_S }
+	]);
 });
 
 /** A binding can be PRESENT but unusable: an id pointing at a namespace that does

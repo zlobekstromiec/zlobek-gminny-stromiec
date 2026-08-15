@@ -5,7 +5,9 @@
 // followed by a coarse hour-of-epoch bucket, and the daily key is a fixed prefix
 // followed by a UTC calendar date. Every stored value is an integer. KV therefore
 // holds no identifying data and no submission content at any point, which is what
-// lets the klauzula say we store nothing.
+// lets the klauzula say we store nothing. The guarantee is unconditional: this
+// module never hashes without a salt, so a misconfigured deployment cannot quietly
+// downgrade the stored key into a reversible pseudonym of the visitor.
 //
 // Durability note: an in-memory Map would look like a limiter and be none. Worker
 // isolates are ephemeral and numerous, so the counter has to live in KV.
@@ -107,6 +109,24 @@ export async function podLimitem(
 		// A not-yet-provisioned namespace degrades to Turnstile-only protection
 		// instead of throwing. Names only the missing binding, never the client.
 		console.warn('ratelimit: brak wiazania FORMS_KV, limit nieaktywny');
+		return true;
+	}
+
+	// An unsalted truncated SHA-256 of a client address is enumerable across the whole
+	// IPv4 space, so the stored key would stop being one way and would become a
+	// reversible pseudonym of the visitor. That would contradict both this module's
+	// RODO note and the klauzula informacyjna sentence shipped to parents, so a
+	// missing salt must never fall through to hashing. `trim` is deliberate: an unset
+	// secret arrives from the endpoints as an empty string via `?? ''`, and a
+	// whitespace-only secret is the same misconfiguration wearing a different shape.
+	//
+	// Skipping is the same documented degrade as an absent binding: Turnstile remains
+	// the security gate, and failing closed here would reject genuine enquiries that
+	// are stored nowhere and are therefore lost for good. Deliberately NOT a hard
+	// failure the way a missing RESEND_API_KEY is: the limiter is an abuse control,
+	// not a delivery prerequisite.
+	if (sol.trim().length === 0) {
+		console.warn('ratelimit: brak RATE_LIMIT_SALT, limit nieaktywny');
 		return true;
 	}
 
