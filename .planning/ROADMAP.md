@@ -261,6 +261,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Live Homepage & Design Foundation | 5/5 | Complete    | 2026-08-12 |
 | 2. About, Documents & CMS | 6/6 | Complete    | 2026-08-13 |
 | 3. News (Aktualności) | 7/7 | Complete    | 2026-08-13 |
-| 4. Enrollment, Contact & Email Pipeline | 9/9 | Complete   | 2026-08-15 |
+| 4. Enrollment, Contact & Email Pipeline | 9/9 | Complete    | 2026-08-15 |
 | 5. Gallery & Fees | 0/TBD | Not started | - |
 | 6. Accessibility, Legal Compliance & Launch | 0/TBD | Not started | - |

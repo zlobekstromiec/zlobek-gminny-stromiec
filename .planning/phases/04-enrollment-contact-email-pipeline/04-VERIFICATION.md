@@ -1,7 +1,7 @@
 ---
 phase: 04-enrollment-contact-email-pipeline
 verified: 2026-08-15T17:30:00Z
-status: human_needed
+status: passed
 score: 5/5 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
@@ -9,13 +9,16 @@ re_verification:
   previous_status: gaps_found
   previous_score: 4/5
   gaps_closed:
+
     - "Both forms require ticking an explicit RODO consent, display the klauzula informacyjna, and are spam-protected by Cloudflare Turnstile verified server-side, with the endpoint rate-limiting abuse (ROADMAP Success Criterion 3) — the rate-limiter sub-clause (CR-01) is now fixed: the window lives in the KV key (UTC calendar date for the site-wide daily ceiling, hour-of-epoch for the per-client ceiling), `expirationTtl` is demoted to a cleanup-only sweeper at 2x the window, and a salt guard (WR-01) prevents an unsalted, enumerable digest of the client address from ever being persisted."
   gaps_remaining: []
   regressions: []
 human_verification:
+
   - test: "Live rate-limit re-check on the deployed site: submit /kontakt six times inside one clock hour from one client (the 6th must return 429 with the Polish 'limit' message); then, in the next clock hour, submit once more from the same client (must be ACCEPTED, with no period of site silence needed); separately confirm a fresh `rl:doba:<new-UTC-date>` key appears rather than the previous date's key continuing to grow."
     expected: "6th same-hour submission blocked; next-hour submission from the same client accepted; the daily KV key rolls over to a new date rather than accumulating."
     why_human: "The unit suite proves the bucketing arithmetic with a frozen clock (confirmed: 180/180 pass, including 9 rate-limit cases directly exercising the hour/day rollover and the no-accumulation invariant), but real Cloudflare KV edge behaviour (cross-colo propagation, actual expirationTtl handling) can only be observed in production. This is what FORM-02 is deliberately left unmarked pending."
+
   - test: "Submit both live forms (/kontakt and /rekrutacja) in a normal, non-automated browser at the production URL, including a client-side navigation between the two pages."
     expected: "The live Turnstile widget renders visibly on both pages (including after client-side nav), is keyboard reachable and passes contrast; the success panel appears on submit; the message arrives in the devzlobekstromiec@gmail.com BCC backup (the zlobek@ugstromiec.pl leg is expected to bounce until the Gmina creates that mailbox — FORM-01's documented external blocker, not a code gap)."
     why_human: "A managed Turnstile widget refuses to issue a token to any automated browser (confirmed empirically during Plan 07 and again during Plan 09's WR-02 fix), so this path is irreducibly manual. Also the only way to exercise the frame-src CSP directive, which the dummy test sitekey never triggers."
@@ -103,6 +106,7 @@ No orphaned requirements: every ID in REQUIREMENTS.md's Phase 4 mapping table (`
 None in the 5 gap-closure files (`ratelimit.ts`, `TurnstileWidget.svelte`, `forms.unit.ts`, `kontakt.spec.ts`, `docs/dev-env.md`). Grepped directly for `TBD`/`FIXME`/`XXX`/`TODO`/`HACK`/`PLACEHOLDER`/"coming soon"/"not yet implemented" — zero matches.
 
 **Carried forward from 04-REVIEW.md (not blockers, already assessed as Warning/Info by the code review and not re-litigated here):**
+
 - **WR-01 (highest-priority Warning):** `tests/forms.unit.ts` — the entire regression proof for the CR-01 fix — runs in no automated gate. `npm run test` is Playwright-only; `.pre-commit-config.yaml` only runs `npm run check` and `npm run lint`; there is no CI. A future change could silently reintroduce the CR-01 defect and pass every enforced gate. Confirmed independently in this re-verification (read `package.json` and `.pre-commit-config.yaml` directly). This is a process/regression-protection gap, not a functional gap in the current codebase — it does not block the phase goal today, but it is worth flagging as a real risk for phase 6 and beyond.
 - **WR-02/WR-03 (mutation-proven test-coverage gaps):** the `MNOZNIK_TTL` cleanup-multiplier relationship and the UTC-ness of `kluczDobowy` are each provably under-pinned by mutation testing in 04-REVIEW.md (setting `MNOZNIK_TTL = 1` or swapping in a local-time date derivation both leave 180/180 green). The shipped code itself is correct (confirmed by direct reading in this re-verification); the tests just don't yet prove the specific invariants the code review identified. Not a functional gap.
 - **WR-04:** `podLimitem` can theoretically reject (uncaught) on a non-string salt or an out-of-range clock, contradicting its own unconditional fail-open comment — currently unreachable through the shipped endpoints (both always pass a string salt and never pass `teraz`), so it is correctly Warning-severity, not Critical.
@@ -128,5 +132,50 @@ See frontmatter `human_verification`. Two items, both previously identified and 
 
 ---
 
+## Acknowledged Gaps
+
+Status was moved `human_needed` to `passed` on 2026-08-15T19:50Z after the UAT session recorded
+1 pass, 1 skipped, 0 issues. The `phase uat-passed --require-verification` predicate returned
+`passed: false` with the blocker `04-UAT.md: test 1 (skipped)`. The user was told this and
+elected twice to proceed, so the phase is closed under this explicit acknowledgement rather
+than on a clean gate. Recorded here so it is visible to `/gsd-progress` and `/gsd-audit-uat`
+instead of disappearing into a green checkmark.
+
+### AG-1: The CR-01 fix has never been observed resetting on real Cloudflare KV
+
+- **What was verified:** the fix at code level (defect shape confirmed absent from
+  `ratelimit.ts` by direct reading; 180/180 unit tests including 9 frozen-clock cases crossing
+  the hour and UTC-date boundaries), and part A of the live check (repeated live `/kontakt`
+  submissions from one device were correctly refused with the Polish limit panel).
+- **What was NOT verified:** part B, the reset. From the same device, a submission at or after
+  the top of the next clock hour must be ACCEPTED with no site silence in between. Also part C,
+  the `rl:doba:<new-date>` daily rollover.
+- **Why this matters:** part A passing is not evidence of the fix. The pre-fix build refused
+  inside the bucket too. The entire CR-01 defect was that the counter never RESET, so the reset
+  is the only behaviour that discriminates fixed from broken in production.
+- **Residual risk:** if real KV behaviour diverges from the unit-tested model, both forms could
+  still lock out legitimate parents, and a blocked enquiry is stored nowhere and lost for good.
+- **Cost to close:** one form submission after a clock-hour boundary. Zero deploys.
+- **Tracking:** FORM-02 remains UNMARKED in REQUIREMENTS.md. Carried in STATE.md
+  Blockers/Concerns. Recorded in 04-UAT.md test 1 as `result: skipped` with full reason.
+
+### AG-2: Turnstile widget keyboard reachability and contrast unchecked
+
+Low risk and not re-opened. The widget's visible render and the `frame-src` CSP directive WERE
+proven live by tester screenshot. Only the widget's own focus ring and contrast are unverified;
+axe passes on both routes but cannot see inside a cross-origin iframe, and the widget is
+Cloudflare-rendered chrome rather than project-authored markup.
+
+### AG-3: The rate-limiter's regression proof runs in no automated gate
+
+Carried from `04-REVIEW.md` WR-01 and previously raised at `03-REVIEW.md:99-105`.
+`tests/forms.unit.ts` is the entire proof of the CR-01 fix and is not executed by `npm run test`
+(Playwright-only), by pre-commit, or by CI. Mutation-proven: setting `MNOZNIK_TTL = 1` (the
+original bug shape) leaves all 180 tests green. This is the same class of gap that let CR-01
+reach production the first time. Suggested follow-up in Phase 5 or 6.
+
+---
+
 _Verified: 2026-08-15T17:30:00Z_
+_Status canonicalized to passed with acknowledged gaps: 2026-08-15T19:50:00Z_
 _Verifier: Claude (gsd-verifier)_
