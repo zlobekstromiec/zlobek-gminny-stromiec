@@ -66,7 +66,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **CMS-02**: CMS edits commit to the repo and trigger a Cloudflare rebuild/deploy
 - [x] **CMS-03**: The CMS admin portal is in Polish — all field labels, hints, and help text (and the editor UI where supported) — so non-English-speaking staff can manage content
 - [ ] **FORM-01**: Form submissions are delivered by email via a Cloudflare function + email provider (Resend) — sent from our owned domain `zlobekstromiec.pl` and delivered to the Gmina mailbox `zlobek@ugstromiec.pl` — with no database
-- [x] **FORM-02**: The email endpoint verifies Turnstile server-side, sends only to the fixed, hard-coded żłobek address (`zlobek@ugstromiec.pl`, confirmed), and rate-limits abuse
+- [ ] **FORM-02**: The email endpoint verifies Turnstile server-side, sends only to the fixed, hard-coded żłobek address (`zlobek@ugstromiec.pl`, confirmed), and rate-limits abuse
 
 ### Accessibility & Legal
 
@@ -138,7 +138,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | CONTACT-02 | Phase 4 | Complete |
 | CONTACT-03 | Phase 4 | Complete |
 | FORM-01 | Phase 4 | Pending |
-| FORM-02 | Phase 4 | Complete |
+| FORM-02 | Phase 4 | Pending |
 | GALLERY-01 | Phase 5 | Pending |
 | GALLERY-02 | Phase 5 | Pending |
 | FEES-01 | Phase 5 | Pending |

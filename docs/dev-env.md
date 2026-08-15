@@ -86,11 +86,11 @@ hardening removes the placeholder guard.
 
 Set once against the Pages project, encrypted, never readable back and never in git:
 
-| Secret                 | Purpose                                                               | Where it comes from                           |
-| ---------------------- | --------------------------------------------------------------------- | --------------------------------------------- |
-| `RESEND_API_KEY`       | Authenticates the Resend send call. Sending permission only.          | Resend dashboard, shown once at creation.     |
-| `TURNSTILE_SECRET_KEY` | Server-side `siteverify`. Must be the pair of the committed site key. | Turnstile widget `widget-zlobekstromiec`.     |
-| `RATE_LIMIT_SALT`      | Salts the SHA-256 rate-limit key so stored hashes are not reversible. | Freshly generated random value, never reused. |
+| Secret                 | Purpose                                                                                                                                                                 | Where it comes from                           |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| `RESEND_API_KEY`       | Authenticates the Resend send call. Sending permission only.                                                                                                            | Resend dashboard, shown once at creation.     |
+| `TURNSTILE_SECRET_KEY` | Server-side `siteverify`. Must be the pair of the committed site key.                                                                                                   | Turnstile widget `widget-zlobekstromiec`.     |
+| `RATE_LIMIT_SALT`      | Salts the SHA-256 rate-limit key so stored hashes are not reversible. If it is missing or blank the limiter is skipped entirely rather than running with an empty salt. | Freshly generated random value, never reused. |
 
 ```bash
 # set (value on stdin, so it never lands in shell history or a file)
@@ -143,11 +143,28 @@ server-side by `siteverify` against the live secret, so a dummy token fails clos
 ### KV binding
 
 `FORMS_KV` (declared in `wrangler.jsonc`) holds the rate-limit counters: integers
-only, under a salted one-way hash of the client IP, with a one-hour TTL. No
-submission content and no IP is ever stored. Free tier is 100k reads, 1k writes and
-1 GB per day, orders of magnitude above two low-traffic forms capped at 40 sends a
-day. If the binding is ever absent the limiter warns and degrades to Turnstile-only
-protection rather than throwing.
+only, under two key shapes.
+
+| Key        | Shape                                                                                                          | Example                              |
+| ---------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| per-client | salted one-way SHA-256 of the connection address truncated to 16 hex characters, then the hour-of-epoch bucket | `rl:kontakt:3f2a1c9d84b06e75:487654` |
+| site-wide  | `rl:doba:` plus the UTC calendar date                                                                          | `rl:doba:2026-08-14`                 |
+
+The bucket inside the key **is** the window: the hour of epoch for the per-client
+ceiling, the UTC date for the daily one. The stored expiration is twice the window
+and exists only to sweep buckets nobody writes to any more, so re-writing a key
+never moves its boundary. (A KV write overwrites the previous expiration, so a
+lifetime equal to the window would be restarted by every accepted request and the
+counter would never reset.) No submission content and no IP is ever stored. Free
+tier is 100k reads, 1k writes and 1 GB per day, orders of magnitude above two
+low-traffic forms capped at 40 sends a day.
+
+The limiter fails **open** on all three degrade paths, warning and falling back to
+Turnstile-only protection rather than throwing or rejecting: an absent `FORMS_KV`
+binding, a failing KV operation (a present but unusable binding, or a transient
+error), and an unset or blank `RATE_LIMIT_SALT`. The last one skips the limiter
+entirely on purpose: hashing without a salt would store an enumerable, and therefore
+reversible, digest of the visitor's address.
 
 Creating the namespace needs a token with **Workers KV Storage: Edit**; the scoped
 `.envrc` token is Pages + Turnstile only, so `wrangler kv namespace create` fails
