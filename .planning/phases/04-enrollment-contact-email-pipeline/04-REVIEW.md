@@ -1,192 +1,444 @@
 ---
 phase: 04-enrollment-contact-email-pipeline
-reviewed: 2026-08-14T20:20:49Z
+reviewed: 2026-08-15T16:45:47Z
 depth: standard
-files_reviewed: 38
+scope: re-review
+scope_note: >-
+  Narrowed re-review of the phase 04 gap-closure work only (plans 04-08 and
+  04-09, commits 408c337, ba567bd, 2e7a83e, f29c3a4 and their doc commits).
+  This file SUPERSEDES the full 38-file phase review written at commit 94ce57c,
+  which remains available in git history (`git show 94ce57c:.planning/phases/
+  04-enrollment-contact-email-pipeline/04-REVIEW.md`). Findings from that review
+  that are not restated here were re-verified as closed (see Regression Verdict)
+  or fall outside these five files.
+supersedes: 94ce57c
+diff_base: a1b95ff216347b59323a488bcc5a17bd46fc5cb0
+files_reviewed: 5
 files_reviewed_list:
-  - .claude/CLAUDE.md
-  - docs/dev-env.md
-  - scripts/make-map.mjs
-  - src/app.d.ts
-  - src/lib/components/ConsentBlock.svelte
-  - src/lib/components/ContactAndMap.svelte
-  - src/lib/components/FeeBox.svelte
-  - src/lib/components/FormField.svelte
-  - src/lib/components/KontaktForm.svelte
-  - src/lib/components/KryteriaTable.svelte
-  - src/lib/components/MapPanel.svelte
-  - src/lib/components/Recruitment.svelte
-  - src/lib/components/TurnstileWidget.svelte
-  - src/lib/components/ZgloszenieForm.svelte
-  - src/lib/content/forms.ts
-  - src/lib/content/rekrutacja.ts
-  - src/lib/content/site.ts
-  - src/lib/forms/turnstile-global.d.ts
-  - src/lib/forms/types.ts
-  - src/lib/server/forms/handle.ts
-  - src/lib/server/forms/mailer.ts
   - src/lib/server/forms/ratelimit.ts
-  - src/lib/server/forms/sanitize.ts
-  - src/lib/server/forms/turnstile.ts
-  - src/lib/server/forms/validate.ts
-  - src/routes/api/kontakt/+server.ts
-  - src/routes/api/rekrutacja/+server.ts
-  - src/routes/kontakt/+page.svelte
-  - src/routes/rekrutacja/+page.server.ts
-  - src/routes/rekrutacja/+page.svelte
-  - static/sitemap.xml
-  - tests/forms-copy.unit.ts
+  - src/lib/components/TurnstileWidget.svelte
   - tests/forms.unit.ts
-  - tests/home.spec.ts
-  - tests/kontakt-api.spec.ts
   - tests/kontakt.spec.ts
-  - tests/rekrutacja-api.spec.ts
-  - tests/rekrutacja.spec.ts
+  - docs/dev-env.md
 findings:
-  critical: 1
-  warning: 4
+  critical: 0
+  warning: 5
   info: 6
   total: 11
 status: issues_found
 ---
 
-# Phase 4: Code Review Report
+# Phase 4: Code Review Report (gap-closure re-review)
 
-**Reviewed:** 2026-08-14T20:20:49Z
+**Reviewed:** 2026-08-15T16:45:47Z
 **Depth:** standard
-**Files Reviewed:** 38
+**Files Reviewed:** 5
 **Status:** issues_found
+**Supersedes:** the 38-file review at commit `94ce57c` (preserved in git history)
 
 ## Summary
 
-Reviewed the full enrollment/contact email pipeline: the shared form orchestrator (`obsluz`), sanitizers, validators, Turnstile siteverify, KV rate limiter, Resend mailer, the two thin endpoints, the three form islands (KontaktForm, ZgloszenieForm, TurnstileWidget) and their shared primitives, content modules, both routes, the map tooling, and the unit + Playwright suites.
+This is a narrowed re-review of the phase 04 gap-closure work only: the
+rate-limiter rewrite (04-08), the Turnstile effect-lifecycle fix (04-09), the
+tests written to pin them, and the dev-env doc updated to describe them. The two
+form endpoints, `handle.ts`, `mailer.ts`, `validate.ts`, `sanitize.ts` and
+`wrangler.jsonc` were read for context only; they are deliberately unchanged and
+are not re-reviewed here.
 
-The security architecture is strong and consistently enforced: reply-to is the only request-derived header value and it is rejected (never repaired) on any header-structural character; from/to/bcc/subject are module constants unreachable from a request; validators whitelist fields as explicit object literals; consent is a strict `=== true`; Turnstile fails closed; the rate limiter's documented fail-open degrade is respected as ground truth; RODO no-storage/no-logging is honoured everywhere except deliberate, non-personal diagnostics. The unit suite genuinely pins these properties.
+**All three prior findings are genuinely closed.** See the Regression Verdict
+below for the evidence. The runtime code as shipped is, to the limit of what I
+could prove, correct for the paths the two endpoints actually exercise, which is
+why there are **zero Critical findings**. I did not manufacture one.
 
-The findings that remain are real. The one Critical is a logic error in the rate limiter's window mechanics: because `expirationTtl` is refreshed on every write, the "daily" and "hourly" counters never reset while traffic continues, so under sustained legitimate traffic the site-wide counter monotonically accumulates across days until it hits 40 and then blocks BOTH forms for real parents for up to 24 hours, cyclically. The Warnings cover a silently-unsalted rate-limit hash on misconfiguration (contradicting the published klauzula), a stale global Turnstile onload callback across client-side navigations, and a deliverability risk the submitted docs themselves state (the hard-coded recipient does not exist and bounces 100% of primary-leg mail).
+What I found instead is a consistent pattern: **the fixes are right, the proofs
+around them are weaker than the comments claim.** Three of the five warnings are
+mutation-verified test gaps, including one where re-introducing the exact CR-01
+configuration the code comments warn about leaves all 180 tests green, and one
+where swapping the UTC date derivation for a local-time one leaves all 180 tests
+green on this project's own timezone. The fourth is that the entire unit suite
+that constitutes the CR-01 and WR-01 proof runs in no automated gate at all, and
+the doc edited in this very change still says otherwise. The fifth is a
+one-line-fixable hole in the module's own stated unconditional fail-open
+guarantee, proven by execution.
 
-## Critical Issues
+Two structural notes on the fixes themselves, both positive and both worth
+recording because the review focus asked about them specifically:
 
-### CR-01: "Daily" and "hourly" rate-limit windows never reset under sustained traffic; site-wide lockout of both forms is reachable by legitimate use
+- The single-clock invariant holds. `teraz` is a required parameter on both key
+  builders with no default, it is read exactly once as the seventh parameter
+  default of `podLimitem`, and the same instant is passed to both. The hourly and
+  daily keys cannot straddle a boundary within one request. The hour-of-epoch
+  arithmetic (`Math.floor(teraz / 1000 / OKNO_S)`) is off-by-one free and stays
+  well inside double precision at realistic epoch values.
+- The Turnstile identity guard is correct for the case it was written for. A
+  second widget taking the `window.turnstile` fast path never assigns the global,
+  so its cleanup's `window.__onTurnstileLoad === rysuj` comparison is false and it
+  cannot clear a first widget's still-pending callback. I traced both component
+  teardown/mount orderings on client navigation and neither can cross-clear.
 
-**File:** `src/lib/server/forms/ratelimit.ts:95-97`
-**Issue:** Every allowed submission executes `kv.put(klucz, ..., { expirationTtl: OKNO_S })` and `kv.put(KLUCZ_DOBOWY, ..., { expirationTtl: DOBA_S })`. Cloudflare KV sets the expiration relative to the time of *that* put, so each write pushes the key's expiry out by a full window. The comment on line 95 ("expirationTtl restarts on every write: a fixed window that self-cleans") describes the opposite of a fixed window — it is an ever-extending window that only expires after a full window of *silence*.
+## Regression Verdict on the 94ce57c findings
 
-Consequences:
-
-- **Daily site-wide counter (`rl:doba`):** as long as the site receives at least one submission per 24 h, the key never expires and the counter climbs monotonically across days. With e.g. 5 genuine submissions/day (well under the intended 40/day), the counter reaches 40 after ~8 days and then BOTH forms return 429 to every parent until a full 24 h passes with zero successful writes. Blocked requests do not write, so the lockout self-heals after up to 24 h — and then the cycle restarts. During a recruitment-interest peak (the site launches with "Wielkie otwarcie: 14 sierpnia"), this is a realistic, recurring full outage of the only two dynamic features on the site, with nothing stored and nothing logged to reveal it.
-- **Per-client counter:** the same mechanics turn "5 per hour" into "5 per streak of submissions less than 1 h apart" — a parent submitting once every 50 minutes is locked out on the 6th attempt even though they never exceeded 5 in any hour. Lower impact, same defect.
-
-This is not the documented fail-open degrade policy (which this review treats as ground truth); it is the opposite failure mode — the limiter incorrectly fails *closed* against legitimate parents due to a window-accounting bug. The unit test at `tests/forms.unit.ts:410-421` pins the flawed behaviour (asserts a fresh `ttl: DOBA_S` on the second write) and must change in lockstep.
-
-**Fix:** Make the windows genuinely fixed by bucketing the key instead of refreshing the TTL:
-
-```ts
-// Daily ceiling: a date-bucketed key is a true calendar window.
-function kluczDobowy(teraz = new Date()): string {
-	return `rl:doba:${teraz.toISOString().slice(0, 10)}`; // rl:doba:2026-08-14
-}
-// put with a TTL that merely guarantees cleanup (e.g. 2 * DOBA_S);
-// the DATE in the key, not the TTL, defines the window.
-await kv.put(kluczDobowy(), String(dobowe + 1), { expirationTtl: 2 * DOBA_S });
-```
-
-Apply the same pattern to the per-client key (append `Math.floor(Date.now() / 1000 / OKNO_S)` — the hour bucket — to the hashed key, TTL `2 * OKNO_S`). Update the RODO comment (the stored key remains a salted hash plus a time bucket, still no identifying data) and the pinned assertions in `tests/forms.unit.ts`. Note the existing read-modify-write is also non-atomic under KV's eventual consistency; that is acceptable for an abuse control and needs no change, but the comment should stop calling the window "fixed" until this fix lands.
-
-## Warnings
-
-### WR-01: Missing `RATE_LIMIT_SALT` silently degrades to an unsalted IP hash, contradicting the published klauzula
-
-**File:** `src/routes/api/kontakt/+server.ts:52`, `src/routes/api/rekrutacja/+server.ts:62`, `src/lib/server/forms/ratelimit.ts:33-41`
-**Issue:** Both endpoints read `const sol = env.RATE_LIMIT_SALT ?? ''`. If the secret is unset (never provisioned, or — per docs/dev-env.md's own warning — set *after* the deployment that needs it), the limiter runs with an empty salt. `kluczLimitu` then stores `SHA-256(":kontakt:" + ip)` truncated to 64 bits: with a known/empty salt the whole IPv4 space (2^32) is trivially enumerable, so the stored key becomes a reversible pseudonym of the client IP. That directly contradicts both the module's RODO header ("one-way salted SHA-256 ... KV therefore holds no identifying data") and the klauzula shipped to parents (`src/lib/content/forms.ts:364`: "skrót (hash) adresu połączenia z dodatkiem tajnego ciągu (soli)"). The endpoints already hard-fail (502) on a missing `RESEND_API_KEY`/`TURNSTILE_SECRET_KEY`, so the machinery for refusing to run misconfigured exists — the salt is the one secret allowed to vanish silently.
-**Fix:** Treat an absent/empty salt like an absent KV binding — skip the limiter rather than store unsalted hashes:
-
-```ts
-// ratelimit.ts, before hashing:
-if (sol.length === 0) {
-	console.warn('ratelimit: brak RATE_LIMIT_SALT, limit nieaktywny');
-	return true; // same documented degrade as a missing binding
-}
-```
-
-(Alternatively hard-fail the endpoint like the other two secrets; either way, never hash without a salt.) Add a unit test pinning the empty-salt branch.
-
-### WR-02: TurnstileWidget leaves a stale `window.__onTurnstileLoad` behind; client-side navigation re-executes the loader against a destroyed component
-
-**File:** `src/lib/components/TurnstileWidget.svelte:85-91`
-**Issue:** The effect assigns `window.__onTurnstileLoad = rysuj` but the cleanup only removes the widget — it never clears the global. Two consequences:
-
-1. If the component unmounts before `api.js` finishes loading (fast navigation away), the loader later invokes the stale `rysuj`, calling `turnstile.render()` on a detached container and writing `widgetId` into a destroyed component instance — an orphaned widget that the cleanup already ran too early to remove.
-2. On client-side navigation between `/kontakt` and `/rekrutacja`, Svelte removes and re-inserts the `<svelte:head>` script tag; a re-inserted script element re-executes, and `api.js` calls the named onload callback again. Because the *new* page's effect took the `window.turnstile` fast path (line 85) and never reassigned the global, the callback invoked is the *previous* page's stale `rysuj` closure — again rendering into a detached node.
-
-Nothing here weakens security (the token contract is owned server-side), but it is a real lifecycle bug: orphaned iframes, possible duplicate-render console errors from the Turnstile API, and a `widgetId` the cleanup can no longer reach.
-**Fix:**
-
-```ts
-const rysuj = () => {
-	if (!cel.isConnected) return; // never render into a detached container
-	widgetId = window.turnstile?.render(cel, { /* ... */ });
-};
-// ...
-return () => {
-	if (window.__onTurnstileLoad === rysuj) window.__onTurnstileLoad = undefined;
-	if (widgetId !== undefined) window.turnstile?.remove(widgetId);
-	widgetId = undefined;
-};
-```
-
-### WR-03: Every submission's primary leg is sent to a recipient documented as nonexistent; 100% bounce rate endangers the fresh sending domain (and the BCC safety net with it)
-
-**File:** `docs/dev-env.md:170-172`, `src/lib/server/forms/mailer.ts:17`
-**Issue:** The submitted docs state plainly: "The recipient `zlobek@ugstromiec.pl` is hard-coded and **does not exist yet** (pending Gmina approval), so the `to:` leg bounces and the BCC backup mailbox is currently the only one that receives submissions." Hard-coding the recipient is the reviewed, deliberate design (ground truth) — but knowingly shipping a state where the `to:` leg of *every* message hard-bounces is a distinct operational defect: ESPs (Resend included) monitor bounce rates on new sending domains and will throttle or suspend a domain that bounces 100% of its primary recipients. If that happens, the BCC copy stops being delivered too, and — because nothing is stored and nothing is logged — enrollment enquiries are lost with no record anywhere, which is exactly the failure D-13 exists to prevent.
-**Fix:** Until the Gmina mailbox exists, point `TO` at a mailbox that accepts mail (e.g. the current backup address, with the klauzula's processor disclosure updated in the same commit, mirroring the existing D-13 lockstep rule), or gate the launch of the forms on the mailbox's existence. Do not leave a known-bouncing constant as the primary recipient of a no-storage pipeline.
-
-### WR-04: `.claude/CLAUDE.md` still asserts the domain "is NOT purchased yet" while `docs/dev-env.md` in the same change set documents live DNS and a verified sending domain on it
-
-**File:** `.claude/CLAUDE.md` (Accounts & deploy section), `docs/dev-env.md:158-168`
-**Issue:** CLAUDE.md: "Domain: `zlobekstromiec.pl` is NOT purchased yet (any doc saying 'owned' is stale)." dev-env.md (changed in this phase): mail is sent from the *verified* `send.zlobekstromiec.pl`, DNS for `zlobekstromiec.pl` is hosted on Cloudflare, SPF/DKIM/DMARC records are enumerated, and the custom domain is attached to the Pages project. Both files are project instructions/onboarding contracts; they now contradict each other on a fact that gates Phase 6 work, and CLAUDE.md's wording actively instructs a reader to treat the *correct* document as stale. This is the exact class of drift the project's own "single source" rules exist to prevent.
-**Fix:** Update the CLAUDE.md domain line to the current state (domain owned; DNS on Cloudflare, registration at home.pl; send subdomain verified in Resend `eu-west-1`) or replace it with a pointer to `docs/dev-env.md` as the authority.
-
-## Info
-
-### IN-01: sitemap.xml host does not match the actual Pages origin
-
-**File:** `static/sitemap.xml:11-24`
-**Issue:** URLs use `https://zlobek-stromiec.pages.dev/...`, but the live origin per docs/dev-env.md is `https://zlobek-gminny-stromiec.pages.dev`. The file is deliberately unadvertised (noindex, no robots.txt reference), so there is no user impact today, but the placeholder host is wrong even as a placeholder and will surprise whoever does the Phase 6 flip.
-**Fix:** Use the real Pages origin now, or the future apex with a clearer `PLACEHOLDER` marker in the comment.
-
-### IN-02: Comment invariant "only module permitted to log" is no longer true
-
-**File:** `src/lib/server/forms/turnstile.ts:5-6`, `src/lib/server/forms/ratelimit.ts:67,102`
-**Issue:** turnstile.ts declares itself "the only module under src/lib/server/forms/ permitted to log anything at all", but ratelimit.ts emits two `console.warn` diagnostics (both carefully non-personal, so no RODO issue). A future reviewer relying on the stated invariant would miss the ratelimit log sites.
-**Fix:** Amend the turnstile.ts comment to name both permitted log sites (or restate the real invariant: "nothing request-derived is ever logged").
-
-### IN-03: Email/phone patterns and length caps are mirrored in three files
-
-**File:** `src/lib/components/KontaktForm.svelte:62-65`, `src/lib/components/ZgloszenieForm.svelte:81-86`, `src/lib/server/forms/sanitize.ts:14,23-26`
-**Issue:** `WZOR_EMAIL`, `WZOR_TELEFON` and the caps (100/254/24/2000) are hand-copied into both islands from the server modules, with only a comment guarding the mirror. `src/lib/forms/types.ts` already proves the pattern of a shared client-safe module; the constants could live there (or a sibling `$lib/forms/limits.ts`), eliminating the drift risk the comments acknowledge.
-**Fix:** Export the regexes and caps from a shared non-server module and import them in sanitize.ts and both islands.
-
-### IN-04: home.spec.ts hard-codes a seeded post title that CMS activity will invalidate
-
-**File:** `tests/home.spec.ts:78-82`
-**Issue:** The NewsPreview assertion requires the specific post "Wielkie otwarcie żłobka: 14 sierpnia!" (and its slug) to be among the three newest. The moment staff publish three newer posts through the CMS, the acceptance suite goes red with no code change — a test-reliability trap for a suite that is also the pre-commit gate.
-**Fix:** Read the expected newest post from the same `aktualnosci` reader the page uses (as every other spec here interpolates from content modules), or assert only the structural contract (1–3 cards, each a link into `/aktualnosci/...`).
-
-### IN-05: 429 rate-limit response carries no Retry-After header
-
-**File:** `src/lib/forms/types.ts:30`, `src/routes/api/kontakt/+server.ts:73`
-**Issue:** The `limit` code maps to 429, and the Polish copy tells the parent "spróbuj ponownie za godzinę", but the response omits the standard `Retry-After` header that well-behaved clients and any future monitoring would use.
-**Fix:** `return json(wynik, { status, headers: status === 429 ? { 'retry-after': '3600' } : undefined })` (or plumb it through the status table).
-
-### IN-06: `aria-required="false"` is emitted on optional fields
-
-**File:** `src/lib/components/FormField.svelte:101,114`
-**Issue:** `aria-required={wymagane}` stringifies to `aria-required="false"` on the optional telefon/wiadomosc controls. Harmless to AT (false is the default), but the component's own header comment holds itself to the standard of never emitting redundant ARIA state (rule 2's spirit), and `aria-invalid` already models the emit-only-when-true pattern.
-**Fix:** `aria-required={wymagane ? 'true' : undefined}` (mirroring the `nieprawidlowe` derivation).
+| Prior finding | Verdict | Evidence |
+| --- | --- | --- |
+| CR-01 (Critical) rate-limit window defined by `expirationTtl`, so `rl:doba` never expired | **Closed** | The window is now the bucket inside the key (`rl:doba:YYYY-MM-DD`, `rl:<form>:<hex>:<hour-of-epoch>`), `ratelimit.ts:42-50,72`. `expirationTtl` is now cleanup-only at `MNOZNIK_TTL * window`, so a rewrite can no longer move a boundary. Pinned by `forms.unit.ts:462-491` (next UTC date reopens; the second date lands at 1, never 3). See WR-02 and WR-03 for what those pins do **not** cover. |
+| WR-01 (Warning) unsalted SHA-256 fallback on a missing/blank salt | **Closed** | `ratelimit.ts:128-131` returns true before any key is built. Pinned by `forms.unit.ts:532-550`, including `odczyty` recording that proves KV is never even read, so no unsalted digest can reach KV. Correctly treats a whitespace-only secret as the same misconfiguration. |
+| WR-02 (Warning) stale `window.__onTurnstileLoad` closure after unmount | **Closed** | `TurnstileWidget.svelte:99` clears the global under an identity match. The Playwright pin at `kontakt.spec.ts:256-286` genuinely fails against the old code (the old cleanup left a function on `window`, so `typeof` would be `'function'`), and the `__znacznikNawigacji` marker correctly rules out a false pass from a fresh `window`. |
 
 ---
 
-_Reviewed: 2026-08-14T20:20:49Z_
+## Narrative Findings (AI reviewer)
+
+## Critical Issues
+
+None. The shipped runtime code is correct on every path the two form endpoints
+can reach. WR-04 below is the closest thing to a correctness hole and is
+unreachable through `+server.ts` as currently written, so it is classified
+honestly as a Warning rather than inflated.
+
+## Warnings
+
+### WR-01: The only proof of the CR-01 and WR-01 fixes runs in no automated gate, and the doc updated by this change still says otherwise
+
+**File:** `docs/dev-env.md:43-61`, `package.json:19` (`scripts.test:unit`), `.pre-commit-config.yaml`
+**Severity:** WARNING (highest priority of the five)
+
+**Issue:** `tests/forms.unit.ts` is the entire regression proof for both CR-01 and
+WR-01. It is executed only by `npm run test:unit`, and that command appears in:
+
+- `docs/dev-env.md` "Everyday commands" table (lines 45-53): **no**. The table
+  lists `npm run test` as "Playwright + `@axe-core/playwright` homepage
+  acceptance/a11y suite" and stops there.
+- `docs/dev-env.md` "Verify-before-commit gate" (lines 55-61): **no**. It reads
+  `npm run check && npm run lint && npm run test`.
+- `.pre-commit-config.yaml`: **no**. Two hooks, `npm run check` and `npm run lint`.
+- CI: **no**. There is no `.github/workflows` directory in the repo.
+
+`playwright.config.ts` uses the default `testMatch`, and `forms.unit.ts` is named
+to dodge it deliberately (`forms.unit.ts:6-7`), so `npm run test` will never pick
+it up. The net effect is that a future change re-introducing CR-01 or WR-01
+passes every gate this project documents and enforces. The regression protection
+depends entirely on a human remembering an undocumented extra command.
+
+This is not a new observation: `.planning/phases/03-news-aktualno-ci/03-REVIEW.md:99-105`
+raised exactly this for `tests/aktualnosci-reader.unit.ts` and proposed the fix
+below. It was not closed then, and phase 04 has now parked a Critical-tier
+regression proof behind the same unrun command. `docs/dev-env.md` was edited in
+this very gap-closure and still documents a verify gate that does not run it,
+which makes the doc actively misleading to the future maintainer it exists for.
+The user's own global convention (`npm run check && npm run test:unit && npm run lint`)
+also contradicts what this project's doc states.
+
+**Fix:** wire it into the gate that is already documented and enforced, in all
+three places.
+
+```jsonc
+// package.json
+"test": "npm run test:unit && playwright test",
+"test:unit": "node --test tests/*.unit.ts",
+```
+
+```yaml
+# .pre-commit-config.yaml, add a third local hook
+      - id: unit
+        name: node --test (forms + reader unit suites)
+        entry: npm run test:unit
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+```
+
+and in `docs/dev-env.md`, add a `npm run test:unit` row to the Everyday commands
+table describing it as the Node built-in suite covering the form pipeline and the
+news reader, so the "always green before committing" block is truthful.
+
+---
+
+### WR-02: The `MNOZNIK_TTL` half of the CR-01 fix is not pinned; restoring the exact defect configuration leaves 180/180 tests green
+
+**File:** `tests/forms.unit.ts:495-506,462-483` (assertions), `src/lib/server/forms/ratelimit.ts:24-29,170-171`
+**Severity:** WARNING
+
+**Issue:** Every TTL assertion in the suite is written as `ttl: MNOZNIK_TTL * OKNO_S`
+and `ttl: MNOZNIK_TTL * DOBA_S`, importing the multiplier from the module under
+test. The assertion is therefore tautological with respect to the multiplier: it
+can only detect the multiplier being dropped from the call site, never the
+multiplier itself being changed.
+
+Proven by mutation. Setting `MNOZNIK_TTL = 1` in `ratelimit.ts:29` — which makes
+`expirationTtl` exactly equal to the window, i.e. precisely the shape the code
+comments at lines 24-28 and 163-169 and the doc at `docs/dev-env.md:153-158` call
+out as the CR-01 defect — produces:
+
+```
+ℹ tests 180
+ℹ pass 180
+ℹ fail 0
+```
+
+(File restored; no source was left modified by this review.)
+
+The bucket-in-key redesign means a `MNOZNIK_TTL` of 1 is no longer a *correctness*
+defect the way it was pre-fix, because the window no longer depends on the stored
+lifetime. But it does silently reintroduce the sweep hazard the constant's own
+docstring exists to prevent: a lifetime equal to the window is restarted by every
+accepted write, so a continuously busy hourly key is never swept from KV. The
+comment asserts a property no test holds.
+
+**Fix:** assert the *relationship*, not the constant, in at least one case, so the
+multiplier's contract is executable:
+
+```ts
+test('the stored lifetime outlives the window it sweeps, so a busy key is still reaped', () => {
+	assert.ok(MNOZNIK_TTL > 1, 'a lifetime equal to the window is restarted by every write');
+	assert.ok(MNOZNIK_TTL * OKNO_S > OKNO_S);
+	assert.ok(MNOZNIK_TTL * DOBA_S > DOBA_S);
+});
+```
+
+---
+
+### WR-03: The UTC-ness of the daily bucket is untested on every machine this project will actually run on
+
+**File:** `tests/forms.unit.ts:368-379`, `src/lib/server/forms/ratelimit.ts:42-44`
+**Severity:** WARNING
+
+**Issue:** `kluczDobowy` is the entire daily window. Its correctness rests on
+`toISOString()` being UTC. The only pin is `forms.unit.ts:376-379`, which asserts
+`kluczDobowy(Date.UTC(2026, 7, 14, 10, 30, 0)) === 'rl:doba:2026-08-14'`. Every
+rate-limit instant in the suite (`TERAZ` 10:30 UTC, `+6h` 16:30, `+1h` 11:30,
+`+24h` next day 10:30) sits in the middle of a UTC day, so none of them can
+distinguish a UTC derivation from a local-time one anywhere between UTC-13 and
+UTC+13.
+
+Proven by mutation. Replacing the body of `kluczDobowy` with a local-time
+derivation (`d.getFullYear()` / `d.getMonth()+1` / `d.getDate()`) gives:
+
+```
+TZ=Europe/Warsaw        → tests 180, pass 180, fail 0
+TZ=Pacific/Kiritimati   → tests 180, pass 172, fail 8
+```
+
+The suite only goes red at UTC+14. On the project's own timezone, on the
+developer's machine, and on the Cloudflare Pages build runtime, a timezone
+regression in the daily window ships green. Given that a wrong daily boundary is
+the exact class of bug CR-01 was, this is the pin that matters most and it is the
+weakest one.
+
+**Fix:** add a case straddling a UTC midnight, which goes red under a local-time
+implementation on any machine east of UTC:
+
+```ts
+/** 23:30 UTC is already the NEXT calendar day in every timezone east of UTC+1,
+ *  so this pair fails on a Polish machine the moment the derivation stops
+ *  being UTC. */
+test('kluczDobowy stays on the UTC calendar date across a UTC midnight', () => {
+	assert.equal(kluczDobowy(Date.UTC(2026, 7, 14, 23, 30, 0)), 'rl:doba:2026-08-14');
+	assert.equal(kluczDobowy(Date.UTC(2026, 7, 15, 0, 30, 0)), 'rl:doba:2026-08-15');
+});
+```
+
+Worth adding the equivalent `podLimitem` case too (a submission at 23:30 UTC and
+one at 00:30 UTC must land in different daily counters).
+
+---
+
+### WR-04: `podLimitem` can still reject, contradicting the unconditional fail-open guarantee its own comments state
+
+**File:** `src/lib/server/forms/ratelimit.ts:128,133-134` (guard opens at 156)
+**Severity:** WARNING
+
+**Issue:** The module states the guarantee without qualification: "this module
+never hashes without a salt, so a misconfigured deployment cannot quietly
+downgrade" (lines 8-10) and "Every KV operation is inside the guard deliberately"
+(line 136). The second sentence is literally true and also not the whole story:
+three statements that can throw sit **outside** the `try` at line 156.
+
+- `sol.trim()` (line 128) throws `TypeError` on a non-string `sol`.
+- `await kluczLimitu(...)` (line 133) awaits `crypto.subtle.digest`, whose
+  rejection is unguarded.
+- `kluczDobowy(teraz)` (line 134) calls `new Date(teraz).toISOString()`, which
+  throws `RangeError: Invalid time value` for `NaN` or any `|teraz| > 8.64e15`.
+
+Proven by execution against the shipped module:
+
+```
+✖ out of range clock
+  AssertionError: Got unwanted rejection.
+  Actual message: "Invalid time value"
+    at Date.toISOString (<anonymous>)
+    at kluczDobowy (src/lib/server/forms/ratelimit.ts:43:46)
+    at podLimitem (src/lib/server/forms/ratelimit.ts:134:20)
+```
+
+The non-string-salt probe rejects the same way. A rejection here escapes
+`obsluz` entirely and becomes the opaque 500 that lines 138-143 exist to prevent,
+on **both** forms, with no Polish message the island can map — the exact D-12
+failure the comment describes.
+
+**Reachability is currently nil** through the shipped endpoints: both pass
+`env.RATE_LIMIT_SALT ?? ''` (always a string) and omit `teraz` entirely (always
+`Date.now()`). That is why this is a Warning and not a Blocker. But `podLimitem`
+is an exported function whose signature *invites* callers to supply `teraz` (the
+test suite already does, 30+ times), the guarantee is written as unconditional,
+and the fix is free.
+
+**Fix:** move the guard up two lines so the stated invariant is the enforced one.
+
+```ts
+	try {
+		const klucz = await kluczLimitu(formularz, ip, sol, teraz);
+		const kluczDnia = kluczDobowy(teraz);
+
+		const biezace = licznik(await kv.get(klucz));
+		if (biezace >= limit) return false;
+		// ... unchanged
+	} catch {
+		console.warn('ratelimit: operacja KV nieudana, limit nieaktywny dla tego zgloszenia');
+		return true;
+	}
+```
+
+and change the line-128 guard to `if (typeof sol !== 'string' || sol.trim().length === 0)`.
+Then add the assertion that makes it executable:
+
+```ts
+test('podLimitem never rejects, whatever the clock or the salt shape', async () => {
+	const { kv } = stubKV();
+	for (const teraz of [Number.NaN, 9e15, -9e15]) {
+		await assert.doesNotReject(() => podLimitem(kv, 'kontakt', IP, SOL, 5, 40, teraz));
+	}
+});
+```
+
+---
+
+### WR-05: The WR-02 Playwright pin uses a non-retrying assertion on an asynchronously-completing teardown, and hardcodes an absolute URL past the configured `baseURL`
+
+**File:** `tests/kontakt.spec.ts:273,282-285`
+**Severity:** WARNING
+
+**Issue:** Two robustness defects in an otherwise well-constructed test.
+
+1. Lines 282-285 read the global with a one-shot `page.evaluate()` and assert on
+   the returned value. `expect(typCallbacku).toBe('undefined')` does **not**
+   retry. The value it reads is produced by a Svelte effect teardown that flushes
+   in a microtask during client navigation, while `page.waitForURL` resolves on
+   the frame URL. The current ordering happens to settle before the CDP round
+   trip, but nothing in the test enforces that, so any Svelte or SvelteKit
+   flush-ordering change turns a correct implementation into a red test with a
+   misleading message. Every other assertion in this file uses auto-retrying
+   `expect(locator)` forms.
+
+2. Line 273 hardcodes `page.waitForURL('http://localhost:4173/')` while
+   `playwright.config.ts:29` sets `use.baseURL = 'http://localhost:4173'` and every
+   other navigation in the file is relative (`page.goto('/kontakt')`). The port
+   is now duplicated in `package.json` (`preview:test --port 4173`),
+   `playwright.config.ts` (twice) and here; changing it breaks this one test with
+   a 30-second timeout rather than a clear failure.
+
+**Fix:**
+
+```ts
+		await page.waitForURL('/');
+		// ...
+		await expect
+			.poll(() =>
+				page.evaluate(
+					() => typeof (window as unknown as Record<string, unknown>).__onTurnstileLoad
+				)
+			)
+			.toBe('undefined');
+```
+
+---
+
+## Info
+
+### IN-01: No test exercises the call shape both endpoints actually use
+
+**File:** `tests/forms.unit.ts:413-602`
+**Issue:** Every `podLimitem` case passes seven arguments with an explicit
+`teraz`. Production calls it with six (`podLimitem(kv, 'kontakt', adres, sol, limit, limit)`),
+relying on the `teraz: number = Date.now()` default. That default parameter — the
+mechanism the whole single-clock invariant rests on — has zero direct coverage.
+**Fix:** one case calling the six-argument shape and asserting the daily write
+lands on `` `rl:doba:${new Date().toISOString().slice(0, 10)}` ``, which also
+proves the default is evaluated (not passed as a function reference).
+
+### IN-02: The `isConnected` guard is unreachable after the sibling fix in the same commit
+
+**File:** `src/lib/components/TurnstileWidget.svelte:70-74`
+**Issue:** The guard's comment describes the loader arriving after unmount and
+invoking `rysuj`. The cleanup added twenty lines below (line 99) makes that
+impossible: the only reference to `rysuj` that survives the component is
+`window.__onTurnstileLoad`, and the teardown clears it under an identity match.
+The only other invocation is the synchronous fast path at line 91, where the
+container is necessarily connected. The guard is harmless defence-in-depth
+against a third-party script, but its stated rationale is no longer true and a
+future reader will trust it.
+
+Related, and worth recording rather than fixing: the global-callback bridge is
+single-slot by design, so two `TurnstileWidget` instances mounting on one page
+before the loader arrives would leave the first permanently unrendered. Not
+currently reachable — `/kontakt` mounts one `KontaktForm` and `/rekrutacja` one
+`ZgloszenieForm`, one widget each — but it is a latent constraint on ever putting
+both forms on a single route.
+
+**Fix:** restate the comment as defence-in-depth against unspecified loader
+behaviour rather than as a described failure mode, or note that the cleanup at
+line 99 is the primary defence and this is the backstop.
+
+### IN-03: Both ceilings are fixed-window, so a short span across a boundary admits twice the documented number
+
+**File:** `src/lib/server/forms/ratelimit.ts:81-91`, `docs/dev-env.md:108,152-160`
+**Issue:** The bucket-in-key design (correctly) makes the window a fixed window.
+A client can therefore send 5 at 10:59 UTC and 5 more at 11:00 UTC — 10 in about
+two minutes against a stated "5/hour/client" — and the site can send 40 at
+23:59 UTC and 40 at 00:00 UTC against a stated "40/day sitewide". The 80-message
+burst stays under the 100/day Resend budget, so nothing breaks, but the module
+comment's "generous headroom" (line 84) is 20 messages at the boundary rather
+than 60. This is inherent to fixed windows and is the right trade for an abuse
+control; it is only worth recording because the code and the doc both state the
+ceilings as though they were rolling. **Fix:** one clause in the `podLimitem`
+docstring noting that a boundary-straddling burst can reach 2x either ceiling.
+
+### IN-04: The concurrency comment understates the site-wide counter's undercount
+
+**File:** `src/lib/server/forms/ratelimit.ts:152-155`
+**Issue:** "a burst of simultaneous requests can undercount by a slot or two" is
+fair for the per-client counter (one client, one colo, read-your-writes). It
+understates the site-wide `rl:doba` counter, which is read-modify-written from
+every colo the site receives traffic in, against KV's cross-colo propagation
+delay. The undercount there is bounded by colo count, not by one or two. Harmless
+at this traffic volume and with Turnstile gating first, but the comment is the
+justification for the 40/100 headroom and should say what it is actually
+justifying. **Fix:** amend the sentence to distinguish the two counters.
+
+### IN-05: Polish comments introduced into a file whose comments are otherwise English
+
+**File:** `src/lib/components/TurnstileWidget.svelte:70-73,94-97`
+**Issue:** Both blocks added by 04-09 are in Polish; every other comment in the
+file (lines 2-19, 31-45, 50, 53-54, 78-87, 116-122) is in English. The project's
+Polish-only rule covers visitor-facing text and the CMS admin UI, not source
+comments, so this is a consistency issue rather than a rule violation — but the
+file now reads as two authors. **Fix:** pick one language per file; English
+matches the surrounding code and the rest of `src/lib/server/forms/`.
+
+### IN-06: `docs/dev-env.md` carries em dashes against the project's stated convention
+
+**File:** `docs/dev-env.md:1,15,20,21,63,191,196,211,214,216`
+**Issue:** The project convention recorded in memory is no em dashes anywhere in
+source, en dash only inside numeric ranges. Ten lines in this file use `—`. All
+ten are **pre-existing and untouched** by the gap-closure diff (the new rows and
+paragraphs at lines 89-93 and 143-167 are clean), so this is not a regression
+introduced here; it is flagged only because the file is in this review's scope
+and a future sweep should catch it. **Fix:** replace with a colon, a comma or a
+sentence break during the next edit to this file. No emoji were found in any of
+the five files.
+
+---
+
+_Reviewed: 2026-08-15T16:45:47Z_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: standard_
+_Scope: gap-closure re-review (5 files); supersedes the 38-file review at 94ce57c_
