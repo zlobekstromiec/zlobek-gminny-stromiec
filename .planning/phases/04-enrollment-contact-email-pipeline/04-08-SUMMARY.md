@@ -317,6 +317,10 @@ None. No secret, binding or dashboard change is needed: `FORMS_KV` (`55f55448fe1
 2. **Live human form submission through the real Turnstile widget** (unchanged from 04-07: a managed widget will not issue a token to an automated browser).
 3. **FORM-01 mailbox blocker at the Gmina** (`zlobek@ugstromiec.pl` does not exist yet, so the `to:` leg hard-bounces and the BCC backup is the only receiving mailbox). External, explicitly excluded from gap treatment.
 
+## Self-Check: PASSED
+
+All five `files_modified` plus this SUMMARY exist on disk; all four commits (`408c337`, `ba567bd`, `af434da`, `d722f8e`) are present in `git log`. The working tree carries only the pre-existing untracked files that are not part of this plan (`logo.png`, `updated-logo.png`, two design `.zip` bundles, `.planning/research/.cache/`), which were deliberately neither staged nor deleted.
+
 ---
 
 _Phase: 04-enrollment-contact-email-pipeline_
