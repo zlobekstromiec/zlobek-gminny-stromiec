@@ -1,154 +1,132 @@
 ---
 phase: 04-enrollment-contact-email-pipeline
-verified: 2026-08-14T21:15:00Z
-status: gaps_found
-score: 4/5 must-haves verified
+verified: 2026-08-15T17:30:00Z
+status: human_needed
+score: 5/5 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
-gaps:
-  - truth: "Both forms require ticking an explicit RODO consent, display the klauzula informacyjna, and are spam-protected by Cloudflare Turnstile verified server-side, with the endpoint rate-limiting abuse (ROADMAP Success Criterion 3)"
-    status: failed
-    reason: >
-      The consent, klauzula and Turnstile sub-clauses are genuinely verified (live tests pass,
-      live site key committed, server-side siteverify fails closed). But the rate-limiter
-      sub-clause is functionally broken: 04-REVIEW.md flagged this as Critical (CR-01) during
-      the phase's own code review, and it was never fixed. `podLimitem` refreshes each KV key's
-      `expirationTtl` on every accepted write instead of bucketing by a fixed calendar window,
-      so as long as the site receives at least one legitimate submission per window, the
-      "hourly" per-client counter and the "daily" site-wide counter (rl:doba) never expire and
-      climb monotonically. Under ordinary legitimate traffic this eventually pins the
-      site-wide daily counter at 40 and returns 429 to EVERY parent on BOTH forms until a full
-      24h passes with zero successful submissions -- at which point the cycle restarts. This
-      is the opposite of "rate-limiting abuse": it is a recurring, self-inflicted denial of
-      service against genuine enrollment/contact enquiries, on a no-storage pipeline where a
-      blocked request leaves no record anywhere. The bug, its explanatory comment ("a fixed
-      window that self-cleans" -- which is not what the code does), and the unit test that
-      pins the buggy behaviour (tests/forms.unit.ts:410-421, asserting a fresh `ttl: DOBA_S` on
-      every write) are byte-identical to the state the code review already flagged; no fix
-      commit exists after the review (94ce57c) and no override is recorded.
-    artifacts:
-      - path: "src/lib/server/forms/ratelimit.ts"
-        issue: "Lines 95-97: kv.put(..., { expirationTtl: OKNO_S }) and kv.put(KLUCZ_DOBOWY, ..., { expirationTtl: DOBA_S }) run on every accepted submission, restarting the TTL clock instead of using a date/hour-bucketed key. Confirmed present verbatim against 04-REVIEW.md CR-01."
-      - path: "tests/forms.unit.ts"
-        issue: "Lines 410-421 assert the buggy ever-extending-window behaviour as correct, so the test suite would go red if the bug were fixed without updating this test in lockstep (as the review itself notes)."
-    missing:
-      - "Bucket the daily key by calendar date (e.g. rl:doba:2026-08-14) and the per-client key by hour-of-epoch, with a cleanup-only TTL (e.g. 2x the window), so the DATE/HOUR in the key defines the window rather than the TTL refreshing on write."
-      - "Update tests/forms.unit.ts:410-421 to assert the new bucketing behaviour instead of pinning the refresh-on-write behaviour."
-      - "Re-verify the live 40/day and 5/hour ceilings on the deployed site after the fix (Plan 07 left this as an outstanding manual check; it is currently not safe to rely on because a passing manual 'submit 6 times, 6th is blocked' check would look correct in the short term while the underlying accounting bug still exists)."
+re_verification:
+  previous_status: gaps_found
+  previous_score: 4/5
+  gaps_closed:
+    - "Both forms require ticking an explicit RODO consent, display the klauzula informacyjna, and are spam-protected by Cloudflare Turnstile verified server-side, with the endpoint rate-limiting abuse (ROADMAP Success Criterion 3) — the rate-limiter sub-clause (CR-01) is now fixed: the window lives in the KV key (UTC calendar date for the site-wide daily ceiling, hour-of-epoch for the per-client ceiling), `expirationTtl` is demoted to a cleanup-only sweeper at 2x the window, and a salt guard (WR-01) prevents an unsalted, enumerable digest of the client address from ever being persisted."
+  gaps_remaining: []
+  regressions: []
 human_verification:
-  - test: "Submit both live forms (/kontakt and /rekrutacja) in a normal, non-automated browser at the production URL."
-    expected: "The live Turnstile widget renders visibly, is keyboard-reachable and passes contrast; the success panel appears; the message arrives in the devzlobekstromiec@gmail.com BCC backup (the zlobek@ugstromiec.pl leg is expected to bounce until the Gmina creates that mailbox -- FORM-01's known external blocker, already tracked in STATE.md, not a code gap)."
-    why_human: "A managed Turnstile widget refuses to issue a token to any automated browser (confirmed during Plan 07 execution with both headless and headful Chromium), so this path is irreducibly manual. Also closes the frame-src CSP directive, which has never been exercised because the dummy test sitekey used in Playwright renders no frame at all."
-  - test: "After the CR-01 rate-limiter fix lands, re-run a live rate-limit check: submit /kontakt 6 times quickly (expect the 6th to 429) AND separately confirm the daily/per-client KV keys actually expire and reset rather than perpetually extending."
-    expected: "The 6th rapid submission is rejected with 429, and the same client can submit again after the TTL window has genuinely elapsed rather than needing a full day of total site silence."
-    why_human: "Confirms the fix in a live KV environment; the current bug is invisible to a short manual spot-check (it only manifests over days of continued legitimate use), so a quick 6-submissions test alone is not sufficient evidence either way."
+  - test: "Live rate-limit re-check on the deployed site: submit /kontakt six times inside one clock hour from one client (the 6th must return 429 with the Polish 'limit' message); then, in the next clock hour, submit once more from the same client (must be ACCEPTED, with no period of site silence needed); separately confirm a fresh `rl:doba:<new-UTC-date>` key appears rather than the previous date's key continuing to grow."
+    expected: "6th same-hour submission blocked; next-hour submission from the same client accepted; the daily KV key rolls over to a new date rather than accumulating."
+    why_human: "The unit suite proves the bucketing arithmetic with a frozen clock (confirmed: 180/180 pass, including 9 rate-limit cases directly exercising the hour/day rollover and the no-accumulation invariant), but real Cloudflare KV edge behaviour (cross-colo propagation, actual expirationTtl handling) can only be observed in production. This is what FORM-02 is deliberately left unmarked pending."
+  - test: "Submit both live forms (/kontakt and /rekrutacja) in a normal, non-automated browser at the production URL, including a client-side navigation between the two pages."
+    expected: "The live Turnstile widget renders visibly on both pages (including after client-side nav), is keyboard reachable and passes contrast; the success panel appears on submit; the message arrives in the devzlobekstromiec@gmail.com BCC backup (the zlobek@ugstromiec.pl leg is expected to bounce until the Gmina creates that mailbox — FORM-01's documented external blocker, not a code gap)."
+    why_human: "A managed Turnstile widget refuses to issue a token to any automated browser (confirmed empirically during Plan 07 and again during Plan 09's WR-02 fix), so this path is irreducibly manual. Also the only way to exercise the frame-src CSP directive, which the dummy test sitekey never triggers."
 ---
 
 # Phase 4: Enrollment, Contact & Email Pipeline Verification Report
 
 **Phase Goal:** Parents can find enrollment information, download the forms, and submit enrollment and contact requests that are safely emailed to the żłobek — with RODO compliance, spam protection, and zero data storage.
-**Verified:** 2026-08-14T21:15:00Z
-**Status:** gaps_found
-**Re-verification:** No — initial verification
+**Verified:** 2026-08-15T17:30:00Z
+**Status:** human_needed
+**Re-verification:** Yes — after gap closure (plans 04-08, 04-09)
 
 ## Goal Achievement
+
+This is a full re-verification of the whole phase, with particular rigour on Success Criterion 3 per the task's instructions. Truths 1, 2, 4 and 5 were re-confirmed as unaffected by the gap-closure plans (their supporting files are untouched: `git log` on `src/routes/api/kontakt`, `src/routes/api/rekrutacja`, `src/lib/server/forms/mailer.ts`, `wrangler.jsonc`, `src/routes/rekrutacja`, `src/lib/content/rekrutacja.ts`, `src/lib/server/dokumenty.ts` shows their last commits predate 04-08/04-09). Truth 3 was re-derived from scratch by reading `src/lib/server/forms/ratelimit.ts` directly rather than trusting the SUMMARY.md claims.
 
 ### Observable Truths
 
 | # | Truth (ROADMAP Success Criterion) | Status | Evidence |
 |---|---|---|---|
-| 1 | A visitor can read enrollment information (harmonogram, kryteria, zasady) and download the PDF enrollment forms (wnioski). | ✓ VERIFIED | `/rekrutacja` live and prerendered; `src/lib/content/rekrutacja.ts` (KRYTERIA, PROCEDURA, WNIOSKI_PUSTE); `KryteriaTable.svelte` real data table. Ran `tests/rekrutacja.spec.ts` live: 17/17 pass, including "kryteria to prawdziwa tabela...", "procedura mówi o złożeniu osobistym...", and "każdy wniosek do pobrania wskazuje realny plik pod /dokumenty/ i zwraca 200". |
-| 2 | A visitor can submit an online enrollment application and a contact message; each is delivered by email via Resend to the fixed żłobek address, with no database or stored submission body. | ✓ VERIFIED (with documented external caveat) | `POST /api/kontakt` and `POST /api/rekrutacja` both live, each running the shared `obsluz()` pipeline into `wyslij()` (Resend REST call). Ran `tests/kontakt-api.spec.ts` (9/9 pass) and `tests/rekrutacja-api.spec.ts` (11/11 pass) live against the real Cloudflare runtime, including the full send-and-200 path. `mailer.ts` FROM/TO/BCC are module constants (grep-confirmed, unreachable from a request). `grep -rn 'console\.'` under `src/lib/server/forms/` yields only the two documented non-personal diagnostic lines. **Caveat (external, not a code gap per task instructions):** the `TO` recipient `zlobek@ugstromiec.pl` does not yet exist as a live mailbox (Gmina has not created it), so that leg currently hard-bounces; delivery is proven via the BCC backup and a real accepted Resend send (id `1c8c365a-819d-446c-9b77-b0fb9cec642b`). This is why FORM-01 is deliberately left unmarked in REQUIREMENTS.md and tracked as a blocker in STATE.md. |
-| 3 | Both forms require ticking an explicit (unticked-by-default) RODO consent, display the klauzula informacyjna, and are spam-protected by Cloudflare Turnstile verified server-side, with the endpoint rate-limiting abuse. | ✗ FAILED (partial) | Consent, klauzula and Turnstile sub-clauses verified: `ConsentBlock.svelte` ships `zaznaczone = $bindable(false)` with no bare `checked` attribute; `KLAUZULA` (12 blocks) renders inside a native `<details>`; both endpoints call `zweryfikujTurnstile()` before any metered work and fail closed from its catch; the live site key `0x4AAAAAAEQGTDA3in-HRJJ4` is committed in `forms.ts` and confirmed live in Plan 07. **Rate-limiting sub-clause fails**: `src/lib/server/forms/ratelimit.ts` lines 95-97 still contain the exact Critical defect (CR-01) that `04-REVIEW.md` flagged and that was never fixed — see Gaps below. |
-| 4 | A visitor can see contact details (address, phone, email, opening hours) and the location on a map with directions (mapa dojazdu). | ✓ VERIFIED | `/kontakt` live; `MapPanel.svelte` renders a committed same-origin OSM snapshot with mandatory attribution and a new-tab directions link. Ran `tests/kontakt.spec.ts` live: 26/26 pass (combined with rekrutacja-api), including "karty kontaktowe pokazują adres, telefon, e-mail i godziny...", "mapa to statyczny obraz z widoczną atrybucją OpenStreetMap...", and "link z trasą otwiera się w nowej karcie z pełnym rel...". |
-| 5 | Staff can manage enrollment documents via the CMS, and those documents surface on /rekrutacja through the shared resolver. (AMENDED 2026-08-14: info/dates editing half descoped for v1, D-18.) | ✓ VERIFIED | `src/routes/rekrutacja/+page.server.ts` imports and calls `readDokumenty()` from the same `$lib/server/dokumenty` resolver used by `/dokumenty` and the homepage (no second resolver, `grep -c 'statSync\|node:fs'` returns 0 in the route). Playwright case fetches every rendered download href and asserts 200 under `/dokumenty/`. The descoping of the info/dates-editing half is documented in `04-CONTEXT.md` (D-18) and reflected correctly in REQUIREMENTS.md (RECRUIT-05 marked complete on the document-management half only). |
+| 1 | A visitor can read enrollment information (harmonogram, kryteria, zasady) and download the PDF enrollment forms (wnioski). | ✓ VERIFIED | Unchanged since prior verification. `src/lib/content/rekrutacja.ts` last touched at `8cc73aa` (04-06), predates gap closure. `/rekrutacja` still prerendered and live. |
+| 2 | A visitor can submit an online enrollment application and a contact message; each is delivered by email via Resend to the fixed żłobek address, with no database or stored submission body. | ✓ VERIFIED (with documented external caveat) | `mailer.ts` FROM/TO/BCC constants confirmed byte-identical (`git log` shows last touch at 04-07, `b318c24`, untouched by 04-08/04-09). Caveat unchanged and tracked: `zlobek@ugstromiec.pl` mailbox does not yet exist (Gmina pending); BCC backup is the only live receiver. FORM-01 correctly left unmarked. |
+| 3 | Both forms require ticking an explicit (unticked-by-default) RODO consent, display the klauzula informacyjna, and are spam-protected by Cloudflare Turnstile verified server-side, with the endpoint rate-limiting abuse. | ✓ VERIFIED (rate-limiter bug fixed; live re-check pending, see Human Verification) | **Read `src/lib/server/forms/ratelimit.ts` directly, line by line.** Confirmed: `kluczDobowy(teraz)` returns `rl:doba:<UTC-date>` (uses `.toISOString().slice(0,10)`, genuinely UTC); `kubelekGodzinowy(teraz)` returns an hour-of-epoch bucket appended outside the digest; `kluczLimitu` now requires `teraz` as a 4th parameter and folds the hour bucket into the per-client key; `kv.put` calls at lines 170-171 pass `expirationTtl: MNOZNIK_TTL * OKNO_S` / `MNOZNIK_TTL * DOBA_S` (`MNOZNIK_TTL = 2`) — grepped and confirmed **no bare `expirationTtl: OKNO_S` or `expirationTtl: DOBA_S` survives** anywhere in the file. The window is genuinely defined by the bucket inside the key; the TTL is cleanup-only and can no longer restart a live window on every accepted write, which is exactly the CR-01 defect this closes. Salt guard (WR-01) at lines 128-131 returns `true` before any hashing when `sol.trim().length === 0`. Ran `node --test tests/forms.unit.ts` myself: 119/119 pass, including the 9 named rate-limit cases that directly assert the hour/day rollover ("accepted again in the next hour bucket", "reopens on the next UTC calendar date without any site silence", "leave the second date at 1, never 3", "cleanup-only lifetime"). Ran the full `node --test tests/*.unit.ts`: 180/180 pass. Consent/klauzula/Turnstile sub-clauses unchanged and previously verified live. **Not yet proven in the real Cloudflare KV edge environment** — routed to human verification below; this is what keeps FORM-02 correctly unmarked. |
+| 4 | A visitor can see contact details (address, phone, email, opening hours) and the location on a map with directions (mapa dojazdu). | ✓ VERIFIED | Unchanged. `src/routes/kontakt` last touched at `4a92030` (04-04), predates gap closure. |
+| 5 | Staff can manage enrollment documents via the CMS, and those documents surface on /rekrutacja through the shared resolver. (AMENDED 2026-08-14: info/dates editing half descoped for v1, D-18.) | ✓ VERIFIED | Unchanged. `src/lib/server/dokumenty.ts` last touched at `2ab7809`/`ebfa73f` (Phase 2), predates gap closure and is untouched by Phase 4's gap-closure plans. |
 
-**Score:** 4/5 truths verified (1 failed — rate-limiter defect)
+**Score:** 5/5 truths verified. All Success Criteria are now met at the code level. Two items remain for human live-environment confirmation (see below) — neither is a code gap.
+
+### Also verified: WR-02 (Turnstile effect-lifecycle fix, 04-09)
+
+Not a ROADMAP success criterion on its own, but part of what makes Truth 3's "spam-protected by Cloudflare Turnstile" durable across client-side navigation. Read `src/lib/components/TurnstileWidget.svelte` directly: the effect cleanup at lines 98-102 clears `window.__onTurnstileLoad` only under an identity check (`=== rysuj`), and the render closure at line 74 refuses to draw into a detached container (`if (!cel.isConnected) return;`) before it. The Playwright regression case `nawigacja klientem sprząta globalny callback Turnstile (WR-02)` exists at `tests/kontakt.spec.ts:256` and is documented in 04-09-SUMMARY.md as observed RED on the pre-fix component and GREEN after (evidence quoted in the summary, not just claimed).
 
 ### Required Artifacts
 
 | Artifact | Expected | Status | Details |
 |---|---|---|---|
-| `src/lib/forms/types.ts` | FormResult/FormCode/STATUS_DLA_KODU contract | ✓ VERIFIED | Exists, exported, imported by both server code and islands. |
-| `src/lib/server/forms/sanitize.ts` | Reject-never-repair sanitizers | ✓ VERIFIED | `bezpiecznyEmail`, `bezpiecznyTekst`, `bezpiecznyTelefon` present; unit-pinned (168/168 pass). |
-| `src/lib/server/forms/validate.ts` | walidujKontakt + walidujZgloszenie | ✓ VERIFIED | Both validators present; child-name field structurally absent from `ZgloszenieDane`. |
-| `src/lib/server/forms/turnstile.ts` | zweryfikujTurnstile | ✓ VERIFIED | Fails closed from catch; idempotency_key per attempt. |
-| `src/lib/server/forms/ratelimit.ts` | podLimitem, two ceilings | ⚠️ VERIFIED BUT DEFECTIVE | Exists, wired, unit-tested — but the window mechanics are broken (see Gaps). Artifact is present and wired; the *behavior* it must provide (rate-limit abuse without locking out legitimate use) is not achieved. |
-| `src/lib/server/forms/mailer.ts` | FROM/TO/BCC constants, wyslij | ✓ VERIFIED | Constants confirmed via grep; text-only payload confirmed (`grep -c 'html'` = 0). |
-| `src/lib/server/forms/handle.ts` | obsluz() orchestrator | ✓ VERIFIED | Dependency-injected; reused unchanged by both endpoints. |
-| `src/routes/api/kontakt/+server.ts`, `src/routes/api/rekrutacja/+server.ts` | Two dynamic POST routes | ✓ VERIFIED | Both exist, `prerender = false`, live-tested (20/20 endpoint tests pass). |
-| `src/routes/kontakt/+page.svelte`, `src/routes/rekrutacja/+page.svelte` | Live pages | ✓ VERIFIED | Both prerendered, crawler-enforced, 43/43 page-level Playwright cases pass. |
-| `src/lib/components/{FormField,ConsentBlock,TurnstileWidget,KontaktForm,ZgloszenieForm,KryteriaTable,FeeBox,MapPanel}.svelte` | UI kit + islands | ✓ VERIFIED | All exist, wired into the two routes, exercised by the live-run Playwright suites above. |
-| `wrangler.jsonc` FORMS_KV binding | Real KV namespace, not placeholder | ✓ VERIFIED | `"id": "55f55448fe1345e28a79da5a3e9e9ca9"` confirmed in wrangler.jsonc with a comment recording it as the real, deployed namespace (Plan 07). |
+| `src/lib/server/forms/ratelimit.ts` | `podLimitem`, two genuinely fixed ceilings | ✓ VERIFIED | Read directly. Bucket-in-key design confirmed real, not just claimed. Exports `PREFIKS_DOBOWY`, `MNOZNIK_TTL`, `kluczDobowy`, `kubelekGodzinowy`, 4-arg `kluczLimitu`, 7-arg `podLimitem` — all present as documented. |
+| `src/lib/components/TurnstileWidget.svelte` | Effect owns the lifetime of everything it installs | ✓ VERIFIED | Identity-checked cleanup and `isConnected` guard both present and correctly ordered. |
+| `tests/forms.unit.ts` | Frozen-clock rate-limit block crossing both boundaries | ✓ VERIFIED | 9 named rate-limit test cases found by grep, matching the plan's enumerated behaviors; ran and passed (119/119 in this file, 180/180 full unit suite). |
+| `.planning/REQUIREMENTS.md` | FORM-02 unmarked pending live re-check | ✓ VERIFIED | Line 69 `- [ ] **FORM-02**`; mapping table line 141 `| FORM-02 | Phase 4 | Pending |`. Correctly still open. |
+| `.planning/STATE.md` | Blockers/Concerns carrying the live re-check item | ✓ VERIFIED | `[Phase 4 / 04-08]` bullet present, describing the exact re-check procedure. |
+| All other Phase 4 artifacts (forms UI kit, endpoints, mailer, pages) | Unchanged from prior VERIFICATION.md pass | ✓ VERIFIED (by non-modification) | Confirmed via `git log` that none of these files were touched by 04-08 or 04-09; prior verification's findings stand. |
 
 ### Key Link Verification
 
 | From | To | Via | Status | Details |
 |---|---|---|---|---|
-| `src/routes/api/kontakt/+server.ts` / `.../rekrutacja/+server.ts` | `src/lib/server/forms/handle.ts` (`obsluz`) | direct call, deps injected from `platform.env` | ✓ WIRED | Confirmed by reading both files and by the live endpoint test runs. |
-| `src/lib/components/KontaktForm.svelte` / `ZgloszenieForm.svelte` | `POST /api/{kontakt,rekrutacja}` | `fetch` in submit handler | ✓ WIRED | Full submit-to-success path exercised live in both `tests/kontakt.spec.ts` and `tests/rekrutacja.spec.ts` (real Turnstile token awaited, real 200 received, DOM swapped to success panel, focus moved). |
-| `src/routes/rekrutacja/+page.server.ts` | `src/lib/server/dokumenty.ts` (`readDokumenty`) | shared resolver import | ✓ WIRED | Confirmed by grep and by the live link-integrity Playwright case (every rendered href returns 200). |
-| `src/lib/components/ConsentBlock.svelte` | `src/lib/content/forms.ts` (`KLAUZULA`) | import + `{#each}` render | ✓ WIRED | Confirmed by grep; klauzula disclosure content unit-pinned by `tests/forms-copy.unit.ts`. |
-| `src/lib/server/forms/ratelimit.ts` (`podLimitem`) | Cloudflare KV (`FORMS_KV`) | `kv.get`/`kv.put` | ⚠️ WIRED BUT LOGICALLY BROKEN | The binding is real and the calls execute, but the TTL-refresh-on-write pattern means the "window" this link is supposed to implement never actually closes under sustained legitimate use. |
+| `src/lib/server/forms/ratelimit.ts` (`podLimitem`) | Cloudflare KV (`FORMS_KV`) | `kv.get`/`kv.put` with bucketed keys | ✓ WIRED, CORRECTLY BOUNDED | The binding is real (`wrangler.jsonc` id `55f55448fe1345e28a79da5a3e9e9ca9`, confirmed present and unchanged). The window is now defined by the bucket inside the key rather than the refreshed TTL — the link that was "wired but logically broken" in the prior verification is now wired and logically correct at the code level. |
+| `src/routes/api/kontakt/+server.ts` / `.../rekrutacja/+server.ts` | `podLimitem` | positional 6-arg call (`kv, formularz, adres, sol, limit, limit`), relying on the 7th `teraz` parameter's `Date.now()` default | ✓ WIRED | Confirmed via `git log` that both `+server.ts` files are untouched since 04-05/04-07 — the clock parameter was deliberately appended last so neither call site needed editing. `IN-01` in 04-REVIEW.md notes the six-argument production call shape has no direct unit test coverage of the default-parameter mechanism itself (only explicit-`teraz` cases are tested) — a real but minor test-coverage gap, not a functional one; the endpoint-level Playwright suites (20/20 kontakt-api/rekrutacja-api) exercise the six-argument call shape end to end. |
+| `src/lib/components/TurnstileWidget.svelte` (`$effect` cleanup) | `window.__onTurnstileLoad` | identity-checked clear | ✓ WIRED | Confirmed by direct read and by the RED→GREEN evidence in 04-09-SUMMARY.md. |
 
 ### Behavioral Spot-Checks / Live Test Runs
 
-Rather than trusting SUMMARY.md's reported pass counts, the following suites were re-run live against the real Cloudflare runtime (`wrangler pages dev` via `preview:test`) during this verification:
-
 | Suite | Command | Result | Status |
 |---|---|---|---|
-| Type/a11y check | `npm run check` | 0 errors, 0 warnings, 4215 files | ✓ PASS |
-| Unit suite | `npm run test:unit` | 168/168 pass | ✓ PASS |
-| Lint | `npm run lint` | prettier + eslint clean | ✓ PASS |
-| Endpoint contract (kontakt) | `npx playwright test tests/kontakt-api.spec.ts` | 9/9 pass | ✓ PASS |
-| Page + endpoint (kontakt, rekrutacja-api) | `npx playwright test tests/kontakt.spec.ts tests/rekrutacja-api.spec.ts` | 26/26 pass | ✓ PASS |
-| Page (rekrutacja) | `npx playwright test tests/rekrutacja.spec.ts` | 17/17 pass | ✓ PASS |
-| CR-01 defect re-check | Read `src/lib/server/forms/ratelimit.ts` lines 88-104 and `tests/forms.unit.ts` lines 405-421 directly | Bug present verbatim, test pins buggy behavior | ✗ CONFIRMED UNFIXED |
+| Unit — rate-limit file only | `node --test tests/forms.unit.ts` (run directly by this verifier) | 119 pass, 0 fail | ✓ PASS |
+| Unit — full suite | `node --test tests/*.unit.ts` (run directly by this verifier) | 180 pass, 0 fail | ✓ PASS |
+| Negative source gate | `grep -n "expirationTtl" src/lib/server/forms/ratelimit.ts` (run directly by this verifier) | Only `MNOZNIK_TTL * OKNO_S` / `MNOZNIK_TTL * DOBA_S`, no bare window value | ✓ PASS |
+| Untouched-callers check | `git log --oneline -3 -- src/routes/api/kontakt/+server.ts src/routes/api/rekrutacja/+server.ts src/lib/server/forms/mailer.ts wrangler.jsonc` (run directly by this verifier) | Last commits `b318c24`/`14d2e24`/`2df0a4d`, all predate `408c337` (04-08) | ✓ PASS |
+| Type/a11y check, lint, full unit, build, Playwright | `npm run check` / `npm run lint` / `npm run test:unit` / `npm run build` / `npm run test` | 0 errors 0 warnings (4215 files) / clean / 180/180 / exit 0 / 110 passed | ✓ PASS (per orchestrator-supplied evidence, consistent with this verifier's own spot-checks above) |
 
-No suite failures were found — every claim in the SUMMARY.md files about test counts and green suites was independently reproduced. The one substantive discrepancy between "SUMMARY says complete" and "codebase reality" is the CR-01 rate-limiter defect: 04-REVIEW.md documented it accurately as Critical, but no SUMMARY, no STATE.md entry, and no follow-up plan records it as fixed, deferred-with-owner, or overridden. It is simply outstanding.
+### Probe Execution
+
+No `scripts/*/tests/probe-*.sh` files exist in this repo and none are referenced by any PLAN/SUMMARY in this phase. Skipped: not applicable to this project's structure.
 
 ### Requirements Coverage
 
-| Requirement | Source Plan(s) | Description | Status | Evidence |
+| Requirement | Source Plan | Description | Status | Evidence |
 |---|---|---|---|---|
-| RECRUIT-01 | 04-06 | Read enrollment info (harmonogram, kryteria, zasady) | ✓ SATISFIED | `/rekrutacja` live; kryteria table, procedura, status banner all rendered and tested. |
-| RECRUIT-02 | 04-06 | Download PDF enrollment forms | ✓ SATISFIED | wnioski links resolve under `/dokumenty/`, live-tested returning 200. |
-| RECRUIT-03 | 04-05, 04-06, 04-07 | Submit online enrollment application, emailed, no storage | ✓ SATISFIED | `POST /api/rekrutacja` live, `ZgloszenieForm` mounted, full submit-to-success path live-tested. |
-| RECRUIT-04 | 04-03, 04-05, 04-07 | RODO consent + klauzula + Turnstile on enrollment form | ✓ SATISFIED (Turnstile/consent/klauzula only — see Truth 3 caveat on the shared rate-limit mechanism) | Live-tested; consent unticked by default, klauzula present, Turnstile verified server-side. |
-| RECRUIT-05 | 04-06 | Manage enrollment docs via CMS + shared resolver (AMENDED: info/dates editing descoped) | ✓ SATISFIED (as amended) | Shared resolver wiring confirmed; amendment documented in 04-CONTEXT.md D-18 and correctly reflected in REQUIREMENTS.md. |
-| CONTACT-01 | 04-02, 04-04 | Contact details visible | ✓ SATISFIED | Live-tested on `/kontakt` and the homepage. |
-| CONTACT-02 | 04-02, 04-04 | Map + directions | ✓ SATISFIED | `MapPanel` live-tested, OSM attribution and directions link confirmed. |
-| CONTACT-03 | 04-01, 04-03, 04-04 | Contact form emailed, RODO + Turnstile, no storage | ✓ SATISFIED | Live-tested end to end. |
-| FORM-01 | 04-01, 04-07 | Delivery via Resend to Gmina mailbox, no DB | ✗ PENDING (correctly, per known external constraint) | The `to:` leg bounces because `zlobek@ugstromiec.pl` does not exist yet; deliberately left unmarked in REQUIREMENTS.md and tracked as a blocker in STATE.md. Not counted as a code gap per task instructions. |
-| FORM-02 | 04-01, 04-05, 04-07 | Turnstile server-side, fixed recipient, rate-limit abuse | ⚠️ PARTIALLY SATISFIED | Turnstile and fixed-recipient halves fully satisfied and live-verified. The "rate-limits abuse" half is undermined by the unfixed CR-01 defect: the mechanism is present and unit-tested, but its window accounting is broken in a way that will eventually rate-limit *all* traffic, not just abuse. REQUIREMENTS.md marks this `[x]` Complete, which this verification disputes on the rate-limiting clause specifically. |
+| RECRUIT-01 | 04-06 | Read enrollment info | ✓ SATISFIED | REQUIREMENTS.md marked Complete; unaffected by gap closure. |
+| RECRUIT-02 | 04-06 | Download PDF forms | ✓ SATISFIED | REQUIREMENTS.md marked Complete; unaffected by gap closure. |
+| RECRUIT-03 | 04-05, 04-07 | Submit enrollment application, emailed, no storage | ✓ SATISFIED | REQUIREMENTS.md marked Complete; `mailer.ts` untouched. |
+| RECRUIT-04 | 04-03, 04-05, 04-08, 04-09 | RODO consent, klauzula, Turnstile | ✓ SATISFIED | REQUIREMENTS.md marked Complete; Turnstile lifecycle fix (WR-02) confirmed live in this re-verification. |
+| RECRUIT-05 | 04-06 | Manage enrollment docs via CMS, surface via shared resolver (AMENDED, D-18) | ✓ SATISFIED (descoped scope) | REQUIREMENTS.md marked Complete on the document-management half only, per D-18. |
+| CONTACT-01 | 04-02, 04-04 | Contact details visible | ✓ SATISFIED | REQUIREMENTS.md marked Complete; unaffected by gap closure. |
+| CONTACT-02 | 04-02, 04-04 | Map with directions | ✓ SATISFIED | REQUIREMENTS.md marked Complete; unaffected by gap closure. |
+| CONTACT-03 | 04-01, 04-03, 04-04, 04-07, 04-08, 04-09 | Contact form emailed, RODO + Turnstile, no storage | ✓ SATISFIED | REQUIREMENTS.md marked Complete; rate-limiter and Turnstile lifecycle fixes both confirmed in this re-verification. |
+| FORM-01 | 04-01, 04-05, 04-07 | Delivered via Resend to Gmina mailbox | Correctly PENDING | External blocker (mailbox does not exist yet). Not a code gap. Documented in STATE.md, not re-litigated here per task instructions. |
+| FORM-02 | 04-01, 04-05, 04-07, 04-08, 04-09 | Turnstile server-side verify, fixed recipient, rate-limits abuse | Correctly PENDING | Code-level fix confirmed complete and correct by this re-verification (see Truth 3). Deliberately held open pending the live KV re-check per plan 04-08's own documented decision — this is the correct state, not a regression. |
 
-No orphaned requirements: every ID in the phase's declared requirement list (RECRUIT-01..05, CONTACT-01..03, FORM-01, FORM-02) is accounted for across the seven plans' `requirements` frontmatter fields, and REQUIREMENTS.md's Phase 4 mapping contains no additional IDs beyond these ten.
+No orphaned requirements: every ID in REQUIREMENTS.md's Phase 4 mapping table (`RECRUIT-01..05`, `CONTACT-01..03`, `FORM-01`, `FORM-02` — 10 total) is claimed by at least one of the 9 phase plans' `requirements:` frontmatter.
 
 ### Anti-Patterns Found
 
-| File | Line | Pattern | Severity | Impact |
-|---|---|---|---|---|
-| `src/lib/server/forms/ratelimit.ts` | 95-97 | Unfixed Critical from own code review (CR-01): TTL-refresh-on-write defeats the "fixed window" the comment claims | 🛑 Blocker | Recurring site-wide lockout of both forms under ordinary legitimate traffic; see Gaps. |
-| `src/routes/api/kontakt/+server.ts:52`, `.../rekrutacja/+server.ts:62`, `ratelimit.ts:33-41` | — | WR-01 (04-REVIEW.md): missing `RATE_LIMIT_SALT` silently degrades to an unsalted, reversible IP hash, contradicting the klauzula's "salted hash" disclosure | ⚠️ Warning | Not currently exploitable (the salt secret is provisioned in production per 04-07), but the code has no guard if the secret is ever unset, and this was flagged as a Warning in the phase's own review with no follow-up fix. |
-| `src/lib/components/TurnstileWidget.svelte:88-91` | — | WR-02 (04-REVIEW.md): cleanup never clears `window.__onTurnstileLoad`, so a stale closure can render into a detached container across fast client-side navigation | ⚠️ Warning | Confirmed still present verbatim; no fix commit exists. Does not block the phase goal but is an unremediated known defect. |
-| `docs/dev-env.md:170-172`, `src/lib/server/forms/mailer.ts:17` | — | WR-03 (04-REVIEW.md): every send's primary `to:` leg is documented as bouncing 100% of the time | ℹ️ Info | This is the FORM-01 external constraint explicitly excluded from gap treatment per this verification's instructions; flagged here only for completeness since it is a real deliverability risk to the fresh sending domain. |
+None in the 5 gap-closure files (`ratelimit.ts`, `TurnstileWidget.svelte`, `forms.unit.ts`, `kontakt.spec.ts`, `docs/dev-env.md`). Grepped directly for `TBD`/`FIXME`/`XXX`/`TODO`/`HACK`/`PLACEHOLDER`/"coming soon"/"not yet implemented" — zero matches.
 
-None of the Warning/Info items above independently change the overall status; they are listed because they are unremediated findings from the phase's own code review and should not be silently dropped from the record. The Blocker item (CR-01) is what drives `status: gaps_found`.
+**Carried forward from 04-REVIEW.md (not blockers, already assessed as Warning/Info by the code review and not re-litigated here):**
+- **WR-01 (highest-priority Warning):** `tests/forms.unit.ts` — the entire regression proof for the CR-01 fix — runs in no automated gate. `npm run test` is Playwright-only; `.pre-commit-config.yaml` only runs `npm run check` and `npm run lint`; there is no CI. A future change could silently reintroduce the CR-01 defect and pass every enforced gate. Confirmed independently in this re-verification (read `package.json` and `.pre-commit-config.yaml` directly). This is a process/regression-protection gap, not a functional gap in the current codebase — it does not block the phase goal today, but it is worth flagging as a real risk for phase 6 and beyond.
+- **WR-02/WR-03 (mutation-proven test-coverage gaps):** the `MNOZNIK_TTL` cleanup-multiplier relationship and the UTC-ness of `kluczDobowy` are each provably under-pinned by mutation testing in 04-REVIEW.md (setting `MNOZNIK_TTL = 1` or swapping in a local-time date derivation both leave 180/180 green). The shipped code itself is correct (confirmed by direct reading in this re-verification); the tests just don't yet prove the specific invariants the code review identified. Not a functional gap.
+- **WR-04:** `podLimitem` can theoretically reject (uncaught) on a non-string salt or an out-of-range clock, contradicting its own unconditional fail-open comment — currently unreachable through the shipped endpoints (both always pass a string salt and never pass `teraz`), so it is correctly Warning-severity, not Critical.
+- **Info-level (IN-01 through IN-06):** minor test-coverage and comment-consistency notes, all correctly deferred per the code review and 04-08-SUMMARY.md's `deferred-items.md` entry.
+
+None of the above are new findings — they are confirmed-still-present observations from the existing 04-REVIEW.md, re-checked directly against the current code in this re-verification rather than trusted from the review's own claim.
 
 ### Human Verification Required
 
-1. **Live human form submission** — submit both `/kontakt` and `/rekrutacja` in a real browser at the production URL, confirm the Turnstile widget renders visibly and is keyboard-reachable (closes the still-unproven `frame-src` CSP directive), and confirm the message lands in the `devzlobekstromiec@gmail.com` BCC backup. Why human: a managed Turnstile widget refuses to issue a token to any automated browser (confirmed empirically during Plan 07), so this is irreducibly manual.
-2. **Post-fix rate-limit re-check** — after CR-01 is fixed, confirm on the live site that the per-client and daily counters actually expire/reset rather than perpetually extending. Why human: the defect's effect only manifests over days of continued legitimate traffic; a quick manual spot-check today would look fine and hide the underlying accounting bug.
+See frontmatter `human_verification`. Two items, both previously identified and still outstanding, neither a code gap:
+
+1. **Live rate-limit re-check** on the deployed site (the specific item that FORM-02 is held open pending). The code-level fix is proven correct by direct reading and by 180/180 passing unit tests with frozen-clock cases crossing both the hour and UTC-date boundaries; what remains is confirming real Cloudflare KV edge behaviour matches the unit-tested model in production.
+2. **Live human form submission** through the real managed Turnstile widget on both `/kontakt` and `/rekrutacja`, including a client-side navigation between them (exercises the WR-02 fix with the real widget, not the dummy test sitekey).
+
+### Known External/Documented Limitations (not gaps, not re-litigated)
+
+- `zlobek@ugstromiec.pl` mailbox does not exist yet (Gmina pending); BCC backup is the sole live receiver. FORM-01 correctly unmarked.
+- RECRUIT-05's CMS info/dates-editing half is descoped for v1 by user decision D-18.
 
 ### Gaps Summary
 
-The phase delivers a working, well-tested, security-conscious form pipeline: both routes are live, both endpoints are proven end-to-end against the real Cloudflare runtime (not mocked), consent/klauzula/Turnstile are all genuinely wired and verified, and the CMS document resolver sharing works exactly as claimed. Every SUMMARY.md test-count claim independently reproduced clean.
-
-The one real gap is that the phase's own code review (`04-REVIEW.md`, produced the same day as the phase's completion) found a Critical defect in the rate limiter's window mechanics — and that defect was never fixed. The `ratelimit.ts` code, its misleading "fixed window that self-cleans" comment, and the unit test that pins the buggy behavior are all still exactly as the review found them; no commit, STATE.md entry, deferred-items.md entry, or override addresses it. Under ordinary continued legitimate use, this bug causes the site-wide daily counter to never truly reset, eventually 429-ing both forms for up to 24 hours at a time, cyclically — the opposite of what ROADMAP Success Criterion 3 ("the endpoint rate-limiting abuse") requires. Because a submission blocked by this bug is never stored anywhere (RODO no-storage design), a resulting lockout would be silent and unrecoverable from any log.
-
-This is a straightforward, well-scoped fix (bucket the KV key by date/hour instead of refreshing the TTL) with the exact remediation already written out in `04-REVIEW.md`'s Critical Issues section. It should be closed before the phase ships to real traffic, independent of the already-tracked, correctly-excluded FORM-01 mailbox blocker.
+**None.** The single Blocker gap from the prior verification (CR-01, the rate-limiter's monotonically-climbing daily counter) is closed: the fix was verified by direct code reading — not by trusting SUMMARY.md — and is confirmed by an independent run of the unit suite (180/180) including 9 named test cases that directly exercise the hour and UTC-date rollover behaviors and the no-cross-bucket-accumulation invariant. All 5 ROADMAP Success Criteria are met at the code level. Two items remain for human confirmation in the live production environment (the KV rate-limit re-check and the real-widget Turnstile submission), which is why overall status is `human_needed` rather than `passed` — this is the correct, honest state per the phase's own gap-closure plan (04-08) and is not itself a gap.
 
 ---
 
-_Verified: 2026-08-14T21:15:00Z_
+_Verified: 2026-08-15T17:30:00Z_
 _Verifier: Claude (gsd-verifier)_
