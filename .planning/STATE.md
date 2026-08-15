@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 5
-current_phase_name: Gallery & Fees
-status: executing
-stopped_at: Phase 5 context gathered
-last_updated: "2026-08-15T20:44:27.863Z"
+current_phase: 04.1
+current_phase_name: INSERTED
+status: planning
+stopped_at: Phase 04.1 context gathered
+last_updated: "2026-08-15T21:51:52.708Z"
 last_activity: 2026-08-15
-last_activity_desc: Phase 04 complete, transitioned to Phase 5
+last_activity_desc: Phase 04.1 inserted after Phase 4; Phase 5 now depends on it
 progress:
-  total_phases: 7
+  total_phases: 8
   completed_phases: 4
   total_plans: 27
   completed_plans: 27
-  percent: 57
+  percent: 50
 ---
 
 # Project State
@@ -24,16 +24,18 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-14)
 
 **Core value:** A parent lands on the site and, within seconds, both feels the żłobek's warmth and finds the exact information they need (enrollment, documents, contact) — on any device.
-**Current focus:** Phase 5 — Gallery & Fees
+**Current focus:** Phase 04.1 — Replace Sveltia with custom Polish CMS (INSERTED)
 
 ## Current Position
 
-Phase: 5 — Gallery & Fees
+Phase: 04.1 — Replace Sveltia with custom Polish CMS (INSERTED)
 Plan: Not started
-Status: Ready to execute
-Last activity: 2026-08-15 — Phase 04 complete, transitioned to Phase 5
+Status: Inserted, not yet discussed
+Last activity: 2026-08-15 — Phase 04.1 inserted after Phase 4; Phase 5 now depends on it
 
-Progress: [███████████████████░] 27/27 plans in phases 1-4 complete (4 of 7 phases, 57%)
+Progress: [█████████████████░░░] 27/27 plans in phases 1-4 complete (4 of 8 phases, 50%)
+
+**Phase 5 (Gallery & Fees) is deferred behind 04.1.** Its `05-CONTEXT.md` was gathered on 2026-08-15 assuming Sveltia is the CMS; re-read and refresh it after 04.1 lands, because gallery photo management and the fees editor are now authored in the replacement panel.
 
 ## Performance Metrics
 
@@ -172,12 +174,18 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 - [Phase 4 / 04-08] **VERIFICATION DEBT — FORM-02 stays UNMARKED.** The CR-01 bucketing fix (window now lives in the KV key: hour of epoch per client, UTC calendar date site-wide) is unit proven with frozen-clock cases crossing both the hour and the UTC date boundary, and the defect shape is confirmed absent from `ratelimit.ts`. Live re-check on the deployed site is only PARTIALLY done (04-UAT.md test 1, `result: skipped`): **part A PASSED** (repeated /kontakt submissions from one device were refused with the correct Polish "Za dużo prób wysyłki" panel on 2026-08-15). **Parts B and C were NOT run** (tester deprioritised on 2026-08-15). Part A is NOT evidence of the fix: the pre-fix build refused inside the bucket too. What is still owed, one human session and zero deploys: (B) from the SAME device, submit once at or after the top of the next clock hour with no site silence in between and confirm it is ACCEPTED, which is the reset the fix exists to provide; (C) on a new UTC date, confirm a fresh `rl:doba:<new-date>` key is used rather than the previous date's counter continuing to climb.
 - [Phase 4 / 04-REVIEW WR-01] **Process risk, carried forward.** `tests/forms.unit.ts` is the entire regression proof for the CR-01 rate-limiter fix, and it runs in NO automated gate: `npm run test` is Playwright-only (the `.unit.ts` suffix deliberately dodges the matcher), pre-commit runs only svelte-check + prettier/eslint, and there is no CI workflow. `docs/dev-env.md` still documents the verify gate as `check && lint && test`, omitting `test:unit`. Same finding was raised at `03-REVIEW.md:99-105` and left open. Two mutation-proven corollaries recorded in 04-REVIEW.md: setting `MNOZNIK_TTL = 1` (the original bug shape) leaves all 180 tests green, and swapping `kluczDobowy` to local time still passes at `TZ=Europe/Warsaw`. Worth a small follow-up in Phase 5 or 6.
 
+- [Phase 04.1] CMS requirements are stated as implementation and go stale the moment Sveltia leaves. `REQUIREMENTS.md` CMS-01 reads "log into a git-based CMS (Sveltia) via GitHub OAuth (self-hosted auth Worker)" and is ticked complete; CMS-03 (Polish admin portal) is also ticked despite the English-chrome caveat recorded in the 02-05 decision, which is one of the reasons this phase exists. Both were left untouched by the phase insertion (a phase-op does not edit requirements). Reword them during `/gsd-discuss-phase 04.1` and re-verify them when the phase completes, otherwise the traceability table will claim a Sveltia+GitHub login that no longer exists.
+
 ### Quick Tasks Completed
 
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260814-6n1 | Implement new brand logo across header, footer and favicons | 2026-08-14 | f09af5d | [260814-6n1-implement-new-brand-logo-across-header-f](./quick/260814-6n1-implement-new-brand-logo-across-header-f/) |
 | 260814-hwf | Rename to official Publiczny Żłobek w Stromcu + corrected logo artwork | 2026-08-14 | 8f8cd8a | [260814-hwf-rename-to-official-publiczny-zlobek-w-st](./quick/260814-hwf-rename-to-official-publiczny-zlobek-w-st/) |
+
+### Roadmap Evolution
+
+- Phase 04.1 inserted after Phase 4: Replace Sveltia with custom Polish CMS (URGENT)
 
 ## Deferred Items
 
@@ -189,6 +197,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-15T20:44:27.858Z
-Stopped at: Phase 5 context gathered
-Resume file: .planning/phases/05-gallery-fees/05-CONTEXT.md
+Last session: 2026-08-15T21:51:52.703Z
+Stopped at: Phase 04.1 context gathered
+Resume file: .planning/phases/04.1-replace-sveltia-with-custom-polish-cms/04.1-CONTEXT.md
