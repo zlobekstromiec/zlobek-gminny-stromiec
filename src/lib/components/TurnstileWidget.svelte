@@ -67,6 +67,12 @@
 		const kluczEfektywny = HOSTY_TESTOWE.has(window.location.hostname) ? SITEKEY_TESTOWY : sitekey;
 
 		const rysuj = () => {
+			// Ładowarka jest skryptem trzeciej strony i może dojechać już po
+			// odmontowaniu komponentu. Rysowanie w odpiętym kontenerze tworzy
+			// osierocony widget, którego identyfikatora sprzątanie nie ma już jak
+			// usunąć, bo wykonało się wcześniej.
+			if (!cel.isConnected) return;
+
 			widgetId = window.turnstile?.render(cel, {
 				sitekey: kluczEfektywny,
 				// Polish UI to match the rest of the page (SITE-06), light theme to match
@@ -85,7 +91,12 @@
 		if (window.turnstile) rysuj();
 		else window.__onTurnstileLoad = rysuj;
 
+		// Efekt jest właścicielem całego życia tego, co zainstalował, więc globalny
+		// callback odchodzi razem z widgetem, a porównanie tożsamości pilnuje, żeby
+		// jedna instancja nie sprzątała po drugiej (przy istniejącym window.turnstile
+		// komponent idzie szybką ścieżką i nie instaluje niczego).
 		return () => {
+			if (window.__onTurnstileLoad === rysuj) window.__onTurnstileLoad = undefined;
 			if (widgetId !== undefined) window.turnstile?.remove(widgetId);
 			widgetId = undefined;
 		};
