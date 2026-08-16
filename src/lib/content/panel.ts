@@ -121,6 +121,17 @@ export const KOPIA_PULPIT = {
 	pomocOpis: 'Instrukcja krok po kroku, jak korzystać z panelu.'
 } as const;
 
+/** The Pomoc screen. DELIBERATELY ALMOST EMPTY, and that is the point of P-27: every
+ *  word of the instrukcja itself is authored once, in docs/instrukcja-cms.md, and the
+ *  screen renders that document. Restating any of it here would create a second
+ *  instrukcja that agrees with the first only on the day it is written.
+ *
+ *  What is left is the one thing the document cannot carry, because it is a link to the
+ *  document: the label of the control that hands a staff member their own copy. */
+export const KOPIA_POMOC = {
+	plikLink: 'Pobierz tę instrukcję jako plik tekstowy'
+} as const;
+
 /** Collection list screens (Component Contract 4). */
 export const KOPIA_LISTY = {
 	aktualnosciNaglowek: 'Aktualności',
