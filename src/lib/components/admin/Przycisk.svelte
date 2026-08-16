@@ -35,6 +35,7 @@
 		wartosc,
 		zajete = false,
 		pelnaSzerokosc = false,
+		onNacisnij,
 		children
 	}: {
 		wariant?: Wariant;
@@ -49,6 +50,11 @@
 		/** The saving state of Contract 9: disabled plus aria-busy, never a spinner. */
 		zajete?: boolean;
 		pelnaSzerokosc?: boolean;
+		/** Added by 04.1-07 for the photo island's two buttons, which are the first controls
+		 *  in the panel that act on the page instead of submitting it. Absent everywhere
+		 *  else, so every existing call site renders byte-identically to before, and it is
+		 *  only ever meaningful together with the non-submitting button type. */
+		onNacisnij?: (event: MouseEvent) => void;
 		children: Snippet;
 	} = $props();
 </script>
@@ -62,6 +68,7 @@
 	value={wartosc}
 	disabled={zajete}
 	aria-busy={zajete ? 'true' : undefined}
+	onclick={onNacisnij}
 >
 	{@render children()}
 </button>

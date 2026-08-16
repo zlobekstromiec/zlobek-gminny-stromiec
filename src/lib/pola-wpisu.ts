@@ -91,8 +91,14 @@ export interface WartosciWpisu {
 	rok: string;
 	zajawka: string;
 	tresc: string;
-	/** The cover the entry already had, as a bare basename (P-20), or empty. */
+	/** The cover the entry already had, as a bare basename (P-20), or empty. Echoed back
+	 *  even when the editor removed it, because the SAVE still has to know which file to
+	 *  take out of the repository; `usunieto` beside it is what says the picture is gone. */
 	obraz: string;
+	/** The editor pressed „Usuń zdjęcie". Echoed rather than inferred from an emptied
+	 *  basename: a refused save that forgot it would republish the photo on the next
+	 *  attempt, or leave the file behind with nothing pointing at it. */
+	usunieto: boolean;
 	/** The prepared data URL of a photo chosen but not yet saved, or empty. Echoed back on
 	 *  a refusal like every other typed value: an editor whose title was too long must not
 	 *  also lose the photo they picked, because the next save would then quietly publish
@@ -118,10 +124,8 @@ export function wartosciWpisu(zrodlo: ZrodloPol): WartosciWpisu {
 		rok: tekst(zrodlo.get(POLE_ROK)),
 		zajawka: tekst(zrodlo.get(POLE_ZAJAWKA)),
 		tresc: tekst(zrodlo.get(POLE_TRESC)),
-		// The removal flag is applied HERE rather than echoed: a refused save that handed
-		// back both the removal flag and the old basename would redraw the picture the
-		// editor had just taken out, and the next attempt would silently republish it.
-		obraz: tekst(zrodlo.get(POLE_ZDJECIE_USUN)).length > 0 ? '' : tekst(zrodlo.get(POLE_OBRAZ)),
+		obraz: tekst(zrodlo.get(POLE_OBRAZ)),
+		usunieto: tekst(zrodlo.get(POLE_ZDJECIE_USUN)).length > 0,
 		zdjecie: tekst(zrodlo.get(POLE_ZDJECIE)),
 		alt: tekst(zrodlo.get(POLE_OBRAZ_ALT)),
 		// An unticked checkbox omits its key entirely, which is the HTML convention the
@@ -141,6 +145,7 @@ export function pusteWartosciWpisu(dzien: string, miesiac: string, rok: string):
 		zajawka: '',
 		tresc: '',
 		obraz: '',
+		usunieto: false,
 		zdjecie: '',
 		alt: '',
 		zastepcza: false

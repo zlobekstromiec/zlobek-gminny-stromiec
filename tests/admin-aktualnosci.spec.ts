@@ -208,12 +208,17 @@ test.describe('Dodawanie wpisu: Contracts 5, 9 i 10', () => {
 		// anywhere on the screen.
 		await expect(page.locator('main input[type="date"], main input[type="month"]')).toHaveCount(0);
 
-		// The date group is a fieldset with a visible legend, because three controls produce
-		// one value and a group without a name is a group nobody can identify.
-		const grupa = page.locator('main fieldset');
-		await expect(grupa).toHaveCount(1);
-		await expect(grupa.locator('legend')).toBeVisible();
-		await expect(grupa.locator('legend')).toHaveText(POLA_WPIS.dataLegenda);
+		// Two grouped controls on this screen since 04.1-07: the date triple and the photo.
+		// Each is a fieldset with a VISIBLE legend, because a group without a name is a group
+		// nobody can identify.
+		const grupy = page.locator('main fieldset');
+		await expect(grupy).toHaveCount(2);
+		const grupaDaty = grupy.filter({ has: page.locator('select') });
+		await expect(grupaDaty.locator('legend')).toBeVisible();
+		await expect(grupaDaty.locator('legend')).toHaveText(POLA_WPIS.dataLegenda);
+		const grupaZdjecia = grupy.filter({ has: page.locator('input[type="file"]') });
+		await expect(grupaZdjecia.locator('legend')).toBeVisible();
+		await expect(grupaZdjecia.locator('legend')).toHaveText(POLA_WPIS.zdjecieEtykieta);
 	});
 
 	test('opcje miesiaca sa dokladnie wspolna tabela miesiecy, w jej kolejnosci', async ({
@@ -515,7 +520,7 @@ test.describe('Dostepnosc ekranow aktualnosci (WCAG 2.1 AA)', () => {
 	test('ekran dodawania w stanie czystym nie narusza WCAG 2.1 AA', async ({ page, zalogowany }) => {
 		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
 		await page.goto(NOWY);
-		await expect(page.locator('main fieldset')).toBeVisible();
+		await expect(page.locator('main fieldset').first()).toBeVisible();
 		const wynik = await new AxeBuilder({ page }).withTags(ZNACZNIKI).analyze();
 		expect(wynik.violations).toEqual([]);
 	});
@@ -548,7 +553,7 @@ test.describe('Dostepnosc ekranow aktualnosci (WCAG 2.1 AA)', () => {
 	test('ekran edycji nie narusza WCAG 2.1 AA', async ({ page, zalogowany }) => {
 		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
 		await page.goto(`${LISTA}/${SEEDY[0].slug}`);
-		await expect(page.locator('main fieldset')).toBeVisible();
+		await expect(page.locator('main fieldset').first()).toBeVisible();
 		const wynik = await new AxeBuilder({ page }).withTags(ZNACZNIKI).analyze();
 		expect(wynik.violations).toEqual([]);
 	});

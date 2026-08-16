@@ -37,7 +37,11 @@ export const JAKOSC_ZDJECIA = 0.82;
 
 /** What the native file input accepts and what the server's data URL pattern allows. One
  *  list, so the control cannot offer a type the server then refuses. */
-export const TYPY_ZDJECIA = ['image/jpeg', 'image/png', 'image/webp'] as const;
+export const TYPY_ZDJECIA: readonly string[] = Object.freeze([
+	'image/jpeg',
+	'image/png',
+	'image/webp'
+]);
 
 /** What the island always PRODUCES, whatever it was given. The extension the generated
  *  filename carries is tied to this in src/lib/server/admin/uploads.ts. */

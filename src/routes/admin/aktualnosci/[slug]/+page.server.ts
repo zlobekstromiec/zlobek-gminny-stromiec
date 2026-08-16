@@ -90,6 +90,9 @@ export const load: PageServerLoad = async ({ params, platform, url }) => {
 			// the public card uses, and the hidden field carries this value back so a save
 			// that changes only the title keeps the picture.
 			obraz: wpis.obraz === undefined ? '' : (wpis.obraz.split('/').pop() ?? ''),
+			// Nothing has been removed on a fresh load: the flag only ever comes back from a
+			// submission on which the editor pressed „Usuń zdjęcie".
+			usunieto: false,
 			// Nothing is pending on a fresh load: a data URL only ever exists between an
 			// editor choosing a file and the save that follows.
 			zdjecie: '',

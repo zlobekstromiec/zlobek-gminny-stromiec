@@ -25,16 +25,22 @@
 	import PoleDaty from './PoleDaty.svelte';
 	import PolePlaceholder from './PolePlaceholder.svelte';
 	import PomocFormatowania from './PomocFormatowania.svelte';
-	import { POLA_WPIS } from '$lib/content/panel';
+	import ZdjecieIsland from './ZdjecieIsland.svelte';
+	import { KOPIA_ZDJECIA, POLA_WPIS } from '$lib/content/panel';
+	import { PROPORCJA_WPISU } from '$lib/zdjecia';
 	import {
 		POLE_DATA,
 		POLE_DZIEN,
 		POLE_MIESIAC,
+		POLE_OBRAZ,
+		POLE_OBRAZ_ALT,
 		POLE_ROK,
 		POLE_TRESC,
 		POLE_TYTUL,
 		POLE_ZAJAWKA,
 		POLE_ZASTEPCZA,
+		POLE_ZDJECIE,
+		POLE_ZDJECIE_USUN,
 		type WartosciWpisu
 	} from '$lib/pola-wpisu';
 
@@ -106,12 +112,31 @@
 		<PomocFormatowania />
 	</div>
 
-	<!-- PLAN 07 INSERTION POINT: the photo group (a fieldset with its own legend, the
-	     native file input, the status line, the preview slot and the required alt field)
-	     belongs HERE, between the body and the placeholder checkbox, per Contract 5. It is
-	     deliberately absent rather than stubbed: a file control that accepted a photo and
-	     then dropped it would be worse than no control at all. The server validator already
-	     enforces the D-15 alt rule, so the rule exists before the control that triggers it. -->
+	<!-- The photo group, between the body and the placeholder checkbox per Contract 5. It is
+	     the one hydrated thing on this screen (D-17) and an ENHANCEMENT rather than a
+	     requirement: with scripting off it renders its honest notice, every other field still
+	     works, and the D-15 alt rule is enforced on the server either way. The two photo
+	     errors share the file control, because „this is not an image" and „that name is not
+	     one we generate" are the same answer to the person looking at the screen. -->
+	<ZdjecieIsland
+		id="{ID}-zdjecie"
+		legenda={POLA_WPIS.zdjecieEtykieta}
+		podpowiedz={POLA_WPIS.zdjeciePodpowiedz}
+		altEtykieta={POLA_WPIS.altEtykieta}
+		altPodpowiedz={POLA_WPIS.altPodpowiedz}
+		proporcja={PROPORCJA_WPISU}
+		komunikatGotowe={KOPIA_ZDJECIA.gotowe169}
+		nazwaZdjecia={POLE_ZDJECIE}
+		nazwaUsuniecia={POLE_ZDJECIE_USUN}
+		nazwaObrazu={POLE_OBRAZ}
+		nazwaAltu={POLE_OBRAZ_ALT}
+		obraz={wartosci.obraz}
+		usunieto={wartosci.usunieto}
+		zdjecie={wartosci.zdjecie}
+		alt={wartosci.alt}
+		blad={pola[POLE_ZDJECIE] ?? pola[POLE_OBRAZ]}
+		bladAltu={pola[POLE_OBRAZ_ALT]}
+	/>
 
 	<PolePlaceholder
 		id="{ID}-zastepcza"

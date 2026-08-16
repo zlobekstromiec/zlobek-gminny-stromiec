@@ -51,8 +51,12 @@
 		data: 'wpis-data-dzien',
 		zajawka: 'wpis-zajawka',
 		tresc: 'wpis-tresc',
-		obraz: 'wpis-tresc',
-		obraz_alt: 'wpis-tresc'
+		// Both photo refusals point at the file control, and the description at its own
+		// field: a summary entry that linked to a control that is not on the screen would
+		// announce nothing at all.
+		zdjecie: 'wpis-zdjecie-plik',
+		obraz: 'wpis-zdjecie-plik',
+		obraz_alt: 'wpis-zdjecie-alt'
 	};
 </script>
 

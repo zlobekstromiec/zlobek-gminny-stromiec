@@ -363,6 +363,12 @@ export const KOPIA_ZAPIS = {
 /** The photo island (Component Contract 8). Nothing here describes motion, because
  *  the island animates nothing: the status text IS the progress indicator. */
 export const KOPIA_ZDJECIA = {
+	/** Visible label of the native file control. The UI-SPEC requires a real visible label
+	 *  on it and its copy table names only the fieldset legend, so this one is authored
+	 *  here rather than borrowed: repeating „Zdjęcie (opcjonalnie)" on both the legend and
+	 *  the label would announce the same words twice to a screen-reader user, and a control
+	 *  with no label of its own is the one thing the Accessibility Contract never allows. */
+	wybierzEtykieta: 'Wybierz zdjęcie',
 	przygotowywanie: 'Przygotowywanie zdjęcia...',
 	gotowe169: 'Zdjęcie gotowe. Zostało przycięte do proporcji 16:9 i zmniejszone.',
 	gotowe43: 'Zdjęcie gotowe. Zostało przycięte do proporcji 4:3 i zmniejszone.',
