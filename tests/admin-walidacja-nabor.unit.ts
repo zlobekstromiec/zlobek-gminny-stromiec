@@ -35,6 +35,7 @@ import {
 	zapiszTresc,
 	type SrodowiskoZapisu
 } from '../src/lib/server/admin/zapis.ts';
+import { SCIEZKA_NABOR as SCIEZKA_ZAPISU } from '../src/lib/stan-naboru.ts';
 import { serializujJson } from '../src/lib/server/admin/serializuj.ts';
 import type { OpcjeZapisu, WynikZapisu } from '../src/lib/server/admin/commit.ts';
 import { KOPIA_WALIDACJA } from '../src/lib/content/panel.ts';
@@ -174,6 +175,14 @@ test('plik naboru trzyma dokladnie jeden klucz o wartosci logicznej', () => {
 	const dane = JSON.parse(readFileSync(SCIEZKA_NABOR, 'utf8'));
 	assert.deepEqual(Object.keys(dane), ['otwarty']);
 	assert.equal(typeof dane.otwarty, 'boolean');
+});
+
+test('sciezka, ktora panel zapisuje, wskazuje na istniejacy plik naboru', () => {
+	// A save that writes a path nothing reads would report success to the editor, produce
+	// a real commit and a real Cloudflare build, and change nothing a parent can see. That
+	// failure is silent in every layer, so the path is pinned against the filesystem here.
+	assert.equal(SCIEZKA_ZAPISU, 'src/lib/content/nabor.json');
+	assert.doesNotThrow(() => readFileSync(`${KORZEN}${SCIEZKA_ZAPISU}`, 'utf8'));
 });
 
 // ---------------------------------------------------------------------------

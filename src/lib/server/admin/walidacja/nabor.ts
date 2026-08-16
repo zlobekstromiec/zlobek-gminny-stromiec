@@ -11,17 +11,13 @@
 // Pure and dependency-free apart from the shared readers and the copy module: no
 // fetch, no I/O, no clock. Nothing here logs.
 import { KOPIA_WALIDACJA } from '../../../content/panel.ts';
+import { POLE_STAN, STAN_OTWARTY, STAN_ZAMKNIETY, stanZWartosci } from '../../../stan-naboru.ts';
 import type { WynikPol } from './pola.ts';
 
-/** Name of the form control, exported so the route, the page and the spec all read one
- *  source instead of retyping a string that has to match in three places. */
-export const POLE_STAN = 'stan';
-
-/** The only two values this action accepts. Not a boolean on the wire: two radios post
- *  a word, and „otwarty"/„zamkniety" says in the request what it means, so a stray
- *  „on" or „true" from anywhere else is refused rather than coerced. */
-export const STAN_OTWARTY = 'otwarty';
-export const STAN_ZAMKNIETY = 'zamkniety';
+// Re-exported rather than redeclared, so a caller on the server may keep importing the
+// whole vocabulary from the validator beside it while exactly one definition exists. The
+// page cannot import from this file at all: see the header of src/lib/stan-naboru.ts.
+export { POLE_STAN, STAN_OTWARTY, STAN_ZAMKNIETY, stanZWartosci };
 
 /** Exactly the shape src/lib/content/nabor.json holds. The panel serializes THIS
  *  object, so the file's shape and the validator's output cannot drift; the unit suite
@@ -43,10 +39,4 @@ export function walidujNabor(surowy: unknown): WynikPol<NaborDane> {
 	// Both the untouched form and an unexpected value land here on purpose: see the
 	// comment on KOPIA_WALIDACJA.stanNaboruBrak for why they share one instruction.
 	return { ok: false, pola: { [POLE_STAN]: KOPIA_WALIDACJA.stanNaboruBrak } };
-}
-
-/** The value to render as the checked radio when the form comes back. Kept beside the
- *  validator so the page never has to know which literal means which boolean. */
-export function stanZWartosci(otwarty: boolean): string {
-	return otwarty ? STAN_OTWARTY : STAN_ZAMKNIETY;
 }
