@@ -82,6 +82,11 @@ export const KOPIA_LOGOWANIE = {
 		'Dla bezpieczeństwa unieważniliśmy ten kod. Kliknij Wyślij kod ponownie i wpisz nowy kod.',
 	limitNaglowek: 'Za dużo prób logowania',
 	limitTresc: 'Z tego urządzenia wysłano już kilka kodów. Spróbuj ponownie za godzinę.',
+	// Osobna treść dla wpisywania kodu (CR-01). Ta sama granica, inna przyczyna:
+	// tam wysłano za dużo kodów, tu wpisano za dużo błędnych. Jedno zdanie dla obu
+	// mówiłoby osobie, która się pomyliła, że coś wysyłała.
+	limitProbTresc:
+		'Z tego urządzenia wpisano już kilka błędnych kodów. Spróbuj ponownie za godzinę.',
 	wysylkaBladNaglowek: 'Nie udało się wysłać kodu',
 	wysylkaBladTresc:
 		'Spróbuj ponownie za chwilę. Jeśli problem się powtarza, skontaktuj się z osobą, która przekazała Ci dostęp do panelu.',

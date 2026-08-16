@@ -228,7 +228,7 @@ export const actions: Actions = {
 				krok: 2,
 				adres,
 				panelNaglowek: KOPIA_LOGOWANIE.limitNaglowek,
-				panelTresc: KOPIA_LOGOWANIE.limitTresc
+				panelTresc: KOPIA_LOGOWANIE.limitProbTresc
 			} satisfies WynikLogowania);
 		}
 
