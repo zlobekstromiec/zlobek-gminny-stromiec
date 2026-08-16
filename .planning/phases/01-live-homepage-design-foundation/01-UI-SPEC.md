@@ -490,3 +490,60 @@ The full lockup (`src/lib/assets/brand/logo-full.png`) is added at the TOP of th
 
 ### 4. Bespoke icon system otherwise unchanged (§7)
 IconBear remains in `src/lib/icons/` and the whole bespoke icon contract (viewBox 24, 2px round currentColor stroke, duotone `--icon-fill` plate, 46px tint chips) stands. Only the logo badge use of IconBear is superseded: nothing else changes, and NO EMOJI still applies.
+
+---
+
+## Amendment v1.6 (2026-08-16): desktop recomposition (>=1024px)
+
+> The mobile-first build left the >=1024px tier sparse: 44 to 52rem boxes alternate
+> between left-anchored and centered inside the 72rem container, so wide viewports
+> read as unfinished whitespace. This amendment composes the desktop tier by filling
+> the existing container; it adds NO new breakpoint (the contract's unspecified
+> >=1280px tier simply inherits the filled 1024px layouts). v1.5 (in
+> `04.1-UI-SPEC.md`) stays in force except where superseded here. Supersedes exactly:
+> v1.1 §1 (homepage section order), v1.2 §5 (the wave above Perks is now
+> white-to-accent, not warm-to-accent), v1.2 §6 KeyFacts (internal cell composition;
+> the 46px chips and 4/2/1 columns stay) and DayPlan ("centered tint-blue panel
+> max-width 44rem": the panel keeps 44rem and tint-blue but becomes the right column
+> at >=1024px), 02-UI-SPEC Wartości 3-column grid (now 4), 04-UI-SPEC /rekrutacja and
+> /kontakt composition tables plus Contract 9's 46rem status-banner cap, and the
+> NewsPreview 96px desktop padding (now 64px). UNCHANGED sitewide: the 72rem
+> container and gutters, every WCAG invariant of the Accessibility Contract, all
+> color/type/radius tokens, and mobile (<1024px) visuals except the §11 list below.
+
+### 1. Homepage section order v2.2
+Hero → Key-facts strip → Aktualności (still ONLY when `posts.length > 0`; the homepage never shows the news empty state) → Wave (bg `--color-surface`, fill `--color-accent`) → Perks → Rekrutacja module → DayPlan → O-nas teaser → Kontakt i dojazd → Footer. Rationale: news is the section returning parents check; it moves into the first screenful. Aktualności surface becomes `--color-surface` (white) with padding-block 48 → 64, so alternation still holds: warm facts, white news, accent Perks, white recruitment, white DayPlan, warm teaser, band contact.
+
+### 2. Editorial split pattern (new, reusable)
+At >=1024px an info section becomes a grid `minmax(220px, 300px) minmax(0, 1fr)`, column-gap 48px, `align-items: start`: the h2 sits in the left rail (bottom margin 0), prose and content fill the right track to the container edge. Below 1024px nothing changes. Applied to: /o-nas Misja, Kadra, and Nasze miejsce intro (gallery spans both tracks); /dokumenty category sections (the 52rem doc-list cap is released inside the right track).
+
+### 3. KeyFacts v3
+Each cell is a consistent stack: chip, kicker label, value, note. The note (the old inline suffix, for example "wyjątkowo do 4 lat" and the fee conditions) becomes its own 15px Nunito 400 muted block below the value at ALL widths, ending the mid-line wrap. The grid top-aligns cells (`align-items: start`); at >=1024px the cell stacks vertically (chip above text). `ul/li` semantics, the aria-label, four `.fact-label` nodes, and all fact strings are unchanged.
+
+### 4. DayPlan v2
+At >=1024px the section is a two-column grid `minmax(260px, 1fr) / minmax(0, 1.4fr)`, gap 48px: left column holds the h2 "Nasz dzień w żłobku" (name and `#dayplan-heading` locked), a short intro paragraph (copy below, verbatim), and, ONLY on the homepage instance (prop `pokazLink`), a "Poznaj nas bliżej" link to /o-nas (distinct accessible name from the teaser's "Poznaj żłobek"); right column holds the tint-blue panel, keeping its 44rem cap and the `.panel li .time .what` markup (cross-page byte-identity test). Below 1024px the heading and intro stack above the panel.
+Intro copy: „Dzień w naszym żłobku ma stały, przewidywalny rytm. Zabawa, posiłki, spacer i odpoczynek następują po sobie o znanych porach, dzięki czemu dzieci czują się bezpiecznie, a rodzice wiedzą, co dzieje się w każdej chwili dnia. Ten sam plan realizujemy od poniedziałku do piątku."
+
+### 5. Recruitment module: full-height docs panel
+The docs panel becomes a flex column filling its grid row; the list grows and "Zobacz wszystkie dokumenty" pins to the panel bottom. "Pobierz wniosek" stays in the steps column (same destination as the panel link; duplicating it in the panel reads as noise).
+
+### 6. /o-nas
+Wartości: >=1024px grid becomes `repeat(4, 1fr)` (four cards, no 3+1 orphan; matches the KeyFacts/Perks four-up rhythm). Kadra: the headcount renders as tint-blue stat cards (`--radius-md`, 16px 24px padding) at all widths; `dl > div > dt/dd` structure unchanged. Contrast on tint-blue: ink 26px about 11:1, muted 14px about 5.9:1, both AA.
+
+### 7. /rekrutacja composition v2
+Page-head, then the full-width status banner (cap removed; internal grid `minmax(0, 1.4fr) minmax(0, 1fr)` at >=1024px: status and deadline left, następny nabór right; band surface, never danger). Then ONE warm band holding a grid with areas `"info awaria" / "info formularz"`, columns `minmax(0, 1.4fr) minmax(0, 1fr)`, column-gap 48px, row-gap 24px: the info column stacks kryteria, procedura, opłaty, wnioski (each keeping its labelled section); the right rail holds the fallback callout above the form card, and the form block is `position: sticky; top: 96px; align-self: start`. DOM order equals the mobile order (fallback, form, info) and no `order` property is used; each column is one coherent block, which satisfies the DOM-order invariant. Band alternation on this page intentionally collapses to warm; the kryteria zebra stripe flips to `--color-surface` so it stays perceivable (decorative only).
+
+### 8. /kontakt composition v2
+One band merges Dane kontaktowe and Mapa dojazdu side by side at >=1024px (`1fr 1.15fr`, the ContactAndMap ratio; both h2 sections kept; mobile stack order unchanged, the map's mobile surface moves white → band). One warm zone holds the form grid with areas `"formularz awaria" / "formularz urzad" / "formularz ."` (`minmax(0, 1.4fr) minmax(0, 1fr)`): form card left, fallback callout and the urząd panel in the right rail. No sticky here (the rail is shorter than the form). The urząd panel keeps its own labelled section and styling.
+
+### 9. FallbackPanel extraction
+The "Wolisz zadzwonić?" callout becomes one shared component (`FallbackPanel.svelte`) rendered by the two form ROUTES, exactly once per page, title still a paragraph (never a heading), `KOPIA_FALLBACK` copy unchanged. The `<noscript>` twins stay inside the form islands.
+
+### 10. NewsCard `uklad="poziomy"`
+/aktualnosci renders full-width horizontal cards at >=768px: image column `minmax(240px, 300px)`, content right (24px padding, vertically centered); below 768px identical to the tile; the listing grid is single-column at every width. The homepage keeps the three-tile grid (default `pionowy`).
+
+### 11. Declared mobile (<1024px) changes
+KeyFacts note on its own line below the value; DayPlan h2 and intro above the panel on white; /rekrutacja info sections all on the warm band (previously white/band/white/warm alternation); /kontakt map section on band (previously white) and 24px stacking gaps in the form zone; /o-nas headcount as tint stat cards; /aktualnosci list single-column at 768 to 1024 (previously 2 columns). Everything else below 1024px is pixel-identical.
+
+### 12. Test lockstep
+`tests/responsive.spec.ts` extends to 1920x1080 and to all six public routes at 1280 and 1920 (no-horizontal-overflow), plus two composition guards (the /rekrutacja form rail sits right of the info column; the DayPlan panel sits right of its heading). No acceptance assertion is weakened.
