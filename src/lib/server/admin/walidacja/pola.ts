@@ -20,6 +20,7 @@
 // per-collection validator beside this file, which is what keeps the long-prose copy
 // rules (no emoji, no em dash, Polish only) enforceable by one sweep over one module.
 import { bezpiecznyTekst } from '../../forms/sanitize.ts';
+import { ROK_MAKS, ROK_MIN } from '../../../daty.ts';
 
 /** The field was left alone, or a required control never arrived. */
 export const BLAD_BRAK = 'brak';
@@ -125,9 +126,14 @@ export interface DataZlozona {
 /** Accepted year window for a content date. Wide enough for an archival document and
  *  a scheduled entry, narrow enough that a typed 1926 or 2226 is refused rather than
  *  published: a date nobody would ever notice being wrong is exactly the value that
- *  needs a bound. */
-export const ROK_MIN = 2020;
-export const ROK_MAKS = 2100;
+ *  needs a bound.
+ *
+ *  MOVED to src/lib/daty.ts by 04.1-06 and re-exported here, so nothing that already
+ *  imports it from this module had to change. The same window is what the three selects
+ *  OFFER, and a client component cannot import anything under src/lib/server/. Declaring
+ *  the bound twice would eventually produce a select whose own validator refuses its
+ *  options, so there is one declaration and two importers. */
+export { ROK_MIN, ROK_MAKS };
 
 /** Zero-pad to two digits. Both stored shapes are fixed width, and a single-digit day
  *  would fail the reader's own `^(\d{4})-(\d{2})-(\d{2})$` guard. */

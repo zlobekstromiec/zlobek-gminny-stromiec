@@ -315,6 +315,15 @@ export const KOPIA_ZAPIS = {
 		'Twoje zmiany nie zostały zapisane. Wpisane dane zostały w formularzu, spróbuj ponownie za chwilę.',
 	brakTresciNaglowek: 'Nie znaleziono tej treści',
 	brakTresciTresc: 'Ta treść mogła zostać usunięta. Wróć do listy i sprawdź.',
+	/** P-17. The panel generates the filename from the date and the title (D-14), so two
+	 *  entries published on the same day under the same title would want the same file.
+	 *  Overwriting the older one silently is a data-loss defect, and a random suffix would
+	 *  make the address of a post unpredictable, so the create is refused and the editor is
+	 *  told exactly which two fields decide the answer. Same register as the rest of the
+	 *  refusal copy: what happened, then what to do. */
+	kolizjaNaglowek: 'Taki wpis już istnieje',
+	kolizjaTresc:
+		'Wpis o tym tytule i z tą datą publikacji już jest na stronie. Zmień tytuł albo datę publikacji i zapisz jeszcze raz.',
 	notaGrupy: 'Dodanie lub usunięcie wiersza nie zapisuje zmian. Na końcu kliknij Zapisz.',
 	dodajWartosc: 'Dodaj wartość',
 	dodajWiersz: 'Dodaj wiersz',

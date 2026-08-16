@@ -349,6 +349,20 @@ test('kopia zdjec nie opisuje zadnej animacji ani paska postepu', () => {
 	assert.match(KOPIA_ZDJECIA.przygotowywanie, /Przygotowywanie zdjęcia/);
 });
 
+// P-17. The filename is generated from the date and the title, so the refusal has to
+// name BOTH fields: an editor told only „this entry already exists" would change the
+// title, hit the same collision from the other side, and have no way to reason about it.
+test('odmowa przy zajetej nazwie pliku mowi, ktore dwa pola o niej decyduja (P-17)', () => {
+	assert.equal(KOPIA_ZAPIS.kolizjaNaglowek, 'Taki wpis już istnieje');
+	assert.match(KOPIA_ZAPIS.kolizjaTresc, /tytule/);
+	assert.match(KOPIA_ZAPIS.kolizjaTresc, /datą publikacji/);
+	// Says what to DO, not merely that something is wrong (WCAG 3.3.3).
+	assert.match(KOPIA_ZAPIS.kolizjaTresc, /Zmień tytuł albo datę publikacji/);
+	// And never promises that the older entry survived by luck: it says the entry exists,
+	// which is true, and stops there.
+	assert.equal(/nadpis|zastąp/i.test(KOPIA_ZAPIS.kolizjaTresc), false);
+});
+
 test('przyciski destrukcyjne nazywaja rzecz, ktora usuwaja', () => {
 	assert.equal(KOPIA_USUWANIE.wpisPrzycisk, 'Usuń wpis');
 	assert.equal(KOPIA_USUWANIE.dokumentPrzycisk, 'Usuń dokument');
