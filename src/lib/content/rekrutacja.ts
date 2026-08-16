@@ -5,10 +5,12 @@
 // (section 3). Nothing here is invented, and nothing listed in section 10 of that
 // document (the do-not-publish gate) is published.
 //
-// D-18: this is a PLAIN CODE-AUTHORED content module. It has no CMS collection, no
-// config.yml entry and no Sveltia or GitHub coupling of any kind. The user has
-// descoped CMS editing of recruitment information for v1 and intends to replace the
-// CMS entirely, so this content must survive that migration untouched.
+// D-18: this is a PLAIN CODE-AUTHORED content module. No editorial screen writes it
+// and it is coupled to no external account or hosted service of any kind. The user
+// descoped editing of recruitment INFORMATION for v1, so only the recruitment STATE
+// is editable in the panel (04.1-05, src/lib/stan-naboru.ts); the prose, dates and
+// fees below are changed by a developer. This module survived the Phase 04.1 editor
+// replacement untouched, which is what D-18 was written to guarantee.
 //
 // Address, room and office-hours values are NEVER duplicated here: they are
 // interpolated from the shared `urzad` object in site.ts, so /rekrutacja, /kontakt

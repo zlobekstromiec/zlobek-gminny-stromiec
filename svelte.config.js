@@ -43,7 +43,6 @@ const config = {
 		// prerendered pages via <meta>, nonce on dynamic responses).
 		// frame-ancestors is intentionally absent: browsers ignore it in
 		// <meta> CSP; _headers keeps X-Frame-Options: DENY instead.
-		// Phases 2–4 extend these directives (Sveltia /admin, Turnstile, Resend).
 		// Phase 4 (Plan 04-01) adds challenges.cloudflare.com to exactly three
 		// directives and nothing else. The Turnstile loader script and the widget
 		// iframe both come from that host, and the widget makes its own calls back
@@ -51,9 +50,14 @@ const config = {
 		// back to default-src 'self', which would have blocked the widget outright
 		// (04-RESEARCH.md Pitfall 2). 'self' on connect-src is also what allows the
 		// form island's same-origin fetch to /api/*. script-src gains no inline
-		// allowance, no wildcard host is introduced, and the path-scoped /admin/*
-		// policy in the root _headers file stays untouched. The style-src entry below
-		// is the only inline allowance in the whole policy and predates this phase.
+		// allowance and no wildcard host is introduced. The style-src entry below
+		// is the only inline allowance in the whole policy and predates that phase.
+		//
+		// Phase 04.1 adds NOTHING here, and that is the decision rather than an
+		// oversight. The editorial panel at /admin is ordinary SvelteKit routes, so
+		// this policy already covers it with a per-response nonce. It must NOT be
+		// widened to accommodate the panel, and the root _headers file carries no
+		// path-scoped block for /admin either; the comment there says why.
 		csp: {
 			mode: 'auto',
 			directives: {

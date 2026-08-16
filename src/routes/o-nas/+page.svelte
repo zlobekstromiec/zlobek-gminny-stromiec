@@ -9,7 +9,9 @@
 	// only paragraphs/bold/links reach the DOM (D-08); the public CSP (script-src 'self')
 	// is the second, not the only, layer. Facility images are optimized by
 	// enhanced-img (AVIF/WebP srcset, width/height, no CLS) and resolved by BASENAME so the
-	// route is decoupled from whether Plan 04's Sveltia config stores a filename or a path.
+	// route is decoupled from whether the stored value is a bare filename or a full path.
+	// The editorial panel stores the bare filename (04.1-07 P-20), and this lookup would
+	// keep working unchanged if that ever became a path.
 	// Plan dnia reuses DayPlan verbatim (D-03: single shared source). Kadra is a collective
 	// narrative + headcount by role, no individual profiles or staff photos (D-02).
 	import type { Picture } from '@sveltejs/enhanced-img';

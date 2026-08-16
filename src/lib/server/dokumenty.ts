@@ -70,9 +70,11 @@ export function withMeta(entry: DokumentEntry): DokumentWithMeta | null {
 		return null;
 	}
 	// Files are served verbatim from static/, so their public path maps 1:1 to
-	// static${plik} on disk at build time. A missing file (e.g. deleted from the
-	// Sveltia media library while its entry remains) must NOT abort the whole
-	// prerender: skip the entry with a warning instead of failing the deploy.
+	// static${plik} on disk at build time. A missing file (for example one removed
+	// from static/dokumenty/ by hand while its entry remains) must NOT abort the
+	// whole prerender: skip the entry with a warning instead of failing the deploy.
+	// The editorial panel writes and removes both halves in a single commit
+	// (04.1-08), so the panel itself cannot produce this state; a hand edit can.
 	let bytes: number;
 	try {
 		bytes = statSync(join(process.cwd(), 'static', entry.plik)).size;
