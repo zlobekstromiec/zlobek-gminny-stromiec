@@ -37,6 +37,19 @@
 	let { data, form }: { data: PageData; form: WynikUsuniecia | null } = $props();
 
 	const LISTA = '/admin/aktualnosci';
+
+	// BOTH focus mechanisms, exactly as PanelKomunikat carries both and for the same
+	// reason: the `autofocus` attribute is what works with JavaScript DISABLED, where no
+	// effect ever runs, and the effect is what works after a CLIENT-SIDE navigation, where
+	// no fresh document is parsed and the attribute therefore does nothing. An editor
+	// reaching this page by clicking „Usuń" in the list arrives the second way. Focusing
+	// twice is a no-op; focusing never is a screen-reader user who is asked a question they
+	// were never taken to.
+	let pytanie: HTMLHeadingElement | undefined = $state();
+
+	$effect(() => {
+		if (data.znaleziony) pytanie?.focus();
+	});
 </script>
 
 <!-- 1. Back link. „Anuluj", because on this screen going back IS cancelling. -->
@@ -53,7 +66,9 @@
 	     effect: an effect never runs on a screen that must work without JavaScript, and
 	     this is the one element this page exists to make somebody read. -->
 	<!-- svelte-ignore a11y_autofocus -->
-	<h1 class="naglowek" tabindex="-1" autofocus>{KOPIA_USUWANIE.wpisNaglowek}</h1>
+	<h1 class="naglowek" bind:this={pytanie} tabindex="-1" autofocus>
+		{KOPIA_USUWANIE.wpisNaglowek}
+	</h1>
 
 	{#if form?.panelNaglowek}
 		<div class="komunikat">
