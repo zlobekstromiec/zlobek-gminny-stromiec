@@ -1,16 +1,31 @@
 <script lang="ts">
-	// Daily schedule panel (UI-SPEC v1.2 §6): a parent's "what does a day look
-	// like" answer, right after the recruitment module. Static content from the
-	// migrated single source day-plan.json (D-03) so the homepage and /o-nas
-	// render byte-identical rows. Times render at 19px Baloo 700 accent-active
-	// on tint-blue (3.97:1 large-text pass; never smaller).
+	// Daily schedule (UI-SPEC v1.2 §6, recomposed by Amendment v1.6 §4): a parent's
+	// "what does a day look like" answer. Static content from the migrated single
+	// source day-plan.json (D-03) so the homepage and /o-nas render byte-identical
+	// rows. Desktop is a two-column grid: heading + intro left, tint-blue panel
+	// right. Times render at 19px Baloo 700 accent-active on tint-blue (3.97:1
+	// large-text pass; never smaller). pokazLink adds the /o-nas link on the
+	// homepage instance only (a self-link on /o-nas would be noise).
 	import dayPlan from '$lib/content/day-plan.json';
+
+	let { pokazLink = false }: { pokazLink?: boolean } = $props();
 </script>
 
 <section class="dayplan" aria-labelledby="dayplan-heading">
 	<div class="inner">
-		<div class="panel">
+		<div class="opis">
 			<h2 id="dayplan-heading">Nasz dzień w żłobku</h2>
+			<p class="intro">
+				Dzień w naszym żłobku ma stały, przewidywalny rytm. Zabawa, posiłki, spacer i odpoczynek
+				następują po sobie o znanych porach, dzięki czemu dzieci czują się bezpiecznie, a rodzice
+				wiedzą, co dzieje się w każdej chwili dnia. Ten sam plan realizujemy od poniedziałku do
+				piątku.
+			</p>
+			{#if pokazLink}
+				<a class="wiecej" href="/o-nas">Poznaj nas bliżej</a>
+			{/if}
+		</div>
+		<div class="panel">
 			<ul>
 				<!-- Keyed by POSITION, never by the hours. Phase 04.1 made this file editable
 				     from the panel, and Svelte THROWS on a keyed each block with two equal
@@ -45,6 +60,8 @@
 		max-width: 72rem;
 		margin-inline: auto;
 		padding-inline: 16px;
+		display: grid;
+		gap: 24px;
 	}
 
 	@media (min-width: 768px) {
@@ -56,24 +73,53 @@
 	@media (min-width: 1024px) {
 		.inner {
 			padding-inline: 32px;
+			grid-template-columns: minmax(260px, 1fr) minmax(0, 1.4fr);
+			gap: 48px;
+			align-items: start;
 		}
 	}
 
-	.panel {
-		max-width: 44rem;
-		margin-inline: auto;
-		background: var(--color-tint-blue);
-		border-radius: var(--radius-lg);
-		padding: 28px 32px;
-	}
-
-	.panel h2 {
+	.opis h2 {
 		font-family: var(--font-display);
 		font-weight: 700;
 		font-size: clamp(1.5rem, 3vw, 1.75rem);
 		line-height: 1.2;
 		color: var(--color-ink);
-		margin: 0 0 10px;
+		margin: 0 0 12px;
+	}
+
+	.intro {
+		font-family: var(--font-body);
+		font-size: 16px;
+		font-weight: 400;
+		line-height: 1.6;
+		color: var(--color-muted);
+		max-width: 52ch;
+		margin: 0 0 16px;
+	}
+
+	.wiecej {
+		display: inline-flex;
+		align-items: center;
+		min-height: 44px;
+		font-family: var(--font-body);
+		font-size: 15px;
+		font-weight: 700;
+		color: var(--color-brand-blue);
+		text-decoration: underline;
+	}
+
+	.wiecej:hover {
+		color: var(--color-brand-blue-hover);
+	}
+
+	/* Left-aligned (not centered) so the panel tracks the heading column at
+	   every width; the 44rem cap only bites on wide tablets and desktop. */
+	.panel {
+		max-width: 44rem;
+		background: var(--color-tint-blue);
+		border-radius: var(--radius-lg);
+		padding: 28px 32px;
 	}
 
 	.panel ul {

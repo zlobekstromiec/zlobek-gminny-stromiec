@@ -39,6 +39,6 @@
 <Wave fill="var(--color-accent)" bg="var(--color-surface)" />
 <Perks />
 <Recruitment docs={data.docs} />
-<DayPlan />
+<DayPlan pokazLink />
 <AboutTeaser />
 <ContactAndMap />
