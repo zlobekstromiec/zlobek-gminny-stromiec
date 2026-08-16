@@ -242,7 +242,16 @@ export const KOPIA_NABOR = {
 	zamknietyEtykieta: 'Nabór zamknięty',
 	zamknietyOpis:
 		'Na stronie pojawi się informacja, że nabór podstawowy jest zakończony, a rodzic może zapisać się na listę rezerwową.',
-	podgladNaglowek: 'Tak zobaczy to rodzic'
+	podgladNaglowek: 'Tak zobaczy to rodzic',
+	/** Name of the public page the „Zapisano" panel links to, so the editor can go and
+	 *  look at what they just changed. */
+	stronaNazwa: 'Rekrutacja',
+	/** The two commit descriptions. They are copy like any other: they are written by
+	 *  this project in Polish, they land in the history of a PUBLIC repository, and
+	 *  they are therefore swept for emoji, em dashes and English chrome by
+	 *  tests/admin-copy.unit.ts exactly as a visible label is. */
+	opisZapisuOtwarty: 'otwarto nabór',
+	opisZapisuZamkniety: 'zamknięto nabór'
 } as const;
 
 /** The formatting help disclosure (Component Contract 6). Line 4 states what is NOT
@@ -278,7 +287,11 @@ export const KOPIA_WALIDACJA = {
 	zrodloNiepoprawne: 'Ten adres jest niepoprawny. Wklej pełny adres, zaczynający się od https://',
 	liczbaNiepoprawna: 'Wpisz liczbę, na przykład 6.',
 	godzinyBrak: 'Wpisz godziny, na przykład 7:00–8:30.',
-	wartoscNiepelna: 'Uzupełnij tytuł i opis tej wartości albo usuń ją.'
+	wartoscNiepelna: 'Uzupełnij tytuł i opis tej wartości albo usuń ją.',
+	/** The recruitment switch has two states and no third one, so „nothing chosen" and
+	 *  „something unexpected arrived" are the same thing to the person in front of the
+	 *  screen and get the same instruction (WCAG 3.3.3: say what to do). */
+	stanNaboruBrak: 'Zaznacz, czy nabór jest otwarty, czy zamknięty.'
 } as const;
 
 /** Save, conflict and failure surfaces (Component Contracts 9 and 10), plus the

@@ -3,6 +3,12 @@
 // CMS content layer then. PLACEHOLDER convention (Phase 6 pre-launch grep gate)
 // extends to `// PLACEHOLDER:` line comments in this module.
 // Copy rules (v1.2 §8): no emoji, no em dashes; en dash only inside numeric ranges.
+//
+// The import attribute on the JSON below is not decoration: `tests/forms-copy.unit.ts`
+// loads this module directly under `node --test`, where an ESM JSON import without
+// `with { type: 'json' }` is refused outright. Vite accepts the attribute too, so one
+// form works in both places.
+import nabor from './nabor.json' with { type: 'json' };
 
 /** VERBATIM client core message (PROJECT.md line 47). FINAL copy: do not alter a
  *  single character. Its em dash and typographic quotes are byte-exempt from the
@@ -22,8 +28,13 @@ export const coreMessage =
  *  The exact archival stage dates are deliberately NOT repeated here. They live in
  *  the committed source document, whose section 10.3 forbids presenting them as
  *  current, and a repository-wide gate (Plan 04-06) keeps them out of src/ so no
- *  future edit can lift them out of a comment and into shipped copy. */
-export const recruitmentOpen = false;
+ *  future edit can lift them out of a comment and into shipped copy.
+ *
+ *  The VALUE now lives in src/lib/content/nabor.json because the editorial panel
+ *  writes it (04.1 D-16, P-14) and the panel may only ever machine-write JSON under
+ *  src/lib/content/, never a TypeScript module. The name, the type and every
+ *  consumer's import are unchanged. */
+export const recruitmentOpen = nabor.otwarty;
 
 /** Launch-week announcement bar flag: banked only, no component renders it yet.
  *  Copy and rules live in .planning/DESIGN-BANK.md (accent bg, never danger). */
@@ -159,6 +170,18 @@ const closedStrings: RecruitmentStrings = {
 	deadline: 'Zapisy na listę rezerwową przez cały rok',
 	body: 'Rekrutacja podstawowa została zakończona, ale w ciągu roku zwalniają się miejsca. Zgłoszenie na listę rezerwową możesz złożyć w dowolnym momencie.'
 };
+
+/** Both status-banner headlines, side by side, for the panel's „Tak zobaczy to
+ *  rodzic" preview (04.1-UI-SPEC Component Contract 13). The preview has to show the
+ *  editor the consequence of the state they are ABOUT to save, which is the one state
+ *  the derived `recruitment` object below cannot describe, because it has already
+ *  collapsed to the current one. Reading the same two strings the public page renders
+ *  is what makes it impossible for the panel and /rekrutacja to disagree; a
+ *  paraphrase in the panel would drift the first time this copy is edited. */
+export const recruitmentHeadings = {
+	otwarty: openStrings.heading,
+	zamkniety: closedStrings.heading
+} as const;
 
 /** Derived once here; components import `recruitment`, never plumb the boolean. */
 export const recruitment = {
