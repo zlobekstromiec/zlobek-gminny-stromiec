@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 04.1
 current_phase_name: replace-sveltia-with-custom-polish-cms
 status: executing
-stopped_at: Ukonczono 04.1-07-PLAN.md
-last_updated: "2026-08-16T08:56:54.131Z"
+stopped_at: Ukonczono 04.1-08-PLAN.md
+last_updated: "2026-08-16T09:34:21.293Z"
 last_activity: 2026-08-16
-last_activity_desc: "Completed 04.1-07 (zdjecia wpisow: wyspa z przycieciem w przegladarce, alt wymagany na serwerze, wpis i okladka w jednym commicie)"
+last_activity_desc: "Completed 04.1-08 (dokumenty: walidator przeciw czytnikowi publicznemu, wyspa pliku bez pracy na bajtach, wpis i plik zawsze w jednym commicie)"
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 38
-  completed_plans: 34
+  completed_plans: 35
   percent: 50
 ---
 
@@ -29,15 +29,17 @@ See: .planning/PROJECT.md (updated 2026-08-14)
 ## Current Position
 
 Phase: 04.1 (replace-sveltia-with-custom-polish-cms) — EXECUTING
-Plan: 8 of 11
+Plan: 9 of 11
 Status: Ready to execute
-Last activity: 2026-08-16 — Completed 04.1-07 (zdjecia wpisow: wyspa z przycieciem w przegladarce, alt wymagany na serwerze, wpis i okladka w jednym commicie)
+Last activity: 2026-08-16 — Completed 04.1-08 (dokumenty: walidator przeciw czytnikowi publicznemu, wyspa pliku bez pracy na bajtach, wpis i plik zawsze w jednym commicie)
 
-Plan 11 is `autonomous: false`. Plan 04's human prerequisites are now PARTLY done: the GitHub App `Panel redakcyjny zlobka` exists (org-owned, Contents:write on one repository, client id `Iv23lipuQ3hnHl4snF6h`, installation `154059103`) and the private key is converted to PKCS#8 at `~/Documents/panel-redakcyjny-zlobka.pkcs8.pem`. **The Cloudflare half is now DONE** (resolved at the 04.1-04 checkpoint on 2026-08-16): the five admin Pages secrets are set on `zlobek-gminny-stromiec`, deployment `72941a1e-51db-49bc-a9bd-581c05d99cb0` carries them, and the code-request leg of the login completes in production. **What is still OWED is the first REAL save**, and after 04.1-07 that gate has grown again: a real nabór flip (04.1-05), a real create, title edit and delete of an aktualność (04.1-06), and a real create WITH A PHOTO TAKEN ON A PHONE whose `git show --stat` must list exactly two files with the same stem (04.1-07), each with its commit SHA recorded and the public page confirmed to change. The photo step also closes the untested iPhone HEIC decoding assumption if the phone is an iPhone. All three checkpoints are one session's work and none needs a deploy of its own.
+Plan 11 is `autonomous: false`. Plan 04's human prerequisites are now PARTLY done: the GitHub App `Panel redakcyjny zlobka` exists (org-owned, Contents:write on one repository, client id `Iv23lipuQ3hnHl4snF6h`, installation `154059103`) and the private key is converted to PKCS#8 at `~/Documents/panel-redakcyjny-zlobka.pkcs8.pem`. **The Cloudflare half is now DONE** (resolved at the 04.1-04 checkpoint on 2026-08-16): the five admin Pages secrets are set on `zlobek-gminny-stromiec`, deployment `72941a1e-51db-49bc-a9bd-581c05d99cb0` carries them, and the code-request leg of the login completes in production. **What is still OWED is the first REAL save**, and after 04.1-07 that gate has grown again: a real nabór flip (04.1-05), a real create, title edit and delete of an aktualność (04.1-06), and a real create WITH A PHOTO TAKEN ON A PHONE whose `git show --stat` must list exactly two files with the same stem (04.1-07), each with its commit SHA recorded and the public page confirmed to change. The photo step also closes the untested iPhone HEIC decoding assumption if the phone is an iPhone. **04.1-08 adds a fourth leg**: a real document with a real PDF whose `git show --stat` must list exactly two files (one under `src/lib/content/dokumenty/`, one under `static/dokumenty/`), then a name-only edit that must touch ONE file and must not move the download URL, then a DOCX replacement that must write the new file and remove the old PDF in ONE commit, then a deletion that removes both halves. All four checkpoints are one session's work and none needs a deploy of its own.
 
 **D-20 IS SUPERSEDED as of Plan 01 (user-approved Rule 4 deviation).** Sveltia's repository footprint was deleted in Plan 01, not Plan 11, because `static/admin/` is a Cloudflare Pages static asset and static assets resolve before the Worker, so the bare `/admin` never reached the new gate and the plan's own assertions were unprovable. Staff therefore have NO working editor until Plan 10 lands, which the user accepted. Plan 11 must be re-read rather than executed as written: its Task 2 is now largely a no-op (see `04.1-01-SUMMARY.md` "Knock-on Effects for Plan 11" for the exact split), and its ordering prohibition no longer applies. Plan 11 Task 3 is unchanged and still owed: deleting the GitHub OAuth App and the deployed `sveltia-cms-auth` Worker, both dashboard-only and both still live.
 
-Progress: 04.1 plans 1 to 7 of 11 complete; 27/27 plans in phases 1-4 complete (4 of 8 phases)
+Progress: 04.1 plans 1 to 8 of 11 complete; 27/27 plans in phases 1-4 complete (4 of 8 phases)
+
+**Never import `src/lib/server/dokumenty.ts` from an `/admin` route** (learned in 04.1-08). It carries `node:fs`, the panel is the Cloudflare Worker, and this deployment enables only `nodejs_als`. The category union lives in `src/lib/kategorie-dokumentow.ts`, the file constants and the size formatter in `src/lib/pliki.ts`, and the panel's own reader in `src/lib/server/admin/dokumenty.ts`. The public reader imports the first two back and re-exports the type, so exactly one declaration of each exists.
 
 **CMS-01 and CMS-03 stay UNMARKED after 04.1-02**, deliberately, following the Plan 01 precedent. Both are shared across the whole phase, both are currently worded around Sveltia and GitHub OAuth, and D-21 rewords them in Plan 11. Ticking them from a plan that ships a code module and a copy module, with no login screen yet, would put a false claim in the traceability table.
 
@@ -99,6 +101,7 @@ Progress: 04.1 plans 1 to 7 of 11 complete; 27/27 plans in phases 1-4 complete (
 | Phase 04.1 P05 | 3h | 3 tasks | 13 files |
 | Phase 04.1 P06 | 35min | 3 tasks | 27 files |
 | Phase 04.1 P07 | 78min | 3 tasks | 19 files |
+| Phase 04.1 P08 | 47min | 3 tasks | 21 files |
 
 ## Accumulated Context
 
@@ -183,6 +186,9 @@ Recent decisions affecting current work:
 - [Phase ?]: 04.1-07: okladka nazywa sie rdzeniem nazwy pliku wpisu (P-19), a przechowywana wartosc to gola nazwa pliku (P-20)
 - [Phase ?]: 04.1-07: walidator oddaje ladunek zdjecia, nazwe okladki sklada trasa, bo przy dodawaniu rdzen powstaje z wlasnie sprawdzanych pol
 - [Phase ?]: 04.1-07: okladka jest kasowana tylko wtedy, gdy jej nazwa to nazwa wygenerowana dla tego wpisu, bo oba zdjecia zalozycielskie renderuje tez strona O nas
+- [Phase 04.1]: P-22: dolaczenie pliku dokumentu wymaga JavaScriptu, reszta ekranu nie: Dziesiec megabajtow zakodowanych w zadaniu przekracza budzet CPU Workera na darmowym planie; edycja metadanych dokumentu, ktory plik juz ma, jest udowodniona przy wylaczonych skryptach
+- [Phase 04.1]: Unia kategorii dokumentow i formater rozmiaru wyprowadzone spod node:fs: Panel dziala w Workerze, ktory nie ma systemu plikow, wiec zaden ekran /admin nie moze importowac src/lib/server/dokumenty.ts; czytnik publiczny reeksportuje typ, wiec istnieje jedna deklaracja
+- [Phase 04.1]: Wiersz dokumentu w panelu pokazuje typ i date wersji, bez rozmiaru: Rozmiar da sie policzyc tylko przez stat pliku (niemozliwy w Workerze) albo zapisujac go we wpisie, czego zabrania D-14; UI-SPEC Contract 4 mial racje wobec tekstu planu
 
 ### Pending Todos
 
@@ -241,6 +247,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-16T08:56:54.125Z
-Stopped at: Ukonczono 04.1-07-PLAN.md
+Last session: 2026-08-16T09:34:21.288Z
+Stopped at: Ukonczono 04.1-08-PLAN.md
 Resume file: None
