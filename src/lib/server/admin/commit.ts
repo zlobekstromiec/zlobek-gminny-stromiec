@@ -221,6 +221,9 @@ export async function zapiszAtomowo(opcje: OpcjeZapisu): Promise<WynikZapisu> {
 	} catch (e) {
 		// P-12: GitHub documents 200, 409 and 422 for update-ref without saying which
 		// one a non-fast-forward produces, so BOTH are mapped to the conflict outcome.
+		// Measured against the real repository on 2026-08-16 with a deliberately stale
+		// sha and force:false: the answer is 422 "Update is not a fast forward", and
+		// the ref was left untouched. 409 stays mapped anyway, see below.
 		// Deliberately over-mapping: the cost of treating some other 409 or 422 as a
 		// conflict is a slightly wrong Polish message, while the cost of missing the
 		// real one is an edit that was silently lost being reported as saved.
