@@ -1,245 +1,410 @@
-# Instrukcja obsługi systemu redakcyjnego (CMS)
+# Instrukcja obsługi panelu redakcyjnego
 
-Publiczny Żłobek w Stromcu, panel redakcyjny pod adresem `/admin`
+Publiczny Żłobek w Stromcu. Panel jest pod adresem strony żłobka z dopiskiem `/admin`
+na końcu, na przykład `https://zlobekstromiec.pl/admin`.
 
-Ten dokument jest przeznaczony do wydruku. Prowadzi krok po kroku przez logowanie,
-edycję treści strony O nas, edycję planu dnia oraz dodawanie, zamianę i usuwanie
-dokumentów. Na końcu znajduje się lista kontrolna weryfikacji.
+Ten dokument jest przeznaczony do wydruku i prowadzi krok po kroku przez wszystko, co
+można zmienić na stronie żłobka. Nie trzeba go czytać w całości: każda sekcja jest
+osobną, skończoną instrukcją.
 
-Uwaga o języku: panel jest po polsku, łącznie z przyciskami i menu edytora
-(polskie tłumaczenie programu Sveltia jest wczytywane lokalnie). Tłumaczenie
-programu nie jest jeszcze kompletne, więc pojedyncze napisy mogą pozostać po
-angielsku. Tłumaczenia najważniejszych przycisków znajdziesz w sekcji
-"Język i wygląd edytora".
+Trzy rzeczy, które warto wiedzieć, zanim zaczniesz:
+
+- Nie da się zepsuć strony przez pomyłkę. Każdy zapis jest osobno odnotowany i osoba
+  techniczna może przywrócić poprzednią wersję treści.
+- Panel nigdy nie zapisuje niczego sam. Dopóki nie klikniesz **Zapisz**, na stronie
+  żłobka nic się nie zmienia.
+- Po zapisaniu zmiana pojawia się na stronie po około 2 minutach, a nie od razu. To jest
+  normalne i opisane w sekcji „Co zrobić, gdy zmiany nie widać".
 
 ---
 
 ## 1. Logowanie
 
-1. Otwórz w przeglądarce adres strony i dopisz na końcu `/admin`, na przykład
-   `https://zlobek-gminny-stromiec.pages.dev/admin`.
-2. Kliknij przycisk logowania. Otworzy się okienko serwisu GitHub.
-3. Zaloguj się swoim kontem GitHub (każda osoba redagująca ma własne konto,
-   dzięki czemu widać, kto wprowadził daną zmianę).
-4. Zezwól aplikacji na dostęp. Po chwili wróci widok panelu z listą sekcji:
-   O nas, Plan dnia oraz Dokumenty.
+Do zalogowania potrzebujesz tylko swojego adresu e-mail i dostępu do swojej skrzynki.
+Nie zakładasz żadnego konta i nie ustawiasz żadnego hasła.
 
-Jeśli logowanie się nie powiedzie, zamknij okienko i spróbuj ponownie. Gdy problem
-się powtarza, zgłoś to osobie technicznej (konto musi mieć dostęp do repozytorium).
+1. Otwórz w przeglądarce adres strony żłobka i dopisz na końcu `/admin`.
+2. W polu **Adres e-mail** wpisz swój adres redakcyjny i kliknij **Wyślij kod**.
+3. Otwórz swoją skrzynkę pocztową. Przyjdzie wiadomość o temacie
+   „Kod logowania do panelu redakcyjnego" z sześciocyfrowym kodem, na przykład `123456`.
+4. Wróć do przeglądarki, wpisz kod w polu **Kod z e-maila** i kliknij **Zaloguj się**.
 
-<!-- PLACEHOLDER: screenshot - ekran logowania i okno GitHub (do wykonania w Zadaniu 3) -->
+Kod jest ważny 15 minut. Jeśli wiadomość nie przychodzi w ciągu minuty lub dwóch,
+sprawdź folder ze spamem albo z ofertami: pierwsza wiadomość z nowego adresu często tam
+trafia. Warto oznaczyć ją jako „nie spam", żeby kolejne przychodziły normalnie.
 
----
+**Wyślij kod ponownie** unieważnia poprzedni kod i przysyła nowy. Używaj tego przycisku
+zawsze, gdy kod stracił ważność, gdy wpisałaś lub wpisałeś go kilka razy błędnie albo
+gdy wiadomość nie dotarła. Stary kod przestaje wtedy działać, więc wpisuj kod z
+najnowszej wiadomości.
 
-## 2. Edycja strony O nas
+**Wpisz inny adres e-mail** wraca do pierwszego kroku. Użyj tego, jeśli w adresie jest
+literówka. Wpisany adres jest zawsze pokazany nad polem kodu, właśnie po to, żeby
+literówkę było widać.
 
-W panelu wybierz sekcję "O nas". Możesz edytować następujące pola:
+Ekran po wysłaniu kodu wygląda tak samo dla każdego adresu. Jeśli kod nie przychodzi i
+masz pewność, że adres jest wpisany poprawnie, to znaczy, że ten adres nie ma jeszcze
+dostępu do panelu. Zgłoś to osobie, która przekazała Ci dostęp (patrz sekcja 12).
 
-- Wprowadzenie: krótki tekst na górze strony.
-- Misja: opis misji żłobka. Dozwolone jest pogrubienie i wstawianie odnośników.
-- Wartości: lista wartości. Każda pozycja ma tytuł i krótki opis. Nowy wiersz
-  dodajesz przyciskiem dodawania na dole listy.
-- Kadra: opis: ciepły opis zespołu (kwalifikacje, podejście). Bez nazwisk.
-- Liczba opiekunek oraz Personel pomocniczy (liczba): wpisz liczby.
-- O budynku: opis budynku, sali i placu zabaw.
-- Zdjęcia (budynek, sala, plac zabaw): dodaj zdjęcia obiektu. Do każdego zdjęcia
-  wpisz krótki opis alternatywny (alt) dla osób korzystających z czytników ekranu.
+Zalogowanie pamięta się przez 30 dni na tym samym urządzeniu i w tej samej przeglądarce.
 
-Ważne: zdjęcia nie mogą przedstawiać osób (dzieci ani personelu). Publikujemy
-wyłącznie zdjęcia budynku, sal i placu zabaw, bez wizerunku osób.
+### Wylogowanie
 
-Po zakończeniu edycji zapisz zmiany przyciskiem "Zapisz".
+Przycisk **Wyloguj** jest w prawym górnym rogu każdego ekranu panelu.
 
-<!-- PLACEHOLDER: screenshot - formularz O nas z polskimi etykietami -->
-
----
-
-## 3. Plan dnia
-
-W sekcji "Plan dnia" edytujesz wspólny plan dnia (te same dane pokazują się na
-stronie O nas). Każdy wiersz ma dwie kolumny:
-
-- Godziny: na przykład `8:00 - 9:00`.
-- Opis: co dzieje się w tym czasie.
-
-Aby dodać nowy punkt, użyj przycisku dodawania wiersza. Aby zmienić kolejność,
-przeciągnij wiersz. Po zakończeniu zapisz zmiany.
-
-<!-- PLACEHOLDER: screenshot - lista wierszy planu dnia -->
+**Na komputerze wspólnym, na przykład w sali czy w sekretariacie, zawsze klikaj
+Wyloguj po skończonej pracy.** Samo zamknięcie karty przeglądarki nie kończy
+zalogowania: następna osoba, która otworzy ten adres, trafi prosto do panelu.
 
 ---
 
-## 4. Dokumenty
+## 2. Pulpit
 
-Sekcja "Dokumenty" to lista plików do pobrania (regulaminy, statut, karty zapisu,
-klauzule RODO). Każdy dokument to osobny wpis.
+Pulpit to pierwszy ekran po zalogowaniu. Jest na nim sześć kafelków i każdy prowadzi do
+jednego miejsca, które można zmienić. Te same sekcje są w menu, widocznym na każdym
+ekranie.
 
-### Dodawanie nowego dokumentu
+- **Aktualności**: wpisy z życia żłobka, czyli ogłoszenia, wydarzenia, zaproszenia.
+  Kafelek pokazuje, ile wpisów jest teraz na stronie.
+- **O nas**: wprowadzenie, misja, wartości, opis kadry i opis budynku wraz ze zdjęciami
+  obiektu.
+- **Plan dnia**: godziny i zajęcia w ciągu dnia.
+- **Dokumenty**: pliki do pobrania, czyli wnioski, statut i uchwały. Kafelek pokazuje,
+  ile dokumentów jest teraz na stronie.
+- **Nabór**: przełącznik informacji o naborze. Kafelek pokazuje, jak jest ustawiony w tej
+  chwili.
+- **Pomoc**: ta instrukcja, dostępna także z każdego ekranu przez odnośnik
+  „Instrukcja obsługi panelu" na dole strony.
 
-1. W sekcji "Dokumenty" kliknij przycisk tworzenia nowego wpisu (New / Nowy).
+Na dole każdego ekranu jest przypomnienie o dwóch minutach opóźnienia. Nie jest to
+komunikat o błędzie, tylko stała informacja.
+
+---
+
+## 3. Dodanie wpisu w Aktualnościach
+
+Wpisy pokazują się na stronie Aktualności, od najnowszego. Trzy najnowsze pojawiają się
+dodatkowo na stronie głównej.
+
+1. Wejdź w **Aktualności** i kliknij **Dodaj wpis**.
+2. Wypełnij pola. Gwiazdka przy nazwie pola oznacza, że pole jest wymagane.
+   - **Tytuł**: tytuł wpisu po polsku. Będzie widoczny na liście i na stronie wpisu.
+   - **Data publikacji**: trzy listy do wyboru, osobno dzień, miesiąc i rok. Data ustala
+     kolejność wpisów na liście. Wpis pojawia się na stronie od razu po zapisaniu, także
+     wtedy, gdy wybierzesz datę z przyszłości: nie ma publikacji zaplanowanej na później.
+   - **Zajawka**: krótkie streszczenie, 2-3 zdania, pokazywane na kafelku listy. Pole jest
+     opcjonalne. Jeśli zostawisz je puste, na kafelku pokaże się początek treści.
+   - **Treść**: pełna treść wpisu. Można pogrubić tekst, dodać odnośnik i listę
+     punktowaną. Pod polem jest rozwijana pomoc **Jak formatować tekst** z przykładami.
+     Nagłówki, tabele i zdjęcia wewnątrz treści nie są obsługiwane.
+   - **Zdjęcie (opcjonalnie)** i **Opis alternatywny (alt)**: patrz sekcja 5.
+   - **Treść zastępcza (do potwierdzenia)**: zaznacz to pole, dopóki treść czeka na
+     potwierdzenie. Przy takim wpisie na liście w panelu pojawi się etykieta
+     „Treść zastępcza". Wpis jest wtedy normalnie widoczny na stronie, a etykieta jest
+     tylko przypomnieniem dla redakcji, że trzeba do niego wrócić. Odznacz je, gdy treść
+     jest już ostateczna.
+3. Kliknij **Zapisz**.
+
+Po zapisaniu wracasz na listę wpisów. Na górze pojawi się zielony panel **Zapisano** ze
+zdaniem, że zmiana pojawi się na stronie po około 2 minutach, oraz odnośnik
+„Zobacz stronę: Aktualności", który otwiera nowy wpis w nowej karcie. Nowy wpis nie jest
+jeszcze widoczny na liście w panelu i to jest w porządku: panel pokazuje stan ostatniej
+przebudowy strony. Po dwóch minutach odśwież listę, a wpis się pojawi.
+
+Jeśli po kliknięciu **Zapisz** nic się nie zapisało, a nad formularzem pojawił się
+czerwony panel „Popraw zaznaczone pola", przeczytaj listę pod nim. Każda pozycja jest
+odnośnikiem, który przenosi kursor prosto do pola wymagającego poprawy. Wpisane dane nie
+znikają.
+
+---
+
+## 4. Poprawienie i usunięcie wpisu
+
+Aby poprawić wpis, otwórz go z listy (klikając jego tytuł albo **Edytuj**), wprowadź
+zmiany i kliknij **Zapisz**.
+
+Poprawienie tytułu nie zmienia adresu wpisu. Adres jest ustalany raz, w chwili
+utworzenia wpisu, i pozostaje stały, dzięki czemu odnośniki wysłane wcześniej rodzicom
+nadal działają.
+
+Aby usunąć wpis, kliknij **Usuń** w jego wierszu na liście. Otworzy się osobny ekran z
+pytaniem „Usunąć ten wpis?", z tytułem i datą wpisu, który ma zniknąć. Sprawdź, czy to
+na pewno ten wpis, i dopiero wtedy kliknij czerwony przycisk **Usuń wpis**. Jeśli
+otworzysz ten ekran przez pomyłkę, kliknij **Anuluj**.
+
+**Tej operacji nie można cofnąć w panelu.** Jeśli wpis został usunięty przez pomyłkę,
+zgłoś to osobie technicznej: treść da się odtworzyć z historii zmian, ale nie zrobisz
+tego samodzielnie z panelu.
+
+---
+
+## 5. Dodanie zdjęcia z opisem alternatywnym
+
+Zdjęcie dodaje się na ekranie wpisu (jedno zdjęcie nagłówkowe) oraz na ekranie O nas
+(zdjęcia budynku, sali i placu zabaw). Obsługa jest w obu miejscach taka sama.
+
+1. Kliknij **Wybierz zdjęcie** i wskaż plik z telefonu albo z komputera.
+2. Poczekaj chwilę. Pod przyciskiem pojawi się napis „Przygotowywanie zdjęcia...", a po
+   nim „Zdjęcie gotowe" wraz z podglądem.
+3. Wypełnij pole **Opis alternatywny (alt)**.
+4. Kliknij **Zapisz**.
+
+**Zdjęcie jest przycinane i zmniejszane automatycznie.** Panel sam kadruje je ze środka
+do właściwych proporcji i zmniejsza, żeby strona działała szybko także na telefonie.
+Podgląd pokazuje dokładnie to, co zobaczy rodzic, wraz z podpisem
+„Tak zdjęcie pojawi się na stronie.". Nie trzeba niczego przygotowywać wcześniej: można
+wybrać zdjęcie prosto z telefonu.
+
+Jeśli kadr Ci nie odpowiada, przytnij zdjęcie w telefonie i wybierz je ponownie
+przyciskiem **Wybierz inne zdjęcie**. **Usuń zdjęcie** usuwa zdjęcie z formularza,
+zanim cokolwiek zostanie zapisane.
+
+### Opis alternatywny jest obowiązkowy
+
+Opis alternatywny to jedno zdanie mówiące, co widać na zdjęciu. Czytają je osoby
+niewidome i słabowidzące korzystające z czytników ekranu, a także każdy, komu zdjęcie
+się nie wczyta. Strona żłobka jest stroną instytucji publicznej i taki opis jest
+wymagany prawem.
+
+**Bez opisu alternatywnego zdjęcia nie da się zapisać.** Panel odmówi zapisu i pokaże
+komunikat „Napisz opis alternatywny zdjęcia. Bez niego nie możemy zapisać zdjęcia.".
+
+Jak pisać:
+
+- Napisz, co widać, na przykład: `Dzieci malują farbami przy stoliku.` albo
+  `Sala zabaw z kolorowymi zabawkami.`
+- Jedno krótkie zdanie wystarczy.
+- Nie pisz samego słowa „zdjęcie" ani „foto": czytnik ekranu i tak zapowiada, że to
+  zdjęcie.
+- Nie powtarzaj tytułu wpisu.
+- Nie podawaj imion dzieci.
+
+### Zdjęcia dzieci i zdjęcia budynku
+
+Zdjęcia na stronie O nas mają przedstawiać budynek, sale i plac zabaw, bez osób.
+Zdjęcie, na którym da się rozpoznać dziecko, można opublikować tylko wtedy, gdy żłobek
+ma na to pisemną zgodę rodziców. W razie wątpliwości wybierz zdjęcie bez osób.
+
+### Dodanie zdjęcia wymaga włączonych skryptów
+
+Zdjęcie jest przygotowywane w przeglądarce, więc dodanie nowego zdjęcia wymaga
+włączonej obsługi JavaScript. Wszystko pozostałe w panelu działa także bez niej. W
+praktyce każda zwykła przeglądarka ma tę obsługę włączoną. Jeśli po wybraniu pliku nie
+pojawia się podgląd, a w formularzu widnieje informacja o konieczności włączenia
+JavaScript, spróbuj na innej przeglądarce lub na innym urządzeniu.
+
+---
+
+## 6. Dokumenty
+
+Sekcja **Dokumenty** to lista plików do pobrania. Każdy dokument to osobny wpis
+składający się z opisu i z pliku.
+
+### Dodanie dokumentu
+
+1. Wejdź w **Dokumenty** i kliknij **Dodaj dokument**.
 2. Wypełnij pola:
-   - Nazwa dokumentu: czytelna nazwa po polsku (nie nazwa pliku).
-   - Kategoria: wybierz z listy (Rekrutacja, Statut i uchwały, RODO). Lista jest
-     stała, nie da się wpisać własnej kategorii.
-   - Plik: prześlij plik PDF, DOC lub DOCX.
-   - Wersja z dnia: wybierz datę wersji dokumentu (format DD.MM.RRRR).
-   - Źródło (BIP), opcjonalnie: odnośnik do dokumentu w BIP, jeśli istnieje.
-3. Zapisz wpis.
+   - **Nazwa dokumentu**: czytelna nazwa po polsku, a nie nazwa pliku. To ona jest
+     widoczna na stronie.
+   - **Kategoria**: wybierz z listy. Rekrutacja oraz Statut i uchwały są widoczne na
+     stronie, kategoria RODO zostanie włączona później.
+   - **Plik**: kliknij **Wybierz plik** i wskaż plik. Dopuszczalne są pliki PDF, DOC i
+     DOCX, o rozmiarze do 10 MB. Pod przyciskiem pojawi się nazwa i rozmiar wybranego
+     pliku.
+   - **Wersja z dnia**: data wersji dokumentu, wybierana z trzech list.
+   - **Źródło (BIP), opcjonalnie**: pełny adres dokumentu w BIP, zaczynający się od
+     `https://`, jeśli dokument jest tam opublikowany.
+   - **Treść zastępcza (do potwierdzenia)**: tak samo jak przy wpisie.
+3. Kliknij **Zapisz**.
+
+Panel odmówi zapisu, jeśli dokument o tej nazwie już jest na stronie. Wtedy zmień nazwę
+dokumentu i zapisz jeszcze raz.
 
 ### Zamiana pliku w istniejącym dokumencie
 
-1. Otwórz wpis dokumentu z listy.
-2. W polu Plik usuń dotychczasowy plik i prześlij nowy.
-3. Zaktualizuj pole "Wersja z dnia", aby odzwierciedlało datę nowej wersji.
-4. Zapisz wpis.
+1. Otwórz dokument z listy.
+2. Pod nazwą obecnego pliku kliknij **Wybierz plik** i wskaż nowy plik.
+3. Popraw pole **Wersja z dnia**, żeby odpowiadało dacie nowej wersji.
+4. Kliknij **Zapisz**.
 
-### Usuwanie dokumentu
+Adres, pod którym rodzic pobiera dokument, nie zmienia się przy poprawianiu nazwy, więc
+odnośniki wysłane wcześniej nadal działają.
 
-1. Otwórz wpis dokumentu z listy.
-2. Użyj funkcji usuwania wpisu edytora (przycisk "Delete", po polsku Usuń).
-3. Potwierdź w oknie, które pokaże program. Dokument zniknie ze strony po
-   opublikowaniu (zobacz sekcję o opóźnieniu publikacji).
+### Usunięcie dokumentu
 
-<!-- PLACEHOLDER: screenshot - lista dokumentów oraz formularz dokumentu -->
+Kliknij **Usuń** w wierszu dokumentu, przeczytaj pytanie „Usunąć ten dokument?" i
+potwierdź przyciskiem **Usuń dokument**. Dokument przestanie być dostępny do pobrania po
+około 2 minutach. **Tej operacji nie można cofnąć w panelu.**
+
+### Uwagi o liście dokumentów
+
+Lista w panelu pokazuje wszystkie kategorie, także puste, z notatką
+„Brak dokumentów w tej kategorii.". Dzięki temu widać, gdzie można coś dodać. Pusta
+kategoria nie pojawia się na stronie żłobka.
+
+Dołączenie pliku, tak jak dodanie zdjęcia, wymaga włączonej obsługi JavaScript.
+Pozostałe pola (nazwa, kategoria, wersja, źródło w BIP) można wypełnić i zapisać także
+bez niej, również wtedy, gdy poprawiasz dokument, który plik już ma.
 
 ---
 
-## 5. Aktualności: dodawanie i publikowanie wpisów
+## 7. Strona O nas
 
-Sekcja "Aktualności" to wpisy z bieżącymi informacjami żłobka (ogłoszenia,
-wydarzenia, zaproszenia). Wpisy pokazują się na stronie Aktualności, od
-najnowszego na górze. Trzy najnowsze wpisy pojawiają się dodatkowo na stronie
-głównej. Każdy wpis to osobny element listy.
+Ekran **O nas** zbiera całą treść podstrony O nas w jednym formularzu:
 
-### Dodawanie nowego wpisu
+- **Wprowadzenie**: krótki tekst na górze strony.
+- **Misja**: opis misji żłobka. Można pogrubić tekst i dodać odnośnik.
+- **Wartości**: lista, w której każda pozycja ma tytuł i krótki opis. Wiersze dodaje się
+  i usuwa przyciskami **Dodaj wartość** oraz **Usuń tę wartość**.
+- **Kadra: opis**, **Liczba opiekunek**, **Personel pomocniczy (liczba)**: opis zespołu i
+  dwie liczby. Opis piszemy bez nazwisk.
+- **O budynku**: opis budynku, sali i placu zabaw.
+- **Zdjęcia (budynek, sala, plac zabaw)**: lista zdjęć obiektu, każde z własnym opisem
+  alternatywnym. Patrz sekcja 5.
+- **Treść zastępcza (do potwierdzenia)**: tak samo jak przy wpisie.
 
-1. W sekcji "Aktualności" kliknij przycisk tworzenia nowego wpisu (New, po polsku
-   Nowy).
-2. Wypełnij pola:
-   - Tytuł: tytuł wpisu po polsku (widoczny na liście i na stronie wpisu).
-   - Data publikacji: wybierz datę wpisu (format DD.MM.RRRR). Data ustala
-     kolejność na liście, wpisy są sortowane od najnowszego.
-   - Zajawka: krótkie streszczenie (2-3 zdania) pokazywane na kafelku listy. Pole
-     jest opcjonalne, jeśli zostawisz je puste, na kafelku pokaże się początek
-     treści.
-   - Treść: pełna treść wpisu. Dozwolone formatowanie to pogrubienie, odnośniki
-     oraz listy (wypunktowane i numerowane). Nagłówki i zdjęcia w treści nie są
-     dostępne.
-   - Zdjęcie (opcjonalnie): zdjęcie nagłówkowe wpisu. Bez identyfikowalnych dzieci
-     bez zgody. Zostanie zoptymalizowane automatycznie.
-   - Opis alternatywny zdjęcia (alt): krótki opis zdjęcia dla osób korzystających
-     z czytników ekranu (uzupełnij, gdy dodasz zdjęcie).
-   - Treść zastępcza (do potwierdzenia): zostaw zaznaczone, dopóki treść wpisu nie
-     została ostatecznie potwierdzona.
-3. Zapisz wpis.
+Cały ten ekran ma jeden przycisk **Zapisz** na dole. Możesz zmienić kilka rzeczy naraz i
+zapisać je jednym kliknięciem. Kolejności wartości i zdjęć nie da się w tej chwili
+przestawiać: żeby zmienić kolejność, trzeba przepisać treść wierszy.
 
-### Publikowanie wpisu
+---
 
-Zapisanie wpisu oznacza jego publikację. Nie ma osobnego trybu roboczego (wersji
-szkicowej): po zapisaniu wpis trafia na stronę po ok. 2 minutach (zobacz sekcję
-o opóźnieniu publikacji). Kolejność jest taka sama jak przy innych treściach:
-zapisz, poczekaj ok. 2 min, odśwież stronę.
+## 8. Plan dnia
 
-Wpis pojawia się na stronie niezależnie od pola Data publikacji. Data steruje
-wyłącznie kolejnością wpisów i wyświetlaną datą. Nie ma publikacji zaplanowanej
-na przyszłość: nawet jeśli ustawisz datę z przyszłości, wpis będzie widoczny od
-razu po przebudowie strony.
+Ekran **Plan dnia** to lista wierszy. Każdy wiersz ma dwa pola:
 
-### Poprawianie i usuwanie wpisu
+- **Godziny**: na przykład `7:00–8:30`.
+- **Opis**: krótki opis zajęć, na przykład `Śniadanie`.
 
-Aby poprawić wpis, otwórz go z listy, wprowadź zmiany i zapisz. Poprawienie tytułu
-po publikacji nie zmienia adresu wpisu: adres (URL) jest ustalany raz, w chwili
-utworzenia wpisu, i pozostaje stały. Dzięki temu wcześniej udostępnione odnośniki
-do wpisu nadal działają.
+Kolejny punkt dodajesz przyciskiem **Dodaj wiersz** pod listą. Pojedynczy punkt usuwasz
+przyciskiem **Usuń ten wiersz** na końcu tego wiersza.
 
-Aby usunąć wpis, otwórz go z listy i użyj funkcji usuwania wpisu edytora (przycisk
-"Delete", po polsku Usuń), a następnie potwierdź. Wpis zniknie ze strony po
+**Dodanie ani usunięcie wiersza niczego nie zapisuje.** Jest to napisane nad przyciskiem
+dodawania i jest to najczęstsze nieporozumienie na tym ekranie: po dodaniu wiersza i
+wpisaniu treści trzeba jeszcze zjechać na dół i kliknąć **Zapisz**. Wszystko, co już
+wpisałaś lub wpisałeś w innych wierszach, zostaje na miejscu.
+
+Plan dnia pokazujemy w dwóch miejscach: na stronie głównej i na stronie O nas. Jeden
+zapis zmienia oba te miejsca.
+
+Kolejności wierszy nie da się w tej chwili przestawiać. Żeby przesunąć punkt, przepisz
+treść wierszy.
+
+---
+
+## 9. Nabór
+
+Ekran **Nabór** ma jedno pytanie i dwie odpowiedzi do wyboru. To jest jedyne miejsce,
+które decyduje o tym, co rodzic widzi na stronie Rekrutacja.
+
+- **Nabór otwarty**: na stronie pojawi się informacja, że prowadzimy nabór, wraz z
+  formularzem zgłoszenia.
+- **Nabór zamknięty**: na stronie pojawi się informacja, że nabór podstawowy jest
+  zakończony, a rodzic może zapisać się na listę rezerwową.
+
+Pod wyborem jest panel **Tak zobaczy to rodzic** z dokładnym nagłówkiem, który pojawi się
+na stronie. Zmienia się on od razu po zaznaczeniu opcji, jeszcze przed zapisaniem, więc
+możesz sprawdzić skutek, zanim klikniesz **Zapisz**.
+
+Zamknięty nabór nie jest błędem ani awarią. To zwykła informacja i tak też wygląda na
+stronie.
+
+---
+
+## 10. Co zrobić, gdy zmiany nie widać
+
+Po kliknięciu **Zapisz** strona żłobka przebudowuje się w tle. **Trwa to około 2 minut.**
+Panel nie oszukuje: zmiana jest już zapisana, ale odwiedzający zobaczą ją dopiero po
 przebudowie.
 
-Przypomnienie tłumaczeń przycisków edytora: Save to Zapisz, Publish to Opublikuj,
-Delete to Usuń (pełna tabela w sekcji "Język i wygląd edytora").
+Kolejność jest zawsze taka sama:
 
-<!-- PLACEHOLDER: screenshot - lista wpisów Aktualności oraz formularz nowego wpisu -->
+1. Zapisz.
+2. Poczekaj około 2 minut.
+3. Odśwież stronę żłobka w przeglądarce.
 
----
+Co jeszcze warto wiedzieć:
 
-## 6. Treść zastępcza (do potwierdzenia)
-
-Każda sekcja ma pole "Treść zastępcza (do potwierdzenia)" w postaci przełącznika.
-Gdy jest zaznaczone, oznacza to, że treść jest tymczasowa i czeka na potwierdzenie.
-
-- Zostaw zaznaczone, dopóki treść nie została ostatecznie potwierdzona.
-- Odznacz je dopiero wtedy, gdy treść jest gotowa do publikacji jako ostateczna.
-
----
-
-## 7. Publikowanie i opóźnienie
-
-Po zapisaniu zmiany trafiają automatycznie na stronę internetową. Publikacja nie
-jest natychmiastowa: strona przebudowuje się w tle. Zwykle trwa to około 2 minut.
-
-Kolejność jest zawsze taka sama: zapisz, poczekaj ok. 2 min, odśwież stronę.
-Dopiero po odświeżeniu zobaczysz zmianę na żywo. Jeśli zmiana nie pojawia się po
-kilku minutach, odśwież stronę jeszcze raz (przytrzymaj klawisz i odśwież, aby
-pominąć pamięć podręczną przeglądarki).
+- **Jeśli ktoś inny zapisał coś chwilę wcześniej, może to potrwać dłużej.** Strona
+  przebudowuje się pojedynczo, więc dwa zapisy jeden po drugim ustawiają się w kolejce i
+  zamiast dwóch minut mijają cztery. Nic nie ginie, trzeba tylko poczekać.
+- **Lista w panelu też pokazuje stan ostatniej przebudowy.** Świeżo dodany wpis albo
+  dokument pojawi się na liście w panelu w tym samym czasie, w którym pojawi się na
+  stronie.
+- **Jeśli po kilku minutach nadal nic nie widać**, odśwież stronę z pominięciem pamięci
+  podręcznej przeglądarki: przytrzymaj klawisz Shift i kliknij przycisk odświeżania.
+- **Jeśli po kwadransie nadal nic nie widać**, zgłoś to osobie technicznej i podaj, co i
+  o której godzinie zapisywałaś lub zapisywałeś.
 
 ---
 
-## 8. Język i wygląd edytora
+## 11. Co zrobić, gdy panel odmówi zapisania
 
-Panel otwiera się w jasnym, ciepłym motywie graficznym i po polsku. Motyw oraz
-język można zmienić w ustawieniach edytora (menu konta, pozycja Ustawienia,
-karta Wygląd). Zalecamy pozostawienie motywu jasnego.
+Panel woli odmówić zapisu, niż skasować czyjąś pracę. W każdym z poniższych przypadków
+**wpisane dane zostają w formularzu**.
 
-Polskie tłumaczenie programu Sveltia nie jest jeszcze kompletne, dlatego
-pojedyncze przyciski lub komunikaty mogą pozostać po angielsku. Najważniejsze
-z nich:
+### „Ktoś zmienił tę treść w międzyczasie"
 
-| Przycisk (po angielsku) | Znaczenie (po polsku) |
-| ----------------------- | --------------------- |
-| Save                    | Zapisz                |
-| Publish                 | Opublikuj             |
-| Delete                  | Usuń                  |
+Ten czerwony panel oznacza, że inna osoba zapisała tę samą treść, odkąd otworzyłaś lub
+otworzyłeś ten ekran. Panel nie nadpisał jej pracy.
 
-<!-- PLACEHOLDER: screenshot - polski edytor w jasnym motywie -->
+Zrób to w tej kolejności, bo odświeżenie strony kasuje niezapisany tekst:
+
+1. **Najpierw zaznacz i skopiuj swój tekst** (na przykład do Notatnika albo do wiadomości
+   e-mail do siebie).
+2. Kliknij **Odśwież stronę** w tym panelu.
+3. Przeczytaj, co jest teraz w treści: druga osoba mogła wpisać dokładnie to samo albo
+   coś innego.
+4. Wprowadź swoje zmiany jeszcze raz i kliknij **Zapisz**.
+
+### „Nie udało się zapisać zmian"
+
+To znaczy, że nie udało się połączyć z usługą zapisu. Nic nie zostało zapisane, a
+wpisane dane są nadal w formularzu. Odczekaj chwilę i kliknij **Zapisz** ponownie. Jeśli
+powtarza się to za trzecim razem, skopiuj swój tekst na bok i zgłoś to osobie
+technicznej.
+
+### „Popraw zaznaczone pola"
+
+To nie jest awaria, tylko brakujące lub błędnie wypełnione pole. Pod nagłówkiem jest
+lista odnośników, a kliknięcie odnośnika przenosi kursor prosto do pola, które trzeba
+poprawić. Popraw je i kliknij **Zapisz**.
+
+### „Nie znaleziono tej treści"
+
+Wpis lub dokument, który próbujesz otworzyć, został w międzyczasie usunięty. Wróć do
+listy i sprawdź.
 
 ---
 
-## 9. Weryfikacja (lista kontrolna, wykonywana na żywo)
+## 12. Dla osoby administrującej stroną: dodanie i usunięcie redaktora
 
-Ta lista służy do jednorazowej weryfikacji pełnego obiegu na działającej stronie
-(nie lokalnie). Przejdź kolejno przez wszystkie kroki i wykonaj zrzuty ekranu,
-które wklejasz w miejsca oznaczone powyżej jako "PLACEHOLDER: screenshot".
+Ta sekcja nie jest potrzebna do codziennej pracy. Jest przeznaczona dla osoby, która
+opiekuje się stroną od strony technicznej.
 
-1. Otwórz `/admin` na działającej stronie i zaloguj się kontem GitHub będącym
-   członkiem organizacji `zlobekstromiec`. Potwierdź, że okno logowania GitHub
-   kończy się powodzeniem i wczytuje się edytor (CMS-01).
-2. Potwierdź, że edytor otwiera się w jasnym motywie, a etykiety sekcji i pól,
-   podpowiedzi oraz przyciski edytora (Zapisz, Opublikuj) są po polsku (CMS-03).
-   Wykonaj zrzut ekranu edytora do instrukcji.
-3. Zmień tekst misji w sekcji O nas, zapisz i opublikuj. Potwierdź, że powstał
-   zapis (commit) w repozytorium `zlobekstromiec/zlobek-gminny-stromiec` na
-   gałęzi `main` (CMS-02).
-4. Poczekaj ok. 2 min na przebudowę strony w Cloudflare, odśwież stronę `/o-nas`
-   na żywo i potwierdź, że zmiana jest widoczna publicznie (CMS-02, na żywo, nie
-   lokalnie).
-5. Dodaj lub zamień dokument w sekcji Dokumenty i potwierdź, że pojawia się on na
-   żywo na stronie `/dokumenty` po przebudowie (DOCS-02).
-6. Dodaj testowy wpis w sekcji Aktualności (wypełnij Tytuł, Data publikacji oraz
-   Treść), zapisz, poczekaj ok. 2 min na przebudowę i potwierdź, że wpis pojawia
-   się na żywo na stronie `/aktualnosci` (a gdy należy do trzech najnowszych,
-   także na stronie głównej) (NEWS-03).
-7. Wklej polskie zrzuty ekranu z opisami w miejsca oznaczone w tej instrukcji
-   (zastępując znaczniki "PLACEHOLDER: screenshot").
-8. Zanotuj napotkane angielskie napisy (tłumaczenie programu nie jest jeszcze
-   kompletne) i w razie potrzeby uzupełnij tabelę tłumaczeń w sekcji 8.
-9. Potwierdź akceptację ograniczenia CMS-03 (pojedyncze angielskie napisy w
-   edytorze do czasu ukończenia polskiego tłumaczenia programu) oraz przyjęcie
-   do wiadomości uwagi o zależnościach: pakiety zostały zainstalowane w
-   przypiętych wersjach.
+Lista adresów uprawnionych do logowania nie jest przechowywana w kodzie strony ani w
+żadnym pliku w repozytorium, bo repozytorium jest publiczne, a adresy pracowników są
+danymi osobowymi. Lista jest jedną zaszyfrowaną zmienną w ustawieniach projektu w
+Cloudflare Pages, o nazwie `ADMIN_EMAILS`, zawierającą adresy rozdzielone przecinkami.
 
-Uwaga techniczna: warunki możliwe do sprawdzenia automatycznie (strona `/admin`
-serwowana na żywo, `base_url` w pliku konfiguracji wskazuje na działający Worker,
-reguła `/admin/*` w nagłówkach wskazuje pochodzenie Workera, brak sekretu w
-repozytorium) są sprawdzane osobno. Powyższa lista obejmuje kroki, których nie da
-się zautomatyzować (logowanie OAuth).
+**Dodanie redaktora:**
+
+1. W ustawieniach projektu w Cloudflare Pages otwórz zmienne środowiskowe i dopisz nowy
+   adres do wartości `ADMIN_EMAILS`, po przecinku.
+2. Uruchom ponowną przebudowę strony. **To drugi krok jest konieczny:** zmienna trafia
+   wyłącznie do wdrożeń utworzonych po jej zapisaniu, więc bez przebudowy nowy adres nie
+   zadziała.
+3. Poproś nową osobę o zalogowanie się, żeby sprawdzić, że kod dociera na jej skrzynkę.
+
+**Usunięcie redaktora:**
+
+1. Usuń adres z wartości `ADMIN_EMAILS`.
+2. Uruchom ponowną przebudowę strony.
+
+Po przebudowie usunięty adres przestaje działać przy najbliższym otwarciu dowolnego
+ekranu panelu, nawet jeśli ta osoba jest jeszcze zalogowana na swoim komputerze. Nie
+trzeba nic więcej robić i nie trzeba czekać na wygaśnięcie zalogowania.
+
+Każdy zapis z panelu jest odnotowany w historii zmian repozytorium wraz z krótkim
+oznaczeniem redaktora, na przykład `anna.k`. Pełny adres e-mail nigdy nie trafia do
+historii, do zapisów diagnostycznych ani na żadną stronę.
