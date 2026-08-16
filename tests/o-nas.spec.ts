@@ -1,5 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { odmienRzeczownik } from '../src/lib/liczebniki';
+import { FORMY_OPIEKUNKI, FORMY_PERSONELU } from '../src/lib/content/kadra';
 
 /**
  * O nas acceptance test: encodes ABOUT-01 (a parent can open /o-nas and read
@@ -52,11 +54,21 @@ test.describe('O nas: Phase 2 acceptance', () => {
 		page
 	}) => {
 		await page.goto('/o-nas');
-		// Exact match targets the headcount <dt> labels specifically, not the same
-		// words where they also appear inside the kadra narrative prose (D-02).
 		const kadra = page.locator('section[aria-labelledby="kadra-heading"]');
-		await expect(kadra.getByText('opiekunki', { exact: true })).toBeVisible();
-		await expect(kadra.getByText('personel pomocniczy', { exact: true })).toBeVisible();
+		const staty = kadra.locator('.stat');
+		await expect(staty).toHaveCount(2);
+
+		// The labels are DERIVED from the counts (02-UI-SPEC amendment 2026-08-16),
+		// so this reads the number the page actually rendered and demands the form
+		// Polish requires for it. Pinning a literal here would make an ordinary CMS
+		// edit („6" to „2") turn the suite red while the page stayed correct, and
+		// would equally have accepted the „6 opiekunki" the amendment fixes.
+		for (const [i, formy] of [FORMY_OPIEKUNKI, FORMY_PERSONELU].entries()) {
+			const stat = staty.nth(i);
+			const liczba = Number((await stat.locator('.stat-value').innerText()).trim());
+			expect(Number.isInteger(liczba), 'headcount must render a whole number').toBe(true);
+			await expect(stat.locator('.stat-label')).toHaveText(odmienRzeczownik(liczba, formy));
+		}
 	});
 
 	test('every facility image carries a non-empty informative alt (D-04)', async ({ page }) => {

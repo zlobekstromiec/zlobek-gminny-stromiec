@@ -208,7 +208,7 @@ All copy is **Polish** (SITE-06). Copy rules enforced (v1.2 §8): no emoji; no e
 | Plan dnia heading | `Nasz dzień w żłobku` (reused DayPlan, existing) |
 | Kadra heading | `Nasza kadra` |
 | Kadra body | PLACEHOLDER (CMS `kadra_opis`, collective warm text, no names/photos) |
-| Kadra headcount labels | `opiekunki` · `personel pomocniczy` (values are CMS numbers) |
+| Kadra headcount labels | DECLINED with the count, see Amendment 2026-08-16 at the end of this file (`opiekunka`/`opiekunki`/`opiekunek` · `osoba`/`osoby`/`osób personelu pomocniczego`; values are CMS numbers) |
 | Facility heading | `Nasze miejsce` |
 | Facility body | PLACEHOLDER (CMS `obiekt_opis`) |
 | Facility image alt (each) | PLACEHOLDER Polish description of environment (e.g. `Sala zabaw z kolorowymi zabawkami`, `Plac zabaw przed budynkiem żłobka`) — never people |
@@ -327,3 +327,43 @@ Every collection/field `label`, `hint`, and help string is Polish (fully support
 - Image uploads (`/o-nas` facility) go to `src/lib/assets/uploads/` (Vite-processed, enhanced-img); document files go to `static/dokumenty/` (served verbatim). Two separate Sveltia `media_folder` targets — do not point image uploads at `static/` (enhanced-img cannot see it — Pitfall 4).
 - Narrative markdown fields: constrain the Sveltia `markdown` widget to `buttons: [bold, link]` AND render with `marked` (prefer `parseInline` for single-paragraph fields) so no headings/images/tables/raw-HTML reach the prerendered pages (D-08 + stored-XSS mitigation).
 - Defaulted content decisions (D-13/D-16/D-17/D-18/D-19..D-22) were recommended while the user was away; they do not block this visual contract but should be confirmed with the client before or during planning (they affect the doc seed and staff-access mechanics, not the tokens).
+
+---
+
+## Amendment (2026-08-16): kadra headcount labels decline with the count
+
+> Supersedes exactly one row of the Copywriting Contract above („Kadra headcount
+> labels"). Everything else in this document stands: the section order, the warm
+> surface, the 26px Baloo value over 14px Nunito label, D-02 (collective kadra,
+> no profiles or photos) and the a11y ruling on the markup are all unchanged.
+
+The two headcounts are CMS numbers, so a FIXED label is wrong Polish for most of
+the values an editor can save. The shipped page said „6 opiekunki", which needs
+the genitive plural („6 opiekunek"), and „3 personel pomocniczy", which is
+ungrammatical for every count because `personel` is a collective noun that names
+the group rather than its members and can never follow a numeral.
+
+Both labels now carry all three Polish forms and the page selects one per the
+CLDR rule for `pl` (1 / 2-4 excluding the teens / everything else):
+
+| count | opiekunki | personel pomocniczy |
+|---|---|---|
+| 1 | `1 opiekunka` | `1 osoba personelu pomocniczego` |
+| 2, 3, 4, 22 | `3 opiekunki` | `3 osoby personelu pomocniczego` |
+| 0, 5-21, 25 | `6 opiekunek` | `6 osób personelu pomocniczego` |
+
+`osoba` is the counted head because what is being counted is people; only that
+word declines, and the genitive it governs (`personelu pomocniczego`) is fixed.
+`pracownik personelu pomocniczego` was rejected as HR register, and `etat` as
+factually different (people, not full-time equivalents).
+
+Implementation: `src/lib/liczebniki.ts` holds the rule (cross-checked against
+`Intl.PluralRules('pl-PL')` over 0-200 in `tests/liczebniki.unit.ts`), and
+`src/lib/content/kadra.ts` holds the two form sets. The number stays in the `<dd>`
+and only the declined noun goes in the `<dt>`, so axe's definition-list rules keep
+passing. `tests/o-nas.spec.ts` reads the rendered number and demands the form that
+belongs with it, rather than pinning a literal that a routine CMS edit would break.
+
+The panel's own field labels (`Liczba opiekunek`, `Personel pomocniczy (liczba)`)
+are unchanged: no numeral ever attaches to them, and they are quoted verbatim in
+`docs/instrukcja-cms.md`.

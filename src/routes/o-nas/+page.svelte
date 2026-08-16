@@ -19,6 +19,8 @@
 	import DayPlan from '$lib/components/DayPlan.svelte';
 	import Cta from '$lib/components/Cta.svelte';
 	import { renderInline } from '$lib/markdown';
+	import { odmienRzeczownik } from '$lib/liczebniki';
+	import { FORMY_OPIEKUNKI, FORMY_PERSONELU } from '$lib/content/kadra';
 	import onas from '$lib/content/o-nas.json';
 
 	// Statically-analyzable glob: keys are absolute file paths, values are processed
@@ -95,14 +97,19 @@
 		<h2 id="kadra-heading">Nasza kadra</h2>
 		<!-- eslint-disable-next-line svelte/no-at-html-tags -- D-08: renderInline sanitizes (raw HTML escaped, link protocols filtered); CSP script-src 'self' is the second layer (T-0201-01) -->
 		<p class="prose">{@html kadraHtml}</p>
+		<!-- The labels DECLINE with the counts (02-UI-SPEC amendment 2026-08-16). Both
+		     numbers are CMS values, so a fixed word is wrong Polish for most of them:
+		     6 takes „opiekunek", not „opiekunki". The number stays in the <dd> and only
+		     the declined noun goes in the <dt>, because axe's definition-list rules
+		     run on this page. -->
 		<dl class="headcount">
 			<div class="stat">
 				<dd class="stat-value">{onas.kadra_opiekunki}</dd>
-				<dt class="stat-label">opiekunki</dt>
+				<dt class="stat-label">{odmienRzeczownik(onas.kadra_opiekunki, FORMY_OPIEKUNKI)}</dt>
 			</div>
 			<div class="stat">
 				<dd class="stat-value">{onas.kadra_personel}</dd>
-				<dt class="stat-label">personel pomocniczy</dt>
+				<dt class="stat-label">{odmienRzeczownik(onas.kadra_personel, FORMY_PERSONELU)}</dt>
 			</div>
 		</dl>
 	</div>
