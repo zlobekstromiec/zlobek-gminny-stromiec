@@ -21,6 +21,16 @@
 // rules (no emoji, no em dash, Polish only) enforceable by one sweep over one module.
 import { bezpiecznyTekst } from '../../forms/sanitize.ts';
 import { ROK_MAKS, ROK_MIN } from '../../../daty.ts';
+import { MAKS_ELEMENTOW, nazwaPola, zbierzIndeksowane } from '../../../pola-strony.ts';
+
+/** The indexed-field primitive of UI-SPEC Component Contract 7, alongside the other
+ *  readers as the plan asks, DECLARED in src/lib/pola-strony.ts and re-exported here.
+ *
+ *  Same arrangement, and the same reason, as the year window below: the page that RENDERS a
+ *  repeated row has to emit the identical names this reader collects, and a client
+ *  component cannot import anything under src/lib/server/. Two declarations of the name
+ *  shape would eventually be a form posting one spelling to an action reading another. */
+export { MAKS_ELEMENTOW, nazwaPola, zbierzIndeksowane };
 
 /** The field was left alone, or a required control never arrived. */
 export const BLAD_BRAK = 'brak';

@@ -1,0 +1,369 @@
+// The O nas validator (Phase 04.1, Plan 04.1-09; CMS-02, D-13, D-15, SC5, threats
+// T-04.1-12, T-04.1-29 and T-04.1-34).
+//
+// WHAT THIS FILE IS ACCOUNTABLE TO: src/routes/o-nas/+page.svelte. That page reads
+// o-nas.json directly, with no guarding reader between it and the file, so there is nothing
+// here that would skip a malformed value with a warning: a wrong shape is a broken public
+// page or a failed prerender. The key set and the key order below are copied from the
+// committed file, and tests/admin-walidacja-strony.unit.ts asserts that against the real
+// file rather than against a description of it.
+//
+// THE STAFF COUNTS ARE NUMBERS, and that is not a detail. The page renders them as numbers
+// beside a Polish label; a string „6" would render identically today and would be a
+// different JSON value in a diff, in a future reader and in anything that ever adds them
+// up. `liczbaWZakresie` refuses „12abc" and „12.0" before either could reach the file.
+//
+// ALT IS REQUIRED PER PHOTO, ON THE SERVER (D-15). The island shows the field; this file is
+// what makes the rule survive scripting being switched off, which is the only version of
+// that rule the Deklaracja dostępności can rest on.
+//
+// THE PANEL NAMES THE FILES, staff never do (D-14, P-25). The name is derived from the alt
+// through src/lib/server/admin/uploads.ts, and the set of names already taken arrives as an
+// argument rather than being read here, so this module stays pure and every branch of the
+// naming decision is drivable under a plain test runner.
+//
+// EVERY READER REJECTS, NONE REPAIRS, and the result is built KEY BY KEY from guarded
+// locals, never by spreading the submitted data.
+//
+// Pure apart from the shared readers, the copy module and the two upload helpers: no fetch,
+// no I/O, no clock. Nothing here logs.
+import { KOPIA_WALIDACJA, tekstZaDlugi } from '../../../content/panel.ts';
+import {
+	POLE_ALTU,
+	POLE_DANYCH,
+	POLE_KADRY_OPIEKUNKI,
+	POLE_KADRY_OPIS,
+	POLE_KADRY_PERSONEL,
+	POLE_LEAD,
+	POLE_MISJI,
+	POLE_OBIEKTU_OPIS,
+	POLE_OPISU,
+	POLE_PLIKU,
+	POLE_TYTULU,
+	POLE_USUNIECIA,
+	POLE_ZASTEPCZA,
+	PREFIKS_WARTOSCI,
+	PREFIKS_ZDJECIA,
+	nazwaPola,
+	zbierzIndeksowane,
+	type ZrodloPol
+} from '../../../pola-strony.ts';
+import { base64ZDataUrl, zaDuzeZdjecie } from '../obraz.ts';
+import { PREFIKS_O_NAS, bezpiecznaNazwaOkladki, nazwaZdjeciaONas } from '../uploads.ts';
+import { MAKS_ALT } from './aktualnosci.ts';
+import {
+	BLAD_ZBYT_DLUGI,
+	flaga,
+	kodBledu,
+	liczbaWZakresie,
+	pusty,
+	tekstOpcjonalny,
+	tekstWymagany
+} from './pola.ts';
+
+// Re-exported so a server caller keeps importing the whole vocabulary from the validator
+// beside it while exactly one declaration exists.
+export {
+	POLE_ALTU,
+	POLE_DANYCH,
+	POLE_KADRY_OPIEKUNKI,
+	POLE_KADRY_OPIS,
+	POLE_KADRY_PERSONEL,
+	POLE_LEAD,
+	POLE_MISJI,
+	POLE_OBIEKTU_OPIS,
+	POLE_OPISU,
+	POLE_PLIKU,
+	POLE_TYTULU,
+	POLE_USUNIECIA,
+	POLE_ZASTEPCZA,
+	PREFIKS_WARTOSCI,
+	PREFIKS_ZDJECIA
+};
+// The alt cap is the aktualność one, imported rather than declared a second time: the same
+// sentence describes the same kind of picture for the same readers, and two caps would
+// eventually refuse on one screen what the other accepted.
+export { MAKS_ALT };
+
+// The caps. Named exported constants rather than inline numbers, because the message the
+// editor reads quotes the cap the server actually enforced (`tekstZaDlugi`), and a number
+// living in two places is a message that will eventually lie (T-04.1-26). Sized against the
+// committed content plus generous room: the longest paragraph on the page today is about
+// 300 characters.
+/** The lead paragraph under the page heading. */
+export const MAKS_LEAD = 600;
+/** One narrative paragraph in the constrained markdown subset: misja, kadra, obiekt. */
+export const MAKS_AKAPITU = 2000;
+/** The heading of one wartość card. */
+export const MAKS_TYTULU_WARTOSCI = 80;
+/** The body of one wartość card. */
+export const MAKS_OPISU_WARTOSCI = 400;
+/** Nobody has a hundred opiekunki, and a typed 600 is a defect nobody would ever notice
+ *  being wrong. The bound is what the UI-SPEC puts on the control itself. */
+export const MIN_LICZBY_KADRY = 0;
+export const MAKS_LICZBY_KADRY = 99;
+
+/** Exactly the shape src/lib/content/o-nas.json holds. */
+export interface WartoscONas {
+	tytul: string;
+	opis: string;
+}
+
+export interface ZdjecieONas {
+	plik: string;
+	alt: string;
+}
+
+export interface ONasDane {
+	placeholder: boolean;
+	lead: string;
+	misja: string;
+	wartosci: WartoscONas[];
+	kadra_opis: string;
+	kadra_opiekunki: number;
+	kadra_personel: number;
+	obiekt_opis: string;
+	obiekt_zdjecia: ZdjecieONas[];
+}
+
+/** A picture that arrived on this submission and still has to be written. The name is
+ *  already decided, so the route composes no filename of its own. */
+export interface NoweZdjecieONas {
+	/** Basename inside the uploads directory, generated by P-25 or reused in place (P-21). */
+	nazwa: string;
+	/** The base64 payload, already stripped of its prefix and never decoded. */
+	base64: string;
+}
+
+/**
+ * What a validated O nas submission carries.
+ *
+ * The success arm is `WynikPol<ONasDane>` widened with the pending pictures, because those
+ * are not stored content yet: they are extra files the route has to commit in the SAME tree
+ * as the JSON (D-07).
+ */
+export type WynikONas =
+	| { ok: true; dane: ONasDane; zdjecia: NoweZdjecieONas[] }
+	| { ok: false; pola: Record<string, string> };
+
+/** Required text, with the two refusals the UI-SPEC error table distinguishes. */
+function czytajWymagany(
+	surowy: unknown,
+	maks: number,
+	brak: string
+): { wartosc: string | null; blad?: string } {
+	const wartosc = tekstWymagany(surowy, maks);
+	if (wartosc !== null) return { wartosc };
+	return {
+		wartosc: null,
+		blad: kodBledu(surowy, wartosc, maks) === BLAD_ZBYT_DLUGI ? tekstZaDlugi(maks) : brak
+	};
+}
+
+/**
+ * Read one submitted O nas page.
+ *
+ * `zajete` is every basename that must not be handed to a new picture: the names present in
+ * the build the panel is running on. It arrives as an argument rather than being read here
+ * so this module touches no build-time glob and every naming branch is unit drivable. The
+ * names of the pictures kept by THIS submission are added to it as they are admitted, so
+ * two new photos sharing a description cannot be given one name and one file.
+ *
+ * Every field is read before anything is refused (Contract 10a: one summary, every
+ * offending control linked).
+ */
+export function walidujONas(zrodlo: ZrodloPol, zajete: ReadonlySet<string>): WynikONas {
+	const pola: Record<string, string> = {};
+
+	const lead = czytajWymagany(zrodlo.get(POLE_LEAD), MAKS_LEAD, KOPIA_WALIDACJA.trescBrak);
+	if (lead.blad !== undefined) pola[POLE_LEAD] = lead.blad;
+
+	const misja = czytajWymagany(zrodlo.get(POLE_MISJI), MAKS_AKAPITU, KOPIA_WALIDACJA.trescBrak);
+	if (misja.blad !== undefined) pola[POLE_MISJI] = misja.blad;
+
+	// ---------------------------------------------------------------------------
+	// Wartości: a repeated pair of required fields. ONE message per broken row, keyed to
+	// the field that is missing, because the UI-SPEC sentence names both halves already
+	// („Uzupełnij tytuł i opis tej wartości albo usuń ją") and two summary entries saying
+	// the identical thing about one card is noise the editor has to read twice.
+	// ---------------------------------------------------------------------------
+	const surowe_wartosci = zbierzIndeksowane(zrodlo, PREFIKS_WARTOSCI, [POLE_TYTULU, POLE_OPISU]);
+	const wartosci: WartoscONas[] = [];
+	for (let i = 0; i < surowe_wartosci.length; i++) {
+		const tytul = czytajWymagany(
+			surowe_wartosci[i][POLE_TYTULU],
+			MAKS_TYTULU_WARTOSCI,
+			KOPIA_WALIDACJA.wartoscNiepelna
+		);
+		const opis = czytajWymagany(
+			surowe_wartosci[i][POLE_OPISU],
+			MAKS_OPISU_WARTOSCI,
+			KOPIA_WALIDACJA.wartoscNiepelna
+		);
+		if (tytul.blad !== undefined) pola[nazwaPola(PREFIKS_WARTOSCI, i, POLE_TYTULU)] = tytul.blad;
+		else if (opis.blad !== undefined) pola[nazwaPola(PREFIKS_WARTOSCI, i, POLE_OPISU)] = opis.blad;
+
+		if (tytul.wartosc === null || opis.wartosc === null) continue;
+		const wartosc: Partial<WartoscONas> = {};
+		wartosc.tytul = tytul.wartosc;
+		wartosc.opis = opis.wartosc;
+		wartosci.push(wartosc as WartoscONas);
+	}
+
+	const kadraOpis = czytajWymagany(
+		zrodlo.get(POLE_KADRY_OPIS),
+		MAKS_AKAPITU,
+		KOPIA_WALIDACJA.trescBrak
+	);
+	if (kadraOpis.blad !== undefined) pola[POLE_KADRY_OPIS] = kadraOpis.blad;
+
+	const opiekunki = liczbaWZakresie(
+		zrodlo.get(POLE_KADRY_OPIEKUNKI),
+		MIN_LICZBY_KADRY,
+		MAKS_LICZBY_KADRY
+	);
+	if (opiekunki === null) pola[POLE_KADRY_OPIEKUNKI] = KOPIA_WALIDACJA.liczbaNiepoprawna;
+
+	const personel = liczbaWZakresie(
+		zrodlo.get(POLE_KADRY_PERSONEL),
+		MIN_LICZBY_KADRY,
+		MAKS_LICZBY_KADRY
+	);
+	if (personel === null) pola[POLE_KADRY_PERSONEL] = KOPIA_WALIDACJA.liczbaNiepoprawna;
+
+	const obiektOpis = czytajWymagany(
+		zrodlo.get(POLE_OBIEKTU_OPIS),
+		MAKS_AKAPITU,
+		KOPIA_WALIDACJA.trescBrak
+	);
+	if (obiektOpis.blad !== undefined) pola[POLE_OBIEKTU_OPIS] = obiektOpis.blad;
+
+	// ---------------------------------------------------------------------------
+	// Facility photos. Four values arrive per item and all four are read on the SERVER,
+	// which is what makes the alt rule survive scripting being switched off:
+	//
+	//  • the basename the picture already has, carried back so a save that changes only a
+	//    description keeps the file. Client controlled, and therefore admitted by an
+	//    allowlist rather than cleaned up (T-04.1-10);
+	//  • the prepared data URL, present only for a picture chosen on this visit;
+	//  • the removal flag, which is not the same thing as „no data URL arrived";
+	//  • the description, required whenever there is a picture at all (D-15).
+	// ---------------------------------------------------------------------------
+	const wolne = new Set<string>(zajete);
+	const surowe_zdjecia = zbierzIndeksowane(zrodlo, PREFIKS_ZDJECIA, [
+		POLE_PLIKU,
+		POLE_ALTU,
+		POLE_DANYCH,
+		POLE_USUNIECIA
+	]);
+	// Two passes over the items: the first admits the names the submission KEEPS, so the
+	// second cannot hand one of them to a new picture. A single pass would let item 2 be
+	// named over the file item 5 is still pointing at.
+	const stare: (string | undefined | null)[] = surowe_zdjecia.map((zdjecie) => {
+		const surowa = zdjecie[POLE_PLIKU];
+		if (pusty(surowa)) return undefined;
+		const nazwa = bezpiecznaNazwaOkladki(surowa);
+		if (nazwa !== null) wolne.add(nazwa);
+		return nazwa;
+	});
+
+	const obiektZdjecia: ZdjecieONas[] = [];
+	const noweZdjecia: NoweZdjecieONas[] = [];
+	for (let i = 0; i < surowe_zdjecia.length; i++) {
+		const surowyPlik = stare[i];
+		if (surowyPlik === null)
+			pola[nazwaPola(PREFIKS_ZDJECIA, i, POLE_PLIKU)] = KOPIA_WALIDACJA.zdjecieZlyTyp;
+
+		const surowe = surowe_zdjecia[i][POLE_DANYCH];
+		// `undefined` means nothing was chosen, `null` means something arrived and was
+		// refused. Collapsing the two would silently drop a picture the editor watched
+		// appear in the preview.
+		const nowyBase64 = pusty(surowe) ? undefined : base64ZDataUrl(surowe);
+		if (nowyBase64 === null) {
+			// Two refusals, two instructions: „shrink it" and „choose a different file" are
+			// not interchangeable to the person reading them (WCAG 3.3.3).
+			pola[nazwaPola(PREFIKS_ZDJECIA, i, POLE_DANYCH)] = zaDuzeZdjecie(surowe)
+				? KOPIA_WALIDACJA.zdjecieZaDuze
+				: KOPIA_WALIDACJA.zdjecieZlyTyp;
+		}
+
+		const usuniete = flaga(surowe_zdjecia[i][POLE_USUNIECIA]);
+		// A new picture WINS over the flag: choosing a file after pressing „Usuń zdjęcie" is
+		// an editor changing their mind, and the island clears the flag when it happens.
+		const maNowe = typeof nowyBase64 === 'string';
+		const zachowajStare = !maNowe && !usuniete && typeof surowyPlik === 'string';
+		const jestZdjecie = maNowe || zachowajStare;
+		// An item with no picture at all has nothing to publish and nothing to describe. It
+		// is reachable in one click („Usuń zdjęcie" inside the control), so it gets its own
+		// instruction naming BOTH ways out rather than a silent drop.
+		if (!jestZdjecie && pola[nazwaPola(PREFIKS_ZDJECIA, i, POLE_DANYCH)] === undefined) {
+			pola[nazwaPola(PREFIKS_ZDJECIA, i, POLE_DANYCH)] = KOPIA_WALIDACJA.zdjecieBrak;
+		}
+
+		const alt = tekstOpcjonalny(surowe_zdjecia[i][POLE_ALTU], MAKS_ALT);
+		if (jestZdjecie) {
+			if (alt === null) pola[nazwaPola(PREFIKS_ZDJECIA, i, POLE_ALTU)] = tekstZaDlugi(MAKS_ALT);
+			else if (alt === undefined)
+				pola[nazwaPola(PREFIKS_ZDJECIA, i, POLE_ALTU)] = KOPIA_WALIDACJA.altBrak;
+		}
+
+		if (!jestZdjecie || typeof alt !== 'string') continue;
+
+		if (maNowe && typeof nowyBase64 === 'string') {
+			// P-21 applied to this list: a picture the panel itself named is REPLACED IN
+			// PLACE, at the name it already has, so one commit never both writes and removes
+			// one path. A name the panel did not generate is never overwritten, because a
+			// hand-placed file may be shared: both pictures in this repository today are
+			// rendered by a seeded aktualność as well.
+			const wMiejscu =
+				typeof surowyPlik === 'string' && surowyPlik.startsWith(PREFIKS_O_NAS)
+					? surowyPlik
+					: undefined;
+			const nazwa = wMiejscu ?? nazwaZdjeciaONas(alt, wolne);
+			wolne.add(nazwa);
+			noweZdjecia.push({ nazwa, base64: nowyBase64 });
+			const zdjecie: Partial<ZdjecieONas> = {};
+			zdjecie.plik = nazwa;
+			zdjecie.alt = alt;
+			obiektZdjecia.push(zdjecie as ZdjecieONas);
+			continue;
+		}
+
+		// Kept: `zachowajStare` is what narrowed the basename to a string.
+		if (typeof surowyPlik === 'string') {
+			const zdjecie: Partial<ZdjecieONas> = {};
+			zdjecie.plik = surowyPlik;
+			zdjecie.alt = alt;
+			obiektZdjecia.push(zdjecie as ZdjecieONas);
+		}
+	}
+
+	// One refusal point. Each required value adds a key above when it is missing, so a null
+	// here always travels with a non-empty map.
+	if (
+		lead.wartosc === null ||
+		misja.wartosc === null ||
+		kadraOpis.wartosc === null ||
+		obiektOpis.wartosc === null ||
+		opiekunki === null ||
+		personel === null
+	) {
+		return { ok: false, pola };
+	}
+	if (Object.keys(pola).length > 0) return { ok: false, pola };
+
+	// KEY BY KEY, in the order src/lib/content/o-nas.json uses: placeholder, lead, misja,
+	// wartosci, kadra_opis, kadra_opiekunki, kadra_personel, obiekt_opis, obiekt_zdjecia.
+	const dane: Partial<ONasDane> = {};
+	dane.placeholder = flaga(zrodlo.get(POLE_ZASTEPCZA));
+	dane.lead = lead.wartosc;
+	dane.misja = misja.wartosc;
+	dane.wartosci = wartosci;
+	dane.kadra_opis = kadraOpis.wartosc;
+	dane.kadra_opiekunki = opiekunki;
+	dane.kadra_personel = personel;
+	dane.obiekt_opis = obiektOpis.wartosc;
+	dane.obiekt_zdjecia = obiektZdjecia;
+
+	return { ok: true, dane: dane as ONasDane, zdjecia: noweZdjecia };
+}

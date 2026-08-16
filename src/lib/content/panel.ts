@@ -163,6 +163,35 @@ export const KOPIA_EKRAN_DOKUMENTU = {
 	stronaNazwa: 'Dokumenty'
 } as const;
 
+/** The O nas editor (Component Contract 5). The h1 is named by the contract's DOM-order
+ *  list, so it is copied from there rather than authored. */
+export const KOPIA_EKRAN_O_NAS = {
+	naglowek: 'O nas',
+	/** Name of the public page the „Zapisano" panel links to. */
+	stronaNazwa: 'O nas',
+	/** The commit description. Copy like any other: written by this project in Polish,
+	 *  landing in the history of a PUBLIC repository, and therefore swept for emoji, em
+	 *  dashes and English chrome by tests/admin-copy.unit.ts exactly as a visible label is.
+	 *  It names the PAGE rather than a field, because D-11 makes one page one commit and a
+	 *  session here can touch nine groups of content at once. */
+	opisZapisu: 'zaktualizowano stronę O nas'
+} as const;
+
+/** The Plan dnia editor (Component Contract 5). */
+export const KOPIA_EKRAN_PLANU = {
+	naglowek: 'Plan dnia',
+	/** THE ONE THING AN EDITOR CANNOT SEE FROM THIS SCREEN. The day plan is one file
+	 *  (02 D-03) rendered in two places, so a single save changes the front page as well as
+	 *  the O nas page. Saying so is the same honesty D-18 asks of the publish delay: a
+	 *  surprise about where a change landed is worse than a sentence nobody needed. */
+	uwagaWspolna:
+		'Plan dnia pokazujemy w dwóch miejscach: na stronie głównej i na stronie O nas. Jeden zapis zmienia oba.',
+	/** The „Zapisano" panel links to the O nas page, which shows the plan together with the
+	 *  rest of the content this panel section is about. */
+	stronaNazwa: 'O nas',
+	opisZapisu: 'zaktualizowano plan dnia'
+} as const;
+
 /** The three date selects, authored once because both the aktualność publication date
  *  and the document version date use them. The month NAMES are not repeated here: they
  *  come from MIESIACE_WYBOR in ./forms.ts, so the project keeps exactly one month
@@ -325,7 +354,17 @@ export const KOPIA_WALIDACJA = {
 	zrodloNiepoprawne: 'Ten adres jest niepoprawny. Wklej pełny adres, zaczynający się od https://',
 	liczbaNiepoprawna: 'Wpisz liczbę, na przykład 6.',
 	godzinyBrak: 'Wpisz godziny, na przykład 7:00–8:30.',
+	/** The other half of a day-plan row. The UI-SPEC's error table names only the hours,
+	 *  and a row has two required fields, so „popraw ten wiersz" would leave the editor
+	 *  guessing which one. Written in the register of its own hint (WCAG 3.3.3: say what
+	 *  to do), exactly as the hours message quotes the hours hint. */
+	opisWierszaBrak: 'Wpisz opis zajęć, na przykład: Śniadanie.',
 	wartoscNiepelna: 'Uzupełnij tytuł i opis tej wartości albo usuń ją.',
+	/** A facility photo item whose picture was cleared and not replaced. „Usuń zdjęcie"
+	 *  inside the photo control empties the item; „Usuń to zdjęcie" removes the item
+	 *  itself. An item with no picture has nothing to publish and nothing to describe, so
+	 *  the refusal names BOTH ways out rather than only one. */
+	zdjecieBrak: 'Wybierz zdjęcie albo usuń tę pozycję.',
 	/** The recruitment switch has two states and no third one, so „nothing chosen" and
 	 *  „something unexpected arrived" are the same thing to the person in front of the
 	 *  screen and get the same instruction (WCAG 3.3.3: say what to do). */
@@ -511,6 +550,17 @@ export function legendaWiersza(numer: number): string {
 
 export function legendaZdjecia(numer: number): string {
 	return `Zdjęcie ${numer}`;
+}
+
+/** One line of the validation summary for a control inside a repeated group.
+ *
+ *  A list of four identical „Uzupełnij tytuł i opis tej wartości" links is WCAG 2.4.4
+ *  failure by construction: the link text is the whole accessible name and four of them
+ *  are indistinguishable. Prefixing the numbered legend makes each entry say which item it
+ *  will take the editor to, and it is composed here rather than in a page so no route ever
+ *  concatenates copy inline. */
+export function bladWElemencie(legenda: string, komunikat: string): string {
+	return `${legenda}: ${komunikat}`;
 }
 
 /** The three commit descriptions of the aktualności collection. They are copy like any
