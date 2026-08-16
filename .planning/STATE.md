@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 04.1
 current_phase_name: replace-sveltia-with-custom-polish-cms
 status: executing
-stopped_at: Ukonczono 04.1-09-PLAN.md
-last_updated: "2026-08-16T10:16:36.967Z"
+stopped_at: Ukonczono 04.1-10-PLAN.md
+last_updated: "2026-08-16T11:48:45.145Z"
 last_activity: 2026-08-16
-last_activity_desc: "Completed 04.1-09 (o-nas i plan dnia: powtarzalne grupy jako akcje formularza, druga wyspa zdjecia w 4:3, jedna strona to jeden commit)"
+last_activity_desc: "Completed 04.1-10 (pulpit z kaflami i licznikami z czytnikow ekranow, ekran Pomoc renderujacy jedna instrukcje z docs/, wymuszona polskosc 18 adresow panelu w bramie npm run test)"
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 38
-  completed_plans: 36
+  completed_plans: 37
   percent: 50
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-14)
 ## Current Position
 
 Phase: 04.1 (replace-sveltia-with-custom-polish-cms) — EXECUTING
-Plan: 10 of 11
+Plan: 11 of 11
 Status: Ready to execute
 Last activity: 2026-08-16 — Completed 04.1-09 (o-nas i plan dnia: powtarzalne grupy jako akcje formularza, druga wyspa zdjecia w 4:3, jedna strona to jeden commit)
 
@@ -37,7 +37,7 @@ Plan 11 is `autonomous: false`. Plan 04's human prerequisites are now PARTLY don
 
 **D-20 IS SUPERSEDED as of Plan 01 (user-approved Rule 4 deviation).** Sveltia's repository footprint was deleted in Plan 01, not Plan 11, because `static/admin/` is a Cloudflare Pages static asset and static assets resolve before the Worker, so the bare `/admin` never reached the new gate and the plan's own assertions were unprovable. Staff therefore have NO working editor until Plan 10 lands, which the user accepted. Plan 11 must be re-read rather than executed as written: its Task 2 is now largely a no-op (see `04.1-01-SUMMARY.md` "Knock-on Effects for Plan 11" for the exact split), and its ordering prohibition no longer applies. Plan 11 Task 3 is unchanged and still owed: deleting the GitHub OAuth App and the deployed `sveltia-cms-auth` Worker, both dashboard-only and both still live.
 
-Progress: 04.1 plans 1 to 9 of 11 complete; 27/27 plans in phases 1-4 complete (4 of 8 phases)
+Progress: 04.1 plans 1 to 10 of 11 complete; 27/27 plans in phases 1-4 complete (4 of 8 phases)
 
 **Never import `src/lib/server/dokumenty.ts` from an `/admin` route** (learned in 04.1-08). It carries `node:fs`, the panel is the Cloudflare Worker, and this deployment enables only `nodejs_als`. The category union lives in `src/lib/kategorie-dokumentow.ts`, the file constants and the size formatter in `src/lib/pliki.ts`, and the panel's own reader in `src/lib/server/admin/dokumenty.ts`. The public reader imports the first two back and re-exports the type, so exactly one declaration of each exists.
 
@@ -103,6 +103,7 @@ Progress: 04.1 plans 1 to 9 of 11 complete; 27/27 plans in phases 1-4 complete (
 | Phase 04.1 P07 | 78min | 3 tasks | 19 files |
 | Phase 04.1 P08 | 47min | 3 tasks | 21 files |
 | Phase 04.1 P09 | 46min | 3 tasks | 19 files |
+| Phase 04.1 P10 | 71min | 3 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -193,6 +194,10 @@ Recent decisions affecting current work:
 - [Phase 04.1]: [04.1-09] O nas i plan dnia edytowalne: powtarzalne grupy jako akcje formularza (P-26), wiec dodawanie i usuwanie wiersza dziala przy wylaczonym JavaScripcie i niczego nie zapisuje; nazwa zdjecia obiektu to prefiks obiekt- plus slug opisu (P-25), a prefiks jest jednoczesnie znacznikiem wlasnosci decydujacym o prawie do skasowania pliku; podmiana zdjecia nazwanego przez panel nadpisuje w miejscu (P-21), recznie postawionego nigdy
 - [Phase 04.1]: [04.1-09] Trzy pulapki frameworka zapisane, bo kazda jest cicha: SvelteKit zabrania mieszania akcji domyslnej z nazwanymi (zapis jest akcja nazwana); use:enhance po sukcesie czysci formularz, wiec kazda akcja listy potrzebuje update({ reset: false }); Svelte liczy autofocus tylko przy tworzeniu elementu, wiec fokus kliencki idzie po pozycji, a atrybut z serwera obsluguje sciezke bez skryptow
 - [Phase 04.1]: [04.1-09] Publiczne petle nad trescia edytowalna z panelu (DayPlan.svelte, /o-nas) kluczowane POZYCJA, nie trescia: powtorzony klucz to wyjatek rzucany takze w produkcji, a od tej fazy redaktor moze go wyprodukowac w cztery sekundy
+- [Phase 04.1]: [04.1-10] P-27: instrukcja jest JEDNYM dokumentem w docs/instrukcja-cms.md, a ekran /admin/pomoc go renderuje przez hartowany renderer zachowujacy naglowki; ten sam ciag bajtow serwuje /admin/pomoc/instrukcja do pobrania, wiec ekran i wydruk nie moga sie rozjechac
+- [Phase 04.1]: [04.1-10] P-28: brama SC2 to tests/admin-polski.spec.ts wewnatrz npm run test, czyli bramy, ktora projekt naprawde uruchamia (dlug AG-3 splacony): 18 adresow panelu, calem body bez script i style, lang=pl, niepuste nazwy dostepne, kontrola dodatnia i ujemna wykrywacza przed kazdym ekranem; mutacja Zapisz na Save zaczerwienila 8 z 20 przypadkow
+- [Phase 04.1]: [04.1-10] Wyjatek natywnej kontrolki pliku (UI-SPEC Contract 8) jest wylaczony z zamiatania PRZEZ KONSTRUKCJE, nie przez filtr: przycisk przegladania to shadow UI przegladarki i nigdy nie jest wezlem tekstowym, wiec nie moze dotrzec do ekstrakcji; lista zakazanych slow i jej dwie kontrole mieszkaja w tests/fixtures/angielskie-chrome.ts, bo import pliku *.unit.ts do specyfikacji uruchomilby node:test wewnatrz Playwrighta
+- [Phase 04.1]: [04.1-10] Licznik na kaflu pulpitu bierze sie z czytnika, ktory czyta odpowiadajacy mu ekran listy, nigdy z osobnego liczenia: wpisy z readAktualnosci, dokumenty z readDokumentyPanelu (publiczny niesie node:fs i pomija wpisy bez pliku), nabor z recruitmentOpen; test w przegladarce liczy wiersze list zamiast porownywac z liczba wpisana w tescie
 
 ### Pending Todos
 
@@ -224,6 +229,7 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 - [Phase 04.1] CMS requirements are stated as implementation and go stale the moment Sveltia leaves. `REQUIREMENTS.md` CMS-01 reads "log into a git-based CMS (Sveltia) via GitHub OAuth (self-hosted auth Worker)" and is ticked complete; CMS-03 (Polish admin portal) is also ticked despite the English-chrome caveat recorded in the 02-05 decision, which is one of the reasons this phase exists. Both were left untouched by the phase insertion (a phase-op does not edit requirements). Reword them during `/gsd-discuss-phase 04.1` and re-verify them when the phase completes, otherwise the traceability table will claim a Sveltia+GitHub login that no longer exists.
 - [Phase 04.1 / 04.1-01] TWO LIVE SERVICES FROM THE OLD EDITOR ARE STILL RUNNING, now orphaned. Sveltia's files are gone from the repo (user-approved early removal, see decisions), but no file deletion can reach either of these: (a) the sveltia-cms-auth Worker is still DEPLOYED on sveltia-cms-auth.devzlobekstromiec.workers.dev and still answering; (b) the GitHub OAuth App still exists in the zlobekstromiec Org and can still authorize access to the PUBLIC repository. Both are Plan 11 Task 3 (dashboard-only: the scoped CLOUDFLARE_API_TOKEN in .envrc has no Workers permission). The OAuth App is now slightly worse than before, because nothing in the tree points at it any more. Delete it sooner than Plan 11 if convenient. Do NOT confuse it with the GitHub App created in Plan 04, which is the new panel's write identity.
 - [Phase 04.1 / 04.1-01] STAFF HAVE NO WORKING EDITOR until Plan 10 lands. Direct consequence of the user-approved early Sveltia removal that supersedes D-20. Any urgent content change before then is a developer editing JSON under src/lib/content/ and pushing. Plan 11 must be re-read rather than executed as written: its Task 2 is now largely a no-op, and its ordering prohibition (teardown must not start before the live UAT passes) is already superseded.
+- [Phase 04.1 / 04.1-10] RESOLVED, the item above: the panel is complete as a product. The pulpit, all six editor sections and the rewritten Polish instrukcja at /admin/pomoc are built and green locally, so staff have a working editor again from this plan on. What is still owed before anybody is actually handed it is Plan 11: the live UAT (a real staff member logging in from the printed instrukcja, plus the first real save, which has been outstanding since Plan 05), the D-21 rewording of CMS-01 and CMS-03, and the teardown of the two orphaned live services listed above.
 - [Phase 04.1 / 04.1-02] A login code has NO backup recipient. Unlike the two public forms there is no BCC, so if delivery to a staff mailbox fails the editor simply cannot log in. The failure is visible (the 'Nie udalo sie wyslac kodu' panel) rather than silent, which is the right trade, but the first live login is also the first proof that send.zlobekstromiec.pl reaches whatever mailbox the editor actually uses. Also owed: the AG-3 second enforced check for the five-attempt cap, which is Plan 03's Playwright case against the real runtime.
 - [Phase 04.1 / 04.1-03] LOGIN TIMING PARITY IS NOT PROVEN. The step 1 action defers the Resend send to waitUntil (P-08) but still awaits the KV store, so an address-correlated delta remains: measured locally at about 4.2 ms for an allowlisted address against 3.1 ms for one that is not, ten requests each against wrangler pages dev. Playwright cannot see the real oracle, because PANEL_DRY_RUN short-circuits the send, so tests/admin-auth.spec.ts asserts only the STRUCTURAL property and says so. Plan 10 owes the live response-time distribution comparison, 04.1-VALIDATION.md 'Not Inferable From Unit Tests' item 1. If it shows a usable oracle, defer the KV store as well and give the attempt-cap Playwright case a deterministic wait.
 - [Phase 04.1 / 04.1-03] Five panel nav destinations are 404s for a logged-in editor until plans 05 to 09 land: /admin/aktualnosci, /admin/o-nas, /admin/plan-dnia, /admin/dokumenty, /admin/nabor and /admin/pomoc. The nav is required by UI-SPEC Component Contract 1 in full and the paths are the contract's, so this is expected rather than a defect, but nobody should be shown the panel before Plan 09.
@@ -251,6 +257,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-16T10:16:36.961Z
-Stopped at: Ukonczono 04.1-09-PLAN.md
+Last session: 2026-08-16T11:48:45.137Z
+Stopped at: Ukonczono 04.1-10-PLAN.md
 Resume file: None
