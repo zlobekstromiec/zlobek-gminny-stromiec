@@ -1,0 +1,420 @@
+// Single source for every Polish string the editorial panel renders, including the
+// login code e-mail (CMS-01, CMS-03, SITE-06). This module is to the panel what
+// ./forms.ts is to the two public forms: no route, no component and no server module
+// may author a visible string of its own.
+//
+// Governing document: 04.1-UI-SPEC.md „Copywriting Contract", which is authoritative
+// for every string below. The strings are copied from it rather than paraphrased. The
+// one normalisation applied: where the contract pairs an opening „ with a straight
+// closing quote, the Polish closing quote ” is used, because a mixed pair is a
+// rendering artefact of the table it was written in and not a typographic decision.
+//
+// Copy rules (v1.2 §8) apply to EVERY string here: Polish only, no emoji, no em
+// dashes (use commas, colons, parentheses), en dash only inside a numeric range such
+// as 7:00–8:30, plain hyphen elsewhere.
+//
+// EVERY NEW EXPORT MUST BE ADDED TO THE SWEEP LIST IN tests/admin-copy.unit.ts.
+// An export that is missing from that list silently escapes the emoji, em dash and
+// English chrome contract, which is the lesson tests/forms-copy.unit.ts already
+// records. That suite counts the module's exports, so a forgotten entry turns it red
+// rather than passing quietly.
+//
+// Values that vary at render time are exported as FUNCTIONS taking the value, exactly
+// as ./forms.ts handles the same problem, so no route ever concatenates copy inline.
+// The relative `.ts` import path convention of that module applies here too: the copy
+// suite loads this file directly under `node --test`.
+
+/** Panel shell and navigation (UI-SPEC Component Contract 1). */
+export const KOPIA_POWLOKA = {
+	wordmark: 'Panel redakcyjny',
+	wordmarkLink: 'Panel redakcyjny, przejdź do pulpitu',
+	otworzStrone: 'Otwórz stronę żłobka',
+	/** Visually hidden suffix, appended to every link that opens a new tab. */
+	nowaKarta: ' (otwiera się w nowej karcie)',
+	wyloguj: 'Wyloguj',
+	skipLink: 'Przejdź do treści',
+	opoznieniePublikacji:
+		'Zmiany pojawiają się na stronie żłobka po około 2 minutach od zapisania. Jeśli nie widzisz ich od razu, odśwież stronę za chwilę.',
+	stopka: 'Publiczny Żłobek w Stromcu, panel redakcyjny.',
+	stopkaLink: 'Instrukcja obsługi panelu'
+} as const;
+
+/** Navigation labels in the fixed UI-SPEC order. Labels only: the route each one
+ *  points at is wiring, not copy, and belongs to the shell component. */
+export const NAWIGACJA: readonly string[] = Object.freeze([
+	'Pulpit',
+	'Aktualności',
+	'O nas',
+	'Plan dnia',
+	'Dokumenty',
+	'Nabór',
+	'Pomoc'
+]);
+
+/** Logowanie, both steps and the whole login state matrix (Component Contract 2).
+ *
+ *  D-02: the step 2 heading and body are byte-identical whether or not the address is
+ *  on the allowlist. There is deliberately no „nie znaleziono" string here, and adding
+ *  one would turn the login into an enumeration oracle. */
+export const KOPIA_LOGOWANIE = {
+	naglowek: 'Panel redakcyjny',
+	lead: 'Zaloguj się, aby edytować treści na stronie żłobka.',
+	tytulStrony: 'Logowanie, panel redakcyjny',
+	adresEtykieta: 'Adres e-mail',
+	adresPodpowiedz: 'Podaj adres, który został zgłoszony jako redakcyjny.',
+	adresPrzycisk: 'Wyślij kod',
+	kodNaglowek: 'Sprawdź swoją skrzynkę',
+	kodTresc:
+		'Jeśli ten adres ma dostęp do panelu, wysłaliśmy na niego sześciocyfrowy kod. Kod jest ważny 15 minut. Sprawdź też folder ze spamem.',
+	kodEtykieta: 'Kod z e-maila',
+	kodPodpowiedz: 'Sześć cyfr, na przykład 123456.',
+	kodPrzycisk: 'Zaloguj się',
+	ponowneWyslanie: 'Wyślij kod ponownie',
+	innyAdres: 'Wpisz inny adres e-mail',
+	bladAdresBrak: 'Podaj adres e-mail.',
+	bladAdresNiepoprawny: 'Podaj poprawny adres e-mail, na przykład anna.kowalska@example.com',
+	bladKodBrak: 'Wpisz kod z e-maila.',
+	bladKodNiepoprawny: 'Kod jest niepoprawny. Sprawdź go w e-mailu i wpisz jeszcze raz.',
+	kodWygaslNaglowek: 'Kod stracił ważność',
+	kodWygaslTresc: 'Kod jest ważny 15 minut. Kliknij Wyślij kod ponownie, a przyślemy nowy.',
+	zaDuzoProbNaglowek: 'Za dużo prób',
+	zaDuzoProbTresc:
+		'Dla bezpieczeństwa unieważniliśmy ten kod. Kliknij Wyślij kod ponownie i wpisz nowy kod.',
+	limitNaglowek: 'Za dużo prób logowania',
+	limitTresc: 'Z tego urządzenia wysłano już kilka kodów. Spróbuj ponownie za godzinę.',
+	wysylkaBladNaglowek: 'Nie udało się wysłać kodu',
+	wysylkaBladTresc:
+		'Spróbuj ponownie za chwilę. Jeśli problem się powtarza, skontaktuj się z osobą, która przekazała Ci dostęp do panelu.',
+	sesjaWygasla: 'Twoja sesja wygasła. Zaloguj się ponownie.',
+	wylogowano: 'Wylogowano. Do zobaczenia.',
+	stronaZablokowana: 'Aby otworzyć tę stronę, zaloguj się.'
+} as const;
+
+/** The login code e-mail. A Polish surface like any other (CMS-03), which is why it
+ *  lives in this module and is swept by tests/admin-copy.unit.ts rather than being
+ *  authored inside the sender. */
+export const KOPIA_MAIL_KOD = {
+	temat: 'Kod logowania do panelu redakcyjnego',
+	powitanie: 'Dzień dobry,',
+	wstep: 'oto kod logowania do panelu redakcyjnego strony Publicznego Żłobka w Stromcu:',
+	waznosc: 'Kod jest ważny 15 minut.',
+	bezpieczenstwo:
+		'Jeśli to nie Ty prosiłeś o kod, po prostu zignoruj tę wiadomość. Nikt nie uzyska dostępu bez tego kodu.',
+	podpis: 'Publiczny Żłobek w Stromcu'
+} as const;
+
+/** Pulpit, the landing screen (Component Contract 3). */
+export const KOPIA_PULPIT = {
+	naglowek: 'Pulpit',
+	lead: 'Wybierz, co chcesz zmienić. Po zapisaniu zmiany pojawią się na stronie po około 2 minutach.',
+	aktualnosciTytul: 'Aktualności',
+	aktualnosciOpis: 'Wpisy z życia żłobka: dodawaj, poprawiaj i usuwaj ogłoszenia.',
+	oNasTytul: 'O nas',
+	oNasOpis: 'Misja, wartości, kadra i opis budynku.',
+	planDniaTytul: 'Plan dnia',
+	planDniaOpis: 'Godziny i zajęcia w ciągu dnia w żłobku.',
+	dokumentyTytul: 'Dokumenty',
+	dokumentyOpis: 'Pliki do pobrania: wnioski, statut i uchwały.',
+	naborTytul: 'Nabór',
+	naborOpis: 'Przełącz informację o naborze na stronie.',
+	pomocTytul: 'Pomoc',
+	pomocOpis: 'Instrukcja krok po kroku, jak korzystać z panelu.'
+} as const;
+
+/** Collection list screens (Component Contract 4). */
+export const KOPIA_LISTY = {
+	aktualnosciNaglowek: 'Aktualności',
+	aktualnosciAkcja: 'Dodaj wpis',
+	aktualnosciPustyNaglowek: 'Nie ma jeszcze żadnych wpisów',
+	aktualnosciPustaTresc:
+		'Dodaj pierwszy wpis, a pojawi się w zakładce Aktualności na stronie żłobka.',
+	dokumentyNaglowek: 'Dokumenty',
+	dokumentyAkcja: 'Dodaj dokument',
+	dokumentyPustyNaglowek: 'Nie ma jeszcze żadnych dokumentów',
+	dokumentyPustaTresc:
+		'Dodaj pierwszy dokument, a pojawi się w zakładce Dokumenty na stronie żłobka.',
+	pustaKategoria: 'Brak dokumentów w tej kategorii.',
+	odznakaZastepcza: 'Treść zastępcza',
+	edytuj: 'Edytuj',
+	usun: 'Usuń',
+	powrotPulpit: 'Wróć do pulpitu',
+	powrotLista: 'Wróć do listy'
+} as const;
+
+/** The three date selects, authored once because both the aktualność publication date
+ *  and the document version date use them. The month NAMES are not repeated here: they
+ *  come from MIESIACE_WYBOR in ./forms.ts, so the project keeps exactly one month
+ *  table (the reason is written in src/lib/server/forms/mailer.ts). */
+export const POLA_DATA = {
+	dzien: 'Dzień',
+	miesiac: 'Miesiąc',
+	rok: 'Rok',
+	pusty: 'Wybierz'
+} as const;
+
+/** Wpis (aktualności) form labels and hints. */
+export const POLA_WPIS = {
+	tytulEtykieta: 'Tytuł *',
+	tytulPodpowiedz: 'Tytuł wpisu po polsku. Będzie widoczny na liście i na stronie wpisu.',
+	dataLegenda: 'Data publikacji *',
+	dataPodpowiedz: 'Wpisy są pokazywane od najnowszego.',
+	zajawkaEtykieta: 'Zajawka (opcjonalnie)',
+	zajawkaPodpowiedz:
+		'Krótkie streszczenie, 2-3 zdania, pokazywane na kafelku listy. Jeśli zostawisz puste, użyjemy początku treści.',
+	trescEtykieta: 'Treść *',
+	trescPodpowiedz:
+		'Treść wpisu. Możesz pogrubić tekst, dodać odnośnik i listę. Zobacz Jak formatować tekst poniżej.',
+	zdjecieEtykieta: 'Zdjęcie (opcjonalnie)',
+	zdjeciePodpowiedz:
+		'Wybierz zdjęcie z telefonu lub komputera. Przytniemy je automatycznie do proporcji 16:9 i zmniejszymy, żeby strona działała szybko.',
+	altEtykieta: 'Opis alternatywny (alt) *',
+	altPodpowiedz:
+		'Napisz, co widać na zdjęciu, na przykład: Dzieci malują farbami przy stoliku. Nie pisz samego słowa zdjęcie. Ten opis czytają osoby korzystające z czytników ekranu.',
+	zastepczaEtykieta: 'Treść zastępcza (do potwierdzenia)',
+	zastepczaPodpowiedz: 'Zaznacz, dopóki treść nie została potwierdzona.'
+} as const;
+
+/** O nas form labels and hints. */
+export const POLA_O_NAS = {
+	leadEtykieta: 'Wprowadzenie *',
+	leadPodpowiedz: 'Krótki tekst wprowadzający na górze strony O nas.',
+	misjaEtykieta: 'Misja *',
+	misjaPodpowiedz: 'Krótki opis misji żłobka. Możesz pogrubić tekst i dodać odnośnik.',
+	wartosciLegenda: 'Wartości',
+	wartosciPodpowiedz: 'Każda wartość ma tytuł i krótki opis.',
+	wartoscTytulEtykieta: 'Tytuł wartości *',
+	wartoscOpisEtykieta: 'Opis *',
+	kadraOpisEtykieta: 'Kadra: opis *',
+	kadraOpisPodpowiedz: 'Ciepły opis zespołu (kwalifikacje, podejście). Bez nazwisk i zdjęć.',
+	kadraOpiekunkiEtykieta: 'Liczba opiekunek *',
+	kadraOpiekunkiPodpowiedz: 'Wpisz liczbę, na przykład 6.',
+	kadraPersonelEtykieta: 'Personel pomocniczy (liczba) *',
+	kadraPersonelPodpowiedz: 'Wpisz liczbę, na przykład 3.',
+	obiektOpisEtykieta: 'O budynku *',
+	obiektOpisPodpowiedz: 'Opis budynku, sali i placu zabaw.',
+	zdjeciaLegenda: 'Zdjęcia (budynek, sala, plac zabaw)',
+	zdjeciaPodpowiedz: 'Zdjęcia bez osób. Przytniemy je do proporcji 4:3 i zmniejszymy.',
+	zdjecieAltEtykieta: 'Opis alternatywny (alt) *',
+	zdjecieAltPodpowiedz:
+		'Napisz, co widać na zdjęciu, na przykład: Sala zabaw z kolorowymi zabawkami.',
+	zastepczaEtykieta: 'Treść zastępcza (do potwierdzenia)',
+	zastepczaPodpowiedz: 'Zaznacz, dopóki treść nie została potwierdzona.'
+} as const;
+
+/** Plan dnia form labels and hints. */
+export const POLA_PLAN_DNIA = {
+	grupaLegenda: 'Godziny i zajęcia',
+	grupaPodpowiedz: 'Kolejne punkty planu dnia. Każdy wiersz: godziny i opis.',
+	godzinyEtykieta: 'Godziny *',
+	godzinyPodpowiedz: 'Na przykład 7:00–8:30.',
+	opisEtykieta: 'Opis *',
+	opisPodpowiedz: 'Krótki opis zajęć, na przykład: Śniadanie.',
+	zastepczaEtykieta: 'Treść zastępcza (do potwierdzenia)',
+	zastepczaPodpowiedz: 'Zaznacz, dopóki treść nie została potwierdzona.'
+} as const;
+
+/** Dokument form labels, hints and the fixed category options. */
+export const POLA_DOKUMENT = {
+	nazwaEtykieta: 'Nazwa dokumentu *',
+	nazwaPodpowiedz: 'Czytelna nazwa po polsku (nie nazwa pliku).',
+	kategoriaEtykieta: 'Kategoria *',
+	kategoriaPodpowiedz:
+		'Rekrutacja oraz Statut i uchwały są widoczne na stronie. Kategoria RODO zostanie włączona później.',
+	kategorieOpcje: ['Rekrutacja', 'Statut i uchwały', 'RODO'],
+	plikEtykieta: 'Plik *',
+	plikPodpowiedz: 'Wybierz plik PDF, DOC lub DOCX. Maksymalny rozmiar to 10 MB.',
+	wersjaLegenda: 'Wersja z dnia *',
+	wersjaPodpowiedz: 'Data wersji dokumentu.',
+	zrodloEtykieta: 'Źródło (BIP), opcjonalnie',
+	zrodloPodpowiedz: 'Wklej pełny adres dokumentu w BIP, zaczynający się od https://',
+	zastepczaEtykieta: 'Treść zastępcza (do potwierdzenia)',
+	zastepczaPodpowiedz: 'Zaznacz, dopóki treść nie została potwierdzona.'
+} as const;
+
+/** Nabór switch (Component Contract 13). The two option descriptions say exactly what
+ *  a parent will see, so the editor reads the consequence before saving. */
+export const KOPIA_NABOR = {
+	naglowek: 'Nabór',
+	legenda: 'Stan naboru',
+	otwartyEtykieta: 'Nabór otwarty',
+	otwartyOpis:
+		'Na stronie pojawi się informacja, że prowadzimy nabór, wraz z formularzem zgłoszenia.',
+	zamknietyEtykieta: 'Nabór zamknięty',
+	zamknietyOpis:
+		'Na stronie pojawi się informacja, że nabór podstawowy jest zakończony, a rodzic może zapisać się na listę rezerwową.',
+	podgladNaglowek: 'Tak zobaczy to rodzic'
+} as const;
+
+/** The formatting help disclosure (Component Contract 6). Line 4 states what is NOT
+ *  supported on purpose: the stored value has to stay inside the constrained markdown
+ *  subset the public renderers already sanitize. */
+export const KOPIA_FORMATOWANIE = {
+	podsumowanie: 'Jak formatować tekst',
+	linie: [
+		'Tekst w podwójnych gwiazdkach jest pogrubiony: **ważne** wyświetli się jako ważne.',
+		'Odnośnik zapisujesz tak: [tekst odnośnika](https://adres.pl)',
+		'Wiersz zaczynający się od znaku - i spacji tworzy punkt listy.',
+		'Nagłówki, tabele i zdjęcia wewnątrz treści nie są obsługiwane. Zdjęcie dodajesz w polu Zdjęcie powyżej.'
+	]
+} as const;
+
+/** Server-rendered validation. Every message says what to DO (WCAG 3.3.3), never
+ *  merely that something is wrong. */
+export const KOPIA_WALIDACJA = {
+	podsumowanieNaglowek: 'Popraw zaznaczone pola',
+	podsumowanieTresc: 'Nie zapisaliśmy zmian, ponieważ część pól wymaga poprawy.',
+	tytulBrak: 'Podaj tytuł wpisu.',
+	dataNiepelna: 'Wybierz dzień, miesiąc i rok publikacji.',
+	trescBrak: 'Wpisz treść wpisu.',
+	altBrak: 'Napisz opis alternatywny zdjęcia. Bez niego nie możemy zapisać zdjęcia.',
+	zdjecieZlyTyp: 'Ten plik nie jest zdjęciem. Wybierz plik JPG, PNG lub WEBP.',
+	zdjecieZaDuze: 'To zdjęcie jest za duże. Wybierz zdjęcie mniejsze niż 15 MB.',
+	nazwaBrak: 'Podaj nazwę dokumentu.',
+	kategoriaBrak: 'Wybierz kategorię.',
+	plikBrak: 'Wybierz plik do pobrania.',
+	plikZlyTyp: 'Wybierz plik PDF, DOC lub DOCX.',
+	plikZaDuzy: 'Ten plik jest za duży. Maksymalny rozmiar to 10 MB.',
+	wersjaNiepelna: 'Wybierz dzień, miesiąc i rok wersji dokumentu.',
+	zrodloNiepoprawne: 'Ten adres jest niepoprawny. Wklej pełny adres, zaczynający się od https://',
+	liczbaNiepoprawna: 'Wpisz liczbę, na przykład 6.',
+	godzinyBrak: 'Wpisz godziny, na przykład 7:00–8:30.',
+	wartoscNiepelna: 'Uzupełnij tytuł i opis tej wartości albo usuń ją.'
+} as const;
+
+/** Save, conflict and failure surfaces (Component Contracts 9 and 10), plus the
+ *  repeatable-group notes from Contract 7. */
+export const KOPIA_ZAPIS = {
+	zapisanoNaglowek: 'Zapisano',
+	zapisanoTresc: 'Zmiana została zapisana. Pojawi się na stronie żłobka po około 2 minutach.',
+	usunietoNaglowek: 'Usunięto',
+	usunietoTresc: 'Wpis został usunięty. Zniknie ze strony żłobka po około 2 minutach.',
+	nota: 'Zmiany zapisują się jako jedna całość. Pojawią się na stronie po około 2 minutach.',
+	zapisz: 'Zapisz',
+	zapisywanie: 'Zapisywanie...',
+	anuluj: 'Anuluj',
+	wymaganeNota: 'Pola oznaczone gwiazdką (*) są wymagane.',
+	konfliktNaglowek: 'Ktoś zmienił tę treść w międzyczasie',
+	konfliktTresc:
+		'Nie zapisaliśmy zmian, żeby nie skasować pracy innej osoby. Skopiuj swój tekst, odśwież stronę, sprawdź aktualną treść i wprowadź zmiany jeszcze raz.',
+	konfliktAkcja: 'Odśwież stronę',
+	bladNaglowek: 'Nie udało się zapisać zmian',
+	bladTresc:
+		'Twoje zmiany nie zostały zapisane. Wpisane dane zostały w formularzu, spróbuj ponownie za chwilę.',
+	brakTresciNaglowek: 'Nie znaleziono tej treści',
+	brakTresciTresc: 'Ta treść mogła zostać usunięta. Wróć do listy i sprawdź.',
+	notaGrupy: 'Dodanie lub usunięcie wiersza nie zapisuje zmian. Na końcu kliknij Zapisz.',
+	dodajWartosc: 'Dodaj wartość',
+	dodajWiersz: 'Dodaj wiersz',
+	dodajZdjecie: 'Dodaj zdjęcie',
+	usunWartosc: 'Usuń tę wartość',
+	usunWiersz: 'Usuń ten wiersz',
+	usunZdjecie: 'Usuń to zdjęcie'
+} as const;
+
+/** The photo island (Component Contract 8). Nothing here describes motion, because
+ *  the island animates nothing: the status text IS the progress indicator. */
+export const KOPIA_ZDJECIA = {
+	przygotowywanie: 'Przygotowywanie zdjęcia...',
+	gotowe169: 'Zdjęcie gotowe. Zostało przycięte do proporcji 16:9 i zmniejszone.',
+	gotowe43: 'Zdjęcie gotowe. Zostało przycięte do proporcji 4:3 i zmniejszone.',
+	podpisPodgladu: 'Tak zdjęcie pojawi się na stronie.',
+	wybierzInne: 'Wybierz inne zdjęcie',
+	usun: 'Usuń zdjęcie',
+	usunieto: 'Usunięto zdjęcie z formularza.',
+	bezSkryptow:
+		'Dodawanie zdjęć wymaga włączonej obsługi JavaScript. Pozostałe pola możesz wypełnić i zapisać normalnie.'
+} as const;
+
+/** Destructive confirmation pages (Component Contract 11). The copy never promises
+ *  recovery: it says the operation cannot be undone in the panel, which is true, and
+ *  stops there. */
+export const KOPIA_USUWANIE = {
+	wpisNaglowek: 'Usunąć ten wpis?',
+	wpisPrzycisk: 'Usuń wpis',
+	dokumentNaglowek: 'Usunąć ten dokument?',
+	dokumentPrzycisk: 'Usuń dokument',
+	anuluj: 'Anuluj'
+} as const;
+
+/** „Zalogowano jako" line. Takes the D-04 handle, never the address: the full address
+ *  belongs on the login echo line and nowhere else. */
+export function zalogowanoJako(uchwyt: string): string {
+	return `Zalogowano jako: ${uchwyt}`;
+}
+
+/** Page title of every panel screen. */
+export function tytulStrony(sekcja: string): string {
+	return `${sekcja}, panel redakcyjny`;
+}
+
+/** Step 2 echo line, so a typo in the address is visible to the person who made it. */
+export function wyslanoKodNa(adres: string): string {
+	return `Wysłaliśmy kod na: ${adres}`;
+}
+
+/** Pulpit card counters. */
+export function liczbaWpisow(ile: number): string {
+	return `Liczba wpisów: ${ile}`;
+}
+
+export function liczbaDokumentow(ile: number): string {
+	return `Liczba dokumentów: ${ile}`;
+}
+
+/** Current recruitment state on the Pulpit card. Neutral information, never phrased or
+ *  coloured as a failure. */
+export function obecnieNabor(otwarty: boolean): string {
+	return otwarty ? 'Obecnie: nabór otwarty.' : 'Obecnie: nabór zamknięty.';
+}
+
+/** Visually hidden suffix naming the row a repeated action belongs to. A list of eight
+ *  identical „Usuń" links is a WCAG 2.4.4 failure, and this suffix is the fix. */
+export function ukryteWpis(tytul: string): string {
+	return ` wpis: ${tytul}`;
+}
+
+export function ukryteDokument(nazwa: string): string {
+	return ` dokument: ${nazwa}`;
+}
+
+/** Over-long text, with the cap the server actually enforced. */
+export function tekstZaDlugi(limit: number): string {
+	return `Tekst jest za długi. Skróć go do ${limit} znaków.`;
+}
+
+/** Link inside the „Zapisano" panel. The new-tab suffix from KOPIA_POWLOKA is appended
+ *  by the component, so the two can never disagree about the wording. */
+export function zobaczStrone(nazwaStrony: string): string {
+	return `Zobacz stronę: ${nazwaStrony}`;
+}
+
+/** Announcements after a repeatable row is added or removed. */
+export function dodanoWiersz(numer: number): string {
+	return `Dodano wiersz ${numer}.`;
+}
+
+export function usunietoWiersz(numer: number): string {
+	return `Usunięto wiersz ${numer}.`;
+}
+
+/** Numbered legends of the repeatable groups. */
+export function legendaWartosci(numer: number): string {
+	return `Wartość ${numer}`;
+}
+
+export function legendaWiersza(numer: number): string {
+	return `Wiersz ${numer}`;
+}
+
+export function legendaZdjecia(numer: number): string {
+	return `Zdjęcie ${numer}`;
+}
+
+/** Delete confirmation bodies, quoting exactly what is about to disappear. */
+export function trescUsunieciaWpisu(tytul: string, data: string): string {
+	return `Zamierzasz usunąć wpis „${tytul}” z dnia ${data}. Zniknie ze strony żłobka po około 2 minutach. Tej operacji nie można cofnąć w panelu.`;
+}
+
+export function trescUsunieciaDokumentu(nazwa: string): string {
+	return `Zamierzasz usunąć dokument „${nazwa}”. Przestanie być dostępny do pobrania na stronie żłobka po około 2 minutach. Tej operacji nie można cofnąć w panelu.`;
+}
