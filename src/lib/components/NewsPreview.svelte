@@ -3,7 +3,7 @@
 	// supplies the three newest posts (readLatest(3)) and renders the shared NewsCard
 	// per post (UI-SPEC „Homepage NewsPreview realignment"). The homepage gates this
 	// component on posts.length, so the empty {:else} branch is a safety net only and
-	// never renders on the homepage (Amendment v1.1 §1). Post typed via the client-safe
+	// never renders on the homepage (Amendment v1.6 §1). Post typed via the client-safe
 	// shared shape from $lib/content/site ($lib/server is server-only, not importable here).
 	import Newspaper from '@lucide/svelte/icons/newspaper';
 	import Cta from './Cta.svelte';
@@ -37,7 +37,7 @@
 		{:else}
 			<!-- Safety-net empty state (also used by /aktualnosci). The homepage gates
 			     this component on posts.length, so this branch never renders there
-			     (UI-SPEC Amendment v1.1 §1). -->
+			     (UI-SPEC Amendment v1.6 §1). -->
 			<div class="empty">
 				<Newspaper class="empty-icon" size={40} aria-hidden="true" focusable="false" />
 				<h3 class="empty-heading">Wkrótce pojawią się aktualności</h3>
@@ -52,13 +52,13 @@
 
 <style>
 	.news {
-		background: var(--color-surface-warm);
+		background: var(--color-surface);
 		padding-block: 48px;
 	}
 
 	@media (min-width: 1024px) {
 		.news {
-			padding-block: 96px;
+			padding-block: 64px;
 		}
 	}
 
