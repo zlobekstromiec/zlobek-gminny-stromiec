@@ -5,14 +5,14 @@ milestone_name: milestone
 current_phase: 04.1
 current_phase_name: INSERTED
 status: planning
-stopped_at: Phase 04.1 context gathered
-last_updated: "2026-08-15T21:51:52.708Z"
-last_activity: 2026-08-15
-last_activity_desc: Phase 04.1 inserted after Phase 4; Phase 5 now depends on it
+stopped_at: Phase 04.1 planned (11 plans, 10 waves)
+last_updated: "2026-08-16T00:00:00.000Z"
+last_activity: 2026-08-16
+last_activity_desc: Phase 04.1 planned — 11 plans in 10 waves, plan-checker VERIFICATION PASSED
 progress:
   total_phases: 8
   completed_phases: 4
-  total_plans: 27
+  total_plans: 38
   completed_plans: 27
   percent: 50
 ---
@@ -29,9 +29,11 @@ See: .planning/PROJECT.md (updated 2026-08-14)
 ## Current Position
 
 Phase: 04.1 — Replace Sveltia with custom Polish CMS (INSERTED)
-Plan: Not started
-Status: Inserted, not yet discussed
-Last activity: 2026-08-15 — Phase 04.1 inserted after Phase 4; Phase 5 now depends on it
+Plan: 0/11 executed
+Status: Ready to execute
+Last activity: 2026-08-16 — Phase 04.1 planned: 11 plans in 10 waves, plan-checker VERIFICATION PASSED
+
+Plans 04 and 11 are `autonomous: false`. Plan 04 opens with a human checkpoint (create the GitHub App, convert the private key PKCS#1 → PKCS#8 with `openssl pkcs8 -topk8 -nocrypt`, set the Pages secrets). Plan 11 opens with the D-20 live-UAT gate and closes with deleting the GitHub OAuth App and the `sveltia-cms-auth` Worker, both dashboard-only. Sveltia is removed only after that UAT passes.
 
 Progress: [█████████████████░░░] 27/27 plans in phases 1-4 complete (4 of 8 phases, 50%)
 
@@ -197,6 +199,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-15T21:51:52.703Z
-Stopped at: Phase 04.1 context gathered
-Resume file: .planning/phases/04.1-replace-sveltia-with-custom-polish-cms/04.1-CONTEXT.md
+Last session: 2026-08-16T00:00:00.000Z
+Stopped at: Phase 04.1 planned (11 plans, 10 waves) — VERIFICATION PASSED
+Resume file: .planning/phases/04.1-replace-sveltia-with-custom-polish-cms/04.1-01-PLAN.md
