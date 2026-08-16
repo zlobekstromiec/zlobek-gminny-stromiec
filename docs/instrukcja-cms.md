@@ -31,7 +31,7 @@ Nie zakładasz żadnego konta i nie ustawiasz żadnego hasła.
 
 Kod jest ważny 15 minut. Jeśli wiadomość nie przychodzi w ciągu minuty lub dwóch,
 sprawdź folder ze spamem albo z ofertami: pierwsza wiadomość z nowego adresu często tam
-trafia. Warto oznaczyć ją jako „nie spam", żeby kolejne przychodziły normalnie.
+trafia. Warto oznaczyć taką wiadomość jako pożądaną, żeby kolejne przychodziły normalnie.
 
 **Wyślij kod ponownie** unieważnia poprzedni kod i przysyła nowy. Używaj tego przycisku
 zawsze, gdy kod stracił ważność, gdy wpisałaś lub wpisałeś go kilka razy błędnie albo
@@ -92,8 +92,8 @@ dodatkowo na stronie głównej.
    - **Data publikacji**: trzy listy do wyboru, osobno dzień, miesiąc i rok. Data ustala
      kolejność wpisów na liście. Wpis pojawia się na stronie od razu po zapisaniu, także
      wtedy, gdy wybierzesz datę z przyszłości: nie ma publikacji zaplanowanej na później.
-   - **Zajawka**: krótkie streszczenie, 2-3 zdania, pokazywane na kafelku listy. Pole jest
-     opcjonalne. Jeśli zostawisz je puste, na kafelku pokaże się początek treści.
+   - **Zajawka (opcjonalnie)**: krótkie streszczenie, 2-3 zdania, pokazywane na kafelku
+     listy. Jeśli zostawisz to pole puste, na kafelku pokaże się początek treści.
    - **Treść**: pełna treść wpisu. Można pogrubić tekst, dodać odnośnik i listę
      punktowaną. Pod polem jest rozwijana pomoc **Jak formatować tekst** z przykładami.
      Nagłówki, tabele i zdjęcia wewnątrz treści nie są obsługiwane.
@@ -145,7 +145,7 @@ Zdjęcie dodaje się na ekranie wpisu (jedno zdjęcie nagłówkowe) oraz na ekra
 
 1. Kliknij **Wybierz zdjęcie** i wskaż plik z telefonu albo z komputera.
 2. Poczekaj chwilę. Pod przyciskiem pojawi się napis „Przygotowywanie zdjęcia...", a po
-   nim „Zdjęcie gotowe" wraz z podglądem.
+   nim informacja, że zdjęcie jest gotowe, wraz z podglądem.
 3. Wypełnij pole **Opis alternatywny (alt)**.
 4. Kliknij **Zapisz**.
 
@@ -260,7 +260,8 @@ Ekran **O nas** zbiera całą treść podstrony O nas w jednym formularzu:
   dwie liczby. Opis piszemy bez nazwisk.
 - **O budynku**: opis budynku, sali i placu zabaw.
 - **Zdjęcia (budynek, sala, plac zabaw)**: lista zdjęć obiektu, każde z własnym opisem
-  alternatywnym. Patrz sekcja 5.
+  alternatywnym. Pozycje dodaje się i usuwa przyciskami **Dodaj zdjęcie** oraz
+  **Usuń to zdjęcie**. Patrz sekcja 5.
 - **Treść zastępcza (do potwierdzenia)**: tak samo jak przy wpisie.
 
 Cały ten ekran ma jeden przycisk **Zapisz** na dole. Możesz zmienić kilka rzeczy naraz i
@@ -284,8 +285,8 @@ dodawania i jest to najczęstsze nieporozumienie na tym ekranie: po dodaniu wier
 wpisaniu treści trzeba jeszcze zjechać na dół i kliknąć **Zapisz**. Wszystko, co już
 wpisałaś lub wpisałeś w innych wierszach, zostaje na miejscu.
 
-Plan dnia pokazujemy w dwóch miejscach: na stronie głównej i na stronie O nas. Jeden
-zapis zmienia oba te miejsca.
+Panel przypomina o tym nad listą i warto to zapamiętać: Plan dnia pokazujemy w dwóch
+miejscach: na stronie głównej i na stronie O nas. Jeden zapis zmienia oba.
 
 Kolejności wierszy nie da się w tej chwili przestawiać. Żeby przesunąć punkt, przepisz
 treść wierszy.
@@ -297,9 +298,9 @@ treść wierszy.
 Ekran **Nabór** ma jedno pytanie i dwie odpowiedzi do wyboru. To jest jedyne miejsce,
 które decyduje o tym, co rodzic widzi na stronie Rekrutacja.
 
-- **Nabór otwarty**: na stronie pojawi się informacja, że prowadzimy nabór, wraz z
+- **Nabór otwarty**. Na stronie pojawi się informacja, że prowadzimy nabór, wraz z
   formularzem zgłoszenia.
-- **Nabór zamknięty**: na stronie pojawi się informacja, że nabór podstawowy jest
+- **Nabór zamknięty**. Na stronie pojawi się informacja, że nabór podstawowy jest
   zakończony, a rodzic może zapisać się na listę rezerwową.
 
 Pod wyborem jest panel **Tak zobaczy to rodzic** z dokładnym nagłówkiem, który pojawi się

@@ -68,6 +68,14 @@ import {
 	zobaczStrone
 } from '../src/lib/content/panel.ts';
 import { zbudujPayloadKod, zbudujTrescKodu } from '../src/lib/server/admin/mail-kod.ts';
+// The banned English-chrome list and its two controls live in one module, because
+// tests/admin-polski.spec.ts sweeps the same words across every RENDERED admin screen
+// and two copies of that list would drift apart the first time one of them grew.
+import {
+	KONTROLA_DODATNIA,
+	KONTROLA_UJEMNA,
+	znajdzAngielskie
+} from './fixtures/angielskie-chrome.ts';
 
 const KOD_PRZYKLADOWY = '123456';
 const ADRES_PRZYKLADOWY = 'anna.kowalska@example.test';
@@ -152,34 +160,6 @@ const MAIL = [
 
 const WSZYSTKIE_STRINGI = zbierz([...EKSPORTY, ...MAIL]);
 
-/** English chrome a Polish panel must never render. Whole words only, case
- *  insensitive, so a Polish word that merely contains these letters is not a false
- *  positive. The list is the floor, not the ceiling: add to it, never remove. */
-// The word boundary is spelled out as a Unicode lookaround instead of `\b`, because
-// `\b` treats every Polish diacritic as a non-word character: it splits „ważność" at
-// ż and ś and then reports the „no" between them as the English word. Observed, not
-// assumed, the first time this suite ran.
-const GRANICA_PRZED = '(?<![\\p{L}\\p{N}_])';
-const GRANICA_PO = '(?![\\p{L}\\p{N}_])';
-const ANGIELSKIE_SLOWA = [
-	'Save',
-	'Cancel',
-	'Delete',
-	'Edit',
-	'Submit',
-	'Login',
-	'Log out',
-	'Loading',
-	'Error',
-	'Required',
-	'Choose File',
-	'Browse',
-	'Next',
-	'Back',
-	'Yes',
-	'No'
-];
-
 test('zaden eksport panelu nie zawiera pauzy (reguly copy, C-11)', () => {
 	const winne = WSZYSTKIE_STRINGI.filter((s) => s.includes('—'));
 	assert.deepEqual(winne, []);
@@ -203,24 +183,23 @@ test('polpauza wystepuje wylacznie w zakresie liczbowym i naprawde tam wystepuje
 });
 
 test('zaden eksport panelu nie zawiera angielskiego slowa z listy chrome (SC2)', () => {
-	for (const slowo of ANGIELSKIE_SLOWA) {
-		const wzorzec = new RegExp(`${GRANICA_PRZED}${slowo.replace(' ', '\\s+')}${GRANICA_PO}`, 'iu');
-		const winne = WSZYSTKIE_STRINGI.filter((s) => wzorzec.test(s));
-		assert.deepEqual(winne, [], `angielskie slowo "${slowo}" w kopii panelu`);
+	for (const tekst of WSZYSTKIE_STRINGI) {
+		assert.deepEqual(znajdzAngielskie(tekst), [], `angielskie chrome w kopii panelu: ${tekst}`);
 	}
 });
 
 // Positive control for the case above. A boundary expression that matched nothing at
 // all would let that assertion pass for the wrong reason, and after the „ważność"
-// surprise this detector is exactly the kind of thing that needs proving twice.
+// surprise this detector is exactly the kind of thing that needs proving twice. The
+// samples live beside the detector so tests/admin-polski.spec.ts, which sweeps the same
+// words across every RENDERED admin screen, proves the same thing about the same code.
 test('wykrywacz angielskiego chrome naprawde lapie angielskie slowo', () => {
-	const probki = ['Save changes', 'log out', 'CHOOSE FILE', 'Wybierz plik'];
-	const znalezione = probki.filter((s) =>
-		ANGIELSKIE_SLOWA.some((slowo) =>
-			new RegExp(`${GRANICA_PRZED}${slowo.replace(' ', '\\s+')}${GRANICA_PO}`, 'iu').test(s)
-		)
-	);
-	assert.deepEqual(znalezione, ['Save changes', 'log out', 'CHOOSE FILE']);
+	for (const probka of KONTROLA_DODATNIA) {
+		assert.notDeepEqual(znajdzAngielskie(probka), [], `wykrywacz przepuscil: ${probka}`);
+	}
+	for (const probka of KONTROLA_UJEMNA) {
+		assert.deepEqual(znajdzAngielskie(probka), [], `falszywy alarm na polskim tekscie: ${probka}`);
+	}
 });
 
 test('zaden string kopii panelu nie jest pusty po przycieciu', () => {
