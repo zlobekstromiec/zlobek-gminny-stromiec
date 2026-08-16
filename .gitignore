@@ -7,6 +7,15 @@
 .dev.vars
 .wrangler/
 
+# Key material — this repository is PUBLIC.
+# The GitHub App private key (phase 04.1, D-08) lives outside the working tree and
+# reaches production only as the GITHUB_APP_PRIVATE_KEY Cloudflare Pages secret.
+# These rules are structural insurance against an accidental `git add -A`.
+*.pem
+*.key
+*.p8
+*.pkcs8
+
 # Local tool cache (not part of the project)
 .ckb/
 
