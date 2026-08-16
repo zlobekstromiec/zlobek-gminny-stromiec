@@ -36,7 +36,7 @@
 {#if grupy.length > 0}
 	{#each grupy as grupa, i (grupa.kategoria)}
 		<section class="band" class:warm={i % 2 === 1} aria-labelledby="{grupa.kategoria}-heading">
-			<div class="inner">
+			<div class="inner uklad">
 				<h2 id="{grupa.kategoria}-heading">{grupa.naglowek}</h2>
 				<ul class="docs">
 					{#each grupa.dokumenty as dok (dok.plik)}
@@ -112,6 +112,23 @@
 	@media (min-width: 1024px) {
 		.inner {
 			padding-inline: 32px;
+		}
+
+		/* Editorial split (Amendment v1.6 §2): category heading in the left rail,
+		   the document list filling the right track to the container edge. */
+		.uklad {
+			display: grid;
+			grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
+			column-gap: 48px;
+			align-items: start;
+		}
+
+		.uklad h2 {
+			margin-bottom: 0;
+		}
+
+		.uklad .docs {
+			max-width: none;
 		}
 	}
 
