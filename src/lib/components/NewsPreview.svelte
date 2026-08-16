@@ -52,7 +52,7 @@
 
 <style>
 	.news {
-		background: var(--color-surface);
+		background: var(--color-surface-warm);
 		padding-block: 48px;
 	}
 

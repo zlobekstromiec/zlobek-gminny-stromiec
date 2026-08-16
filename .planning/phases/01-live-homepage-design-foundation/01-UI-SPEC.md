@@ -501,8 +501,7 @@ IconBear remains in `src/lib/icons/` and the whole bespoke icon contract (viewBo
 > the existing container; it adds NO new breakpoint (the contract's unspecified
 > >=1280px tier simply inherits the filled 1024px layouts). v1.5 (in
 > `04.1-UI-SPEC.md`) stays in force except where superseded here. Supersedes exactly:
-> v1.1 §1 (homepage section order), v1.2 §5 (the wave above Perks is now
-> white-to-accent, not warm-to-accent), v1.2 §6 KeyFacts (internal cell composition;
+> v1.1 §1 (homepage section order), v1.2 §6 KeyFacts (internal cell composition;
 > the 46px chips and 4/2/1 columns stay) and DayPlan ("centered tint-blue panel
 > max-width 44rem": the panel keeps 44rem and tint-blue but becomes the right column
 > at >=1024px), 02-UI-SPEC Wartości 3-column grid (now 4), 04-UI-SPEC /rekrutacja and
@@ -512,7 +511,7 @@ IconBear remains in `src/lib/icons/` and the whole bespoke icon contract (viewBo
 > color/type/radius tokens, and mobile (<1024px) visuals except the §11 list below.
 
 ### 1. Homepage section order v2.2
-Hero → Key-facts strip → Aktualności (still ONLY when `posts.length > 0`; the homepage never shows the news empty state) → Wave (bg `--color-surface`, fill `--color-accent`) → Perks → Rekrutacja module → DayPlan → O-nas teaser → Kontakt i dojazd → Footer. Rationale: news is the section returning parents check; it moves into the first screenful. Aktualności surface becomes `--color-surface` (white) with padding-block 48 → 64, so alternation still holds: warm facts, white news, accent Perks, white recruitment, white DayPlan, warm teaser, band contact.
+Hero → Key-facts strip → Wave (unchanged: warm-to-accent, so v1.2 §5 stands) → Perks → Aktualności (still ONLY when `posts.length > 0`; the homepage never shows the news empty state) → Rekrutacja module → DayPlan → O-nas teaser → Kontakt i dojazd → Footer. Rationale: news is the section returning parents check, so it leaves the page bottom and lands in the upper third, but the "Dlaczego rodzice nas wybierają?" pitch keeps the first screenful for a first-time visitor. Aktualności keeps its warm surface, sitting between the accent Perks band and the white Rekrutacja module; only its 96px desktop padding is superseded (now 64px). Alternation: warm facts, accent Perks, warm news, white recruitment, white DayPlan, warm teaser, band contact.
 
 ### 2. Editorial split pattern (new, reusable)
 At >=1024px an info section becomes a grid `minmax(220px, 300px) minmax(0, 1fr)`, column-gap 48px, `align-items: start`: the h2 sits in the left rail (bottom margin 0), prose and content fill the right track to the container edge. Below 1024px nothing changes. Applied to: /o-nas Misja, Kadra, and Nasze miejsce intro (gallery spans both tracks); /dokumenty category sections (the 52rem doc-list cap is released inside the right track).

@@ -1,11 +1,11 @@
 <script lang="ts">
 	// Homepage v2.2 (HOME-01, HOME-02, SITE-02, SITE-06; UI-SPEC Amendment v1.6 §1
 	// section order). Composes: Seo, Hero (single h1, sentence-2 lead), KeyFacts,
-	// Aktualności ONLY once posts exist (never an empty state here), Wave into the
-	// Perks band, Recruitment (centrepiece), DayPlan, AboutTeaser (full verbatim
-	// core message) and ContactAndMap (the page's only mailto). TopBar/Header/Footer
-	// + <main> come from +layout.svelte: this route adds NO extra landmarks and NO
-	// extra h1.
+	// Wave into the Perks band, Perks, Aktualności ONLY once posts exist (never an
+	// empty state here), Recruitment (centrepiece), DayPlan, AboutTeaser (full
+	// verbatim core message) and ContactAndMap (the page's only mailto).
+	// TopBar/Header/Footer + <main> come from +layout.svelte: this route adds NO
+	// extra landmarks and NO extra h1.
 	import Seo from '$lib/components/Seo.svelte';
 	import Hero from '$lib/components/Hero.svelte';
 	import KeyFacts from '$lib/components/KeyFacts.svelte';
@@ -33,11 +33,11 @@
 
 <Hero />
 <KeyFacts />
+<Wave fill="var(--color-accent)" bg="var(--color-surface-warm)" />
+<Perks />
 {#if showNews}
 	<NewsPreview posts={data.posts} />
 {/if}
-<Wave fill="var(--color-accent)" bg="var(--color-surface)" />
-<Perks />
 <Recruitment docs={data.docs} />
 <DayPlan pokazLink />
 <AboutTeaser />
