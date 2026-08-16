@@ -1,8 +1,10 @@
 <script lang="ts">
-	// Kontakt page (CONTACT-01, CONTACT-02, CONTACT-03; D-16, D-17). Follows the
-	// 04-UI-SPEC.md Amendment v1.4 „/kontakt - full contact page" composition table
-	// section for section: page header (white), contact cards (band), map (white),
-	// form (warm), Urząd Gminy info box (white).
+	// Kontakt page (CONTACT-01, CONTACT-02, CONTACT-03; D-16, D-17). Composition per
+	// 01-UI-SPEC Amendment v1.6 §8 (supersedes the v1.4 table): page header (white),
+	// then ONE band holding Dane kontaktowe beside Mapa dojazdu at >=1024px (the
+	// homepage ContactAndMap ratio), then ONE warm zone where the form card fills the
+	// left track and the FallbackPanel + Urząd Gminy info box sit in the right rail.
+	// DOM order stays the mobile order and no CSS `order` is used.
 	//
 	// Static, zero-JavaScript content with exactly ONE hydrated island: the contact
 	// form. The site-wide static-output flag is set once in src/routes/+layout.ts and
@@ -54,113 +56,114 @@
      page owns its own tel: and mailto: links: the single-mailto rule is a per-page
      rule that belongs to the homepage, and the contact page legitimately gets its
      own. The invented żłobek office-hours line is deliberately absent (Plan 02). -->
-<section class="sekcja band" aria-labelledby="dane-heading">
-	<div class="inner">
-		<h2 id="dane-heading">Dane kontaktowe</h2>
-		<ul class="contact-grid">
-			<li class="item">
-				<MapPin class="item-icon" size={22} aria-hidden="true" focusable="false" />
-				<div class="item-text">
-					<span class="item-label">Adres</span>
-					<span class="item-value">{contact.addressLines[0]}<br />{contact.addressLines[1]}</span>
-				</div>
-			</li>
+<div class="pas band">
+	<div class="inner uklad-dane">
+		<section class="kol-dane" aria-labelledby="dane-heading">
+			<h2 id="dane-heading">Dane kontaktowe</h2>
+			<ul class="contact-grid">
+				<li class="item">
+					<MapPin class="item-icon" size={22} aria-hidden="true" focusable="false" />
+					<div class="item-text">
+						<span class="item-label">Adres</span>
+						<span class="item-value">{contact.addressLines[0]}<br />{contact.addressLines[1]}</span>
+					</div>
+				</li>
 
-			<li class="item">
-				<Phone class="item-icon" size={22} aria-hidden="true" focusable="false" />
-				<div class="item-text">
-					<span class="item-label">Telefon</span>
-					<a class="item-link" href={contact.phoneHref}>{contact.phoneDisplay}</a>
-				</div>
-			</li>
+				<li class="item">
+					<Phone class="item-icon" size={22} aria-hidden="true" focusable="false" />
+					<div class="item-text">
+						<span class="item-label">Telefon</span>
+						<a class="item-link" href={contact.phoneHref}>{contact.phoneDisplay}</a>
+					</div>
+				</li>
 
-			<li class="item">
-				<Mail class="item-icon" size={22} aria-hidden="true" focusable="false" />
-				<div class="item-text">
-					<span class="item-label">E-mail</span>
-					<a class="item-link" href="mailto:{contact.email}">{contact.email}</a>
-				</div>
-			</li>
+				<li class="item">
+					<Mail class="item-icon" size={22} aria-hidden="true" focusable="false" />
+					<div class="item-text">
+						<span class="item-label">E-mail</span>
+						<a class="item-link" href="mailto:{contact.email}">{contact.email}</a>
+					</div>
+				</li>
 
-			<li class="item">
-				<Clock class="item-icon" size={22} aria-hidden="true" focusable="false" />
-				<div class="item-text">
-					<span class="item-label">Godziny otwarcia</span>
-					<span class="item-value">{contact.hours}</span>
-				</div>
-			</li>
-		</ul>
-	</div>
-</section>
+				<li class="item">
+					<Clock class="item-icon" size={22} aria-hidden="true" focusable="false" />
+					<div class="item-text">
+						<span class="item-label">Godziny otwarcia</span>
+						<span class="item-value">{contact.hours}</span>
+					</div>
+				</li>
+			</ul>
+		</section>
 
-<!-- Section 3: map (white surface). MapPanel owns the figure, the mandatory
-     OpenStreetMap attribution and the directions link; none of the three is
-     re-implemented here. -->
-<section class="sekcja" aria-labelledby="mapa-heading">
-	<div class="inner">
-		<h2 id="mapa-heading">Mapa dojazdu</h2>
-		<div class="mapa">
-			<MapPanel />
-		</div>
-	</div>
-</section>
-
-<!-- Section 4: contact form (warm surface). The route renders the shared
-     FallbackPanel above the island (Amendment v1.6 §9); the island renders the
-     noscript note, the form card with its own h2, the consent block and the
-     klauzula. The section is labelled by that card heading (id declared in
-     KontaktForm.svelte), which is the correct accessible name for it and avoids a
-     duplicated invisible heading. -->
-<section class="sekcja warm" aria-labelledby="formularz-naglowek">
-	<div class="inner">
-		<div class="stos">
-			<FallbackPanel />
-			<KontaktForm />
-		</div>
-	</div>
-</section>
-
-<!-- Section 5: Urząd Gminy info box (white surface, tint-blue panel). D-16: a
-     parent must not be left thinking the żłobek accepts wnioski. The name, street,
-     room and hours come from `urzad`, never pasted, and the sentence is phrased so
-     the nominative form of the interpolated name stays grammatical Polish (the same
-     construction site.ts already uses for the recruitment steps). -->
-<section class="sekcja" aria-labelledby="urzad-heading">
-	<div class="inner">
-		<div class="urzad-panel">
-			<Info class="urzad-ikona" size={22} aria-hidden="true" focusable="false" />
-			<div>
-				<h2 id="urzad-heading">Wnioski rekrutacyjne składasz w Urzędzie Gminy</h2>
-				<p>
-					Żłobek nie przyjmuje wniosków o przyjęcie dziecka. Wnioski przyjmuje {urzad.name}, {urzad
-						.addressLines[0]}, {urzad.room}, w godzinach {urzad.wnioskiHours}. Wniosek wraz z
-					załącznikami składa się osobiście.
-				</p>
+		<!-- MapPanel owns the figure, the mandatory OpenStreetMap attribution and the
+		     directions link; none of the three is re-implemented here. -->
+		<section class="kol-mapa" aria-labelledby="mapa-heading">
+			<h2 id="mapa-heading">Mapa dojazdu</h2>
+			<div class="mapa">
+				<MapPanel />
 			</div>
-		</div>
+		</section>
 	</div>
-</section>
+</div>
+
+<!-- Form zone (Amendment v1.6 §8): one warm band, one desktop grid. DOM order is the
+     MOBILE order: FallbackPanel, form island, Urząd Gminy info box. At >=1024px grid
+     areas keep the form card in the left track and stack the fallback and the urząd
+     panel in the right rail; no `order` property, so DOM and visual order stay in
+     sync. The form section is labelled by the island card's own h2 (id declared in
+     KontaktForm.svelte); the island also renders the noscript note, the consent
+     block and the klauzula. -->
+<div class="pas warm">
+	<div class="inner uklad-formularz">
+		<div class="blok-awaria">
+			<FallbackPanel />
+		</div>
+
+		<section class="blok-formularz" aria-labelledby="formularz-naglowek">
+			<KontaktForm />
+		</section>
+
+		<!-- Urząd Gminy info box (tint-blue panel). D-16: a parent must not be left
+		     thinking the żłobek accepts wnioski. The name, street, room and hours come
+		     from `urzad`, never pasted, and the sentence is phrased so the nominative
+		     form of the interpolated name stays grammatical Polish (the same
+		     construction site.ts already uses for the recruitment steps). -->
+		<section class="blok-urzad" aria-labelledby="urzad-heading">
+			<div class="urzad-panel">
+				<Info class="urzad-ikona" size={22} aria-hidden="true" focusable="false" />
+				<div>
+					<h2 id="urzad-heading">Wnioski rekrutacyjne składasz w Urzędzie Gminy</h2>
+					<p>
+						Żłobek nie przyjmuje wniosków o przyjęcie dziecka. Wnioski przyjmuje {urzad.name}, {urzad
+							.addressLines[0]}, {urzad.room}, w godzinach {urzad.wnioskiHours}. Wniosek wraz z
+						załącznikami składa się osobiście.
+					</p>
+				</div>
+			</div>
+		</section>
+	</div>
+</div>
 
 <style>
 	/* Surface rhythm and the responsive container are the established /dokumenty
 	   route contract, reused verbatim so spacing and gutters cannot drift. */
 	.page-head,
-	.sekcja {
+	.pas {
 		background: var(--color-surface);
 		padding-block: 48px;
 	}
 
-	.sekcja.band {
+	.pas.band {
 		background: var(--color-band);
 	}
 
-	.sekcja.warm {
+	.pas.warm {
 		background: var(--color-surface-warm);
 	}
 
 	@media (min-width: 1024px) {
 		.page-head,
-		.sekcja {
+		.pas {
 			padding-block: 64px;
 		}
 	}
@@ -183,11 +186,53 @@
 		}
 	}
 
-	/* FallbackPanel + form stack: the 24px gap reproduces the spacing the panel
-	   carried as its own bottom margin before extraction (Amendment v1.6 §9). */
-	.stos {
+	/* Dane + mapa side by side at >=1024px, the homepage ContactAndMap ratio
+	   (Amendment v1.6 §8). */
+	.uklad-dane {
+		display: grid;
+		gap: 48px;
+	}
+
+	@media (min-width: 1024px) {
+		.uklad-dane {
+			grid-template-columns: 1fr 1.15fr;
+			align-items: start;
+		}
+	}
+
+	/* Form zone (Amendment v1.6 §8). Mobile: a 24px stack in the DOM order
+	   fallback, form, urząd. Desktop: the form card fills the left track, the rail
+	   stacks the fallback and the urząd panel. No sticky here: the rail is shorter
+	   than the form. */
+	.uklad-formularz {
 		display: grid;
 		gap: 24px;
+	}
+
+	@media (min-width: 1024px) {
+		.uklad-formularz {
+			grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+			grid-template-rows: auto auto 1fr;
+			grid-template-areas:
+				'formularz awaria'
+				'formularz urzad'
+				'formularz .';
+			column-gap: 48px;
+			row-gap: 24px;
+			align-items: start;
+		}
+
+		.blok-formularz {
+			grid-area: formularz;
+		}
+
+		.blok-awaria {
+			grid-area: awaria;
+		}
+
+		.blok-urzad {
+			grid-area: urzad;
+		}
 	}
 
 	h1 {
@@ -208,7 +253,7 @@
 		margin: 0;
 	}
 
-	.sekcja h2 {
+	.pas h2 {
 		font-family: var(--font-display);
 		font-weight: 700;
 		font-size: clamp(1.5rem, 3vw, 1.75rem);
