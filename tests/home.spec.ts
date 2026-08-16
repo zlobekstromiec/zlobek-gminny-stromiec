@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { recruitment } from '../src/lib/content/site';
 
 /**
  * Homepage acceptance test: encodes HOME-01, HOME-02 and the WCAG 2.1 AA
@@ -133,20 +134,20 @@ test.describe('Homepage: Phase 1 + 01.1 acceptance', () => {
 	// two-row subset and the real name „Wniosek o przyjęcie dziecka". The
 	// meta-inside-the-link (WCAG) assertion is preserved, only its shape changes.
 	//
-	// LOCKSTEP CHANGE (D-06): `recruitmentOpen` is flipped to false because the nabór
-	// for 2026/2027 is finished per the Regulamin rekrutacji, so the module now renders
-	// the closed-state heading from `closedStrings`. The heading VALUE was corrected,
-	// the matcher was not relaxed: it is still an exact accessible-name match on a
-	// heading role, and the four-step and two-document counts are unchanged.
+	// LOCKSTEP CHANGE (D-06): the nabór state is no longer a constant. Phase 04.1 put
+	// `recruitmentOpen` behind src/lib/content/nabor.json, which an editor flips from
+	// /admin, so hard-coding either state's strings here made a routine content save
+	// turn this suite red. The assertions now read the SAME derived `recruitment`
+	// object the module renders, exactly as tests/rekrutacja.spec.ts already does. The
+	// matchers were NOT relaxed: still an exact accessible-name match on a heading
+	// role, and the four-step and two-document counts are unchanged.
 	test('recruitment module: heading, four steps, curated BIP docs panel (HOME-02, D-18)', async ({
 		page
 	}) => {
 		await page.goto('/');
-		await expect(
-			page.getByRole('heading', { name: 'Nabór na rok 2026/2027 zakończony' })
-		).toBeVisible();
-		// A closed nabór is neutral information: the waitlist channel stays advertised.
-		await expect(page.getByText('Zapisy na listę rezerwową przez cały rok')).toBeVisible();
+		await expect(page.getByRole('heading', { name: recruitment.heading })).toBeVisible();
+		// Whichever state is live, the enrolment channel it advertises stays visible.
+		await expect(page.getByText(recruitment.deadline)).toBeVisible();
 		await expect(page.locator('.step')).toHaveCount(4);
 		// D-05: the wniosek is filed in person at the Urząd Gminy. The old step 2 offered
 		// an e-mail address and an ePUAP route, both factually wrong.

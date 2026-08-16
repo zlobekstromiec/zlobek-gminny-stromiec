@@ -165,7 +165,12 @@ test('zserializowany wynik walidatora jest bajt w bajt tym, co lezy w repozytori
 	// order or a missing trailing newline: precisely the differences that break
 	// `prettier --check .` and therefore block every local commit (D-09).
 	const naDysku = readFileSync(SCIEZKA_NABOR, 'utf8');
-	const wynik = walidujNabor(STAN_ZAMKNIETY);
+	// Drive the validator from the state the file CURRENTLY holds, never from a fixed
+	// literal: the flag is editor-owned since 04.1, so a routine „otwarto nabór" save
+	// would otherwise turn this test red for a reason that has nothing to do with the
+	// property under test. What is pinned here is the BYTE SHAPE (indent, key order,
+	// trailing newline), and it stays pinned in both states.
+	const wynik = walidujNabor(stanZWartosci(JSON.parse(naDysku).otwarty));
 	assert.equal(wynik.ok, true);
 	if (!wynik.ok) return;
 	assert.equal(serializujJson(wynik.dane), naDysku);
