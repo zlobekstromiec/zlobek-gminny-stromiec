@@ -39,9 +39,24 @@ import {
 import { nazwaPlikuWpisu, ROZSZERZENIE_WPISU } from '../src/lib/server/admin/slug.ts';
 import { MAKS_DLUZSZY_BOK, TYPY_ZDJECIA } from '../src/lib/zdjecia.ts';
 
-/** A short, structurally valid payload. The bytes are meaningless on purpose: nothing on
- *  the server ever looks at them, which is the property this whole module exists to keep. */
-const PAYLOAD = 'AAECAwQFBgcICQoLDA0ODw==';
+/** The opening bytes of each accepted format, and nothing beyond them. The server reads
+ *  the first eighteen bytes and no further, so a header is all a case needs; the bytes
+ *  BEHIND the header are still meaningless on purpose, because nothing ever looks at
+ *  them. Written out here rather than imported, so this file checks the implementation
+ *  instead of agreeing with it. */
+const LADUNKI: Record<string, string> = {
+	'image/jpeg': '/9j/4AAQSkZJRgAB',
+	'image/png': 'iVBORw0KGgoAAAANSUhEUg==',
+	'image/webp': 'UklGRiQAAABXRUJQVlA4IA=='
+};
+
+/** The default payload of the cases below, one of the three above. */
+const PAYLOAD = LADUNKI['image/jpeg'];
+
+/** Valid base64, correctly labelled, and NOT an image: the exact shape a truncated
+ *  upload from a flaky connection or a hand-built request produces, which used to be
+ *  committed and then took the site build down with it (WR-02). */
+const NIE_ZDJECIE = 'VG8gbmllIGplc3QgemRqZWNpZSwgdHlsa28gend5a2x5IHRla3N0Lg==';
 
 function dataUrl(typ: string, payload: string = PAYLOAD): string {
 	return `data:${typ};base64,${payload}`;
@@ -57,7 +72,9 @@ test('poprawny data URL oddaje dokladnie swoj ladunek, znak w znak', () => {
 
 test('kazdy z trzech dozwolonych typow przechodzi, i tylko one', () => {
 	for (const typ of TYPY_ZDJECIA) {
-		assert.equal(base64ZDataUrl(dataUrl(typ)), PAYLOAD, `${typ} zostal odrzucony`);
+		const ladunek = LADUNKI[typ];
+		assert.ok(ladunek, `brak naglowka testowego dla ${typ}`);
+		assert.equal(base64ZDataUrl(dataUrl(typ, ladunek)), ladunek, `${typ} zostal odrzucony`);
 	}
 	// The accepted set is exactly the one the native file input offers, so a control can
 	// never propose a type the server then refuses.
@@ -65,9 +82,12 @@ test('kazdy z trzech dozwolonych typow przechodzi, i tylko one', () => {
 });
 
 test('ladunek z dopelnieniem i bez dopelnienia przechodzi tak samo', () => {
-	assert.equal(base64ZDataUrl(dataUrl('image/png', 'QUJD')), 'QUJD');
-	assert.equal(base64ZDataUrl(dataUrl('image/png', 'QUJDRA==')), 'QUJDRA==');
-	assert.equal(base64ZDataUrl(dataUrl('image/png', 'QUJDREU=')), 'QUJDREU=');
+	// The same PNG opening cut at six, seven and eight bytes, which is what produces a
+	// payload with no padding, with two characters of it and with one. A header check that
+	// only handled whole quadruples would refuse two of the three.
+	assert.equal(base64ZDataUrl(dataUrl('image/png', 'iVBORw0K')), 'iVBORw0K');
+	assert.equal(base64ZDataUrl(dataUrl('image/png', 'iVBORw0KGg==')), 'iVBORw0KGg==');
+	assert.equal(base64ZDataUrl(dataUrl('image/png', 'iVBORw0KGgo=')), 'iVBORw0KGgo=');
 });
 
 // ---------------------------------------------------------------------------
@@ -85,14 +105,18 @@ test('napis dluzszy niz limit jest odrzucony, nawet gdy w ogole nie jest data UR
 // Without the pair this would pass under either ordering and prove nothing.
 test('poprawny data URL ponad limitem jest odrzucony PRZED dopasowaniem wzorca', () => {
 	const naglowek = 'data:image/jpeg;base64,';
-	const ponad = naglowek + 'A'.repeat(MAKS_BASE64 - naglowek.length + 8);
+	// The three bytes of a JPEG opening, so the value is refused by the CAP and not by the
+	// signature check: the whole point of the pair is that only the length decides here.
+	const sygnatura = '/9j/';
+	const wypelnienie = (dlugosc: number) => sygnatura + 'A'.repeat(dlugosc - sygnatura.length);
+	const ponad = naglowek + wypelnienie(MAKS_BASE64 - naglowek.length + 8);
 	assert.ok(ponad.length > MAKS_BASE64);
 	assert.equal(base64ZDataUrl(ponad), null, 'ogromny, ale poprawny data URL zostal przyjety');
 	assert.equal(zaDuzeZdjecie(ponad), true);
 
 	// Positive control: the same value trimmed to the cap is accepted, so the case above
 	// cannot pass by refusing everything long.
-	const dokladnie = naglowek + 'A'.repeat(MAKS_BASE64 - naglowek.length);
+	const dokladnie = naglowek + wypelnienie(MAKS_BASE64 - naglowek.length);
 	assert.equal(dokladnie.length, MAKS_BASE64);
 	assert.equal(base64ZDataUrl(dokladnie)?.length, MAKS_BASE64 - naglowek.length);
 	assert.equal(zaDuzeZdjecie(dokladnie), false);
@@ -147,6 +171,83 @@ test('niedozwolony typ, goly base64, brak wartosci i pusty napis daja null', () 
 	// WEBP" instruction rather than one telling them to shrink a file that is already tiny.
 	assert.equal(zaDuzeZdjecie(dataUrl('image/gif')), false);
 	assert.equal(zaDuzeZdjecie(null), false);
+});
+
+// ---------------------------------------------------------------------------
+// The first bytes really are an image, because the BUILD will decode them (WR-02)
+//
+// Everything in this directory is decoded by the image transform at build time, so a
+// payload that is valid base64 and correctly labelled but is not an image is not a bad
+// picture: it is a build that fails, a public site that stops deploying, and a panel
+// that cannot publish the fix because its only write path is a commit that triggers the
+// same build. These cases are the difference between „Zapisano" and that.
+// ---------------------------------------------------------------------------
+
+test('poprawny base64 z wlasciwa etykieta, ale nie zdjecie, jest odrzucony (WR-02)', () => {
+	// Every one of these is admitted by the media type and by the charset. Only the bytes
+	// give them away.
+	const podszywajace = [
+		// Plain text, which is what a hand-built request sends.
+		NIE_ZDJECIE,
+		// A PDF: a real file, a real upload somebody could make, and not an image.
+		'JVBERi0xLjcKJWFhYWEK',
+		// The old test payload of this very file: sixteen counting bytes.
+		'AAECAwQFBgcICQoLDA0ODw==',
+		// A GIF, whose signature is deliberately NOT in the allowlist.
+		'R0lGODlhAQABAAAAACw=',
+		// RIFF without the WEBP marker, which is the near miss the two-ended check exists
+		// for: a WAV file opens exactly like this.
+		'UklGRiQAAABXQVZFZm10IA==',
+		// Truncated to less than one base64 quadruple, so nothing decodes at all.
+		'/9',
+		'A'
+	];
+	for (const ladunek of podszywajace) {
+		for (const typ of TYPY_ZDJECIA) {
+			assert.equal(
+				base64ZDataUrl(dataUrl(typ, ladunek)),
+				null,
+				`przyjeto jako ${typ}: ${ladunek.slice(0, 24)}`
+			);
+		}
+	}
+	// And the editor is told to choose a picture rather than to shrink one: none of these
+	// is „too large", so the message they read is the type sentence.
+	assert.equal(zaDuzeZdjecie(dataUrl('image/jpeg', NIE_ZDJECIE)), false);
+});
+
+test('kazdy z trzech formatow przechodzi po swojej sygnaturze, wiec sprawdzenie nie odrzuca wszystkiego', () => {
+	// The positive control per format, without which the case above would pass on a
+	// function that answered null to everything.
+	assert.equal(base64ZDataUrl(dataUrl('image/jpeg', LADUNKI['image/jpeg'])), LADUNKI['image/jpeg']);
+	assert.equal(base64ZDataUrl(dataUrl('image/png', LADUNKI['image/png'])), LADUNKI['image/png']);
+	assert.equal(base64ZDataUrl(dataUrl('image/webp', LADUNKI['image/webp'])), LADUNKI['image/webp']);
+	// A header followed by a real body still passes: the check reads the opening and stops,
+	// so the size of what follows is none of its business.
+	const dlugi = LADUNKI['image/jpeg'] + 'A'.repeat(4000);
+	assert.equal(base64ZDataUrl(dataUrl('image/jpeg', dlugi)), dlugi);
+});
+
+test('sprawdzenie sygnatury nie rzuca wyjatkiem na zadnej wartosci, ktora wzorzec przepusci', () => {
+	// The decoder throws on a payload that is not whole quadruples, and an escaped throw
+	// here would be a 500 instead of a Polish sentence on the upload screen.
+	for (let dlugosc = 1; dlugosc <= 40; dlugosc++) {
+		const ladunek = 'A'.repeat(dlugosc);
+		assert.doesNotThrow(() => base64ZDataUrl(dataUrl('image/png', ladunek)), `dlugosc ${dlugosc}`);
+	}
+	for (const ladunek of ['A=', 'AA=', 'AA==', 'AAA=', 'iVBORw0KGgo=A', '/9j/=']) {
+		assert.doesNotThrow(() => base64ZDataUrl(dataUrl('image/jpeg', ladunek)), ladunek);
+	}
+});
+
+/** Stated rather than implied: the check is a UNION of the three signatures and does not
+ *  cross-check the bytes against the declared media type, and it reads a header rather
+ *  than decoding the whole file. A PNG labelled `image/jpeg` therefore passes, and so does
+ *  a file truncated just after its header. Both of those still carry a decodable opening,
+ *  which is what the build needs; the class this closes is „these bytes are not an image
+ *  at all", not „this image is undamaged". */
+test('sprawdzenie jest unia sygnatur, a nie kontrola zgodnosci z etykieta', () => {
+	assert.equal(base64ZDataUrl(dataUrl('image/jpeg', LADUNKI['image/png'])), LADUNKI['image/png']);
 });
 
 // ---------------------------------------------------------------------------

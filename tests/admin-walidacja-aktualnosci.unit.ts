@@ -187,10 +187,12 @@ test('kazdy limit jest liczba dodatnia i wystarczajaca dla realnej tresci', () =
 // validator when a NEW one arrives (Plan 04.1-07; D-15, P-19, P-21)
 // ---------------------------------------------------------------------------
 
-/** A short, structurally valid data URL. The bytes are meaningless on purpose: nothing on
- *  the server ever looks at them, which is the property the whole upload path rests on. */
-const ZDJECIE_DATA_URL = 'data:image/jpeg;base64,AAECAwQFBgcICQoLDA0ODw==';
-const ZDJECIE_BASE64 = 'AAECAwQFBgcICQoLDA0ODw==';
+/** A short, structurally valid data URL: the opening bytes of a JPEG and nothing else.
+ *  The header is real because the server checks it (WR-02: everything in the uploads
+ *  directory is decoded by the build), and everything behind the header is meaningless on
+ *  purpose, because nothing ever looks at it. */
+const ZDJECIE_BASE64 = '/9j/4AAQSkZJRgAB';
+const ZDJECIE_DATA_URL = `data:image/jpeg;base64,${ZDJECIE_BASE64}`;
 const ALT = 'Dzieci malują farbami przy stoliku.';
 
 test('brak zdjecia oznacza brak OBU pol w wyniku, nawet gdy alt zostal przyslany', () => {
