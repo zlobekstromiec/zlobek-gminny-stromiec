@@ -31,8 +31,11 @@ import {
 	MAKS_TRESCI,
 	MAKS_TYTULU,
 	MAKS_ZAJAWKI,
-	walidujWpis
+	walidujWpis,
+	zOkladka
 } from '../src/lib/server/admin/walidacja/aktualnosci.ts';
+import { MAKS_BASE64 } from '../src/lib/server/admin/obraz.ts';
+import { nazwaOkladki } from '../src/lib/server/admin/uploads.ts';
 import {
 	POLE_DATA,
 	POLE_DZIEN,
@@ -43,7 +46,9 @@ import {
 	POLE_TRESC,
 	POLE_TYTUL,
 	POLE_ZAJAWKA,
-	POLE_ZASTEPCZA
+	POLE_ZASTEPCZA,
+	POLE_ZDJECIE,
+	POLE_ZDJECIE_USUN
 } from '../src/lib/pola-wpisu.ts';
 import { lataDoWyboru, ROK_MAKS, ROK_MIN } from '../src/lib/daty.ts';
 import { KOPIA_WALIDACJA, tekstZaDlugi } from '../src/lib/content/panel.ts';
@@ -88,6 +93,17 @@ function przechwycOstrzezenia(praca: () => void): string[] {
 		console.warn = oryginalne;
 	}
 	return zebrane;
+}
+
+/** The same capture, but handing the work's own result back with its type intact. Assigning
+ *  into an outer variable from inside a callback is something the compiler cannot follow,
+ *  and the variable is unusable afterwards. */
+function zOstrzezeniami<T>(praca: () => T): { wynikPracy: T; ostrzezenia: string[] } {
+	let wynikPracy!: T;
+	const ostrzezenia = przechwycOstrzezenia(() => {
+		wynikPracy = praca();
+	});
+	return { wynikPracy, ostrzezenia };
 }
 
 // ---------------------------------------------------------------------------
@@ -167,8 +183,15 @@ test('kazdy limit jest liczba dodatnia i wystarczajaca dla realnej tresci', () =
 });
 
 // ---------------------------------------------------------------------------
-// Behavior 5: the photo pair, until Plan 07 tightens it
+// Behaviors 4 and 5: the photo, its required description, and what leaves the
+// validator when a NEW one arrives (Plan 04.1-07; D-15, P-19, P-21)
 // ---------------------------------------------------------------------------
+
+/** A short, structurally valid data URL. The bytes are meaningless on purpose: nothing on
+ *  the server ever looks at them, which is the property the whole upload path rests on. */
+const ZDJECIE_DATA_URL = 'data:image/jpeg;base64,AAECAwQFBgcICQoLDA0ODw==';
+const ZDJECIE_BASE64 = 'AAECAwQFBgcICQoLDA0ODw==';
+const ALT = 'Dzieci malują farbami przy stoliku.';
 
 test('brak zdjecia oznacza brak OBU pol w wyniku, nawet gdy alt zostal przyslany', () => {
 	const wynik = walidujWpis(poprawne({ [POLE_OBRAZ_ALT]: 'Dzieci malują farbami.' }));
@@ -193,6 +216,158 @@ test('zdjecie z opisem alternatywnym przechodzi i oba pola trafiaja do wyniku', 
 	if (!wynik.ok) return;
 	assert.equal(wynik.dane.obraz, 'piknik.jpg');
 	assert.equal(wynik.dane.obraz_alt, 'Dzieci malują farbami.');
+	// Nothing to write and nothing to remove: the entry kept the cover it already had.
+	assert.equal(wynik.zdjecie, undefined);
+	assert.equal(wynik.usunOkladke, false);
+});
+
+// D-15 again, now against the control that can really trigger it. This is the case the
+// browser suite repeats with scripting switched off, which is what proves the rule lives
+// here and not in the island.
+test('NOWE zdjecie bez opisu alternatywnego jest odmowione i nie powstaje zaden wpis (D-15)', () => {
+	const wynik = walidujWpis(poprawne({ [POLE_ZDJECIE]: ZDJECIE_DATA_URL }));
+	assert.equal(wynik.ok, false);
+	if (wynik.ok) return;
+	assert.equal(wynik.pola[POLE_OBRAZ_ALT], KOPIA_WALIDACJA.altBrak);
+	// And the alt is the ONLY thing wrong, so the editor is not sent hunting through fields
+	// they filled in correctly.
+	assert.deepEqual(Object.keys(wynik.pola), [POLE_OBRAZ_ALT]);
+});
+
+test('NOWE zdjecie z opisem wychodzi z walidatora jako ladunek, a nie jako pole obraz', () => {
+	const wynik = walidujWpis(poprawne({ [POLE_ZDJECIE]: ZDJECIE_DATA_URL, [POLE_OBRAZ_ALT]: ALT }));
+	assert.equal(wynik.ok, true);
+	if (!wynik.ok) return;
+	// P-19: the cover is named after the entry's own filename stem, and on a create that
+	// stem comes from the very values being validated here, so the NAME is the route's job.
+	assert.equal(POLE_OBRAZ in wynik.dane, false);
+	assert.equal(POLE_OBRAZ_ALT in wynik.dane, false);
+	assert.equal(wynik.zdjecie?.base64, ZDJECIE_BASE64);
+	assert.equal(wynik.zdjecie?.alt, ALT);
+	// The payload leaves exactly as it arrived, minus the prefix: no decoding, no
+	// re-encoding, no normalisation of any kind.
+	assert.equal(ZDJECIE_DATA_URL.endsWith(wynik.zdjecie?.base64 ?? 'x'), true);
+});
+
+test('zla wartosc w polu zdjecia daje polskie zdanie o typie, a za duza o rozmiarze', () => {
+	const zlyTyp = walidujWpis(
+		poprawne({ [POLE_ZDJECIE]: 'data:image/gif;base64,AAAA', [POLE_OBRAZ_ALT]: ALT })
+	);
+	assert.equal(zlyTyp.ok, false);
+	assert.equal(zlyTyp.ok === false && zlyTyp.pola[POLE_ZDJECIE], KOPIA_WALIDACJA.zdjecieZlyTyp);
+
+	const zaDuze = walidujWpis(
+		poprawne({
+			[POLE_ZDJECIE]: `data:image/jpeg;base64,${'A'.repeat(MAKS_BASE64)}`,
+			[POLE_OBRAZ_ALT]: ALT
+		})
+	);
+	assert.equal(zaDuze.ok, false);
+	assert.equal(zaDuze.ok === false && zaDuze.pola[POLE_ZDJECIE], KOPIA_WALIDACJA.zdjecieZaDuze);
+});
+
+// T-04.1-10. The cover an edit screen carries back is the one value in the submission that
+// could otherwise reach a written path.
+test('okladka o nazwie spoza listy dozwolonych jest odmowiona, nie oczyszczona (T-04.1-10)', () => {
+	for (const wroga of ['../../../etc/passwd', 'a/b/c.jpg', 'ZDJECIE.JPG', 'zdjecie.svg']) {
+		const wynik = walidujWpis(poprawne({ [POLE_OBRAZ]: wroga, [POLE_OBRAZ_ALT]: ALT }));
+		assert.equal(wynik.ok, false, `przyjeto ${wroga}`);
+		assert.equal(wynik.ok === false && wynik.pola[POLE_OBRAZ], KOPIA_WALIDACJA.zdjecieZlyTyp);
+	}
+});
+
+test('usuniecie zdjecia nie zapisuje zadnego z dwoch pol i zglasza okladke do skasowania', () => {
+	const wynik = walidujWpis(
+		poprawne({
+			[POLE_OBRAZ]: 'piknik.jpg',
+			[POLE_OBRAZ_ALT]: ALT,
+			[POLE_ZDJECIE_USUN]: '1'
+		})
+	);
+	assert.equal(wynik.ok, true);
+	if (!wynik.ok) return;
+	assert.equal(POLE_OBRAZ in wynik.dane, false);
+	assert.equal(POLE_OBRAZ_ALT in wynik.dane, false);
+	assert.equal(wynik.usunOkladke, true);
+	assert.equal(wynik.zdjecie, undefined);
+	// And with nothing there to begin with it is a no-op rather than an instruction to go
+	// looking for a file that never existed.
+	const bezOkladki = walidujWpis(poprawne({ [POLE_ZDJECIE_USUN]: '1' }));
+	assert.equal(bezOkladki.ok && bezOkladki.usunOkladke, false);
+});
+
+// P-21. Choosing a new photo overwrites the old one AT THE SAME PATH, so a replacement
+// must never also appear in the delete list: one commit cannot both write and remove one
+// file.
+test('wybor nowego zdjecia zastepuje stare w miejscu i niczego nie kasuje (P-21)', () => {
+	const wynik = walidujWpis(
+		poprawne({
+			[POLE_OBRAZ]: '2026-08-14-piknik.jpg',
+			[POLE_ZDJECIE]: ZDJECIE_DATA_URL,
+			[POLE_OBRAZ_ALT]: ALT
+		})
+	);
+	assert.equal(wynik.ok, true);
+	if (!wynik.ok) return;
+	assert.equal(wynik.usunOkladke, false);
+	assert.equal(wynik.zdjecie?.base64, ZDJECIE_BASE64);
+	assert.equal(POLE_OBRAZ in wynik.dane, false);
+
+	// And a stale removal flag arriving together with a new photo loses: the editor pressed
+	// „Usuń zdjęcie" and then changed their mind.
+	const zFlaga = walidujWpis(
+		poprawne({
+			[POLE_OBRAZ]: '2026-08-14-piknik.jpg',
+			[POLE_ZDJECIE]: ZDJECIE_DATA_URL,
+			[POLE_ZDJECIE_USUN]: '1',
+			[POLE_OBRAZ_ALT]: ALT
+		})
+	);
+	assert.equal(zFlaga.ok && zFlaga.zdjecie?.base64, ZDJECIE_BASE64);
+	assert.equal(zFlaga.ok && zFlaga.usunOkladke, false);
+});
+
+test('okladka doklejona przez zOkladka trafia miedzy tresc a placeholder, nie na koniec', () => {
+	const wynik = walidujWpis(
+		poprawne({
+			[POLE_ZAJAWKA]: 'Streszczenie.',
+			[POLE_ZDJECIE]: ZDJECIE_DATA_URL,
+			[POLE_OBRAZ_ALT]: ALT,
+			[POLE_ZASTEPCZA]: 'on'
+		})
+	);
+	assert.equal(wynik.ok, true);
+	if (!wynik.ok) return;
+	const zObrazem = zOkladka(
+		wynik.dane,
+		nazwaOkladki('2026-08-14-piknik'),
+		wynik.zdjecie?.alt ?? ''
+	);
+	assert.deepEqual(Object.keys(zObrazem), [
+		'tytul',
+		'data',
+		'zajawka',
+		'tresc',
+		'obraz',
+		'obraz_alt',
+		'placeholder'
+	]);
+	assert.equal(zObrazem.obraz, '2026-08-14-piknik.jpg');
+	assert.equal(zObrazem.obraz_alt, ALT);
+	// An absent optional stays absent: folding a cover in must not materialise a zajawka.
+	const bezZajawki = walidujWpis(
+		poprawne({ [POLE_ZDJECIE]: ZDJECIE_DATA_URL, [POLE_OBRAZ_ALT]: ALT })
+	);
+	assert.equal(bezZajawki.ok, true);
+	if (!bezZajawki.ok) return;
+	assert.deepEqual(Object.keys(zOkladka(bezZajawki.dane, 'a.jpg', ALT)), [
+		'tytul',
+		'data',
+		'tresc',
+		'obraz',
+		'obraz_alt',
+		'placeholder'
+	]);
 });
 
 test('pole zastepcze jest falszem, gdy checkbox nie przyszedl, i prawda gdy przyszedl', () => {
@@ -254,6 +429,10 @@ function kombinacje(): Kombinacja[] {
 	];
 	const zajawki = [undefined, 'Krótkie streszczenie wpisu, dwa zdania. Zapraszamy.'];
 	const zastepcze = [undefined, 'on'];
+	// Plan 04.1-07 adds the photo dimension: every combination above now runs BOTH with a
+	// cover already in place and without one, because „the entry has a picture" changes two
+	// optional keys in the stored object and the reader guards each of them separately.
+	const okladki = [undefined, '2026-08-14-piknik.jpg'];
 
 	const wynik: Kombinacja[] = [];
 	for (let i = 0; i < tytuly.length; i++) {
@@ -261,19 +440,23 @@ function kombinacje(): Kombinacja[] {
 			for (let k = 0; k < daty.length; k++) {
 				for (let l = 0; l < zajawki.length; l++) {
 					for (let m = 0; m < zastepcze.length; m++) {
-						const [dzien, miesiac, rok] = daty[k];
-						wynik.push({
-							nazwa: `tytul ${i}, tresc ${j}, data ${k}, zajawka ${l}, zastepcza ${m}`,
-							pola: {
-								[POLE_TYTUL]: tytuly[i],
-								[POLE_DZIEN]: dzien,
-								[POLE_MIESIAC]: miesiac,
-								[POLE_ROK]: rok,
-								[POLE_TRESC]: tresci[j],
-								[POLE_ZAJAWKA]: zajawki[l],
-								[POLE_ZASTEPCZA]: zastepcze[m]
-							}
-						});
+						for (let n = 0; n < okladki.length; n++) {
+							const [dzien, miesiac, rok] = daty[k];
+							wynik.push({
+								nazwa: `tytul ${i}, tresc ${j}, data ${k}, zajawka ${l}, zastepcza ${m}, okladka ${n}`,
+								pola: {
+									[POLE_TYTUL]: tytuly[i],
+									[POLE_DZIEN]: dzien,
+									[POLE_MIESIAC]: miesiac,
+									[POLE_ROK]: rok,
+									[POLE_TRESC]: tresci[j],
+									[POLE_ZAJAWKA]: zajawki[l],
+									[POLE_ZASTEPCZA]: zastepcze[m],
+									[POLE_OBRAZ]: okladki[n],
+									[POLE_OBRAZ_ALT]: okladki[n] === undefined ? undefined : ALT
+								}
+							});
+						}
 					}
 				}
 			}
@@ -320,6 +503,13 @@ test('czytnik odtwarza dokladnie te wartosci, ktore zapisal panel', () => {
 		assert.equal(post.iso, wynik.dane.data);
 		assert.equal(post.tresc, wynik.dane.tresc);
 		assert.equal(post.placeholder, wynik.dane.placeholder);
+		// The cover survives the whole trip as a bare basename (P-20), which is the shape the
+		// public card looks up in its by-name map. A path here would still render, because
+		// the card takes the last segment, but it would give a future editor something
+		// separator-shaped to type into a field that names a file.
+		assert.equal(post.obraz, wynik.dane.obraz);
+		assert.equal(post.obraz_alt, wynik.dane.obraz_alt);
+		if (typeof post.obraz === 'string') assert.equal(post.obraz.includes('/'), false);
 		// The slug the reader derives is the filename the panel generated, which is what
 		// makes the „Zapisano" panel able to link to the right public URL.
 		assert.equal(post.slug, nazwa.replace(/\.json$/, ''));
@@ -334,6 +524,44 @@ test('czytnik odtwarza dokladnie te wartosci, ktore zapisal panel', () => {
 			assert.equal(post.zajawka, wynik.dane.zajawka);
 			assert.equal(post.excerpt, wynik.dane.zajawka);
 		}
+	}
+});
+
+// The whole create path for an entry with a NEW photo, end to end through the public
+// reader: validate, generate the filename, generate the cover name from the same stem,
+// fold it in, serialize, parse back and read. This is the one assertion that ties P-19 to
+// what the site actually renders.
+test('wpis z NOWA okladka przechodzi przez publiczny czytnik bez ostrzezenia (D-14, P-19)', () => {
+	for (const przypadek of kombinacje()) {
+		const wynik = walidujWpis(
+			zrodlo({ ...przypadek.pola, [POLE_ZDJECIE]: ZDJECIE_DATA_URL, [POLE_OBRAZ_ALT]: ALT })
+		);
+		assert.equal(wynik.ok, true, `walidacja odmowila: ${przypadek.nazwa}`);
+		if (!wynik.ok) continue;
+		assert.notEqual(wynik.zdjecie, undefined, `brak ladunku: ${przypadek.nazwa}`);
+
+		const nazwaPliku = nazwaPlikuWpisu(wynik.dane.data, wynik.dane.tytul);
+		const stem = nazwaPliku.replace(/\.json$/u, '');
+		const nazwaObrazu = nazwaOkladki(stem);
+		const dane = zOkladka(wynik.dane, nazwaObrazu, wynik.zdjecie?.alt ?? '');
+
+		const zParsowane: unknown = JSON.parse(serializujJson(dane));
+		// The result is returned OUT of the capture rather than assigned into an outer
+		// variable, so it keeps its type: an assignment inside a callback is something the
+		// compiler cannot follow, and the narrowed variable becomes unusable afterwards.
+		const { wynikPracy: post, ostrzezenia } = zOstrzezeniami(() =>
+			postFromEntry(`${KATALOG_WPISOW}/${nazwaPliku}`, zParsowane)
+		);
+		assert.notEqual(post, null, `czytnik pominal wpis: ${przypadek.nazwa}`);
+		assert.deepEqual(ostrzezenia, [], `czytnik ostrzegl przy: ${przypadek.nazwa}`);
+		if (!post) continue;
+
+		// The two files of one entry differ only in their extension, so a person reading the
+		// directory sees the pair, and Pitfall 4 cannot happen: the name is inside the glob.
+		assert.equal(post.obraz, nazwaObrazu);
+		assert.equal(post.obraz_alt, ALT);
+		assert.equal(`${post.slug}.jpg`, post.obraz);
+		assert.match(post.obraz ?? '', /^[a-z0-9]+(?:-[a-z0-9]+)*\.jpg$/u);
 	}
 });
 

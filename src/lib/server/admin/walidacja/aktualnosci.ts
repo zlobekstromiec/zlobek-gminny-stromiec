@@ -36,16 +36,20 @@ import {
 	POLE_TYTUL,
 	POLE_ZAJAWKA,
 	POLE_ZASTEPCZA,
+	POLE_ZDJECIE,
+	POLE_ZDJECIE_USUN,
 	type ZrodloPol
 } from '../../../pola-wpisu.ts';
+import { base64ZDataUrl, zaDuzeZdjecie } from '../obraz.ts';
+import { bezpiecznaNazwaOkladki } from '../uploads.ts';
 import {
 	BLAD_ZBYT_DLUGI,
 	dataZTrzech,
 	flaga,
 	kodBledu,
+	pusty,
 	tekstOpcjonalny,
-	tekstWymagany,
-	type WynikPol
+	tekstWymagany
 } from './pola.ts';
 
 // Re-exported so a server caller may keep importing the whole vocabulary from the
@@ -61,7 +65,9 @@ export {
 	POLE_TRESC,
 	POLE_TYTUL,
 	POLE_ZAJAWKA,
-	POLE_ZASTEPCZA
+	POLE_ZASTEPCZA,
+	POLE_ZDJECIE,
+	POLE_ZDJECIE_USUN
 };
 
 // The caps. Named exported constants rather than inline numbers, because the message the
@@ -100,10 +106,51 @@ export interface WpisDane {
 // of the boundary and the validator on this side must read the same shape.
 export type { ZrodloPol };
 
-/** Longest generated cover basename. Not a staff-typed value at all: the island of Plan
- *  07 generates it from the entry, so the bound exists only to stop a hand-built request
- *  putting a page of text where a filename goes. */
-export const MAKS_NAZWY_OBRAZU = 300;
+/** A photo that arrived on this submission and still has to be written, together with the
+ *  description that must accompany it (D-15).
+ *
+ *  The payload is carried out of the validator rather than the finished `obraz` value,
+ *  because the cover is named after the entry's own filename stem (P-19) and on a create
+ *  that stem is derived from the very title and date this function is in the middle of
+ *  validating. The route composes the name once it has both, using `zOkladka` below so the
+ *  key order of the stored object stays in one place. */
+export interface NoweZdjecie {
+	/** The base64 payload, already stripped of its prefix and never decoded. */
+	base64: string;
+	alt: string;
+}
+
+/**
+ * What a validated aktualność submission carries.
+ *
+ * The success arm is `WynikPol<WpisDane>` widened with the two photo outcomes, so every
+ * existing caller and every existing assertion that reads `wynik.dane.tytul` is unchanged.
+ * The photo is not folded into `dane` because it is not stored content yet: it is a second
+ * file the route has to commit in the SAME tree as the JSON (D-07).
+ */
+export type WynikWalidacjiWpisu =
+	| { ok: true; dane: WpisDane; zdjecie?: NoweZdjecie; usunOkladke: boolean }
+	| { ok: false; pola: Record<string, string> };
+
+/**
+ * The stored entry with its cover folded in, rebuilt KEY BY KEY in the seed order.
+ *
+ * A route cannot simply assign `dane.obraz` after the fact: the two optional photo keys sit
+ * between `tresc` and `placeholder` in both seed files, and appending them would move them
+ * to the end of every JSON the panel writes. That is invisible to the reader and glaring in
+ * a diff, which is exactly the kind of churn D-09 exists to prevent.
+ */
+export function zOkladka(dane: WpisDane, nazwa: string, alt: string): WpisDane {
+	const zOkladkaDane: Partial<WpisDane> = {};
+	zOkladkaDane.tytul = dane.tytul;
+	zOkladkaDane.data = dane.data;
+	if (typeof dane.zajawka === 'string') zOkladkaDane.zajawka = dane.zajawka;
+	zOkladkaDane.tresc = dane.tresc;
+	zOkladkaDane.obraz = nazwa;
+	zOkladkaDane.obraz_alt = alt;
+	zOkladkaDane.placeholder = dane.placeholder;
+	return zOkladkaDane as WpisDane;
+}
 
 /** Required text, with the two refusals the UI-SPEC error table distinguishes: „you left
  *  it empty" and „it is too long, shorten it to n". Same value, two instructions, because
@@ -129,7 +176,7 @@ function czytajWymagany(
  * first. That is UI-SPEC Component Contract 10a: one summary, every offending control
  * linked.
  */
-export function walidujWpis(zrodlo: ZrodloPol): WynikPol<WpisDane> {
+export function walidujWpis(zrodlo: ZrodloPol): WynikWalidacjiWpisu {
 	const pola: Record<string, string> = {};
 
 	const tytul = czytajWymagany(zrodlo.get(POLE_TYTUL), MAKS_TYTULU, KOPIA_WALIDACJA.tytulBrak);
@@ -152,21 +199,50 @@ export function walidujWpis(zrodlo: ZrodloPol): WynikPol<WpisDane> {
 	const tresc = czytajWymagany(zrodlo.get(POLE_TRESC), MAKS_TRESCI, KOPIA_WALIDACJA.trescBrak);
 	if (tresc.blad !== undefined) pola[POLE_TRESC] = tresc.blad;
 
-	// The photo pair. Plan 07 adds the control; the RULE exists here first, because D-15
-	// makes it a server rule so it survives with JavaScript disabled.
+	// ---------------------------------------------------------------------------
+	// The photo. Three related values arrive, and all three are read on the SERVER, which
+	// is what makes D-15 survive scripting being switched off.
 	//
-	// An alt WITHOUT an image is not an error and is not stored: the alt describes a
-	// photograph, and with no photograph there is nothing to describe. An image WITHOUT an
+	//  • the prepared data URL the island wrote into its hidden field, present only when a
+	//    NEW photo was chosen on this visit;
+	//  • the cover the entry already had, carried back so a save that changes only the
+	//    title keeps the picture;
+	//  • the removal flag, which is not the same thing as „no data URL arrived".
+	//
+	// An alt WITHOUT a photo is not an error and is not stored: the alt describes a
+	// photograph, and with no photograph there is nothing to describe. A photo WITHOUT an
 	// alt is refused, because publishing a picture no screen-reader user can perceive is
 	// exactly what the Deklaracja dostępności forbids this site to do.
-	const obraz = tekstOpcjonalny(zrodlo.get(POLE_OBRAZ), MAKS_NAZWY_OBRAZU);
+	// ---------------------------------------------------------------------------
+	const surowe = zrodlo.get(POLE_ZDJECIE);
+	// `undefined` means nothing was chosen, `null` means something arrived and was refused.
+	// Collapsing the two would silently drop a photo the editor watched appear in the
+	// preview, and the entry would publish without it with no message anywhere.
+	const nowyBase64 = pusty(surowe) ? undefined : base64ZDataUrl(surowe);
+	if (nowyBase64 === null) {
+		// Two refusals, two instructions: „shrink it" and „choose a different file" are not
+		// interchangeable to the person reading them (WCAG 3.3.3).
+		pola[POLE_ZDJECIE] = zaDuzeZdjecie(surowe)
+			? KOPIA_WALIDACJA.zdjecieZaDuze
+			: KOPIA_WALIDACJA.zdjecieZlyTyp;
+	}
+
+	const surowaOkladka = zrodlo.get(POLE_OBRAZ);
+	// Admitted by an allowlist rather than cleaned up (T-04.1-10). This is the one value in
+	// the whole submission that could otherwise reach a written path.
+	const staraOkladka = pusty(surowaOkladka) ? undefined : bezpiecznaNazwaOkladki(surowaOkladka);
+	if (staraOkladka === null) pola[POLE_OBRAZ] = KOPIA_WALIDACJA.zdjecieZlyTyp;
+
+	const usunieteZdjecie = flaga(zrodlo.get(POLE_ZDJECIE_USUN));
+	// A new photo WINS over the flag: choosing a file after pressing „Usuń zdjęcie" is an
+	// editor changing their mind, and the island clears the flag when it happens. Deciding
+	// it here as well means a stale flag can never delete a picture that was just chosen.
+	const maNowe = typeof nowyBase64 === 'string';
+	const zachowajStara = !maNowe && !usunieteZdjecie && typeof staraOkladka === 'string';
+	const jestZdjecie = maNowe || zachowajStara;
+
 	const obrazAlt = tekstOpcjonalny(zrodlo.get(POLE_OBRAZ_ALT), MAKS_ALT);
-	// An image value that arrived and could not be read is not something a control on this
-	// screen can produce today, so it can only be a hand-built request. „Choose a JPG, PNG
-	// or WEBP" is the honest instruction for it and is the sentence Plan 07's real file
-	// checks will reuse.
-	if (obraz === null) pola[POLE_OBRAZ] = KOPIA_WALIDACJA.zdjecieZlyTyp;
-	if (typeof obraz === 'string') {
+	if (jestZdjecie) {
 		if (obrazAlt === null) pola[POLE_OBRAZ_ALT] = tekstZaDlugi(MAKS_ALT);
 		else if (obrazAlt === undefined) pola[POLE_OBRAZ_ALT] = KOPIA_WALIDACJA.altBrak;
 	}
@@ -192,11 +268,32 @@ export function walidujWpis(zrodlo: ZrodloPol): WynikPol<WpisDane> {
 	// says so to the compiler as well as to a reader.
 	if (typeof zajawka === 'string') dane.zajawka = zajawka;
 	dane.tresc = tresc.wartosc;
-	if (typeof obraz === 'string' && typeof obrazAlt === 'string') {
-		dane.obraz = obraz;
+	// Only the cover that is ALREADY in the repository can be stored from here. A photo
+	// chosen on this visit has no name yet, because the name comes from the entry's own
+	// filename stem and the route is what knows it (P-19); it travels out in `zdjecie` and
+	// the route folds it in with `zOkladka`.
+	if (zachowajStara && typeof staraOkladka === 'string' && typeof obrazAlt === 'string') {
+		dane.obraz = staraOkladka;
 		dane.obraz_alt = obrazAlt;
 	}
 	dane.placeholder = flaga(zrodlo.get(POLE_ZASTEPCZA));
 
-	return { ok: true, dane: dane as WpisDane };
+	return {
+		ok: true,
+		dane: dane as WpisDane,
+		// `obrazAlt` is a string here by construction: `jestZdjecie` implies the alt rule
+		// above ran and would have refused an absent or over-long one.
+		...(typeof nowyBase64 === 'string' && typeof obrazAlt === 'string'
+			? { zdjecie: { base64: nowyBase64, alt: obrazAlt } }
+			: {}),
+		// A REMOVAL, and deliberately not a replacement (P-21). Choosing a new photo writes
+		// a blob at the generated path, which is the same path the entry's previous cover
+		// occupies whenever the panel was what created it, so listing that path as a
+		// deletion in the same tree would be asking one commit to both write and remove one
+		// file. A replacement is an overwrite in place and needs no deletion at all.
+		//
+		// False when there is nothing to remove: a removal on an entry that never had a
+		// cover is a no-op, not an instruction to go looking for a file.
+		usunOkladke: usunieteZdjecie && !maNowe && typeof staraOkladka === 'string'
+	};
 }

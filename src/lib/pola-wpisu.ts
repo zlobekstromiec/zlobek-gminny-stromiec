@@ -36,11 +36,22 @@ export const POLE_DATA = 'data';
 export const POLE_ZAJAWKA = 'zajawka';
 export const POLE_TRESC = 'tresc';
 
-/** Written by the photo island of Plan 07. The validator already reads them, so the
- *  D-15 „alt is required when a photo is present" rule exists on the server before the
- *  control that can trigger it does. */
+/** The cover the entry ALREADY has, carried back by the edit screen in a hidden field so
+ *  a save that changes only the title keeps the picture. Client controlled on the way
+ *  back, and therefore admitted by an allowlist in src/lib/server/admin/uploads.ts. */
 export const POLE_OBRAZ = 'obraz';
 export const POLE_OBRAZ_ALT = 'obraz_alt';
+
+/** Hidden field the photo island writes the prepared data URL into. It is the only way an
+ *  image enters this project, and its value is produced entirely in the browser (D-12).
+ *  With scripting off it is never filled, which is exactly what the noscript panel beside
+ *  the control promises. */
+export const POLE_ZDJECIE = 'zdjecie';
+
+/** Hidden flag set by „Usuń zdjęcie": the editor removed the cover the entry had. Needed
+ *  as its own field because „no data URL arrived" and „remove what is there" are different
+ *  instructions, and an empty hidden field cannot tell them apart. */
+export const POLE_ZDJECIE_USUN = 'zdjecie_usun';
 
 export const POLE_ZASTEPCZA = 'placeholder';
 
@@ -80,6 +91,14 @@ export interface WartosciWpisu {
 	rok: string;
 	zajawka: string;
 	tresc: string;
+	/** The cover the entry already had, as a bare basename (P-20), or empty. */
+	obraz: string;
+	/** The prepared data URL of a photo chosen but not yet saved, or empty. Echoed back on
+	 *  a refusal like every other typed value: an editor whose title was too long must not
+	 *  also lose the photo they picked, because the next save would then quietly publish
+	 *  the entry without it. */
+	zdjecie: string;
+	alt: string;
 	zastepcza: boolean;
 }
 
@@ -99,6 +118,12 @@ export function wartosciWpisu(zrodlo: ZrodloPol): WartosciWpisu {
 		rok: tekst(zrodlo.get(POLE_ROK)),
 		zajawka: tekst(zrodlo.get(POLE_ZAJAWKA)),
 		tresc: tekst(zrodlo.get(POLE_TRESC)),
+		// The removal flag is applied HERE rather than echoed: a refused save that handed
+		// back both the removal flag and the old basename would redraw the picture the
+		// editor had just taken out, and the next attempt would silently republish it.
+		obraz: tekst(zrodlo.get(POLE_ZDJECIE_USUN)).length > 0 ? '' : tekst(zrodlo.get(POLE_OBRAZ)),
+		zdjecie: tekst(zrodlo.get(POLE_ZDJECIE)),
+		alt: tekst(zrodlo.get(POLE_OBRAZ_ALT)),
 		// An unticked checkbox omits its key entirely, which is the HTML convention the
 		// server reader follows too: absent is false and never an error.
 		zastepcza: zrodlo.get(POLE_ZASTEPCZA) !== null && zrodlo.get(POLE_ZASTEPCZA) !== undefined
@@ -108,5 +133,16 @@ export function wartosciWpisu(zrodlo: ZrodloPol): WartosciWpisu {
 /** The empty form a create screen opens with, apart from the date, which the route
  *  pre-selects to today. */
 export function pusteWartosciWpisu(dzien: string, miesiac: string, rok: string): WartosciWpisu {
-	return { tytul: '', dzien, miesiac, rok, zajawka: '', tresc: '', zastepcza: false };
+	return {
+		tytul: '',
+		dzien,
+		miesiac,
+		rok,
+		zajawka: '',
+		tresc: '',
+		obraz: '',
+		zdjecie: '',
+		alt: '',
+		zastepcza: false
+	};
 }

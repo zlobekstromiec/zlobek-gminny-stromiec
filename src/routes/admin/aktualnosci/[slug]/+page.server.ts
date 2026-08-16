@@ -85,6 +85,15 @@ export const load: PageServerLoad = async ({ params, platform, url }) => {
 			// an empty optional field into a duplicated opening paragraph on the next save.
 			zajawka: wpis.zajawka ?? '',
 			tresc: wpis.tresc,
+			// The cover as a BARE BASENAME (P-20), even if a hand-edited file stored a path:
+			// the island renders the preview by looking the name up in the same by-name map
+			// the public card uses, and the hidden field carries this value back so a save
+			// that changes only the title keeps the picture.
+			obraz: wpis.obraz === undefined ? '' : (wpis.obraz.split('/').pop() ?? ''),
+			// Nothing is pending on a fresh load: a data URL only ever exists between an
+			// editor choosing a file and the save that follows.
+			zdjecie: '',
+			alt: wpis.obraz_alt ?? '',
 			zastepcza: wpis.placeholder === true
 		} satisfies WartosciWpisu,
 		// The entry's own year is folded in, so a post written in a past year still opens
