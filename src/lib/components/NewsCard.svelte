@@ -18,7 +18,8 @@
 		dataDisplay,
 		excerpt,
 		obraz,
-		obraz_alt
+		obraz_alt,
+		uklad = 'pionowy'
 	}: {
 		tytul: string;
 		href: string;
@@ -27,6 +28,9 @@
 		excerpt: string;
 		obraz?: string;
 		obraz_alt?: string;
+		/** 'pionowy' is the homepage tile; 'poziomy' (Amendment v1.6 §10) lays the
+		 *  cover beside the text from 768px up, for the /aktualnosci list. */
+		uklad?: 'pionowy' | 'poziomy';
 	} = $props();
 
 	// Statically-analyzable glob: keys are absolute file paths, values are
@@ -44,13 +48,15 @@
 	const cover = $derived(obraz ? byName[obraz.split('/').pop() ?? obraz] : undefined);
 </script>
 
-<a class="news-card" {href}>
+<a class="news-card" class:poziomy={uklad === 'poziomy'} {href}>
 	<div class="cover">
 		{#if cover}
 			<enhanced:img
 				src={cover}
 				alt={obraz_alt ?? ''}
-				sizes="(min-width:1024px) 30vw, (min-width:768px) 50vw, 100vw"
+				sizes={uklad === 'poziomy'
+					? '(min-width:768px) 300px, 100vw'
+					: '(min-width:1024px) 30vw, (min-width:768px) 50vw, 100vw'}
 			/>
 		{:else}
 			<div class="cover-fallback" aria-hidden="true">
@@ -105,6 +111,27 @@
 		border-radius: var(--radius-sm);
 		overflow: hidden;
 		margin: 0;
+	}
+
+	/* Horizontal list variant (Amendment v1.6 §10): cover column beside the text
+	   from 768px up; below that the card renders exactly like the tile. */
+	@media (min-width: 768px) {
+		.news-card.poziomy {
+			display: grid;
+			grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
+		}
+
+		.poziomy .cover {
+			aspect-ratio: auto;
+			height: 100%;
+			min-height: 200px;
+			border-radius: 0;
+		}
+
+		.poziomy .body {
+			padding: 24px;
+			align-self: center;
+		}
 	}
 
 	.cover :global(img) {

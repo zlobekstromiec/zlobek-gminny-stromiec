@@ -47,6 +47,7 @@
 							excerpt={post.excerpt}
 							obraz={post.obraz}
 							obraz_alt={post.obraz_alt}
+							uklad="poziomy"
 						/>
 					</li>
 				{/each}
@@ -124,6 +125,8 @@
 		margin: 0;
 	}
 
+	/* Single column at every width (Amendment v1.6 §10): each card is the poziomy
+	   NewsCard variant, so the list fills the container at any post count. */
 	.grid {
 		list-style: none;
 		margin: 0;
@@ -131,18 +134,6 @@
 		display: grid;
 		grid-template-columns: 1fr;
 		gap: 24px;
-	}
-
-	@media (min-width: 768px) {
-		.grid {
-			grid-template-columns: repeat(2, 1fr);
-		}
-	}
-
-	@media (min-width: 1024px) {
-		.grid {
-			grid-template-columns: repeat(3, 1fr);
-		}
 	}
 
 	/* Empty-state panel (mirrors NewsPreview.svelte). */
