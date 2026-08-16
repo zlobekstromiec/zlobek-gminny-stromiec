@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: About, Documents & CMS** - O nas + Dokumenty pages made staff-editable via the git-based Sveltia CMS (OAuth Worker) (completed 2026-08-13)
 - [x] **Phase 3: News (Aktualności)** - Staff-publishable news list + single post, feeding the homepage preview (completed 2026-08-13)
 - [x] **Phase 4: Enrollment, Contact & Email Pipeline** - Rekrutacja + Kontakt with the RODO-compliant, Turnstile-gated, email-only form pipeline (Resend) (completed 2026-08-14)
-- [ ] **Phase 04.1: Replace Sveltia with custom Polish CMS (INSERTED)** - Custom Polish-only admin panel with e-mail one-time-code login, replacing Sveltia + GitHub OAuth so non-technical staff need no GitHub account and see no English chrome
+- [x] **Phase 04.1: Replace Sveltia with custom Polish CMS (INSERTED)** - Custom Polish-only admin panel with e-mail one-time-code login, replacing Sveltia + GitHub OAuth so non-technical staff need no GitHub account and see no English chrome (completed 2026-08-16)
 - [ ] **Phase 5: Gallery & Fees** - CMS-managed photo gallery and editable fees page
 - [ ] **Phase 6: Accessibility, Legal Compliance & Launch** - WCAG 2.1 AA audit, accessibility widget, Deklaracja dostępności, BIP link, Polityka prywatności, performance, and the real-content launch gate
 
@@ -211,7 +211,7 @@ Plans:
 - Write path: the panel still has to persist content. Commit to the repo through the GitHub API with a server-side token (keeps git history, keeps prerender, needs a secret with write scope) vs. move editable content out of git into a store, which changes the build model for every reader written in Phases 2-3.
 - Media uploads: cover images currently flow through the Vite/`enhanced-img` pipeline because they live in the repo; whatever write path is chosen must not break that.
 
-**Plans**: 10/11 plans executed
+**Plans**: 11/11 plans complete
 
 Plans:
 
@@ -254,7 +254,7 @@ Plans:
 
 *(Wave 10, brama D-20)*
 
-- [ ] 04.1-11-PLAN.md — UAT na żywym wdrożeniu, demontaż Sveltii i przeredagowanie CMS-01/CMS-03
+- [x] 04.1-11-PLAN.md — UAT na żywym wdrożeniu, demontaż Sveltii i przeredagowanie CMS-01/CMS-03
 
 **UI hint**: yes
 
@@ -330,6 +330,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 5 → 6
 | 2. About, Documents & CMS | 6/6 | Complete    | 2026-08-13 |
 | 3. News (Aktualności) | 7/7 | Complete    | 2026-08-13 |
 | 4. Enrollment, Contact & Email Pipeline | 9/9 | Complete    | 2026-08-15 |
-| 04.1 Replace Sveltia with custom Polish CMS (INSERTED) | 10/11 | In Progress|  |
+| 04.1 Replace Sveltia with custom Polish CMS (INSERTED) | 11/11 | Complete   | 2026-08-16 |
 | 5. Gallery & Fees | 0/TBD | Not started | - |
 | 6. Accessibility, Legal Compliance & Launch | 0/TBD | Not started | - |

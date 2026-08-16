@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 04.1
 current_phase_name: replace-sveltia-with-custom-polish-cms
-status: executing
-stopped_at: Ukonczono 04.1-10-PLAN.md
-last_updated: "2026-08-16T11:48:45.145Z"
+status: awaiting-human
+stopped_at: "04.1-11 wykonany w czesci mozliwej bez czlowieka; OTWARTY checkpoint human-action: zywy UAT"
+last_updated: "2026-08-16T12:06:01.578Z"
 last_activity: 2026-08-16
-last_activity_desc: "Completed 04.1-10 (pulpit z kaflami i licznikami z czytnikow ekranow, ekran Pomoc renderujacy jedna instrukcje z docs/, wymuszona polskosc 18 adresow panelu w bramie npm run test)"
+last_activity_desc: 04.1-11 (komentarze zrodlowe i dokumentacja przepisane na nowy panel, D-21 w REQUIREMENTS.md, scenariusz zywego UAT)
 progress:
   total_phases: 8
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 38
-  completed_plans: 37
-  percent: 50
+  completed_plans: 38
+  percent: 63
 ---
 
 # Project State
@@ -28,16 +28,26 @@ See: .planning/PROJECT.md (updated 2026-08-14)
 
 ## Current Position
 
-Phase: 04.1 (replace-sveltia-with-custom-polish-cms) — EXECUTING
-Plan: 11 of 11
-Status: Ready to execute
-Last activity: 2026-08-16 — Completed 04.1-09 (o-nas i plan dnia: powtarzalne grupy jako akcje formularza, druga wyspa zdjecia w 4:3, jedna strona to jeden commit)
+Phase: 04.1 (replace-sveltia-with-custom-polish-cms) — AWAITING HUMAN
+Plan: 11 of 11, wykonany w calosci poza tym, czego nie da sie zrobic bez czlowieka
+Status: **Jedna sesja z czlowiekiem dzieli te faze od zamkniecia.**
+Last activity: 2026-08-16 — 04.1-11 (komentarze zrodlowe i dokumentacja przepisane na nowy panel, D-21 w REQUIREMENTS.md, scenariusz zywego UAT)
 
-Plan 11 is `autonomous: false`. Plan 04's human prerequisites are now PARTLY done: the GitHub App `Panel redakcyjny zlobka` exists (org-owned, Contents:write on one repository, client id `Iv23lipuQ3hnHl4snF6h`, installation `154059103`) and the private key is converted to PKCS#8 at `~/Documents/panel-redakcyjny-zlobka.pkcs8.pem`. **The Cloudflare half is now DONE** (resolved at the 04.1-04 checkpoint on 2026-08-16): the five admin Pages secrets are set on `zlobek-gminny-stromiec`, deployment `72941a1e-51db-49bc-a9bd-581c05d99cb0` carries them, and the code-request leg of the login completes in production. **What is still OWED is the first REAL save**, and after 04.1-07 that gate has grown again: a real nabór flip (04.1-05), a real create, title edit and delete of an aktualność (04.1-06), and a real create WITH A PHOTO TAKEN ON A PHONE whose `git show --stat` must list exactly two files with the same stem (04.1-07), each with its commit SHA recorded and the public page confirmed to change. The photo step also closes the untested iPhone HEIC decoding assumption if the phone is an iPhone. **04.1-08 adds a fourth leg**: a real document with a real PDF whose `git show --stat` must list exactly two files (one under `src/lib/content/dokumenty/`, one under `static/dokumenty/`), then a name-only edit that must touch ONE file and must not move the download URL, then a DOCX replacement that must write the new file and remove the old PDF in ONE commit, then a deletion that removes both halves. All four checkpoints are one session's work and none needs a deploy of its own.
+**WSZYSTKIE 11 PLANOW MA SUMMARY. Kod fazy jest gotowy i zielony lokalnie** (svelte-check 0/0, lint czysty, 478 testow jednostkowych, 285 przypadkow Playwright, build bez `/admin` w prerenderze). Panel jest kompletnym produktem: logowanie kodem z e-maila, brama, sciezka zapisu, wszystkie cztery typy tresci, wyspa zdjecia, pulpit i polska instrukcja.
 
-**D-20 IS SUPERSEDED as of Plan 01 (user-approved Rule 4 deviation).** Sveltia's repository footprint was deleted in Plan 01, not Plan 11, because `static/admin/` is a Cloudflare Pages static asset and static assets resolve before the Worker, so the bare `/admin` never reached the new gate and the plan's own assertions were unprovable. Staff therefore have NO working editor until Plan 10 lands, which the user accepted. Plan 11 must be re-read rather than executed as written: its Task 2 is now largely a no-op (see `04.1-01-SUMMARY.md` "Knock-on Effects for Plan 11" for the exact split), and its ordering prohibition no longer applies. Plan 11 Task 3 is unchanged and still owed: deleting the GitHub OAuth App and the deployed `sveltia-cms-auth` Worker, both dashboard-only and both still live.
+**CO ZOSTALO, i jest to JEDNA sesja z czlowiekiem, nie lista zadan programistycznych.** Scenariusz jest spisany w `.planning/phases/04.1-replace-sveltia-with-custom-polish-cms/04.1-UAT.md` i zbiera w jedno wszystkie dlugi, ktore planery od 05 do 10 kolejno tu odkladaly:
 
-Progress: 04.1 plans 1 to 10 of 11 complete; 27/27 plans in phases 1-4 complete (4 of 8 phases)
+1. **Najpierw WYPCHNIECIE.** Wdrozenie `72941a1e-51db-49bc-a9bd-581c05d99cb0` niesie piec sekretow panelu i logowanie na nim dziala, ale pochodzi sprzed planow 05 do 10, wiec ekranow edycyjnych na zywej stronie jeszcze nie ma. Bez pushu UAT jest niewykonalny.
+2. **Pierwszy PRAWDZIWY zapis** (CMS-02 nie ma dzis zadnego innego dowodu): nabor 04.1-05, tworzenie, edycja tytulu i usuniecie wpisu 04.1-06, wpis ze zdjeciem z telefonu 04.1-07 (`git show --stat` ma pokazac dokladnie dwa pliki o tym samym rdzeniu; jesli telefon to iPhone, zamyka to nieprzetestowane zalozenie o HEIC), dokument PDF plus edycja samej nazwy plus podmiana na DOCX plus usuniecie 04.1-08, oraz plan dnia i O nas z dodaniem i usunieciem wiersza 04.1-09.
+3. **Ludzka polowa CMS-03:** prawdziwy pracownik czyta panel i potwierdza, ze to zrozumiala polszczyzna. Zaden test tego nie zastapi.
+4. **Parytet czasu odpowiedzi logowania:** dwadziescia pomiarow z terminala, jedyna wlasnosc SC1, ktorej nie widzi zaden test w projekcie.
+5. **Dwie osierocone uslugi**, obie tylko z paneli dostawcow: GitHub OAuth App starego edytora i wdrozony Worker `sveltia-cms-auth`. **Nie mylic z GitHub Appem `Panel redakcyjny zlobka`** (App ID 4609238), ktory jest tozsamoscia zapisu nowego panelu i musi zostac.
+
+**CMS-01, CMS-02 i CMS-03 sa dzis NIEODHACZONE i wskazuja faze 04.1** (D-21 wykonane w 04.1-11). Byly odhaczone wobec edytora, ktorego juz nie ma w repozytorium; zamyka je dopiero powyzszy UAT.
+
+**D-20 JEST UCHYLONE od planu 01 (zatwierdzone przez uzytkownika odstepstwo Rule 4).** Pliki starego edytora usunieto w planie 01, nie 11, bo `static/admin/` to zasob statyczny Cloudflare Pages, a te rozwiazuja sie PRZED Workerem, wiec gole `/admin` nigdy nie docieralo do bramy. Zadanie 2 planu 11 bylo przez to w wiekszosci wykonane z gory, a jego zakaz kolejnosci (nie demontowac przed zdanym UAT) przestal obowiazywac.
+
+Progress: 04.1 wszystkie 11 planow ma SUMMARY; 27/27 planow w fazach 1-4 ukonczonych (4 z 8 faz)
 
 **Never import `src/lib/server/dokumenty.ts` from an `/admin` route** (learned in 04.1-08). It carries `node:fs`, the panel is the Cloudflare Worker, and this deployment enables only `nodejs_als`. The category union lives in `src/lib/kategorie-dokumentow.ts`, the file constants and the size formatter in `src/lib/pliki.ts`, and the panel's own reader in `src/lib/server/admin/dokumenty.ts`. The public reader imports the first two back and re-exports the type, so exactly one declaration of each exists.
 
@@ -104,6 +114,7 @@ Progress: 04.1 plans 1 to 10 of 11 complete; 27/27 plans in phases 1-4 complete 
 | Phase 04.1 P08 | 47min | 3 tasks | 21 files |
 | Phase 04.1 P09 | 46min | 3 tasks | 19 files |
 | Phase 04.1 P10 | 71min | 3 tasks | 16 files |
+| Phase 04.1 P11 | 38min | 2 tasks tasks | 9 files files |
 
 ## Accumulated Context
 
@@ -198,6 +209,8 @@ Recent decisions affecting current work:
 - [Phase 04.1]: [04.1-10] P-28: brama SC2 to tests/admin-polski.spec.ts wewnatrz npm run test, czyli bramy, ktora projekt naprawde uruchamia (dlug AG-3 splacony): 18 adresow panelu, calem body bez script i style, lang=pl, niepuste nazwy dostepne, kontrola dodatnia i ujemna wykrywacza przed kazdym ekranem; mutacja Zapisz na Save zaczerwienila 8 z 20 przypadkow
 - [Phase 04.1]: [04.1-10] Wyjatek natywnej kontrolki pliku (UI-SPEC Contract 8) jest wylaczony z zamiatania PRZEZ KONSTRUKCJE, nie przez filtr: przycisk przegladania to shadow UI przegladarki i nigdy nie jest wezlem tekstowym, wiec nie moze dotrzec do ekstrakcji; lista zakazanych slow i jej dwie kontrole mieszkaja w tests/fixtures/angielskie-chrome.ts, bo import pliku *.unit.ts do specyfikacji uruchomilby node:test wewnatrz Playwrighta
 - [Phase 04.1]: [04.1-10] Licznik na kaflu pulpitu bierze sie z czytnika, ktory czyta odpowiadajacy mu ekran listy, nigdy z osobnego liczenia: wpisy z readAktualnosci, dokumenty z readDokumentyPanelu (publiczny niesie node:fs i pomija wpisy bez pliku), nabor z recruitmentOpen; test w przegladarce liczy wiersze list zamiast porownywac z liczba wpisana w tescie
+- [Phase ?]: [04.1-11] Sprzatanie po starym edytorze domkniete w plikach, ale NIE w uslugach. Piec komentarzy zrodlowych przepisanych na nowy panel; cztery pozostale wystapienia nazwy w tests/ sa CELOWE i zostaja: dwa to sciezki do dokumentu VALIDATION w katalogu fazy (ktorego nazwa zawiera to slowo), dwa to same asercje NIEOBECNOSCI, czyli brama. Kryterium akceptacji planu (zero trafien poza .planning) jest przez to niespelnialne doslownie; wlasnosc merytoryczna zmierzona inaczej: zero trafien w src, docs i konfiguracji.
+- [Phase ?]: [04.1-11] D-21 wykonane, ale w druga strone niz zakladal plan: CMS-01 i CMS-03 przeformulowane na wynik zamiast dostawcy, a wszystkie trzy wiersze CMS ODHACZONE i przeniesione z fazy 2 na 04.1. Byly oznaczone jako ukonczone wobec edytora, ktorego juz nie ma w repozytorium, wiec odhaczenie jest korekta falszywej deklaracji, a nie regresja. Zywy UAT je zamyka.
 
 ### Pending Todos
 
@@ -235,6 +248,7 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 - [Phase 04.1 / 04.1-03] Five panel nav destinations are 404s for a logged-in editor until plans 05 to 09 land: /admin/aktualnosci, /admin/o-nas, /admin/plan-dnia, /admin/dokumenty, /admin/nabor and /admin/pomoc. The nav is required by UI-SPEC Component Contract 1 in full and the paths are the contract's, so this is expected rather than a defect, but nobody should be shown the panel before Plan 09.
 - 04.1-04 human-action checkpoint OPEN: the five Cloudflare Pages admin secrets (ADMIN_EMAILS, ADMIN_SESSION_SECRET, GITHUB_APP_CLIENT_ID, GITHUB_APP_INSTALLATION_ID, GITHUB_APP_PRIVATE_KEY) are not set and no deployment carries them. Exact commands are in 04.1-04-SUMMARY.md under CHECKPOINT: human-action. Plans 05 to 10 can be built and unit-tested without them, but no live save works until they are set and a NEW deployment is created.
 - 04.1-05: pierwszy PRAWDZIWY zapis z panelu na zywym wdrozeniu nie zostal wykonany (zakaz wypychania i wdrazania w tej sesji). CMS-02 udowodnione tylko lokalnie. Kroki w 04.1-05-SUMMARY.md, sekcja CHECKPOINT
+- [Phase 04.1 / 04.1-11] OTWARTY checkpoint human-action: zywy UAT calej fazy nie zostal wykonany i jest jedyna rzecza dzielaca faze od zamkniecia. Scenariusz w .planning/phases/04.1-replace-sveltia-with-custom-polish-cms/04.1-UAT.md zbiera dlugi planow 05 do 10 w jedna sesje. Wymaga najpierw WYPCHNIECIA zmian, bo wdrozenie 72941a1e jest sprzed planow 05 do 10 i nie ma na nim ekranow edycyjnych. Obejmuje tez usuniecie dwoch osieroconych uslug (OAuth App i Worker sveltia-cms-auth), obu tylko z paneli dostawcow.
 
 ### Quick Tasks Completed
 
@@ -257,6 +271,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-16T11:48:45.137Z
+Last session: 2026-08-16T12:00:47.562Z
 Stopped at: Ukonczono 04.1-10-PLAN.md
 Resume file: None
