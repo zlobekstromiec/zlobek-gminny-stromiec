@@ -7,7 +7,7 @@
 		"dev": "vite dev",
 		"build": "wrangler types --check && vite build",
 		"preview": "wrangler pages dev .svelte-kit/cloudflare --port 4173",
-		"preview:test": "wrangler pages dev .svelte-kit/cloudflare --port 4173 -b TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA -b RESEND_API_KEY=test -b FORM_DRY_RUN=1 -b RATE_LIMIT_SALT=lokalna-sol-testowa -b RATE_LIMIT_MAX=200",
+		"preview:test": "wrangler pages dev .svelte-kit/cloudflare --port 4173 -b TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA -b RESEND_API_KEY=test -b FORM_DRY_RUN=1 -b RATE_LIMIT_SALT=lokalna-sol-testowa -b RATE_LIMIT_MAX=200 -b ADMIN_EMAILS=redaktor@example.test -b ADMIN_SESSION_SECRET=lokalny-sekret-testowy-panelu -b GITHUB_APP_CLIENT_ID=test -b GITHUB_APP_INSTALLATION_ID=0 -b GITHUB_APP_PRIVATE_KEY=test -b PANEL_DRY_RUN=1",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "wrangler types --check && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",

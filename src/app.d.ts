@@ -8,6 +8,9 @@ declare global {
 	// runtime surprise (FORM-01/FORM-02, 04-RESEARCH.md §Environment Availability).
 	// FORMS_KV is deliberately NOT redeclared here: it comes from wrangler.jsonc via
 	// `wrangler types`, and a duplicate declaration risks a merge conflict.
+	// Phase 04.1 (the Polish admin panel) adds six more members below. They follow the
+	// same optional-on-purpose rule for the same reason: the panel must fail closed on
+	// a missing binding at a branch we wrote, never crash on an undefined we assumed.
 	interface Env {
 		/** Resend API key. Cloudflare Pages secret; absent locally unless set in .dev.vars. */
 		RESEND_API_KEY?: string;
@@ -19,6 +22,24 @@ declare global {
 		RATE_LIMIT_MAX?: string;
 		/** '1' short-circuits the Resend send. ONLY ever set in the gitignored .dev.vars. */
 		FORM_DRY_RUN?: string;
+		/** Comma separated allowlist of editor addresses (D-02). Re-read on every admin
+		 *  request, which is what makes the stateless session cookie revocable. */
+		ADMIN_EMAILS?: string;
+		/** HMAC-SHA256 key for the panel session cookie. Rotating it invalidates every
+		 *  outstanding session, which is the emergency logout for all editors. */
+		ADMIN_SESSION_SECRET?: string;
+		/** Client id of the `Panel redakcyjny zlobka` GitHub App (D-08). Not a secret in
+		 *  the cryptographic sense, but it lives beside the key it is useless without. */
+		GITHUB_APP_CLIENT_ID?: string;
+		/** Installation id of that App on this one repository, base-10 string. */
+		GITHUB_APP_INSTALLATION_ID?: string;
+		/** PKCS#8 PEM private key of the App (D-08). PKCS#1, the format GitHub hands you,
+		 *  will not import into WebCrypto and must be converted before it is stored. */
+		GITHUB_APP_PRIVATE_KEY?: string;
+		/** '1' short-circuits the repository write. A test-only seam set by the
+		 *  `preview:test` bindings and NEVER as a Cloudflare Pages variable, mirroring
+		 *  the discipline already documented for FORM_DRY_RUN above. */
+		PANEL_DRY_RUN?: string;
 	}
 
 	namespace App {
@@ -35,7 +56,13 @@ declare global {
 		}
 
 		// interface Error {}
-		// interface Locals {}
+		interface Locals {
+			/** The short non-personal editor handle (D-04), for example `anna.k`. Set by
+			 *  src/hooks.server.ts once a session has verified. The full e-mail address
+			 *  stays inside the signed cookie payload and never reaches locals, a log, a
+			 *  commit message or the DOM of any page other than the login echo line. */
+			editor: string;
+		}
 		// interface PageData {}
 		// interface PageState {}
 	}
