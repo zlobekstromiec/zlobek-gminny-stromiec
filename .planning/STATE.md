@@ -6,14 +6,14 @@ current_phase: 04.1
 current_phase_name: replace-sveltia-with-custom-polish-cms
 status: executing
 stopped_at: Completed 04.1-02-PLAN.md (one-time code + panel copy)
-last_updated: "2026-08-16T03:43:13.270Z"
+last_updated: "2026-08-16T04:19:09.511Z"
 last_activity: 2026-08-16
 last_activity_desc: Completed 04.1-02 (one-time code, panel copy module)
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 38
-  completed_plans: 30
+  completed_plans: 31
   percent: 50
 ---
 
@@ -29,15 +29,15 @@ See: .planning/PROJECT.md (updated 2026-08-14)
 ## Current Position
 
 Phase: 04.1 (replace-sveltia-with-custom-polish-cms) — EXECUTING
-Plan: 4 of 11
+Plan: 5 of 11
 Status: Ready to execute
-Last activity: 2026-08-16 — Completed 04.1-02 (one-time code, panel copy module)
+Last activity: 2026-08-16 — Completed 04.1-04 (repository write path: GitHub App token, atomic commit, prettier-shaped JSON)
 
-Plans 04 and 11 are `autonomous: false`. Plan 04 opens with a human checkpoint (create the GitHub App, convert the private key PKCS#1 → PKCS#8 with `openssl pkcs8 -topk8 -nocrypt`, set the Pages secrets).
+Plan 11 is `autonomous: false`. Plan 04's human prerequisites are now PARTLY done: the GitHub App `Panel redakcyjny zlobka` exists (org-owned, Contents:write on one repository, client id `Iv23lipuQ3hnHl4snF6h`, installation `154059103`) and the private key is converted to PKCS#8 at `~/Documents/panel-redakcyjny-zlobka.pkcs8.pem`. **What is still OWED is the Cloudflare half:** the five admin Pages secrets are not set and no deployment carries them. Exact commands are in `04.1-04-SUMMARY.md` under `CHECKPOINT: human-action`. Plans 05 to 10 can be built and unit-tested without them; no live save works until they are set and a NEW deployment is created (a Pages secret only reaches deployments made after it is set).
 
 **D-20 IS SUPERSEDED as of Plan 01 (user-approved Rule 4 deviation).** Sveltia's repository footprint was deleted in Plan 01, not Plan 11, because `static/admin/` is a Cloudflare Pages static asset and static assets resolve before the Worker, so the bare `/admin` never reached the new gate and the plan's own assertions were unprovable. Staff therefore have NO working editor until Plan 10 lands, which the user accepted. Plan 11 must be re-read rather than executed as written: its Task 2 is now largely a no-op (see `04.1-01-SUMMARY.md` "Knock-on Effects for Plan 11" for the exact split), and its ordering prohibition no longer applies. Plan 11 Task 3 is unchanged and still owed: deleting the GitHub OAuth App and the deployed `sveltia-cms-auth` Worker, both dashboard-only and both still live.
 
-Progress: 04.1 plans 1 and 2 of 11 complete; 27/27 plans in phases 1-4 complete (4 of 8 phases)
+Progress: 04.1 plans 1 to 4 of 11 complete; 27/27 plans in phases 1-4 complete (4 of 8 phases)
 
 **CMS-01 and CMS-03 stay UNMARKED after 04.1-02**, deliberately, following the Plan 01 precedent. Both are shared across the whole phase, both are currently worded around Sveltia and GitHub OAuth, and D-21 rewords them in Plan 11. Ticking them from a plan that ships a code module and a copy module, with no login screen yet, would put a false claim in the traceability table.
 
@@ -95,6 +95,7 @@ Progress: 04.1 plans 1 and 2 of 11 complete; 27/27 plans in phases 1-4 complete 
 | Phase 04.1 P01 | 22min | 4 tasks tasks | 18 files files |
 | Phase 04.1 P02 | 22min | 3 tasks tasks | 6 files files |
 | Phase 04.1 P03 | 38min | 3 tasks | 15 files |
+| Phase 04.1 P04 | 6 | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -166,6 +167,11 @@ Recent decisions affecting current work:
 - [Phase ?]: [04.1-03] ekran logowania wylaczony z powloki galezia sciezki, a nie resetem ukladu, zeby nie stracic prerender = false
 - [Phase ?]: [04.1-03] P-08 wdrozone doslownie, wysylka odroczona a zapis KV nadal awaitowany; pozostala roznica czasow to okolo 1.1 ms, pomiar na zywo nalezy do planu 10
 - [Phase ?]: [04.1-03] przypadki logowania w Playwright dzialaja szeregowo, bo w KV jest jeden wpis kodu na adres
+- [Phase ?]: 04.1-04: X-GitHub-Api-Version pinned to 2022-11-28, declared exactly once in src/lib/server/admin/repo.ts (P-11)
+- [Phase ?]: 04.1-04: both 409 and 422 at update-ref map to konflikt, narrowed to the ref path so a 409 from a blob or tree is not shown to an editor as a conflict (P-12, over-mapping on purpose)
+- [Phase ?]: 04.1-04: PANEL_DRY_RUN is a caller concern; zapiszAtomowo takes a dryRun option and never reads the environment, so the module stays pure (P-13)
+- [Phase ?]: 04.1-04: the imported CryptoKey is cached at module scope beside the PEM that produced it, so a rotated key cannot keep signing from a warm isolate
+- [Phase ?]: 04.1-04: CMS-02 stays UNMARKED until a real save produces a real commit (Plan 10), following the Plan 01 and 02 precedent
 
 ### Pending Todos
 
@@ -200,6 +206,7 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 - [Phase 04.1 / 04.1-02] A login code has NO backup recipient. Unlike the two public forms there is no BCC, so if delivery to a staff mailbox fails the editor simply cannot log in. The failure is visible (the 'Nie udalo sie wyslac kodu' panel) rather than silent, which is the right trade, but the first live login is also the first proof that send.zlobekstromiec.pl reaches whatever mailbox the editor actually uses. Also owed: the AG-3 second enforced check for the five-attempt cap, which is Plan 03's Playwright case against the real runtime.
 - [Phase 04.1 / 04.1-03] LOGIN TIMING PARITY IS NOT PROVEN. The step 1 action defers the Resend send to waitUntil (P-08) but still awaits the KV store, so an address-correlated delta remains: measured locally at about 4.2 ms for an allowlisted address against 3.1 ms for one that is not, ten requests each against wrangler pages dev. Playwright cannot see the real oracle, because PANEL_DRY_RUN short-circuits the send, so tests/admin-auth.spec.ts asserts only the STRUCTURAL property and says so. Plan 10 owes the live response-time distribution comparison, 04.1-VALIDATION.md 'Not Inferable From Unit Tests' item 1. If it shows a usable oracle, defer the KV store as well and give the attempt-cap Playwright case a deterministic wait.
 - [Phase 04.1 / 04.1-03] Five panel nav destinations are 404s for a logged-in editor until plans 05 to 09 land: /admin/aktualnosci, /admin/o-nas, /admin/plan-dnia, /admin/dokumenty, /admin/nabor and /admin/pomoc. The nav is required by UI-SPEC Component Contract 1 in full and the paths are the contract's, so this is expected rather than a defect, but nobody should be shown the panel before Plan 09.
+- 04.1-04 human-action checkpoint OPEN: the five Cloudflare Pages admin secrets (ADMIN_EMAILS, ADMIN_SESSION_SECRET, GITHUB_APP_CLIENT_ID, GITHUB_APP_INSTALLATION_ID, GITHUB_APP_PRIVATE_KEY) are not set and no deployment carries them. Exact commands are in 04.1-04-SUMMARY.md under CHECKPOINT: human-action. Plans 05 to 10 can be built and unit-tested without them, but no live save works until they are set and a NEW deployment is created.
 
 ### Quick Tasks Completed
 
@@ -222,6 +229,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-16T03:42:33.422Z
+Last session: 2026-08-16T04:18:44.843Z
 Stopped at: Completed 04.1-02-PLAN.md (one-time code + panel copy)
 Resume file: .planning/phases/04.1-replace-sveltia-with-custom-polish-cms/04.1-03-PLAN.md
