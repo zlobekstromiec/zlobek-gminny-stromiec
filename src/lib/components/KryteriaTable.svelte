@@ -112,9 +112,10 @@
 	}
 
 	/* Decorative only: the stripe carries no information, so nothing is lost when it
-	   is not perceived. */
+	   is not perceived. White, because the table sits on the warm band
+	   (Amendment v1.6 §7): a warm stripe would vanish there. */
 	tbody tr:nth-child(odd) {
-		background: var(--color-surface-warm);
+		background: var(--color-surface);
 	}
 
 	.remis {

@@ -30,6 +30,7 @@
 	// hours, telephone number, e-mail, amount or point value is written as a literal
 	// anywhere in this file, including in the head metadata below.
 	import FileText from '@lucide/svelte/icons/file-text';
+	import FallbackPanel from '$lib/components/FallbackPanel.svelte';
 	import FeeBox from '$lib/components/FeeBox.svelte';
 	import KryteriaTable from '$lib/components/KryteriaTable.svelte';
 	import Seo from '$lib/components/Seo.svelte';
@@ -78,15 +79,18 @@
 	</div>
 </section>
 
-<!-- Section 3: zgłoszenie form (warm surface). The island renders the static fallback
-     panel, the noscript note, the form card with its own h2, the birth-date fieldset,
-     the consent block and the klauzula, so this section contributes only the surface
-     wrapper. It is labelled by that card heading (the id is declared on the island's
-     own h2), which is the correct accessible name for it and avoids a duplicated
-     invisible heading. -->
+<!-- Section 3: zgłoszenie form (warm surface). The route renders the shared
+     FallbackPanel above the island (Amendment v1.6 §9); the island renders the
+     noscript note, the form card with its own h2, the birth-date fieldset, the
+     consent block and the klauzula. The section is labelled by that card heading
+     (the id is declared on the island's own h2), which is the correct accessible
+     name for it and avoids a duplicated invisible heading. -->
 <section class="sekcja warm" aria-labelledby="zgloszenie-naglowek">
 	<div class="inner">
-		<ZgloszenieForm />
+		<div class="stos">
+			<FallbackPanel />
+			<ZgloszenieForm />
+		</div>
 	</div>
 </section>
 
@@ -206,6 +210,13 @@
 		.inner {
 			padding-inline: 32px;
 		}
+	}
+
+	/* FallbackPanel + form stack: the 24px gap reproduces the spacing the panel
+	   carried as its own bottom margin before extraction (Amendment v1.6 §9). */
+	.stos {
+		display: grid;
+		gap: 24px;
 	}
 
 	h1 {

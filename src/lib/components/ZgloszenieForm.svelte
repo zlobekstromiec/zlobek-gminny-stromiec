@@ -5,10 +5,11 @@
 	//
 	// The site's third hydrated island, and a close mirror of KontaktForm: same
 	// structure, same status regions, same focus-management contract, same honeypot,
-	// same static fallback, same card and submit-button treatment. It differs in the
+	// same noscript note, same card and submit-button treatment. It differs in the
 	// fields it collects and the copy it renders. Sharing FormField, ConsentBlock and
 	// TurnstileWidget means both forms have ONE accessibility contract rather than two
-	// that drift.
+	// that drift. The visible "Wolisz zadzwonić?" panel is the route's job (shared
+	// FallbackPanel, Amendment v1.6 §9), so it can sit in the desktop grid.
 	//
 	// Two obligations are specific to this form:
 	//  1. Data minimisation (D-02, T-04-24). There is NO control for the child's given
@@ -38,7 +39,6 @@
 	import { contact } from '$lib/content/site';
 	import {
 		KOPIA_BLEDOW,
-		KOPIA_FALLBACK,
 		KOPIA_NOSCRIPT,
 		KOPIA_ZGLOSZENIE,
 		MIESIACE_WYBOR,
@@ -278,22 +278,9 @@
 	}
 </script>
 
-<!-- Static fallback, ALWAYS in the prerendered HTML and never revealed by script.
-     One block serves three cases at once: the D-12 failure fallback, the visitor
-     without JavaScript, and the visitor whose Turnstile widget cannot load
-     (04-RESEARCH Pitfall 7). Its title is a paragraph, not a heading, so the page
-     heading order stays unbroken. -->
-<div class="fallback">
-	<Info class="fallback-ikona" size={22} aria-hidden="true" focusable="false" />
-	<div>
-		<p class="fallback-tytul">{KOPIA_FALLBACK.naglowek}</p>
-		<p class="fallback-tresc">
-			Telefon: <a href={contact.phoneHref}>{contact.phoneDisplay}</a>. E-mail:
-			<a href={`mailto:${contact.email}`}>{contact.email}</a>. Czynne {contact.hours}.
-		</p>
-	</div>
-</div>
-
+<!-- The visible "Wolisz zadzwonić?" panel is rendered by the ROUTE (shared
+     FallbackPanel, Amendment v1.6 §9). Only the noscript twin stays in the island:
+     it must sit directly above the card it explains. -->
 <noscript>
 	<div class="fallback">
 		<Info class="fallback-ikona" size={22} aria-hidden="true" focusable="false" />
@@ -518,8 +505,9 @@
 </p>
 
 <style>
-	/* Static fallback + noscript panel: tint-blue surface, radius-md, 16 -> 24px
-	   padding, brand-blue info icon, ink 15px text (UI-SPEC Contract 8). */
+	/* Noscript panel (the visible twin lives in FallbackPanel.svelte): tint-blue
+	   surface, radius-md, 16 -> 24px padding, brand-blue info icon, ink 15px text
+	   (UI-SPEC Contract 8). */
 	.fallback {
 		display: flex;
 		align-items: flex-start;
@@ -543,15 +531,6 @@
 		color: var(--color-brand-blue);
 	}
 
-	.fallback-tytul {
-		margin: 0 0 4px;
-		font-family: var(--font-body);
-		font-size: 15px;
-		font-weight: 700;
-		line-height: 1.5;
-		color: var(--color-ink);
-	}
-
 	.fallback-tresc {
 		margin: 0;
 		max-width: 65ch;
@@ -560,18 +539,6 @@
 		font-weight: 400;
 		line-height: 1.5;
 		color: var(--color-ink);
-	}
-
-	.fallback-tresc a {
-		display: inline-flex;
-		align-items: center;
-		min-height: 44px;
-		color: var(--color-brand-blue);
-		text-decoration: underline;
-	}
-
-	.fallback-tresc a:hover {
-		color: var(--color-brand-blue-hover);
 	}
 
 	/* Form card: white surface, radius-lg, medium shadow, 2px band border,

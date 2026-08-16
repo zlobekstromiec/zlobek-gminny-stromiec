@@ -27,6 +27,7 @@
 	import Mail from '@lucide/svelte/icons/mail';
 	import MapPin from '@lucide/svelte/icons/map-pin';
 	import Phone from '@lucide/svelte/icons/phone';
+	import FallbackPanel from '$lib/components/FallbackPanel.svelte';
 	import KontaktForm from '$lib/components/KontaktForm.svelte';
 	import MapPanel from '$lib/components/MapPanel.svelte';
 	import Seo from '$lib/components/Seo.svelte';
@@ -104,14 +105,18 @@
 	</div>
 </section>
 
-<!-- Section 4: contact form (warm surface). The island renders the static fallback
-     panel, the noscript note, the form card with its own h2, the consent block and
-     the klauzula, so this section contributes only the band wrapper. The section is
-     labelled by that card heading (id declared in KontaktForm.svelte), which is the
-     correct accessible name for it and avoids a duplicated invisible heading. -->
+<!-- Section 4: contact form (warm surface). The route renders the shared
+     FallbackPanel above the island (Amendment v1.6 §9); the island renders the
+     noscript note, the form card with its own h2, the consent block and the
+     klauzula. The section is labelled by that card heading (id declared in
+     KontaktForm.svelte), which is the correct accessible name for it and avoids a
+     duplicated invisible heading. -->
 <section class="sekcja warm" aria-labelledby="formularz-naglowek">
 	<div class="inner">
-		<KontaktForm />
+		<div class="stos">
+			<FallbackPanel />
+			<KontaktForm />
+		</div>
 	</div>
 </section>
 
@@ -176,6 +181,13 @@
 		.inner {
 			padding-inline: 32px;
 		}
+	}
+
+	/* FallbackPanel + form stack: the 24px gap reproduces the spacing the panel
+	   carried as its own bottom margin before extraction (Amendment v1.6 §9). */
+	.stos {
+		display: grid;
+		gap: 24px;
 	}
 
 	h1 {
