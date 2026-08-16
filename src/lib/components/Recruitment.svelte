@@ -225,11 +225,15 @@
 		color: var(--color-muted);
 	}
 
+	/* Flex column so the panel fills its full grid-row height on desktop and
+	   the see-all link pins to the bottom (Amendment v1.6 §5). */
 	.docs-panel {
 		background: var(--color-surface-warm);
 		border: 1px solid var(--color-border-subtle);
 		border-radius: var(--radius-md);
 		padding: 28px;
+		display: flex;
+		flex-direction: column;
 	}
 
 	.docs-panel h3 {
@@ -246,6 +250,7 @@
 		padding: 0;
 		display: flex;
 		flex-direction: column;
+		flex: 1 1 auto;
 	}
 
 	.doc-row {
@@ -282,7 +287,8 @@
 
 	.see-all {
 		display: inline-block;
-		margin-top: 18px;
+		margin-top: auto;
+		padding-top: 18px;
 		font-family: var(--font-body);
 		font-size: 15px;
 		font-weight: 700;
