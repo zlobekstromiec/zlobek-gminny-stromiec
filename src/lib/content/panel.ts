@@ -141,6 +141,17 @@ export const KOPIA_LISTY = {
 	powrotLista: 'Wróć do listy'
 } as const;
 
+/** The two aktualność editor screens (Component Contract 5). Separate from POLA_WPIS,
+ *  which holds the field labels and hints: these are the screen's own chrome. */
+export const KOPIA_EKRAN_WPISU = {
+	nowyNaglowek: 'Nowy wpis',
+	edycjaNaglowek: 'Edycja wpisu',
+	/** Name of the public section the „Zapisano" panel links into. The link itself points
+	 *  at the entry that was just written, which is a page OF that section, so the editor
+	 *  lands on their own change rather than on a list they then have to search. */
+	stronaNazwa: 'Aktualności'
+} as const;
+
 /** The three date selects, authored once because both the aktualność publication date
  *  and the document version date use them. The month NAMES are not repeated here: they
  *  come from MIESIACE_WYBOR in ./forms.ts, so the project keeps exactly one month
@@ -430,6 +441,23 @@ export function legendaWiersza(numer: number): string {
 
 export function legendaZdjecia(numer: number): string {
 	return `Zdjęcie ${numer}`;
+}
+
+/** The three commit descriptions of the aktualności collection. They are copy like any
+ *  other: written by this project in Polish, landing in the history of a PUBLIC
+ *  repository, and therefore swept for emoji, em dashes and English chrome by
+ *  tests/admin-copy.unit.ts exactly as a visible label is. The title is quoted so a
+ *  person reading `git log` can tell which entry a commit touched without opening it. */
+export function opisDodaniaWpisu(tytul: string): string {
+	return `dodano wpis „${tytul}”`;
+}
+
+export function opisZmianyWpisu(tytul: string): string {
+	return `zaktualizowano wpis „${tytul}”`;
+}
+
+export function opisUsunieciaWpisu(tytul: string): string {
+	return `usunięto wpis „${tytul}”`;
 }
 
 /** Delete confirmation bodies, quoting exactly what is about to disappear. */

@@ -17,6 +17,7 @@ import assert from 'node:assert/strict';
 import * as panel from '../src/lib/content/panel.ts';
 import {
 	KOPIA_FORMATOWANIE,
+	KOPIA_EKRAN_WPISU,
 	KOPIA_LISTY,
 	KOPIA_LOGOWANIE,
 	KOPIA_MAIL_KOD,
@@ -40,6 +41,9 @@ import {
 	liczbaDokumentow,
 	liczbaWpisow,
 	obecnieNabor,
+	opisDodaniaWpisu,
+	opisUsunieciaWpisu,
+	opisZmianyWpisu,
 	tekstZaDlugi,
 	trescUsunieciaDokumentu,
 	trescUsunieciaWpisu,
@@ -81,6 +85,7 @@ const EKSPORTY: unknown[] = [
 	KOPIA_MAIL_KOD,
 	KOPIA_PULPIT,
 	KOPIA_LISTY,
+	KOPIA_EKRAN_WPISU,
 	POLA_DATA,
 	POLA_WPIS,
 	POLA_O_NAS,
@@ -108,7 +113,10 @@ const EKSPORTY: unknown[] = [
 	legendaWiersza(3),
 	legendaZdjecia(2),
 	trescUsunieciaWpisu('Wielkie otwarcie żłobka', '15.07.2026'),
-	trescUsunieciaDokumentu('Statut żłobka')
+	trescUsunieciaDokumentu('Statut żłobka'),
+	opisDodaniaWpisu('Wielkie otwarcie żłobka'),
+	opisZmianyWpisu('Wielkie otwarcie żłobka'),
+	opisUsunieciaWpisu('Wielkie otwarcie żłobka')
 ];
 
 /** The e-mail is a panel surface too (CMS-03), so its rendered body and its subject
@@ -361,6 +369,28 @@ test('odmowa przy zajetej nazwie pliku mowi, ktore dwa pola o niej decyduja (P-1
 	// And never promises that the older entry survived by luck: it says the entry exists,
 	// which is true, and stops there.
 	assert.equal(/nadpis|zastąp/i.test(KOPIA_ZAPIS.kolizjaTresc), false);
+});
+
+// D-04, T-04.1-07. Every commit description names the entry and nothing about the
+// person: the repository is public and its history is permanent.
+test('opisy commitow wpisu nazywaja wpis i nigdy nie niosa adresu', () => {
+	const tytul = 'Wielkie otwarcie żłobka';
+	for (const opis of [opisDodaniaWpisu(tytul), opisZmianyWpisu(tytul), opisUsunieciaWpisu(tytul)]) {
+		assert.ok(opis.includes(tytul), `opis nie nazywa wpisu: ${opis}`);
+		assert.equal(opis.includes('@'), false);
+	}
+	// Three different verbs, so `git log` distinguishes a create from an edit from a
+	// deletion without opening the diff.
+	assert.equal(
+		new Set([opisDodaniaWpisu(tytul), opisZmianyWpisu(tytul), opisUsunieciaWpisu(tytul)]).size,
+		3
+	);
+});
+
+test('naglowki ekranow wpisu sa dwa i mowia, ktory to ekran', () => {
+	assert.equal(KOPIA_EKRAN_WPISU.nowyNaglowek, 'Nowy wpis');
+	assert.equal(KOPIA_EKRAN_WPISU.edycjaNaglowek, 'Edycja wpisu');
+	assert.equal(KOPIA_EKRAN_WPISU.stronaNazwa, KOPIA_LISTY.aktualnosciNaglowek);
 });
 
 test('przyciski destrukcyjne nazywaja rzecz, ktora usuwaja', () => {
