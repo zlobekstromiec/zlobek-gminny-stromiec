@@ -1,8 +1,0 @@
-# Local-only secrets for `wrangler dev` of the sveltia-cms-auth Worker.
-# Copy to `.dev.vars` (gitignored) and paste the values from the GitHub OAuth App
-# page. Leave no real secret in this example file. In production these are set with
-# `wrangler secret put ...`, never read from a file.
-#
-# Fill the two keys below (format: KEY=value, no quotes needed):
-GITHUB_CLIENT_ID=
-GITHUB_CLIENT_SECRET=
