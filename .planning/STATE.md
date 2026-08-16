@@ -6,14 +6,14 @@ current_phase: 04.1
 current_phase_name: replace-sveltia-with-custom-polish-cms
 status: executing
 stopped_at: Completed 04.1-02-PLAN.md (one-time code + panel copy)
-last_updated: "2026-08-16T02:53:24.226Z"
+last_updated: "2026-08-16T03:43:13.270Z"
 last_activity: 2026-08-16
 last_activity_desc: Completed 04.1-02 (one-time code, panel copy module)
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 38
-  completed_plans: 29
+  completed_plans: 30
   percent: 50
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-14)
 ## Current Position
 
 Phase: 04.1 (replace-sveltia-with-custom-polish-cms) — EXECUTING
-Plan: 3 of 11
+Plan: 4 of 11
 Status: Ready to execute
 Last activity: 2026-08-16 — Completed 04.1-02 (one-time code, panel copy module)
 
@@ -94,6 +94,7 @@ Progress: 04.1 plans 1 and 2 of 11 complete; 27/27 plans in phases 1-4 complete 
 | Phase 04 P08 | 16 | 3 tasks tasks | 5 files files |
 | Phase 04.1 P01 | 22min | 4 tasks tasks | 18 files files |
 | Phase 04.1 P02 | 22min | 3 tasks tasks | 6 files files |
+| Phase 04.1 P03 | 38min | 3 tasks | 15 files |
 
 ## Accumulated Context
 
@@ -162,6 +163,9 @@ Recent decisions affecting current work:
 - [Phase ?]: [04.1-02] P-04 resolved by an optional TRAILING parameter, not a higher ceiling. kluczDobowy gained prefiks and podLimitem gained prefiksDobowy, both defaulted to PREFIKS_DOBOWY, which is what keeps both endpoint call sites byte-identical (the same append rule that added teraz in 04-08). podLimitemKodu passes rl:doba:adm with LIMIT_KODOW=5 per hour and LIMIT_KODOW_DOBOWY=20 per day. Passing a HIGHER limitDobowy was rejected: an admin request would still INCREMENT the shared counter, so the coupling would remain in both directions (a login flood refusing parents, a busy contact form locking staff out). The code REQUEST limiter deliberately keeps its fail-open degrade (P-06), a different decision from the fail-closed store, and the comment says so.
 - [Phase ?]: [04.1-02] src/lib/content/panel.ts is the single source for every Polish panel string including the login code e-mail, and tests/admin-copy.unit.ts sweeps an EXPLICIT list of all 34 exports plus the rendered mail body and subject, then asserts that list length equals the module's own export count, so a new export cannot escape the contract by not being listed (mutation-proven: 34 vs 35). Two harness facts observed, not predicted: (1) a word boundary CANNOT be used to find English chrome in Polish text, because it treats every diacritic as a non-word character and splits waznosc at z and s, reporting the letters between them as the English word No; the sweep uses Unicode lookarounds and carries a positive control proving the detector still fires. (2) mail-kod.ts is a SIBLING of the forms mailer: it imports only the exported FROM, builds its own single-recipient payload with no bcc and no reply_to, and describes the forms payload builder in words rather than naming it, because the plan's acceptance gate is a literal grep.
 - [Phase ?]: [04.1-02] The repo pre-commit gate makes a TDD RED commit impossible: it runs svelte-check over the WHOLE working tree, so a contract test importing a not-yet-written module is a type error and the hook refuses even an unrelated staged commit while that test sits untracked. RED must be OBSERVED and RECORDED in the SUMMARY rather than banked as its own commit. --no-verify was deliberately not used.
+- [Phase ?]: [04.1-03] ekran logowania wylaczony z powloki galezia sciezki, a nie resetem ukladu, zeby nie stracic prerender = false
+- [Phase ?]: [04.1-03] P-08 wdrozone doslownie, wysylka odroczona a zapis KV nadal awaitowany; pozostala roznica czasow to okolo 1.1 ms, pomiar na zywo nalezy do planu 10
+- [Phase ?]: [04.1-03] przypadki logowania w Playwright dzialaja szeregowo, bo w KV jest jeden wpis kodu na adres
 
 ### Pending Todos
 
@@ -194,6 +198,8 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 - [Phase 04.1 / 04.1-01] TWO LIVE SERVICES FROM THE OLD EDITOR ARE STILL RUNNING, now orphaned. Sveltia's files are gone from the repo (user-approved early removal, see decisions), but no file deletion can reach either of these: (a) the sveltia-cms-auth Worker is still DEPLOYED on sveltia-cms-auth.devzlobekstromiec.workers.dev and still answering; (b) the GitHub OAuth App still exists in the zlobekstromiec Org and can still authorize access to the PUBLIC repository. Both are Plan 11 Task 3 (dashboard-only: the scoped CLOUDFLARE_API_TOKEN in .envrc has no Workers permission). The OAuth App is now slightly worse than before, because nothing in the tree points at it any more. Delete it sooner than Plan 11 if convenient. Do NOT confuse it with the GitHub App created in Plan 04, which is the new panel's write identity.
 - [Phase 04.1 / 04.1-01] STAFF HAVE NO WORKING EDITOR until Plan 10 lands. Direct consequence of the user-approved early Sveltia removal that supersedes D-20. Any urgent content change before then is a developer editing JSON under src/lib/content/ and pushing. Plan 11 must be re-read rather than executed as written: its Task 2 is now largely a no-op, and its ordering prohibition (teardown must not start before the live UAT passes) is already superseded.
 - [Phase 04.1 / 04.1-02] A login code has NO backup recipient. Unlike the two public forms there is no BCC, so if delivery to a staff mailbox fails the editor simply cannot log in. The failure is visible (the 'Nie udalo sie wyslac kodu' panel) rather than silent, which is the right trade, but the first live login is also the first proof that send.zlobekstromiec.pl reaches whatever mailbox the editor actually uses. Also owed: the AG-3 second enforced check for the five-attempt cap, which is Plan 03's Playwright case against the real runtime.
+- [Phase 04.1 / 04.1-03] LOGIN TIMING PARITY IS NOT PROVEN. The step 1 action defers the Resend send to waitUntil (P-08) but still awaits the KV store, so an address-correlated delta remains: measured locally at about 4.2 ms for an allowlisted address against 3.1 ms for one that is not, ten requests each against wrangler pages dev. Playwright cannot see the real oracle, because PANEL_DRY_RUN short-circuits the send, so tests/admin-auth.spec.ts asserts only the STRUCTURAL property and says so. Plan 10 owes the live response-time distribution comparison, 04.1-VALIDATION.md 'Not Inferable From Unit Tests' item 1. If it shows a usable oracle, defer the KV store as well and give the attempt-cap Playwright case a deterministic wait.
+- [Phase 04.1 / 04.1-03] Five panel nav destinations are 404s for a logged-in editor until plans 05 to 09 land: /admin/aktualnosci, /admin/o-nas, /admin/plan-dnia, /admin/dokumenty, /admin/nabor and /admin/pomoc. The nav is required by UI-SPEC Component Contract 1 in full and the paths are the contract's, so this is expected rather than a defect, but nobody should be shown the panel before Plan 09.
 
 ### Quick Tasks Completed
 
@@ -216,6 +222,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-16T02:52:30.133Z
+Last session: 2026-08-16T03:42:33.422Z
 Stopped at: Completed 04.1-02-PLAN.md (one-time code + panel copy)
 Resume file: .planning/phases/04.1-replace-sveltia-with-custom-polish-cms/04.1-03-PLAN.md
