@@ -110,7 +110,7 @@
 
 <!-- 6. Nasze miejsce (facility story + optimized image grid, D-04/D-07) -->
 <section class="band" aria-labelledby="obiekt-heading">
-	<div class="inner">
+	<div class="inner uklad-miejsce">
 		<h2 id="obiekt-heading">Nasze miejsce</h2>
 		<!-- eslint-disable-next-line svelte/no-at-html-tags -- D-08: renderInline sanitizes (raw HTML escaped, link protocols filtered); CSP script-src 'self' is the second layer (T-0201-01) -->
 		<p class="prose">{@html obiektHtml}</p>
@@ -175,6 +175,38 @@
 	@media (min-width: 1024px) {
 		.inner {
 			padding-inline: 32px;
+		}
+
+		/* Editorial split (Amendment v1.6 §2): the narrow prose sections widen to
+		   the full container with the h2 in a left rail and content filling the
+		   right track, instead of a lone 52rem column in a 72rem band. */
+		.inner.narrow,
+		.uklad-miejsce {
+			max-width: 72rem;
+			display: grid;
+			grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
+			column-gap: 48px;
+			row-gap: 24px;
+			align-items: start;
+		}
+
+		.inner.narrow h2,
+		.uklad-miejsce h2 {
+			margin-bottom: 0;
+		}
+
+		.headcount {
+			grid-column: 2;
+			margin-top: 0;
+		}
+
+		.uklad-miejsce {
+			row-gap: 32px;
+		}
+
+		.uklad-miejsce .gallery {
+			grid-column: 1 / -1;
+			margin-top: 0;
 		}
 	}
 
@@ -244,9 +276,11 @@
 		}
 	}
 
+	/* Four cards, four columns (Amendment v1.6 §6): the 3-up grid always left a
+	   3+1 orphan row; 4-up matches the KeyFacts/Perks rhythm. */
 	@media (min-width: 1024px) {
 		.values {
-			grid-template-columns: repeat(3, 1fr);
+			grid-template-columns: repeat(4, 1fr);
 		}
 	}
 
@@ -281,11 +315,12 @@
 	}
 
 	/* Kadra headcount: plain dl per the v1.2 KeyFacts a11y ruling (no axe-flagged
-	   list wrapping). Value 26px Baloo 700 ink + label 14px Nunito 700 muted. */
+	   list wrapping). Value 26px Baloo 700 ink + label 14px Nunito 700 muted,
+	   both AA on tint-blue (v1.6 §6: about 11:1 and 5.9:1). */
 	.headcount {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 32px;
+		gap: 24px;
 		margin: 24px 0 0;
 	}
 
@@ -293,6 +328,10 @@
 		display: flex;
 		flex-direction: column;
 		gap: 2px;
+		background: var(--color-tint-blue);
+		border-radius: var(--radius-md);
+		padding: 16px 24px;
+		min-width: 180px;
 	}
 
 	.stat-value {
