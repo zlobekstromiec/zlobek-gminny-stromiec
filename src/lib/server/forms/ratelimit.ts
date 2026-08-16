@@ -111,6 +111,16 @@ export async function kluczLimitu(
  * src/routes/api/rekrutacja/+server.ts byte-identical. `teraz` is read exactly once
  * per call and the same instant feeds both key builders, so the hourly and the daily
  * key can never straddle a boundary within one request.
+ *
+ * `wynikPrzyAwarii` is the LAST parameter, appended for the same reason, and it is the
+ * one knob that changes the direction of the degrade described at length above. It
+ * defaults to `true`, so every existing caller keeps the documented fail-OPEN
+ * behaviour and nothing about the public forms changes. A caller passes `false` only
+ * when this counter is the security control rather than an abuse control sitting
+ * behind Turnstile: the panel's code-guess budget does exactly that, because failing
+ * open there would remove the only rate limit in front of a credential guess. The
+ * direction is chosen by the CALL SITE, which is where the consequence of a KV outage
+ * is understood, and never inside this module.
  */
 export async function podLimitem(
 	kv: KVNamespace | undefined,
@@ -120,13 +130,19 @@ export async function podLimitem(
 	limit = DOMYSLNY_LIMIT,
 	limitDobowy = DOMYSLNY_LIMIT_DOBOWY,
 	teraz: number = Date.now(),
-	prefiksDobowy: string = PREFIKS_DOBOWY
+	prefiksDobowy: string = PREFIKS_DOBOWY,
+	wynikPrzyAwarii: boolean = true
 ): Promise<boolean> {
+	/** The one sentence written for both directions of the degrade, so a fail-closed
+	 *  caller never leaves „limit nieaktywny" in the log of a request it refused. Only
+	 *  fixed strings are interpolated: nothing from the request reaches this. */
+	const opisAwarii = wynikPrzyAwarii ? 'limit nieaktywny' : 'zadanie odrzucone';
+
 	if (!kv) {
 		// A not-yet-provisioned namespace degrades to Turnstile-only protection
 		// instead of throwing. Names only the missing binding, never the client.
-		console.warn('ratelimit: brak wiazania FORMS_KV, limit nieaktywny');
-		return true;
+		console.warn(`ratelimit: brak wiazania FORMS_KV, ${opisAwarii}`);
+		return wynikPrzyAwarii;
 	}
 
 	// An unsalted truncated SHA-256 of a client address is enumerable across the whole
@@ -143,8 +159,8 @@ export async function podLimitem(
 	// failure the way a missing RESEND_API_KEY is: the limiter is an abuse control,
 	// not a delivery prerequisite.
 	if (sol.trim().length === 0) {
-		console.warn('ratelimit: brak RATE_LIMIT_SALT, limit nieaktywny');
-		return true;
+		console.warn(`ratelimit: brak RATE_LIMIT_SALT, ${opisAwarii}`);
+		return wynikPrzyAwarii;
 	}
 
 	const klucz = await kluczLimitu(formularz, ip, sol, teraz);
@@ -159,8 +175,10 @@ export async function podLimitem(
 	// Polish message, breaking the D-12 promise precisely when a parent is trying to
 	// enroll. Mirrors the try/catch already guarding the Resend call in mailer.ts.
 	//
-	// A KV failure therefore fails OPEN, exactly like the missing-binding branch: the
-	// limiter is an abuse control, not the security gate. Turnstile still verifies
+	// A KV failure therefore fails OPEN for the public forms, exactly like the
+	// missing-binding branch, and a caller that passed `wynikPrzyAwarii: false` gets the
+	// opposite for the reason stated with that parameter: the limiter is an abuse control,
+	// not the security gate. Turnstile still verifies
 	// every submission server-side, so failing open costs a rate-limit window, while
 	// failing closed would reject genuine enrollment enquiries that are stored
 	// nowhere and thus lost for good. An over-limit result still returns false: only
@@ -190,7 +208,7 @@ export async function podLimitem(
 	} catch {
 		// Nothing from the request is logged: the key is a salted hash, but the error
 		// object could carry anything, so it is deliberately not interpolated.
-		console.warn('ratelimit: operacja KV nieudana, limit nieaktywny dla tego zgloszenia');
-		return true;
+		console.warn(`ratelimit: operacja KV nieudana, ${opisAwarii} dla tego zgloszenia`);
+		return wynikPrzyAwarii;
 	}
 }

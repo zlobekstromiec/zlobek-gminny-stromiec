@@ -19,18 +19,40 @@
 import { podLimitem } from '../forms/ratelimit.ts';
 
 /** Digits in the code (04.1-UI-SPEC "Discretion Decisions Recorded"). Six digits are
- *  defensible only because of MAKS_PROB below: the hard attempt cap, not the length,
- *  is what makes the 10^6 space unguessable. */
+ *  defensible only because the number of guesses is bounded: the caps, not the length,
+ *  are what make the 10^6 space unguessable. There are TWO of them and both are needed.
+ *  MAKS_PROB below burns the code, but it is a read-modify-write on KV and therefore
+ *  cannot bound a concurrent burst (see podLimitemProby); LIMIT_PROB bounds the number
+ *  of guesses one client may make at all. Removing either one leaves the length doing
+ *  work it cannot do. */
 export const DLUGOSC_KODU = 6;
 /** Code lifetime in seconds. 15 minutes, the same number the login screen and the
  *  e-mail body both state, so the three can never drift apart. */
 export const TTL_KODU_S = 900;
 /** Wrong attempts that burn the code. The editor then asks for a new one; there is
  *  deliberately no account lockout, because locking an address out is a denial of
- *  service handed to anyone who knows a staff e-mail. */
+ *  service handed to anyone who knows a staff e-mail.
+ *
+ *  WHAT THIS CAP DOES NOT DO, stated where the number is declared: it is enforced by
+ *  reading the entry, adding one and writing it back, which is not atomic, so a burst
+ *  of simultaneous guesses all read the same count and all write the same next one. It
+ *  bounds SEQUENTIAL attempts, which is the shape a real editor produces, and it does
+ *  not bound a burst. The budget in podLimitemProby is what bounds the burst. */
 export const MAKS_PROB = 5;
 /** Code requests per client per hour, matching the public forms' per-client ceiling. */
 export const LIMIT_KODOW = 5;
+/** Code GUESSES per client per hour. Deliberately larger than LIMIT_KODOW, because a
+ *  person who mistypes a code retypes it on the same screen and must not be refused for
+ *  it, and deliberately far below what a guessing run needs: ten tries an hour against
+ *  a 10^6 space is nothing, while MAKS_PROB still burns the code long before the tenth.
+ *  This exists because MAKS_PROB alone CANNOT bound guesses, for the three reasons
+ *  written above podLimitemProby. */
+export const LIMIT_PROB = 10;
+/** Code guesses per day site-wide. This is a runaway guard, not the security control:
+ *  every site-wide ceiling is also an availability lever, since exhausting it refuses
+ *  the next honest editor too, so it sits far above any real editorial day rather than
+ *  close to it. The control that matters is the per-client ceiling above. */
+export const LIMIT_PROB_DOBOWY = 500;
 /** Code requests per day site-wide. The Resend free tier is 100 messages a day shared
  *  with the forms' own guard of 40, so 20 leaves comfortable headroom while sitting far
  *  above any real staff need. */
@@ -43,6 +65,14 @@ export const PREFIKS_KODU = 'adm:kod';
  *  own panel. Raising the ceiling for one caller does not fix it, because that caller
  *  still increments the shared counter. */
 export const PREFIKS_DOBOWY_PANELU = 'rl:doba:adm';
+/** The daily bucket for GUESSES, separate from the one above for the same reason that
+ *  one is separate from the forms': a flood of wrong codes must not consume the budget
+ *  for requesting a new one. Sharing them would mean an editor who mistyped their code
+ *  a few times could no longer ask for a fresh one, which is the exact dead end the
+ *  „Wyślij kod ponownie" instruction promises is always open. Guesses also send no
+ *  mail, so they have no business inside a ceiling that exists to protect a send
+ *  budget. */
+export const PREFIKS_DOBOWY_PROB = 'rl:doba:adm-proba';
 /** Cleanup-only lifetime multiplier, the same reasoning as MNOZNIK_TTL in the rate
  *  limiter: the expiry that decides validity is the `wygasa` stamp INSIDE the stored
  *  value, and the KV lifetime exists only so an abandoned entry does not linger. It is
@@ -308,4 +338,58 @@ export async function podLimitemKodu(
 	limitDobowy: number = LIMIT_KODOW_DOBOWY
 ): Promise<boolean> {
 	return podLimitem(kv, 'admin-kod', ip, sol, limit, limitDobowy, teraz, PREFIKS_DOBOWY_PANELU);
+}
+
+/**
+ * Rate-limit an EXCHANGE, which is a guess at a credential.
+ *
+ * WHY THIS EXISTS AT ALL. MAKS_PROB was written as the whole defence of a six-digit
+ * code, and it cannot be: `sprawdzKod` reads the entry, adds one and writes it back,
+ * and on KV that sequence is not a counter. Three independent reasons, each sufficient
+ * on its own: the read-modify-write is not atomic, so N simultaneous guesses all read
+ * the same count and cost one attempt between them; KV is eventually consistent, so
+ * guesses arriving at different locations read a stale count even when they are
+ * strictly sequential in time; and a read is served from a cache whose smallest
+ * allowed lifetime is a minute, so there is no way to make it fresh enough. The cap is
+ * therefore a control over an editor mistyping, not over an attacker, and this budget
+ * is what bounds the attacker.
+ *
+ * IT FAILS CLOSED, which is the opposite of podLimitemKodu above and of everything in
+ * ratelimit.ts, and the reason is that this counter is not defence in depth behind
+ * Turnstile: on a KV outage it is the ONLY rate limit standing in front of a guess at
+ * a 10^6 space, so failing open would delete the control exactly when it is needed.
+ * Nothing is lost by refusing, because `sprawdzKod` one function up already refuses on
+ * the same outage („operacja KV nieudana, logowanie odrzucone"): an editor cannot log
+ * in during a KV outage either way, and the only thing this direction changes is that
+ * an attacker cannot guess during one either.
+ *
+ * WHAT IT DOES NOT CLOSE, stated plainly rather than implied away: the budget is per
+ * client address. An attacker spread across many addresses is still bounded only per
+ * address, up to the deliberately loose site-wide ceiling. This narrows the exposure by
+ * orders of magnitude and it does not make the cap strict.
+ *
+ * The two ceilings are TRAILING parameters with defaults, the same append rule as
+ * podLimitemKodu and for the same reason: the Playwright suite shares one client
+ * address across a run in which several cases spend wrong codes on purpose.
+ */
+export async function podLimitemProby(
+	kv: KVNamespace | undefined,
+	ip: string,
+	sol: string,
+	teraz: number,
+	limit: number = LIMIT_PROB,
+	limitDobowy: number = LIMIT_PROB_DOBOWY
+): Promise<boolean> {
+	return podLimitem(
+		kv,
+		'admin-proba',
+		ip,
+		sol,
+		limit,
+		limitDobowy,
+		teraz,
+		PREFIKS_DOBOWY_PROB,
+		// The fail-closed direction, argued in the docblock above.
+		false
+	);
 }

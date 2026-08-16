@@ -44,7 +44,13 @@ import { fail, redirect, type Actions, type RequestEvent } from '@sveltejs/kit';
 import { bezpiecznyEmail, MAKS_EMAIL } from '$lib/server/forms/sanitize';
 import { naLiscie, uchwytZAdresu } from '$lib/server/admin/allowlist';
 import { podpiszSesje, ustawCiastko } from '$lib/server/admin/sesja';
-import { podLimitemKodu, sprawdzKod, wygenerujKod, zapiszKod } from '$lib/server/admin/kod';
+import {
+	podLimitemKodu,
+	podLimitemProby,
+	sprawdzKod,
+	wygenerujKod,
+	zapiszKod
+} from '$lib/server/admin/kod';
 import { wyslijKod } from '$lib/server/admin/mail-kod';
 import { KOPIA_LOGOWANIE } from '$lib/content/panel';
 
@@ -196,6 +202,36 @@ export const actions: Actions = {
 		const env = event.platform?.env;
 		const sol = env?.RATE_LIMIT_SALT ?? '';
 		const teraz = Date.now();
+		const przetworzony = Number.parseInt(env?.RATE_LIMIT_MAX ?? '', 10);
+		const limit = Number.isFinite(przetworzony) && przetworzony > 0 ? przetworzony : undefined;
+
+		// A GUESS AT A CREDENTIAL IS RATE LIMITED BEFORE IT IS CHECKED. Without this line
+		// the only control on this action is MAKS_PROB inside sprawdzKod, and that cap is
+		// a read-modify-write on KV: it bounds an editor mistyping and it does not bound a
+		// burst, for the three reasons written above podLimitemProby. The budget is keyed
+		// on the client and lives in a bucket of its own, so a flood of wrong codes cannot
+		// consume the budget for asking for a new one, and it says nothing about who is on
+		// the allowlist because it never sees the address.
+		//
+		// It fails CLOSED, unlike the send limiter in the action above and unlike
+		// everything in ratelimit.ts. That module's fail-open degrade is right for a
+		// parent's enquiry, where refusing costs a message stored nowhere; it is wrong
+		// here, where failing open on a KV outage would remove the only rate limit in
+		// front of a guess at a 10^6 space. It costs an editor nothing, because sprawdzKod
+		// already refuses the login on the same outage: nobody logs in during a KV failure
+		// either way, and the only thing this direction changes is that nobody guesses
+		// during one either.
+		if (
+			!(await podLimitemProby(env?.FORMS_KV, event.getClientAddress(), sol, teraz, limit, limit))
+		) {
+			return fail(429, {
+				krok: 2,
+				adres,
+				panelNaglowek: KOPIA_LOGOWANIE.limitNaglowek,
+				panelTresc: KOPIA_LOGOWANIE.limitTresc
+			} satisfies WynikLogowania);
+		}
+
 		const wynik = await sprawdzKod(env?.FORMS_KV, adres, kod, sol, teraz);
 
 		if (!wynik.ok) {

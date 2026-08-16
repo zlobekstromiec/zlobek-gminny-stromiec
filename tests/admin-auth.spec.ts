@@ -307,6 +307,49 @@ test.describe.serial('Logowanie: nieodroznialnosc, limit prob i wylogowanie', ()
 	});
 
 	/**
+	 * CR-01. The exchange is a guess at a credential, and until this line existed it was
+	 * the one unauthenticated action in the panel with no rate limit at all: the send
+	 * action was limited, the exchange was not, and the attempt cap it leaned on instead
+	 * is a read-modify-write on KV that bounds an editor mistyping and does not bound a
+	 * burst. The behavioural half of this is in tests/admin-kod.unit.ts, which fires a
+	 * concurrent burst and shows twenty guesses costing one attempt.
+	 *
+	 * THIS case is the wiring, and it is asserted against the SOURCE rather than against
+	 * the runtime, exactly like the P-08 case above and with the same honesty about what
+	 * that is worth: it proves the call is in the action and ahead of the check, and it
+	 * would go red the day somebody deletes it. Driving the real ceiling from here is
+	 * deliberately not attempted, because the harness raises it to 200 for a shared client
+	 * address, so a case that spent the budget would refuse every other exchange in this
+	 * file. Do not delete this comment to make the gap look closed.
+	 */
+	test('krok 2 przepuszcza zgadywanie przez wlasny budzet PRZED sprawdzeniem kodu (CR-01)', () => {
+		const zrodlo = readFileSync(
+			fileURLToPath(new URL('../src/routes/admin/logowanie/+page.server.ts', import.meta.url)),
+			'utf8'
+		);
+		const poczatekWyslij = zrodlo.indexOf('wyslij: async');
+		const poczatekZaloguj = zrodlo.indexOf('zaloguj: async');
+		expect(poczatekWyslij).toBeGreaterThan(-1);
+		expect(poczatekZaloguj).toBeGreaterThan(poczatekWyslij);
+		const wyslij = zrodlo.slice(poczatekWyslij, poczatekZaloguj);
+		const zaloguj = zrodlo.slice(poczatekZaloguj);
+
+		// The call itself, matched with its opening bracket so a mention in a comment
+		// cannot stand in for it.
+		expect(zaloguj).toContain('podLimitemProby(');
+		expect(zaloguj).toContain('sprawdzKod(');
+		expect(zaloguj.indexOf('podLimitemProby(')).toBeLessThan(zaloguj.indexOf('sprawdzKod('));
+		// And it is the guess budget, not the send budget: sharing one bucket would let a
+		// run of wrong codes consume the right to ask for a new one.
+		expect(zaloguj).not.toContain('podLimitemKodu(');
+
+		// Positive control for the extraction above. Without it this case would pass on an
+		// empty string, which is what a renamed action would hand it.
+		expect(wyslij).toContain('podLimitemKodu(');
+		expect(wyslij).not.toContain('podLimitemProby(');
+	});
+
+	/**
 	 * T-04.1-05, the AG-3 second enforced check for the burn that
 	 * tests/admin-kod.unit.ts already proves in isolation. This one drives the whole
 	 * thing through the real Worker and the real KV binding.
