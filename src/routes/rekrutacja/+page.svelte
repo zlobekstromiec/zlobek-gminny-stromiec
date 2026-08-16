@@ -1,9 +1,11 @@
 <script lang="ts">
 	// Rekrutacja page (RECRUIT-01, RECRUIT-02, RECRUIT-03, RECRUIT-05; D-01, D-06,
-	// D-14, D-15, D-18). Follows the 04-UI-SPEC.md Amendment v1.4 „/rekrutacja -
-	// status-first" composition table section for section: page header (white), status
-	// banner (band), zgłoszenie form (warm), kryteria i punktacja (white), procedura
-	// (band), ramka opłat (white), wnioski do pobrania (warm).
+	// D-14, D-15, D-18). Composition per 01-UI-SPEC Amendment v1.6 §7 (supersedes the
+	// v1.4 section-for-section table): page header (white), full-width status banner
+	// (band), then ONE warm band holding a desktop grid: the info column (kryteria,
+	// procedura, opłaty, wnioski) fills the left track and the right rail carries the
+	// FallbackPanel above the sticky zgłoszenie form. DOM order stays the mobile
+	// order (fallback, form, info) and no CSS `order` is used.
 	//
 	// Static, zero-JavaScript content with exactly ONE hydrated island: the zgłoszenie
 	// form. The site-wide static-output flag is set once in src/routes/+layout.ts and is
@@ -67,108 +69,108 @@
 	<div class="inner">
 		<div class="status-banner">
 			<span class="kropka" aria-hidden="true"></span>
-			<div>
-				<h2 id="status-heading">{recruitment.heading}</h2>
-				<p class="status-tresc">{recruitment.body}</p>
-				<p class="status-termin">{recruitment.deadline}</p>
+			<div class="status-uklad">
+				<div>
+					<h2 id="status-heading">{recruitment.heading}</h2>
+					<p class="status-tresc">{recruitment.body}</p>
+					<p class="status-termin">{recruitment.deadline}</p>
+				</div>
 				<!-- PLACEHOLDER: the date of the next nabór is unconfirmed, so this line
 				     names the announcing authority rather than a date (site.ts). -->
-				<p class="status-tresc">{recruitment.nastepnyNabor}</p>
+				<p class="status-tresc status-dodatkowy">{recruitment.nastepnyNabor}</p>
 			</div>
 		</div>
 	</div>
 </section>
 
-<!-- Section 3: zgłoszenie form (warm surface). The route renders the shared
-     FallbackPanel above the island (Amendment v1.6 §9); the island renders the
-     noscript note, the form card with its own h2, the birth-date fieldset, the
-     consent block and the klauzula. The section is labelled by that card heading
-     (the id is declared on the island's own h2), which is the correct accessible
-     name for it and avoids a duplicated invisible heading. -->
-<section class="sekcja warm" aria-labelledby="zgloszenie-naglowek">
-	<div class="inner">
-		<div class="stos">
+<!-- Sections 3-6 (Amendment v1.6 §7): one warm band, one desktop grid. DOM order is
+     the MOBILE order: FallbackPanel, form island, then the info column. At >=1024px
+     grid areas place the info column left and the fallback + sticky form right; each
+     column is one coherent block, so DOM order and visual order stay in sync without
+     any `order` property.
+     The form section is labelled by the island card's own h2 (id declared in
+     ZgloszenieForm.svelte), which avoids a duplicated invisible heading; the island
+     also renders the noscript note, the birth-date fieldset, the consent block and
+     the klauzula. -->
+<div class="pas warm">
+	<div class="inner uklad">
+		<div class="blok-awaria">
 			<FallbackPanel />
+		</div>
+
+		<section class="blok-formularz" aria-labelledby="zgloszenie-naglowek">
 			<ZgloszenieForm />
+		</section>
+
+		<div class="kolumna-info">
+			<section aria-labelledby="kryteria-heading">
+				<h2 id="kryteria-heading">Kryteria i punktacja</h2>
+				<KryteriaTable kryteria={KRYTERIA} caption="Kryteria przyjęcia i liczba punktów" />
+			</section>
+
+			<!-- The numbered step treatment is the v1.2 Recruitment one: a 34px brand-blue
+			     circle with a white display numeral. The numeral is decorative, because the
+			     ordered list already conveys the order. -->
+			<section aria-labelledby="procedura-heading">
+				<h2 id="procedura-heading">Jak złożyć wniosek</h2>
+				<ol class="procedura">
+					{#each PROCEDURA as krok, i (krok.tytul)}
+						<li class="krok">
+							<span class="krok-numer" aria-hidden="true">{i + 1}</span>
+							<span class="krok-tekst">
+								<span class="krok-tytul">{krok.tytul}</span>
+								<span class="krok-tresc">{krok.tresc}</span>
+							</span>
+						</li>
+					{/each}
+				</ol>
+			</section>
+
+			<!-- The fee panel keeps the amount and the condition under which the ZUS benefit
+			     covers it in one block (D-15). The full breakdown table belongs to /cennik in
+			     Phase 5. -->
+			<section aria-labelledby="oplaty-heading">
+				<h2 id="oplaty-heading">{OPLATY.naglowek}</h2>
+				<FeeBox />
+			</section>
+
+			<!-- Wnioski rows reuse the /dokumenty row contract verbatim, with the file meta
+			     INSIDE the link so a screen reader announces it together with the name (D-14).
+			     The rows come from the same shared resolver as /dokumenty and the homepage
+			     panel, so a document staff replace through the CMS appears here with correct
+			     metadata and no code change. The BIP link is rendered ALWAYS, however many
+			     rows there are: the complete set of the wniosek and its six załączniki lives
+			     there, and we link to it rather than rebuilding it. -->
+			<section aria-labelledby="wnioski-heading">
+				<h2 id="wnioski-heading">Wnioski do pobrania</h2>
+
+				{#if wnioski.length > 0}
+					<ul class="docs">
+						{#each wnioski as dok (dok.plik)}
+							<li>
+								<a class="doc-row" href={dok.plik}>
+									<FileText class="doc-icon" size={20} aria-hidden="true" />
+									<span class="doc-name">{dok.nazwa}</span>
+									<span class="doc-meta">{dok.meta}</span>
+								</a>
+							</li>
+						{/each}
+					</ul>
+				{:else}
+					<div class="pusto">
+						<h3>{WNIOSKI_PUSTE.naglowek}</h3>
+						<p>{WNIOSKI_PUSTE.tresc}</p>
+					</div>
+				{/if}
+
+				<p class="bip-opis">{BIP_ZLOBEK.opis}</p>
+				<a class="bip-link" href={BIP_ZLOBEK.url} target="_blank" rel="noopener noreferrer">
+					{BIP_ZLOBEK.etykieta}<span class="visually-hidden"> (otwiera się w nowej karcie)</span>
+				</a>
+			</section>
 		</div>
 	</div>
-</section>
-
-<!-- Section 4: kryteria i punktacja (white surface). -->
-<section class="sekcja" aria-labelledby="kryteria-heading">
-	<div class="inner">
-		<h2 id="kryteria-heading">Kryteria i punktacja</h2>
-		<KryteriaTable kryteria={KRYTERIA} caption="Kryteria przyjęcia i liczba punktów" />
-	</div>
-</section>
-
-<!-- Section 5: procedura (band surface). The numbered step treatment is the v1.2
-     Recruitment one: a 34px brand-blue circle with a white display numeral. The
-     numeral is decorative, because the ordered list already conveys the order. -->
-<section class="sekcja band" aria-labelledby="procedura-heading">
-	<div class="inner">
-		<h2 id="procedura-heading">Jak złożyć wniosek</h2>
-		<ol class="procedura">
-			{#each PROCEDURA as krok, i (krok.tytul)}
-				<li class="krok">
-					<span class="krok-numer" aria-hidden="true">{i + 1}</span>
-					<span class="krok-tekst">
-						<span class="krok-tytul">{krok.tytul}</span>
-						<span class="krok-tresc">{krok.tresc}</span>
-					</span>
-				</li>
-			{/each}
-		</ol>
-	</div>
-</section>
-
-<!-- Section 6: opłaty w skrócie (white surface). The panel keeps the amount and the
-     condition under which the ZUS benefit covers it in one block (D-15). The full
-     breakdown table belongs to /cennik in Phase 5. -->
-<section class="sekcja" aria-labelledby="oplaty-heading">
-	<div class="inner">
-		<h2 id="oplaty-heading">{OPLATY.naglowek}</h2>
-		<FeeBox />
-	</div>
-</section>
-
-<!-- Section 7: wnioski do pobrania (warm surface). Rows reuse the /dokumenty row
-     contract verbatim, with the file meta INSIDE the link so a screen reader
-     announces it together with the name (D-14). The rows come from the same shared
-     resolver as /dokumenty and the homepage panel, so a document staff replace
-     through the CMS appears here with correct metadata and no code change.
-     The BIP link is rendered ALWAYS, however many rows there are: the complete set
-     of the wniosek and its six załączniki lives there, and we link to it rather than
-     rebuilding it. -->
-<section class="sekcja warm" aria-labelledby="wnioski-heading">
-	<div class="inner">
-		<h2 id="wnioski-heading">Wnioski do pobrania</h2>
-
-		{#if wnioski.length > 0}
-			<ul class="docs">
-				{#each wnioski as dok (dok.plik)}
-					<li>
-						<a class="doc-row" href={dok.plik}>
-							<FileText class="doc-icon" size={20} aria-hidden="true" />
-							<span class="doc-name">{dok.nazwa}</span>
-							<span class="doc-meta">{dok.meta}</span>
-						</a>
-					</li>
-				{/each}
-			</ul>
-		{:else}
-			<div class="pusto">
-				<h3>{WNIOSKI_PUSTE.naglowek}</h3>
-				<p>{WNIOSKI_PUSTE.tresc}</p>
-			</div>
-		{/if}
-
-		<p class="bip-opis">{BIP_ZLOBEK.opis}</p>
-		<a class="bip-link" href={BIP_ZLOBEK.url} target="_blank" rel="noopener noreferrer">
-			{BIP_ZLOBEK.etykieta}<span class="visually-hidden"> (otwiera się w nowej karcie)</span>
-		</a>
-	</div>
-</section>
+</div>
 
 <style>
 	/* Surface rhythm and the responsive container are the established /dokumenty
@@ -183,13 +185,18 @@
 		background: var(--color-band);
 	}
 
-	.sekcja.warm {
+	.pas {
+		padding-block: 48px;
+	}
+
+	.pas.warm {
 		background: var(--color-surface-warm);
 	}
 
 	@media (min-width: 1024px) {
 		.page-head,
-		.sekcja {
+		.sekcja,
+		.pas {
 			padding-block: 64px;
 		}
 	}
@@ -212,11 +219,52 @@
 		}
 	}
 
-	/* FallbackPanel + form stack: the 24px gap reproduces the spacing the panel
-	   carried as its own bottom margin before extraction (Amendment v1.6 §9). */
-	.stos {
+	/* The merged zone (Amendment v1.6 §7). Mobile: a plain 24px stack in the DOM
+	   order fallback, form, info. Desktop: grid areas put the info column left and
+	   the rail right; the auto/1fr row pair makes the form's track taller than its
+	   content, which is what lets position: sticky actually travel. */
+	.uklad {
 		display: grid;
 		gap: 24px;
+	}
+
+	.kolumna-info {
+		display: grid;
+		gap: 48px;
+		margin-top: 24px;
+	}
+
+	@media (min-width: 1024px) {
+		.uklad {
+			grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+			grid-template-rows: auto 1fr;
+			grid-template-areas:
+				'info awaria'
+				'info formularz';
+			column-gap: 48px;
+			row-gap: 24px;
+			align-items: start;
+		}
+
+		.kolumna-info {
+			grid-area: info;
+			margin-top: 0;
+			gap: 64px;
+		}
+
+		.blok-awaria {
+			grid-area: awaria;
+		}
+
+		/* align-self: start is mandatory: the default stretch would pin the block's
+		   height to its track and disable sticky. top: 96px clears the 72px sticky
+		   header. Sticky is position, not motion: no reduced-motion interaction. */
+		.blok-formularz {
+			grid-area: formularz;
+			position: sticky;
+			top: 96px;
+			align-self: start;
+		}
 	}
 
 	h1 {
@@ -237,7 +285,8 @@
 		margin: 0;
 	}
 
-	.sekcja h2 {
+	.sekcja h2,
+	.kolumna-info h2 {
 		font-family: var(--font-display);
 		font-weight: 700;
 		font-size: clamp(1.5rem, 3vw, 1.75rem);
@@ -246,15 +295,15 @@
 		margin: 0 0 28px;
 	}
 
-	/* Status banner (UI-SPEC Contract 9): band surface, radius-md, 16 -> 24px padding,
-	   max 46rem. Its heading is a section-level h2 rendered at panel size, and the
-	   deadline line takes the same focus-ring colour the homepage Recruitment header
-	   strip uses. */
+	/* Status banner (UI-SPEC Contract 9, cap released by Amendment v1.6 §7): band
+	   surface, radius-md, 16 -> 24px padding, full container width with an internal
+	   desktop split (status + deadline left, następny nabór right). Its heading is a
+	   section-level h2 rendered at panel size, and the deadline line takes the same
+	   focus-ring colour the homepage Recruitment header strip uses. */
 	.status-banner {
 		display: flex;
 		align-items: flex-start;
 		gap: 12px;
-		max-width: 46rem;
 		padding: 16px;
 		border-radius: var(--radius-md);
 		background: var(--color-band);
@@ -263,6 +312,24 @@
 	@media (min-width: 768px) {
 		.status-banner {
 			padding: 24px;
+		}
+	}
+
+	.status-uklad {
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+
+	@media (min-width: 1024px) {
+		.status-uklad {
+			display: grid;
+			grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+			column-gap: 48px;
+			align-items: start;
+		}
+
+		.status-dodatkowy {
+			margin-top: 0;
 		}
 	}
 
