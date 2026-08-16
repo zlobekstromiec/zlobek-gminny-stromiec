@@ -69,7 +69,8 @@
 		zdjecie = '',
 		alt = '',
 		blad,
-		bladAltu
+		bladAltu,
+		autofokus = false
 	}: {
 		id: string;
 		legenda: string;
@@ -97,6 +98,12 @@
 		/** Server-side refusals for the photo and for its description. */
 		blad?: string;
 		bladAltu?: string;
+		/** Server-rendered focus for the file control (04.1-UI-SPEC focus management
+		 *  contract, Contract 7). Added by 04.1-09 for the o nas photo list, where a newly
+		 *  added item's FIRST control is this one and the add is a server round trip, so the
+		 *  attribute is what moves focus on a browser with no scripting. Absent everywhere
+		 *  else, so the aktualność call site renders byte-identically to before. */
+		autofokus?: boolean;
 	} = $props();
 
 	// WRITABLE $derived, never `$state` seeded from a prop. The server is the source of
@@ -299,6 +306,7 @@
 	<div class="pole">
 		<label class="etykieta" for={idPola}>{KOPIA_ZDJECIA.wybierzEtykieta}</label>
 		<p id={idPodpowiedzi} class="podpowiedz">{podpowiedz}</p>
+		<!-- svelte-ignore a11y_autofocus -->
 		<input
 			bind:this={polePliku}
 			id={idPola}
@@ -307,6 +315,7 @@
 			accept={TYPY_ZDJECIA.join(',')}
 			aria-invalid={komunikatBledu ? 'true' : undefined}
 			aria-describedby={opisy}
+			autofocus={autofokus}
 			onchange={wybrano}
 		/>
 		{#if komunikatBledu}

@@ -36,6 +36,7 @@
 		zajete = false,
 		pelnaSzerokosc = false,
 		onNacisnij,
+		autofokus = false,
 		children
 	}: {
 		wariant?: Wariant;
@@ -55,10 +56,18 @@
 		 *  else, so every existing call site renders byte-identically to before, and it is
 		 *  only ever meaningful together with the non-submitting button type. */
 		onNacisnij?: (event: MouseEvent) => void;
+		/** Server-rendered focus (04.1-UI-SPEC focus management contract). Added by 04.1-09
+		 *  for the „Dodaj" button of a repeatable group: after a row is removed the control
+		 *  the editor was in has stopped existing, and on a browser with no scripting the
+		 *  attribute the server rendered is the ONLY thing that can stop focus falling to the
+		 *  top of the document. Absent everywhere else, so every existing call site renders
+		 *  byte-identically to before. */
+		autofokus?: boolean;
 		children: Snippet;
 	} = $props();
 </script>
 
+<!-- svelte-ignore a11y_autofocus -->
 <button
 	class="przycisk {wariant}"
 	class:pelna={pelnaSzerokosc}
@@ -68,6 +77,7 @@
 	value={wartosc}
 	disabled={zajete}
 	aria-busy={zajete ? 'true' : undefined}
+	autofocus={autofokus}
 	onclick={onNacisnij}
 >
 	{@render children()}

@@ -70,7 +70,11 @@
 	<div class="inner">
 		<h2 id="wartosci-heading">Nasze wartości</h2>
 		<ul class="values">
-			{#each onas.wartosci as wartosc (wartosc.tytul)}
+			<!-- Keyed by POSITION, never by the title. Phase 04.1 made this file editable from
+			     the panel, and Svelte THROWS on a keyed each block with two equal keys, in
+			     production as well as in development: two cards sharing a title would break
+			     this page the moment it hydrated. Same reasoning as DayPlan.svelte. -->
+			{#each onas.wartosci as wartosc, i (i)}
 				<li class="value-card">
 					<h3>{wartosc.tytul}</h3>
 					<p>{wartosc.opis}</p>
@@ -110,7 +114,8 @@
 		<p class="prose">{@html obiektHtml}</p>
 		{#if facility.length > 0}
 			<ul class="gallery">
-				{#each facility as photo (photo.alt)}
+				<!-- Keyed by POSITION, for the reason written above the wartości list. -->
+				{#each facility as photo, i (i)}
 					<li>
 						<enhanced:img src={photo.pic} alt={photo.alt} sizes="(min-width:768px) 50vw, 100vw" />
 					</li>

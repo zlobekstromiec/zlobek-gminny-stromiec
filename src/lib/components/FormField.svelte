@@ -46,7 +46,9 @@
 		wylaczone = false,
 		nazwa,
 		wysokoscMin,
-		autofokus = false
+		autofokus = false,
+		min,
+		maks
 	}: {
 		id: string;
 		etykieta: string;
@@ -71,6 +73,14 @@
 		 *  management contract). Only ever set on the single control a page exists to
 		 *  collect, never on an arbitrary field. */
 		autofokus?: boolean;
+		/** Bounds of a numeric control, which 04.1-UI-SPEC Component Contract 5 names for
+		 *  the two kadra counts. ABSENT unless a caller asks, so every existing call site
+		 *  emits no new attribute at all. They are semantics and a sane spinner range, never
+		 *  the validation: the form carries `novalidate` precisely so the browser's own
+		 *  English-in-some-locales bubbles never appear, and the server refuses an
+		 *  out-of-range value with an authored Polish instruction. */
+		min?: number;
+		maks?: number;
 	} = $props();
 
 	// `$derived`, not a plain const: `id` is a prop, and a plain template literal
@@ -133,6 +143,8 @@
 			class="kontrolka"
 			type={typ}
 			inputmode={typ === 'number' ? 'numeric' : undefined}
+			{min}
+			max={maks}
 			value={wartosc}
 			oninput={przepisz}
 			required={wymagane}

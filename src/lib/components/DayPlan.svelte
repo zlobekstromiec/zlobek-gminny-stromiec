@@ -12,7 +12,13 @@
 		<div class="panel">
 			<h2 id="dayplan-heading">Nasz dzień w żłobku</h2>
 			<ul>
-				{#each dayPlan.rows as row (row.time)}
+				<!-- Keyed by POSITION, never by the hours. Phase 04.1 made this file editable
+				     from the panel, and Svelte THROWS on a keyed each block with two equal
+				     keys, in production as well as in development: two rows sharing a time
+				     range would break this panel on the homepage AND on the O nas page the
+				     moment it hydrated. The position is unique by construction, the list is
+				     static within one build, and the rendered output is identical. -->
+				{#each dayPlan.rows as row, i (i)}
 					<li>
 						<span class="time">{row.time}</span>
 						<span class="what">{row.what}</span>

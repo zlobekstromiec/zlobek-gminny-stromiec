@@ -17,14 +17,22 @@
 	// the server collects the submitted set into a dense array, so a gap in the numbering
 	// cannot become a hole in the saved content (threat T-04.1-34).
 	//
-	// FOCUS IS MOVED TWICE, DELIBERATELY. After an add, focus belongs in the new item; after
-	// a remove, on the add button, because the control the editor was in has stopped
-	// existing and focus would otherwise fall to the top of the document. The attribute the
-	// server renders does it for a browser that has just parsed a fresh document, which is
-	// the no-scripting path; the effect below does it again when the page is hydrated and
-	// the form was submitted in the background, where an attribute on an already-parsed
-	// document does nothing. Both mechanisms honour the SAME attribute, so there is one
-	// source of truth about where focus should land.
+	// FOCUS IS MOVED TWICE, DELIBERATELY, AND BY TWO DIFFERENT MECHANISMS. After an add,
+	// focus belongs in the new item; after a remove, on the add button, because the control
+	// the editor was in has stopped existing and focus would otherwise fall to the top of
+	// the document. The attribute the server renders does it for a browser that has just
+	// parsed a fresh document, which is the no-scripting path. The effect below does it for
+	// a hydrated page, where the form was submitted in the background and an attribute on an
+	// already-parsed document does nothing.
+	//
+	// THE EFFECT DELIBERATELY DOES NOT LOOK FOR THAT ATTRIBUTE, and the reason is a property
+	// of the compiler rather than a preference. Svelte treats `autofocus` as an INIT-ONLY
+	// concern: it emits one call when the element is created and never updates it again. So
+	// on a hydrated page the attribute is never added to an element that already existed
+	// (the add button never gets it) and it is never REMOVED from one that got it earlier
+	// (the row added a moment ago still carries it). A query for it would therefore find
+	// nothing after a removal and the wrong row after a second addition. The effect works
+	// from the request itself instead: the position for an item, the button for a removal.
 	//
 	// REORDERING IS OUT OF SCOPE for this phase, in both directions and in every list that
 	// uses this component: no dragging, no up and down buttons. Items are authored in order
@@ -97,35 +105,40 @@
 	 *  and it is the value the remove button carries. */
 	const indeksy = $derived(Array.from({ length: ile }, (_, i) => i));
 
-	/** The list element, so the effect can find the control the server asked for without
+	/** The item cards and the add button, so the effect can reach the destination without
 	 *  either half of the page knowing the other's markup. */
-	let lista: HTMLDivElement | undefined = $state();
+	let korzen: HTMLFieldSetElement | undefined = $state();
 	let przyciskDodania: HTMLDivElement | undefined = $state();
+
+	/** The controls an editor can land in. The hidden fields the photo island carries are
+	 *  excluded by construction, because focusing one of those would move focus to something
+	 *  nobody can see or type into. */
+	const WYBIERALNE = 'input:not([type="hidden"]), select, textarea';
 
 	$effect(() => {
 		// Read as a whole so a new answer re-runs this even when it names the same
-		// destination: two removals in a row both want the add button focused.
+		// destination: two removals in a row both want the add button focused, and the
+		// action returns a fresh object each time precisely so this fires again.
 		const cel = zadanie;
 		if (cel === undefined) return;
 		if (cel.cel === 'dodaj') {
 			przyciskDodania?.querySelector('button')?.focus();
 			return;
 		}
-		// The server marked exactly one control with the attribute; honouring it here rather
-		// than recomputing „the first control of item n" keeps one source of truth about
-		// where focus belongs, and there is nothing to undo when the effect re-runs.
-		const kontrolka = lista?.querySelector('[autofocus]');
+		// By POSITION, which is the same identity every other part of this pattern uses.
+		const karty = korzen?.querySelectorAll('.element');
+		const kontrolka = karty?.[cel.indeks]?.querySelector(WYBIERALNE);
 		if (kontrolka instanceof HTMLElement) kontrolka.focus();
 	});
 </script>
 
-<fieldset class="grupa" aria-describedby={podpowiedz ? `${id}-hint` : undefined}>
+<fieldset class="grupa" bind:this={korzen} aria-describedby={podpowiedz ? `${id}-hint` : undefined}>
 	<legend class="legenda">{legenda}</legend>
 	{#if podpowiedz}
 		<p id="{id}-hint" class="podpowiedz">{podpowiedz}</p>
 	{/if}
 
-	<div class="lista" bind:this={lista}>
+	<div class="lista">
 		{#each indeksy as indeks (indeks)}
 			{#if wlasnaRamka}
 				<div class="element">
@@ -172,7 +185,7 @@
 	<p class="nota">{nota}</p>
 
 	<div class="dodaj" bind:this={przyciskDodania}>
-		<Przycisk wariant="secondary" formaction={akcjaDodania}>
+		<Przycisk wariant="secondary" formaction={akcjaDodania} autofokus={zadanie?.cel === 'dodaj'}>
 			<Plus size={18} aria-hidden="true" focusable="false" />
 			<span>{etykietaDodania}</span>
 		</Przycisk>
