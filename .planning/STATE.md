@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 04.1
 current_phase_name: replace-sveltia-with-custom-polish-cms
 status: executing
-stopped_at: Ukonczono 04.1-08-PLAN.md
-last_updated: "2026-08-16T09:34:21.293Z"
+stopped_at: Ukonczono 04.1-09-PLAN.md
+last_updated: "2026-08-16T10:16:36.967Z"
 last_activity: 2026-08-16
-last_activity_desc: "Completed 04.1-08 (dokumenty: walidator przeciw czytnikowi publicznemu, wyspa pliku bez pracy na bajtach, wpis i plik zawsze w jednym commicie)"
+last_activity_desc: "Completed 04.1-09 (o-nas i plan dnia: powtarzalne grupy jako akcje formularza, druga wyspa zdjecia w 4:3, jedna strona to jeden commit)"
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 38
-  completed_plans: 35
+  completed_plans: 36
   percent: 50
 ---
 
@@ -29,15 +29,15 @@ See: .planning/PROJECT.md (updated 2026-08-14)
 ## Current Position
 
 Phase: 04.1 (replace-sveltia-with-custom-polish-cms) — EXECUTING
-Plan: 9 of 11
+Plan: 10 of 11
 Status: Ready to execute
-Last activity: 2026-08-16 — Completed 04.1-08 (dokumenty: walidator przeciw czytnikowi publicznemu, wyspa pliku bez pracy na bajtach, wpis i plik zawsze w jednym commicie)
+Last activity: 2026-08-16 — Completed 04.1-09 (o-nas i plan dnia: powtarzalne grupy jako akcje formularza, druga wyspa zdjecia w 4:3, jedna strona to jeden commit)
 
 Plan 11 is `autonomous: false`. Plan 04's human prerequisites are now PARTLY done: the GitHub App `Panel redakcyjny zlobka` exists (org-owned, Contents:write on one repository, client id `Iv23lipuQ3hnHl4snF6h`, installation `154059103`) and the private key is converted to PKCS#8 at `~/Documents/panel-redakcyjny-zlobka.pkcs8.pem`. **The Cloudflare half is now DONE** (resolved at the 04.1-04 checkpoint on 2026-08-16): the five admin Pages secrets are set on `zlobek-gminny-stromiec`, deployment `72941a1e-51db-49bc-a9bd-581c05d99cb0` carries them, and the code-request leg of the login completes in production. **What is still OWED is the first REAL save**, and after 04.1-07 that gate has grown again: a real nabór flip (04.1-05), a real create, title edit and delete of an aktualność (04.1-06), and a real create WITH A PHOTO TAKEN ON A PHONE whose `git show --stat` must list exactly two files with the same stem (04.1-07), each with its commit SHA recorded and the public page confirmed to change. The photo step also closes the untested iPhone HEIC decoding assumption if the phone is an iPhone. **04.1-08 adds a fourth leg**: a real document with a real PDF whose `git show --stat` must list exactly two files (one under `src/lib/content/dokumenty/`, one under `static/dokumenty/`), then a name-only edit that must touch ONE file and must not move the download URL, then a DOCX replacement that must write the new file and remove the old PDF in ONE commit, then a deletion that removes both halves. All four checkpoints are one session's work and none needs a deploy of its own.
 
 **D-20 IS SUPERSEDED as of Plan 01 (user-approved Rule 4 deviation).** Sveltia's repository footprint was deleted in Plan 01, not Plan 11, because `static/admin/` is a Cloudflare Pages static asset and static assets resolve before the Worker, so the bare `/admin` never reached the new gate and the plan's own assertions were unprovable. Staff therefore have NO working editor until Plan 10 lands, which the user accepted. Plan 11 must be re-read rather than executed as written: its Task 2 is now largely a no-op (see `04.1-01-SUMMARY.md` "Knock-on Effects for Plan 11" for the exact split), and its ordering prohibition no longer applies. Plan 11 Task 3 is unchanged and still owed: deleting the GitHub OAuth App and the deployed `sveltia-cms-auth` Worker, both dashboard-only and both still live.
 
-Progress: 04.1 plans 1 to 8 of 11 complete; 27/27 plans in phases 1-4 complete (4 of 8 phases)
+Progress: 04.1 plans 1 to 9 of 11 complete; 27/27 plans in phases 1-4 complete (4 of 8 phases)
 
 **Never import `src/lib/server/dokumenty.ts` from an `/admin` route** (learned in 04.1-08). It carries `node:fs`, the panel is the Cloudflare Worker, and this deployment enables only `nodejs_als`. The category union lives in `src/lib/kategorie-dokumentow.ts`, the file constants and the size formatter in `src/lib/pliki.ts`, and the panel's own reader in `src/lib/server/admin/dokumenty.ts`. The public reader imports the first two back and re-exports the type, so exactly one declaration of each exists.
 
@@ -102,6 +102,7 @@ Progress: 04.1 plans 1 to 8 of 11 complete; 27/27 plans in phases 1-4 complete (
 | Phase 04.1 P06 | 35min | 3 tasks | 27 files |
 | Phase 04.1 P07 | 78min | 3 tasks | 19 files |
 | Phase 04.1 P08 | 47min | 3 tasks | 21 files |
+| Phase 04.1 P09 | 46min | 3 tasks | 19 files |
 
 ## Accumulated Context
 
@@ -189,6 +190,9 @@ Recent decisions affecting current work:
 - [Phase 04.1]: P-22: dolaczenie pliku dokumentu wymaga JavaScriptu, reszta ekranu nie: Dziesiec megabajtow zakodowanych w zadaniu przekracza budzet CPU Workera na darmowym planie; edycja metadanych dokumentu, ktory plik juz ma, jest udowodniona przy wylaczonych skryptach
 - [Phase 04.1]: Unia kategorii dokumentow i formater rozmiaru wyprowadzone spod node:fs: Panel dziala w Workerze, ktory nie ma systemu plikow, wiec zaden ekran /admin nie moze importowac src/lib/server/dokumenty.ts; czytnik publiczny reeksportuje typ, wiec istnieje jedna deklaracja
 - [Phase 04.1]: Wiersz dokumentu w panelu pokazuje typ i date wersji, bez rozmiaru: Rozmiar da sie policzyc tylko przez stat pliku (niemozliwy w Workerze) albo zapisujac go we wpisie, czego zabrania D-14; UI-SPEC Contract 4 mial racje wobec tekstu planu
+- [Phase 04.1]: [04.1-09] O nas i plan dnia edytowalne: powtarzalne grupy jako akcje formularza (P-26), wiec dodawanie i usuwanie wiersza dziala przy wylaczonym JavaScripcie i niczego nie zapisuje; nazwa zdjecia obiektu to prefiks obiekt- plus slug opisu (P-25), a prefiks jest jednoczesnie znacznikiem wlasnosci decydujacym o prawie do skasowania pliku; podmiana zdjecia nazwanego przez panel nadpisuje w miejscu (P-21), recznie postawionego nigdy
+- [Phase 04.1]: [04.1-09] Trzy pulapki frameworka zapisane, bo kazda jest cicha: SvelteKit zabrania mieszania akcji domyslnej z nazwanymi (zapis jest akcja nazwana); use:enhance po sukcesie czysci formularz, wiec kazda akcja listy potrzebuje update({ reset: false }); Svelte liczy autofocus tylko przy tworzeniu elementu, wiec fokus kliencki idzie po pozycji, a atrybut z serwera obsluguje sciezke bez skryptow
+- [Phase 04.1]: [04.1-09] Publiczne petle nad trescia edytowalna z panelu (DayPlan.svelte, /o-nas) kluczowane POZYCJA, nie trescia: powtorzony klucz to wyjatek rzucany takze w produkcji, a od tej fazy redaktor moze go wyprodukowac w cztery sekundy
 
 ### Pending Todos
 
@@ -247,6 +251,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-16T09:34:21.288Z
-Stopped at: Ukonczono 04.1-08-PLAN.md
+Last session: 2026-08-16T10:16:36.961Z
+Stopped at: Ukonczono 04.1-09-PLAN.md
 Resume file: None
