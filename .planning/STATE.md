@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 04.1
 current_phase_name: replace-sveltia-with-custom-polish-cms
 status: executing
-stopped_at: Completed 04.1-05-PLAN.md (przelacznik naboru); pierwszy prawdziwy zapis na produkcji wciaz owed
-last_updated: "2026-08-16T07:35:22.789Z"
+stopped_at: Completed 04.1-06-PLAN.md (pelna obsluga aktualnosci); pierwszy prawdziwy zapis, edycja i usuniecie na produkcji wciaz owed
+last_updated: "2026-08-16T08:19:07.490Z"
 last_activity: 2026-08-16
-last_activity_desc: "Completed 04.1-05 (nabor w JSON, wspolny zapis, ekran /admin/nabor)"
+last_activity_desc: Completed 04.1-06 (pelna obsluga aktualnosci: slug, walidator, lista, dodawanie, edycja, usuwanie)
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 38
-  completed_plans: 32
+  completed_plans: 33
   percent: 50
 ---
 
@@ -29,15 +29,15 @@ See: .planning/PROJECT.md (updated 2026-08-14)
 ## Current Position
 
 Phase: 04.1 (replace-sveltia-with-custom-polish-cms) — EXECUTING
-Plan: 6 of 11
+Plan: 7 of 11
 Status: Ready to execute
-Last activity: 2026-08-16 — Completed 04.1-05 (nabor przeniesiony do JSON, wspolny orkiestrator zapisu, ekran /admin/nabor z podgladem)
+Last activity: 2026-08-16 — Completed 04.1-06 (pelna obsluga aktualnosci: slug, walidator, lista, dodawanie, edycja, usuwanie)
 
-Plan 11 is `autonomous: false`. Plan 04's human prerequisites are now PARTLY done: the GitHub App `Panel redakcyjny zlobka` exists (org-owned, Contents:write on one repository, client id `Iv23lipuQ3hnHl4snF6h`, installation `154059103`) and the private key is converted to PKCS#8 at `~/Documents/panel-redakcyjny-zlobka.pkcs8.pem`. **What is still OWED is the Cloudflare half:** the five admin Pages secrets are not set and no deployment carries them. Exact commands are in `04.1-04-SUMMARY.md` under `CHECKPOINT: human-action`. Plans 05 to 10 can be built and unit-tested without them; no live save works until they are set and a NEW deployment is created (a Pages secret only reaches deployments made after it is set).
+Plan 11 is `autonomous: false`. Plan 04's human prerequisites are now PARTLY done: the GitHub App `Panel redakcyjny zlobka` exists (org-owned, Contents:write on one repository, client id `Iv23lipuQ3hnHl4snF6h`, installation `154059103`) and the private key is converted to PKCS#8 at `~/Documents/panel-redakcyjny-zlobka.pkcs8.pem`. **The Cloudflare half is now DONE** (resolved at the 04.1-04 checkpoint on 2026-08-16): the five admin Pages secrets are set on `zlobek-gminny-stromiec`, deployment `72941a1e-51db-49bc-a9bd-581c05d99cb0` carries them, and the code-request leg of the login completes in production. **What is still OWED is the first REAL save**, and after 04.1-06 that gate has grown: a real nabór flip (04.1-05) plus a real create, title edit and delete of an aktualność (04.1-06), each with its commit SHA recorded and the public page confirmed to change. Both checkpoints are one session's work and neither needs a deploy of its own.
 
 **D-20 IS SUPERSEDED as of Plan 01 (user-approved Rule 4 deviation).** Sveltia's repository footprint was deleted in Plan 01, not Plan 11, because `static/admin/` is a Cloudflare Pages static asset and static assets resolve before the Worker, so the bare `/admin` never reached the new gate and the plan's own assertions were unprovable. Staff therefore have NO working editor until Plan 10 lands, which the user accepted. Plan 11 must be re-read rather than executed as written: its Task 2 is now largely a no-op (see `04.1-01-SUMMARY.md` "Knock-on Effects for Plan 11" for the exact split), and its ordering prohibition no longer applies. Plan 11 Task 3 is unchanged and still owed: deleting the GitHub OAuth App and the deployed `sveltia-cms-auth` Worker, both dashboard-only and both still live.
 
-Progress: 04.1 plans 1 to 4 of 11 complete; 27/27 plans in phases 1-4 complete (4 of 8 phases)
+Progress: 04.1 plans 1 to 6 of 11 complete; 27/27 plans in phases 1-4 complete (4 of 8 phases)
 
 **CMS-01 and CMS-03 stay UNMARKED after 04.1-02**, deliberately, following the Plan 01 precedent. Both are shared across the whole phase, both are currently worded around Sveltia and GitHub OAuth, and D-21 rewords them in Plan 11. Ticking them from a plan that ships a code module and a copy module, with no login screen yet, would put a false claim in the traceability table.
 
@@ -97,6 +97,7 @@ Progress: 04.1 plans 1 to 4 of 11 complete; 27/27 plans in phases 1-4 complete (
 | Phase 04.1 P03 | 38min | 3 tasks | 15 files |
 | Phase 04.1 P04 | 6 | 3 tasks | 6 files |
 | Phase 04.1 P05 | 3h | 3 tasks | 13 files |
+| Phase 04.1 P06 | 35min | 3 tasks | 27 files |
 
 ## Accumulated Context
 
@@ -175,6 +176,9 @@ Recent decisions affecting current work:
 - [Phase ?]: 04.1-04: CMS-02 stays UNMARKED until a real save produces a real commit (Plan 10), following the Plan 01 and 02 precedent
 - [Phase ?]: 04.1-05: slownik pola formularza naboru wydzielony do src/lib/stan-naboru.ts, bo SvelteKit nie zbuduje klienta importujacego $lib/server
 - [Phase ?]: 04.1-05: stan radia to zapisywalny $derived (Svelte 5.25+), nie $state z propa, zeby odpowiedz serwera po odmowie zapisu nie byla ignorowana
+- [Phase ?]: 04.1-06: P-16 wykonane, generator nazwy pliku wolany wylacznie przy dodawaniu; ekran edycji zapisuje pod sciezke ze swojego parametru, wiec zmiana tytulu nie rusza adresu wpisu (D-07)
+- [Phase ?]: 04.1-06: P-17 wykonane, zajeta nazwa pliku odmawia zapisu zamiast nadpisac istniejacy wpis (T-04.1-25)
+- [Phase ?]: 04.1-06 NOWA: po dodaniu wpisu wracamy na liste, nie na ekran edycji nowego wpisu, bo czytnik globuje tresc w czasie budowania i nowy wpis nie istnieje do odczytu przez okolo dwie minuty
 
 ### Pending Todos
 
@@ -233,6 +237,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-16T07:35:17.239Z
-Stopped at: Completed 04.1-02-PLAN.md (one-time code + panel copy)
-Resume file: .planning/phases/04.1-replace-sveltia-with-custom-polish-cms/04.1-03-PLAN.md
+Last session: 2026-08-16T08:19:07.484Z
+Stopped at: Completed 04.1-06-PLAN.md (pelna obsluga aktualnosci); pierwszy prawdziwy zapis, edycja i usuniecie na produkcji wciaz owed
+Resume file: None
