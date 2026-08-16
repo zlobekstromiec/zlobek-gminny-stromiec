@@ -38,9 +38,14 @@ function licznik(surowy: string | null): number {
 /** Site-wide daily key: the prefix plus the UTC calendar date, for example
  *  rl:doba:2026-08-14. The date IS the window, so the counter starts from zero at
  *  the UTC day boundary no matter how much traffic arrived before it. `teraz` is
- *  required and has no default, so no call site can read a second clock. */
-export function kluczDobowy(teraz: number): string {
-	return `${PREFIKS_DOBOWY}:${new Date(teraz).toISOString().slice(0, 10)}`;
+ *  required and has no default, so no call site can read a second clock.
+ *
+ *  `prefiks` is APPENDED with a default rather than inserted, for the same reason
+ *  `teraz` was appended in Plan 04-08: every existing call site passes its arguments
+ *  positionally, so appending is what keeps them byte-identical. A caller outside the
+ *  public forms passes its own prefix and thereby gets its own daily bucket. */
+export function kluczDobowy(teraz: number, prefiks: string = PREFIKS_DOBOWY): string {
+	return `${prefiks}:${new Date(teraz).toISOString().slice(0, 10)}`;
 }
 
 /** Hour-of-epoch bucket for the per-client window. Required parameter, no default,
@@ -90,11 +95,22 @@ export async function kluczLimitu(
  * is therefore accepted again the moment the next bucket opens, with no need for the
  * site to fall silent first.
  *
- * `teraz` is the clock and is the LAST parameter on purpose: both endpoints call
- * this function positionally, so appending it is what keeps their call sites
- * untouched. It is read exactly once per call and the same instant feeds both key
- * builders, so the hourly and the daily key can never straddle a boundary within one
- * request.
+ * The daily ceiling of 40 exists specifically to protect the RESEND SEND BUDGET,
+ * which is a resource of the public forms. A caller from outside those forms, such
+ * as the editorial panel asking for a login code, therefore passes its OWN
+ * `prefiksDobowy` and gets its own independent daily bucket. Without that, a flood
+ * of one kind of request would consume the other's daily ceiling in both directions:
+ * a login flood would start refusing parents' enrollment enquiries, and a busy
+ * contact-form day would lock staff out of their own panel. Raising the ceiling for
+ * one caller does not fix it, because that caller still INCREMENTS the shared
+ * counter.
+ *
+ * `teraz` is the clock and `prefiksDobowy` the bucket namespace; both are APPENDED
+ * with defaults on purpose: both endpoints call this function positionally, so
+ * appending is what keeps src/routes/api/kontakt/+server.ts and
+ * src/routes/api/rekrutacja/+server.ts byte-identical. `teraz` is read exactly once
+ * per call and the same instant feeds both key builders, so the hourly and the daily
+ * key can never straddle a boundary within one request.
  */
 export async function podLimitem(
 	kv: KVNamespace | undefined,
@@ -103,7 +119,8 @@ export async function podLimitem(
 	sol: string,
 	limit = DOMYSLNY_LIMIT,
 	limitDobowy = DOMYSLNY_LIMIT_DOBOWY,
-	teraz: number = Date.now()
+	teraz: number = Date.now(),
+	prefiksDobowy: string = PREFIKS_DOBOWY
 ): Promise<boolean> {
 	if (!kv) {
 		// A not-yet-provisioned namespace degrades to Turnstile-only protection
@@ -131,7 +148,7 @@ export async function podLimitem(
 	}
 
 	const klucz = await kluczLimitu(formularz, ip, sol, teraz);
-	const kluczDnia = kluczDobowy(teraz);
+	const kluczDnia = kluczDobowy(teraz, prefiksDobowy);
 
 	// Every KV operation is inside the guard deliberately. The `!kv` branch above
 	// only catches an ABSENT binding; a binding that is present but unusable (an id
