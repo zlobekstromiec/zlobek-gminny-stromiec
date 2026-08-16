@@ -25,10 +25,8 @@
 				</span>
 				<div class="fact-text">
 					<span class="fact-label">{fact.label}</span>
-					<span class="fact-value">
-						{fact.value}
-						{#if fact.suffix}<span class="fact-suffix">{fact.suffix}</span>{/if}
-					</span>
+					<span class="fact-value">{fact.value}</span>
+					{#if fact.suffix}<span class="fact-note">{fact.suffix}</span>{/if}
 				</div>
 			</li>
 		{/each}
@@ -52,6 +50,7 @@
 		display: grid;
 		grid-template-columns: 1fr;
 		gap: 24px;
+		align-items: start;
 	}
 
 	@media (min-width: 640px) {
@@ -76,8 +75,17 @@
 
 	.fact {
 		display: flex;
-		align-items: center;
+		align-items: flex-start;
 		gap: 14px;
+	}
+
+	/* Desktop cells stack vertically (Amendment v1.6 §3): chip above the
+	   kicker/value/note column, top-aligned across all four facts. */
+	@media (min-width: 1024px) {
+		.fact {
+			flex-direction: column;
+			gap: 12px;
+		}
 	}
 
 	/* Decorative tint chips: surfaces only; the duotone plate is white, the
@@ -112,7 +120,7 @@
 	.fact-text {
 		display: flex;
 		flex-direction: column;
-		gap: 2px;
+		gap: 4px;
 		min-width: 0;
 	}
 
@@ -134,10 +142,13 @@
 		margin: 0;
 	}
 
-	.fact-suffix {
+	/* The note is its own block below the value (Amendment v1.6 §3), never an
+	   inline tail of the value, so long conditions wrap as ordinary prose. */
+	.fact-note {
 		font-family: var(--font-body);
 		font-size: 15px;
 		font-weight: 400;
+		line-height: 1.5;
 		color: var(--color-muted);
 	}
 </style>
