@@ -265,17 +265,33 @@ export const KOPIA_NABOR = {
 	opisZapisuZamkniety: 'zamknięto nabór'
 } as const;
 
+/** One run of a formatting-help line. `{ kod }` renders inside a code element, which is
+ *  how the UI-SPEC's „examples rendered inside code so the syntax is copyable" holds
+ *  without putting markup into a copy string. Same shape and same reason as `Fragment` in
+ *  ./forms.ts, which already carries the emphasis of the two public form messages. */
+export type FragmentPomocy = string | { kod: string };
+
 /** The formatting help disclosure (Component Contract 6). Line 4 states what is NOT
  *  supported on purpose: the stored value has to stay inside the constrained markdown
- *  subset the public renderers already sanitize. */
+ *  subset the public renderers already sanitize.
+ *
+ *  Each line is a list of runs rather than one string, so the syntax example inside it can
+ *  be marked as code. Concatenating the runs of a line reproduces the UI-SPEC sentence
+ *  character for character, which is what the copy suite asserts. */
 export const KOPIA_FORMATOWANIE = {
 	podsumowanie: 'Jak formatować tekst',
 	linie: [
-		'Tekst w podwójnych gwiazdkach jest pogrubiony: **ważne** wyświetli się jako ważne.',
-		'Odnośnik zapisujesz tak: [tekst odnośnika](https://adres.pl)',
-		'Wiersz zaczynający się od znaku - i spacji tworzy punkt listy.',
-		'Nagłówki, tabele i zdjęcia wewnątrz treści nie są obsługiwane. Zdjęcie dodajesz w polu Zdjęcie powyżej.'
-	]
+		[
+			'Tekst w podwójnych gwiazdkach jest pogrubiony: ',
+			{ kod: '**ważne**' },
+			' wyświetli się jako ważne.'
+		],
+		['Odnośnik zapisujesz tak: ', { kod: '[tekst odnośnika](https://adres.pl)' }],
+		['Wiersz zaczynający się od znaku ', { kod: '-' }, ' i spacji tworzy punkt listy.'],
+		[
+			'Nagłówki, tabele i zdjęcia wewnątrz treści nie są obsługiwane. Zdjęcie dodajesz w polu Zdjęcie powyżej.'
+		]
+	] as readonly (readonly FragmentPomocy[])[]
 } as const;
 
 /** Server-rendered validation. Every message says what to DO (WCAG 3.3.3), never

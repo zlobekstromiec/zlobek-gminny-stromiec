@@ -332,7 +332,24 @@ test('ukryte dopowiedzenia akcji nazywaja konkretny wpis (WCAG 2.4.4)', () => {
 
 test('pomoc w formatowaniu mowi takze, czego NIE da sie uzyc', () => {
 	assert.equal(KOPIA_FORMATOWANIE.linie.length, 4);
-	assert.match(KOPIA_FORMATOWANIE.linie[3], /nie są obsługiwane/);
+	// Each line is a list of runs so the syntax example can be marked as code. Joining the
+	// runs is how a line is read as a sentence, and it is exactly what the component does.
+	const czwarta = zbierz(KOPIA_FORMATOWANIE.linie[3]).join('');
+	assert.match(czwarta, /nie są obsługiwane/);
+});
+
+// The three lines that teach a syntax must actually CARRY that syntax as an example, or
+// the help would describe formatting without ever showing it. Line four teaches nothing
+// and is deliberately example-free, which is asserted as well so the rule reads both ways.
+test('pomoc w formatowaniu pokazuje przyklad skladni tam, gdzie go obiecuje', () => {
+	const przyklady = KOPIA_FORMATOWANIE.linie.map(
+		(linia) => linia.filter((run) => typeof run !== 'string').length
+	);
+	assert.deepEqual(przyklady, [1, 1, 1, 0]);
+	const zlaczone = KOPIA_FORMATOWANIE.linie.map((linia) => zbierz(linia).join(''));
+	assert.match(zlaczone[0], /\*\*ważne\*\*/);
+	assert.match(zlaczone[1], /\[tekst odnośnika\]\(https:\/\/adres\.pl\)/);
+	assert.match(zlaczone[2], /od znaku - i spacji/);
 });
 
 test('komunikaty walidacji mowia, co zrobic, a nie tylko ze cos jest zle (WCAG 3.3.3)', () => {

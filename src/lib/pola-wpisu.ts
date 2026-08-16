@@ -56,3 +56,57 @@ export const ZNACZNIK_ZAPISANO = 'zapisano';
 /** Query marker for the deletion confirmation on the list screen. Separate from the one
  *  above because the two panels say different things: „Zapisano" and „Usunięto". */
 export const ZNACZNIK_USUNIETO = 'usunieto';
+
+/** The minimum a submitted form has to offer to be read. `FormData` satisfies it
+ *  structurally, and so does a plain object in a unit suite, which is what keeps every
+ *  branch of the validator drivable under `node --test` with no browser and no harness. */
+export interface ZrodloPol {
+	get(nazwa: string): unknown;
+}
+
+/**
+ * Every value of the form, as strings, exactly as it was submitted or as it is stored.
+ *
+ * This is the ECHO shape, not the stored shape: it exists so a refused save hands the
+ * editor back what they typed rather than an empty form (Contract 10c, „every typed value
+ * intact"). It is deliberately all-strings and never validated, because a value that was
+ * refused still has to be rendered back into the control that holds it. The stored shape
+ * is `WpisDane` in the validator, and the two are not interchangeable on purpose.
+ */
+export interface WartosciWpisu {
+	tytul: string;
+	dzien: string;
+	miesiac: string;
+	rok: string;
+	zajawka: string;
+	tresc: string;
+	zastepcza: boolean;
+}
+
+/** A submitted value as a string. A file part, a missing key and a null all become the
+ *  empty string, which is what a control renders as „nothing typed here". */
+function tekst(surowy: unknown): string {
+	return typeof surowy === 'string' ? surowy : '';
+}
+
+/** Read the echo shape. Used by both editor screens so a refusal on either one restores
+ *  exactly the same set of controls. */
+export function wartosciWpisu(zrodlo: ZrodloPol): WartosciWpisu {
+	return {
+		tytul: tekst(zrodlo.get(POLE_TYTUL)),
+		dzien: tekst(zrodlo.get(POLE_DZIEN)),
+		miesiac: tekst(zrodlo.get(POLE_MIESIAC)),
+		rok: tekst(zrodlo.get(POLE_ROK)),
+		zajawka: tekst(zrodlo.get(POLE_ZAJAWKA)),
+		tresc: tekst(zrodlo.get(POLE_TRESC)),
+		// An unticked checkbox omits its key entirely, which is the HTML convention the
+		// server reader follows too: absent is false and never an error.
+		zastepcza: zrodlo.get(POLE_ZASTEPCZA) !== null && zrodlo.get(POLE_ZASTEPCZA) !== undefined
+	};
+}
+
+/** The empty form a create screen opens with, apart from the date, which the route
+ *  pre-selects to today. */
+export function pusteWartosciWpisu(dzien: string, miesiac: string, rok: string): WartosciWpisu {
+	return { tytul: '', dzien, miesiac, rok, zajawka: '', tresc: '', zastepcza: false };
+}

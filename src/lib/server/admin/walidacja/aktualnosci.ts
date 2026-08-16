@@ -35,7 +35,8 @@ import {
 	POLE_TRESC,
 	POLE_TYTUL,
 	POLE_ZAJAWKA,
-	POLE_ZASTEPCZA
+	POLE_ZASTEPCZA,
+	type ZrodloPol
 } from '../../../pola-wpisu.ts';
 import {
 	BLAD_ZBYT_DLUGI,
@@ -94,12 +95,10 @@ export interface WpisDane {
 	placeholder: boolean;
 }
 
-/** The minimum a submitted form has to offer. `FormData` satisfies it structurally, and
- *  so does a plain object in the unit suite, which is what keeps every branch drivable
- *  under `node --test` with no browser and no harness. */
-export interface ZrodloPol {
-	get(nazwa: string): unknown;
-}
+// `ZrodloPol` is declared beside the field names in src/lib/pola-wpisu.ts and re-exported
+// here, for the same reason the names themselves are: the echo reader on the client side
+// of the boundary and the validator on this side must read the same shape.
+export type { ZrodloPol };
 
 /** Longest generated cover basename. Not a staff-typed value at all: the island of Plan
  *  07 generates it from the entry, so the bound exists only to stop a hand-built request
