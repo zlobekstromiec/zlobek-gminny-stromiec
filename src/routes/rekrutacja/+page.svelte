@@ -1,11 +1,13 @@
 <script lang="ts">
 	// Rekrutacja page (RECRUIT-01, RECRUIT-02, RECRUIT-03, RECRUIT-05; D-01, D-06,
 	// D-14, D-15, D-18). Composition per 01-UI-SPEC Amendment v1.6 §7 (supersedes the
-	// v1.4 section-for-section table): page header (white), full-width status banner
-	// (band), then ONE warm band holding a desktop grid: the info column (kryteria,
-	// procedura, opłaty, wnioski) fills the left track and the right rail carries the
-	// FallbackPanel above the sticky zgłoszenie form. DOM order stays the mobile
-	// order (fallback, form, info) and no CSS `order` is used.
+	// v1.4 section-for-section table): a two-column page header (white) carrying the
+	// title and lead left and the status panel right, then ONE warm band holding a
+	// desktop grid: the info column (kryteria, procedura, opłaty, wnioski) fills the
+	// left track and the right rail carries the FallbackPanel above the sticky
+	// zgłoszenie form. DOM order stays the mobile order (fallback, form, info) and no
+	// CSS `order` is used. The status panel has no band of its own: the old
+	// full-width blue section cost a screenful before any content.
 	//
 	// Static, zero-JavaScript content with exactly ONE hydrated island: the zgłoszenie
 	// form. The site-wide static-output flag is set once in src/routes/+layout.ts and is
@@ -51,37 +53,35 @@
 	canonical="/rekrutacja"
 />
 
-<!-- Section 1: page header (white surface). Copy verbatim from the UI-SPEC page
-     chrome table. -->
+<!-- Page header (white surface). The status panel sits in the header's second column
+     rather than in a band of its own: status stays the first thing a parent reads,
+     but it no longer costs a full-width blue slab of vertical space, and it fills the
+     header's otherwise empty right half. The dot is decorative. -->
 <header class="page-head">
-	<div class="inner">
-		<h1>Rekrutacja do żłobka</h1>
-		<p class="lead">
-			Nabór podstawowy prowadzi Gmina Stromiec. Poniżej znajdziesz aktualny status naboru, kryteria
-			przyjęcia, przebieg procedury i wnioski do pobrania.
-		</p>
-	</div>
-</header>
+	<div class="inner uklad-naglowka">
+		<div class="intro">
+			<h1>Rekrutacja do żłobka</h1>
+			<p class="lead">
+				Nabór podstawowy prowadzi Gmina Stromiec. Poniżej znajdziesz aktualny status naboru,
+				kryteria przyjęcia, przebieg procedury i wnioski do pobrania.
+			</p>
+		</div>
 
-<!-- Section 2: status banner (band surface). Status first, because the first thing a
-     parent needs to know is where they stand. The dot is decorative. -->
-<section class="sekcja band" aria-labelledby="status-heading">
-	<div class="inner">
-		<div class="status-banner">
-			<span class="kropka" aria-hidden="true"></span>
-			<div class="status-uklad">
+		<section aria-labelledby="status-heading">
+			<div class="status-banner">
+				<span class="kropka" aria-hidden="true"></span>
 				<div>
 					<h2 id="status-heading">{recruitment.heading}</h2>
 					<p class="status-tresc">{recruitment.body}</p>
 					<p class="status-termin">{recruitment.deadline}</p>
+					<!-- PLACEHOLDER: the date of the next nabór is unconfirmed, so this line
+					     names the announcing authority rather than a date (site.ts). -->
+					<p class="status-tresc">{recruitment.nastepnyNabor}</p>
 				</div>
-				<!-- PLACEHOLDER: the date of the next nabór is unconfirmed, so this line
-				     names the announcing authority rather than a date (site.ts). -->
-				<p class="status-tresc status-dodatkowy">{recruitment.nastepnyNabor}</p>
 			</div>
-		</div>
+		</section>
 	</div>
-</section>
+</header>
 
 <!-- Sections 3-6 (Amendment v1.6 §7): one warm band, one desktop grid. DOM order is
      the MOBILE order: FallbackPanel, form island, then the info column. At >=1024px
@@ -175,14 +175,9 @@
 <style>
 	/* Surface rhythm and the responsive container are the established /dokumenty
 	   route contract, reused verbatim so spacing and gutters cannot drift. */
-	.page-head,
-	.sekcja {
+	.page-head {
 		background: var(--color-surface);
 		padding-block: 48px;
-	}
-
-	.sekcja.band {
-		background: var(--color-band);
 	}
 
 	.pas {
@@ -195,7 +190,6 @@
 
 	@media (min-width: 1024px) {
 		.page-head,
-		.sekcja,
 		.pas {
 			padding-block: 64px;
 		}
@@ -285,7 +279,21 @@
 		margin: 0;
 	}
 
-	.sekcja h2,
+	/* Header split: title and lead left, the status panel right. Below 1024px the
+	   panel simply follows the lead, exactly where the old band used to sit. */
+	.uklad-naglowka {
+		display: grid;
+		gap: 32px;
+	}
+
+	@media (min-width: 1024px) {
+		.uklad-naglowka {
+			grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+			column-gap: 48px;
+			align-items: start;
+		}
+	}
+
 	.kolumna-info h2 {
 		font-family: var(--font-display);
 		font-weight: 700;
@@ -295,11 +303,11 @@
 		margin: 0 0 28px;
 	}
 
-	/* Status banner (UI-SPEC Contract 9, cap released by Amendment v1.6 §7): band
-	   surface, radius-md, 16 -> 24px padding, full container width with an internal
-	   desktop split (status + deadline left, następny nabór right). Its heading is a
-	   section-level h2 rendered at panel size, and the deadline line takes the same
-	   focus-ring colour the homepage Recruitment header strip uses. */
+	/* Status banner (UI-SPEC Contract 9, recomposed by Amendment v1.6 §7): band
+	   surface, radius-md, 16 -> 20px padding, sized by the header's second column
+	   instead of spanning a band of its own. Its heading is a section-level h2
+	   rendered at panel size, and the deadline line takes the same focus-ring colour
+	   the homepage Recruitment header strip uses. */
 	.status-banner {
 		display: flex;
 		align-items: flex-start;
@@ -311,25 +319,7 @@
 
 	@media (min-width: 768px) {
 		.status-banner {
-			padding: 24px;
-		}
-	}
-
-	.status-uklad {
-		flex: 1 1 auto;
-		min-width: 0;
-	}
-
-	@media (min-width: 1024px) {
-		.status-uklad {
-			display: grid;
-			grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-			column-gap: 48px;
-			align-items: start;
-		}
-
-		.status-dodatkowy {
-			margin-top: 0;
+			padding: 20px;
 		}
 	}
 
@@ -345,7 +335,11 @@
 	}
 
 	.status-banner h2 {
+		font-family: var(--font-display);
+		font-weight: 700;
 		font-size: 20px;
+		line-height: 1.2;
+		color: var(--color-ink);
 		margin: 0;
 	}
 
