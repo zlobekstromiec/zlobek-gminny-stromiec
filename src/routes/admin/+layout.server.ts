@@ -8,10 +8,10 @@
 import type { LayoutServerLoad } from './$types';
 
 /** Polish section names keyed by the first path segment under /admin, in the
- *  UI-SPEC nav order. Plan 03 replaces this shell wholesale with UI-SPEC Component
- *  Contract 1 and its real nav; until then this is the smallest thing that
- *  satisfies the page-title contract. An unknown segment falls back to the neutral
- *  wordmark rather than leaking a raw path segment into the title. */
+ *  UI-SPEC nav order. This is the source of the „{Sekcja}, panel redakcyjny" page
+ *  title that the shell builds through `tytulStrony` in src/lib/content/panel.ts.
+ *  An unknown segment falls back to the neutral wordmark rather than leaking a raw
+ *  path segment into the title. */
 const SEKCJE: Record<string, string> = {
 	'': 'Pulpit',
 	logowanie: 'Logowanie',

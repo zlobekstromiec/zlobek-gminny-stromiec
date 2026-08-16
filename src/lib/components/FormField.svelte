@@ -27,9 +27,11 @@
 	import CircleAlert from '@lucide/svelte/icons/circle-alert';
 	import type { HTMLInputAttributes } from 'svelte/elements';
 
-	/** Only the types the two forms actually use. Narrow on purpose: a `type` this
-	 *  component has not styled and reasoned about should not be reachable. */
-	type Typ = 'text' | 'email' | 'tel';
+	/** Only the types the two forms and the panel actually use. Narrow on purpose: a
+	 *  `type` this component has not styled and reasoned about should not be
+	 *  reachable. `number` was added by 04.1-03 for the two kadra counts, and it is
+	 *  the only member that also changes an attribute (see `inputmode` below). */
+	type Typ = 'text' | 'email' | 'tel' | 'number';
 
 	let {
 		id,
@@ -41,7 +43,10 @@
 		podpowiedz,
 		autocomplete,
 		wieloliniowy = false,
-		wylaczone = false
+		wylaczone = false,
+		nazwa,
+		wysokoscMin,
+		autofokus = false
 	}: {
 		id: string;
 		etykieta: string;
@@ -53,6 +58,19 @@
 		autocomplete?: HTMLInputAttributes['autocomplete'];
 		wieloliniowy?: boolean;
 		wylaczone?: boolean;
+		/** Rendered as the control's `name`, so a server-rendered form action can read
+		 *  the value without JavaScript (04.1 P-10). ABSENT when the prop is absent, so
+		 *  the two public island forms, which post JSON and never needed a name, render
+		 *  byte-identically to before. */
+		nazwa?: string;
+		/** Minimum height of the textarea in pixels. Undefined leaves the inherited
+		 *  160px floor and emits NO style attribute at all, which is what keeps the
+		 *  existing call sites byte-identical. */
+		wysokoscMin?: number;
+		/** Server-rendered focus for a no-JavaScript screen (04.1-UI-SPEC focus
+		 *  management contract). Only ever set on the single control a page exists to
+		 *  collect, never on an arbitrary field. */
+		autofokus?: boolean;
 	} = $props();
 
 	// `$derived`, not a plain const: `id` is a prop, and a plain template literal
@@ -92,9 +110,12 @@
 	{/if}
 
 	{#if wieloliniowy}
+		<!-- svelte-ignore a11y_autofocus -->
 		<textarea
 			{id}
+			name={nazwa}
 			class="kontrolka"
+			style={wysokoscMin === undefined ? undefined : `--pole-wysokosc-min: ${wysokoscMin}px`}
 			value={wartosc}
 			oninput={przepisz}
 			required={wymagane}
@@ -102,12 +123,16 @@
 			aria-invalid={nieprawidlowe}
 			aria-describedby={opisy}
 			{autocomplete}
+			autofocus={autofokus}
 			disabled={wylaczone}></textarea>
 	{:else}
+		<!-- svelte-ignore a11y_autofocus -->
 		<input
 			{id}
+			name={nazwa}
 			class="kontrolka"
 			type={typ}
+			inputmode={typ === 'number' ? 'numeric' : undefined}
 			value={wartosc}
 			oninput={przepisz}
 			required={wymagane}
@@ -115,6 +140,7 @@
 			aria-invalid={nieprawidlowe}
 			aria-describedby={opisy}
 			{autocomplete}
+			autofocus={autofokus}
 			disabled={wylaczone}
 		/>
 	{/if}
@@ -196,7 +222,11 @@
 	   stated in the hint instead. Horizontal resize is disabled so the parent cannot
 	   drag the control out of the card. */
 	textarea.kontrolka {
-		min-height: 160px;
+		/* The custom property is set by the `wysokoscMin` prop and is ABSENT unless a
+		   caller asks for it, so the 160px fallback is what every existing call site
+		   still resolves to. 04.1-UI-SPEC raises the aktualność `tresc` box to 240px,
+		   which is the only caller that will pass it. */
+		min-height: var(--pole-wysokosc-min, 160px);
 		resize: vertical;
 	}
 
