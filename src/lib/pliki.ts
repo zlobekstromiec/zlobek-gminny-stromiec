@@ -38,3 +38,21 @@ export const ROZSZERZENIA_DOKUMENTU: Readonly<Record<string, string>> = Object.f
  *  field's own hint and the refusal message both state, so the three can never disagree
  *  about what „za duży" means. */
 export const MAKS_PLIKU_DOKUMENTU = 10 * 1024 * 1024;
+
+/**
+ * A file size as a person reads it.
+ *
+ * MOVED HERE from src/lib/server/dokumenty.ts, which now imports it, so the size the file
+ * island shows an editor before saving and the size the public document row shows a visitor
+ * afterwards are produced by ONE function. Two implementations would eventually round
+ * differently, and „the panel said 1.2 MB and the site says 1,2 MB" is the kind of small
+ * disagreement that makes somebody stop trusting the panel.
+ *
+ * Never rounds down to zero: a file that exists is at least 1 KB in this presentation, which
+ * is honest about the fact that this is a reading aid and not a byte count.
+ */
+export function rozmiarCzytelny(bajty: number): string {
+	const kb = bajty / 1024;
+	if (kb >= 1024) return `${(kb / 1024).toFixed(1)} MB`;
+	return `${Math.max(1, Math.round(kb))} KB`;
+}

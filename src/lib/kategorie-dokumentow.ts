@@ -37,3 +37,27 @@ export const KATEGORIE: readonly Kategoria[] = Object.freeze([
 export function jestKategoria(wartosc: unknown): wartosc is Kategoria {
 	return typeof wartosc === 'string' && (KATEGORIE as readonly string[]).includes(wartosc);
 }
+
+/**
+ * The category select's options: the shared values paired POSITIONALLY with labels the
+ * caller read out of src/lib/content/panel.ts.
+ *
+ * The labels arrive as an argument rather than being imported, so this module keeps its
+ * promise to carry no visible string and the Polish-only sweep keeps governing them where
+ * they live. Pairing them in one function rather than in each screen is what stops a select
+ * that offers three labels against two values, which would silently post an empty category
+ * the server then refuses for a reason nobody could see.
+ *
+ * A missing label falls back to the value rather than to an empty option: an option with no
+ * text is unreachable for everybody, and a visible English-looking key is at least a visible
+ * defect. The suite asserts the two lists are the same length, so the fallback is
+ * unreachable in practice.
+ */
+export function opcjeKategorii(
+	etykiety: readonly string[]
+): { wartosc: string; etykieta: string }[] {
+	return KATEGORIE.map((kategoria, i) => ({
+		wartosc: kategoria,
+		etykieta: etykiety[i] ?? kategoria
+	}));
+}

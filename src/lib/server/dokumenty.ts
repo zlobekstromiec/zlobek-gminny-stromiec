@@ -10,6 +10,7 @@ import { join } from 'node:path';
 // loads directly already follows: `node --test` strips types natively and its resolver
 // requires the real filename.
 import { KATEGORIE, type Kategoria } from '../kategorie-dokumentow.ts';
+import { rozmiarCzytelny } from '../pliki.ts';
 
 // MOVED to src/lib/kategorie-dokumentow.ts by 04.1-08 and re-exported here, so nothing
 // that already imported the type from this module had to change and exactly one
@@ -52,11 +53,9 @@ export const NAGLOWEK: Record<Kategoria, string> = {
 	rodo: 'RODO'
 };
 
-function formatRozmiar(bytes: number): string {
-	const kb = bytes / 1024;
-	if (kb >= 1024) return `${(kb / 1024).toFixed(1)} MB`;
-	return `${Math.max(1, Math.round(kb))} KB`;
-}
+// The size formatter MOVED to src/lib/pliki.ts in 04.1-08 and is imported at the top of
+// this file, so the panel's file island and this row build the same string from the same
+// code. Nothing else about the output changed.
 
 /** The metadata resolver, exported by 04.1-08 so the panel's validator suite can feed a
  *  freshly validated entry through the REAL reader rather than through a description of it
@@ -82,7 +81,7 @@ export function withMeta(entry: DokumentEntry): DokumentWithMeta | null {
 		return null;
 	}
 	const typ = (entry.plik.split('.').pop() ?? '').toUpperCase();
-	const rozmiar = formatRozmiar(bytes);
+	const rozmiar = rozmiarCzytelny(bytes);
 	return {
 		...entry,
 		typ,
