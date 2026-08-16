@@ -290,21 +290,22 @@ export async function sprawdzKod(
  * that is a different decision from the fail-closed store above. Failing open here
  * only means a code is still sent to an address that is already on the allowlist,
  * while the code exchange itself remains the boundary that decides access.
+ *
+ * The two ceilings are TRAILING parameters with defaults, the same append rule that
+ * added `teraz` in 04-08 and `prefiksDobowy` in 04.1-02, so every existing call site
+ * stays byte-identical. They exist for one reason: the Playwright suite shares a
+ * client address and needs several codes per run, and five per hour is a ceiling it
+ * would cross before it finished asserting anything. The login route raises BOTH from
+ * the same RATE_LIMIT_MAX override the two public endpoints already read, and that
+ * variable is unset in production, so a real deployment gets the constants above.
  */
 export async function podLimitemKodu(
 	kv: KVNamespace | undefined,
 	ip: string,
 	sol: string,
-	teraz: number
+	teraz: number,
+	limit: number = LIMIT_KODOW,
+	limitDobowy: number = LIMIT_KODOW_DOBOWY
 ): Promise<boolean> {
-	return podLimitem(
-		kv,
-		'admin-kod',
-		ip,
-		sol,
-		LIMIT_KODOW,
-		LIMIT_KODOW_DOBOWY,
-		teraz,
-		PREFIKS_DOBOWY_PANELU
-	);
+	return podLimitem(kv, 'admin-kod', ip, sol, limit, limitDobowy, teraz, PREFIKS_DOBOWY_PANELU);
 }
