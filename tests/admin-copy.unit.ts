@@ -17,11 +17,13 @@ import assert from 'node:assert/strict';
 import * as panel from '../src/lib/content/panel.ts';
 import {
 	KOPIA_FORMATOWANIE,
+	KOPIA_EKRAN_DOKUMENTU,
 	KOPIA_EKRAN_WPISU,
 	KOPIA_LISTY,
 	KOPIA_LOGOWANIE,
 	KOPIA_MAIL_KOD,
 	KOPIA_NABOR,
+	KOPIA_PLIKU,
 	KOPIA_POWLOKA,
 	KOPIA_PULPIT,
 	KOPIA_USUWANIE,
@@ -40,9 +42,14 @@ import {
 	legendaZdjecia,
 	liczbaDokumentow,
 	liczbaWpisow,
+	metaDokumentu,
 	obecnieNabor,
+	obecnyPlik,
+	opisDodaniaDokumentu,
 	opisDodaniaWpisu,
+	opisUsunieciaDokumentu,
 	opisUsunieciaWpisu,
+	opisZmianyDokumentu,
 	opisZmianyWpisu,
 	tekstZaDlugi,
 	trescUsunieciaDokumentu,
@@ -51,6 +58,7 @@ import {
 	ukryteDokument,
 	ukryteWpis,
 	usunietoWiersz,
+	wybranyPlik,
 	wyslanoKodNa,
 	zalogowanoJako,
 	zobaczStrone
@@ -86,6 +94,7 @@ const EKSPORTY: unknown[] = [
 	KOPIA_PULPIT,
 	KOPIA_LISTY,
 	KOPIA_EKRAN_WPISU,
+	KOPIA_EKRAN_DOKUMENTU,
 	POLA_DATA,
 	POLA_WPIS,
 	POLA_O_NAS,
@@ -96,6 +105,7 @@ const EKSPORTY: unknown[] = [
 	KOPIA_WALIDACJA,
 	KOPIA_ZAPIS,
 	KOPIA_ZDJECIA,
+	KOPIA_PLIKU,
 	KOPIA_USUWANIE,
 	zalogowanoJako('anna.k'),
 	tytulStrony('Aktualności'),
@@ -116,7 +126,13 @@ const EKSPORTY: unknown[] = [
 	trescUsunieciaDokumentu('Statut żłobka'),
 	opisDodaniaWpisu('Wielkie otwarcie żłobka'),
 	opisZmianyWpisu('Wielkie otwarcie żłobka'),
-	opisUsunieciaWpisu('Wielkie otwarcie żłobka')
+	opisUsunieciaWpisu('Wielkie otwarcie żłobka'),
+	opisDodaniaDokumentu('Statut żłobka'),
+	opisZmianyDokumentu('Statut żłobka'),
+	opisUsunieciaDokumentu('Statut żłobka'),
+	metaDokumentu('PDF', '02.04.2026'),
+	wybranyPlik('wniosek.pdf', '212 KB'),
+	obecnyPlik('PDF · 212 KB')
 ];
 
 /** The e-mail is a panel surface too (CMS-03), so its rendered body and its subject
@@ -372,6 +388,38 @@ test('kopia zdjec nie opisuje zadnej animacji ani paska postepu', () => {
 	const zdjecia = zbierz(KOPIA_ZDJECIA).join('\n');
 	assert.equal(/pasek postępu|ładowanie|animacj/i.test(zdjecia), false);
 	assert.match(KOPIA_ZDJECIA.przygotowywanie, /Przygotowywanie zdjęcia/);
+});
+
+// P-22, and this is the assertion that keeps the deviation HONEST rather than merely
+// recorded. The UI-SPEC route table says the dokument screens need no JavaScript; the file
+// field cannot honour that, because a ten megabyte document has to be encoded in the
+// browser. The sentence the editor reads therefore has to say two things: that attaching a
+// file needs scripting, and that everything else on the screen still works without it. A
+// notice that said only the first would read as „this screen is broken".
+test('napis bez skryptow mowi, co wymaga skryptow i co dziala bez nich (P-22)', () => {
+	assert.match(KOPIA_PLIKU.bezSkryptow, /JavaScript/);
+	assert.match(KOPIA_PLIKU.bezSkryptow, /Dołączenie pliku/);
+	assert.match(KOPIA_PLIKU.bezSkryptow, /możesz wypełnić i zapisać normalnie/);
+	// Names the fields that still work, so „pozostałe pola" is not a promise the editor has
+	// to test for themselves.
+	for (const pole of ['nazwa', 'kategoria', 'wersja']) {
+		assert.match(KOPIA_PLIKU.bezSkryptow, new RegExp(pole));
+	}
+	// Same rule as the photo island: nothing in this field's copy describes motion, because
+	// the island has none and the status sentence is the whole progress indicator.
+	const pliku = zbierz(KOPIA_PLIKU).join('\n');
+	assert.equal(/pasek postępu|ładowanie|animacj/i.test(pliku), false);
+});
+
+// P-23. A document's identity is the slug of its NAME alone, so its collision refusal must
+// name that one field. The aktualność sentence names a title and a publication date, and
+// telling an editor to change a date the filename does not depend on would be an
+// instruction that cannot work (WCAG 3.3.3 says the message must say what to DO).
+test('odmowa przy zajetej nazwie dokumentu mowi o nazwie i o zadnej dacie (P-23)', () => {
+	assert.equal(KOPIA_ZAPIS.kolizjaDokumentNaglowek, 'Taki dokument już istnieje');
+	assert.match(KOPIA_ZAPIS.kolizjaDokumentTresc, /Zmień nazwę dokumentu/);
+	assert.equal(/dat/i.test(KOPIA_ZAPIS.kolizjaDokumentTresc), false);
+	assert.equal(/nadpis|zastąp/i.test(KOPIA_ZAPIS.kolizjaDokumentTresc), false);
 });
 
 // P-17. The filename is generated from the date and the title, so the refusal has to

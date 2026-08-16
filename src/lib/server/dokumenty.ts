@@ -6,8 +6,17 @@
 // so it can be reused by both /dokumenty and the homepage docs panel (Plan 03).
 import { statSync } from 'node:fs';
 import { join } from 'node:path';
+// The `.ts` extension is the convention every module in this project that a unit suite
+// loads directly already follows: `node --test` strips types natively and its resolver
+// requires the real filename.
+import { KATEGORIE, type Kategoria } from '../kategorie-dokumentow.ts';
 
-export type Kategoria = 'rekrutacja' | 'statut' | 'rodo';
+// MOVED to src/lib/kategorie-dokumentow.ts by 04.1-08 and re-exported here, so nothing
+// that already imported the type from this module had to change and exactly one
+// declaration exists. The reason it had to move: this file imports node:fs, the editorial
+// panel runs inside the Cloudflare Worker rather than at build time, and a Worker has no
+// filesystem. The panel needs the union and the order; it must not need node:fs.
+export type { Kategoria };
 
 export interface DokumentEntry {
 	nazwa: string;
@@ -31,9 +40,13 @@ export interface DokumentGroup {
 }
 
 // Fixed order + Polish headings. The RODO group stays dormant (D-13): it only
-// appears once it holds at least one document (Phase 4).
-const KOLEJNOSC: Kategoria[] = ['rekrutacja', 'statut', 'rodo'];
-const NAGLOWEK: Record<Kategoria, string> = {
+// appears once it holds at least one document (Phase 4). The order itself is the shared
+// one, so the public grouping and the panel's list and category select cannot disagree.
+const KOLEJNOSC: readonly Kategoria[] = KATEGORIE;
+/** Exported by 04.1-08 so tests/admin-walidacja-dokumenty.unit.ts can assert that this
+ *  table's keys are exactly the shared union, in the shared order. A heading map that
+ *  drifted from the union would render a group with no name on the public page. */
+export const NAGLOWEK: Record<Kategoria, string> = {
 	rekrutacja: 'Rekrutacja',
 	statut: 'Statut i uchwały',
 	rodo: 'RODO'
@@ -45,7 +58,11 @@ function formatRozmiar(bytes: number): string {
 	return `${Math.max(1, Math.round(kb))} KB`;
 }
 
-function withMeta(entry: DokumentEntry): DokumentWithMeta | null {
+/** The metadata resolver, exported by 04.1-08 so the panel's validator suite can feed a
+ *  freshly validated entry through the REAL reader rather than through a description of it
+ *  (SC5). It reads the filesystem and therefore runs only at build time and under
+ *  `node --test`, never inside the Worker. */
+export function withMeta(entry: DokumentEntry): DokumentWithMeta | null {
 	// `plik` is CMS-controlled content. Require the canonical /dokumenty/ prefix
 	// and forbid traversal segments so the join below can never resolve outside
 	// static/ (defense-in-depth; only .size is ever read).

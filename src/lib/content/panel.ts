@@ -152,6 +152,17 @@ export const KOPIA_EKRAN_WPISU = {
 	stronaNazwa: 'Aktualności'
 } as const;
 
+/** The two dokument editor screens (Component Contract 5). The contract's DOM-order list
+ *  names the h1 of every other editor screen and not this one, so the two headings are
+ *  authored here in the same register as „Nowy wpis" and „Edycja wpisu" rather than
+ *  borrowed from a screen that means something else. */
+export const KOPIA_EKRAN_DOKUMENTU = {
+	nowyNaglowek: 'Nowy dokument',
+	edycjaNaglowek: 'Edycja dokumentu',
+	/** Name of the public section the „Zapisano" panel links into. */
+	stronaNazwa: 'Dokumenty'
+} as const;
+
 /** The three date selects, authored once because both the aktualność publication date
  *  and the document version date use them. The month NAMES are not repeated here: they
  *  come from MIESIACE_WYBOR in ./forms.ts, so the project keeps exactly one month
@@ -351,6 +362,18 @@ export const KOPIA_ZAPIS = {
 	kolizjaNaglowek: 'Taki wpis już istnieje',
 	kolizjaTresc:
 		'Wpis o tym tytule i z tą datą publikacji już jest na stronie. Zmień tytuł albo datę publikacji i zapisz jeszcze raz.',
+	/** The same refusal for a document, and it needs its own words rather than the two above
+	 *  (P-23). A document's identity is the slug of its NAME alone: it has no publication
+	 *  date, and its wersja is the date of the document itself and decides nothing about the
+	 *  filename. Reusing the aktualność sentence would tell an editor to change a date that
+	 *  is not the problem and could not fix it. */
+	kolizjaDokumentNaglowek: 'Taki dokument już istnieje',
+	kolizjaDokumentTresc:
+		'Dokument o tej nazwie już jest na stronie. Zmień nazwę dokumentu i zapisz jeszcze raz.',
+	/** The deletion confirmation on the dokumenty list. „Wpis został usunięty" would be the
+	 *  wrong noun, and a document also disappears in a way worth naming out loud: it stops
+	 *  being downloadable. */
+	usunietoDokumentTresc: 'Dokument został usunięty. Zniknie ze strony żłobka po około 2 minutach.',
 	notaGrupy: 'Dodanie lub usunięcie wiersza nie zapisuje zmian. Na końcu kliknij Zapisz.',
 	dodajWartosc: 'Dodaj wartość',
 	dodajWiersz: 'Dodaj wiersz',
@@ -378,6 +401,31 @@ export const KOPIA_ZDJECIA = {
 	usunieto: 'Usunięto zdjęcie z formularza.',
 	bezSkryptow:
 		'Dodawanie zdjęć wymaga włączonej obsługi JavaScript. Pozostałe pola możesz wypełnić i zapisać normalnie.'
+} as const;
+
+/** The document file field (P-22). Deliberately a separate export from KOPIA_ZDJECIA: the
+ *  two fields share a mechanism and nothing else, and one shared block would let a sentence
+ *  about a photograph reach a screen that is asking for a PDF.
+ *
+ *  Nothing here describes motion, because the file island animates nothing: the status
+ *  sentence IS the progress indicator, exactly as in the photo island. */
+export const KOPIA_PLIKU = {
+	/** Visible label of the native file control. Authored here for the same reason
+	 *  KOPIA_ZDJECIA.wybierzEtykieta is: the UI-SPEC's Dokument table names only the field
+	 *  („Plik *"), reusing that on both the legend and the label would announce the same
+	 *  words twice, and a control with no label of its own is the one thing the
+	 *  Accessibility Contract never allows. */
+	wybierzEtykieta: 'Wybierz plik',
+	przygotowywanie: 'Przygotowywanie pliku...',
+	gotowe: 'Plik jest gotowy do zapisania.',
+	usun: 'Usuń wybrany plik',
+	usunieto: 'Usunięto plik z formularza.',
+	/** P-22, stated honestly and in full. It says what needs JavaScript and, just as
+	 *  importantly, what still works without it: everything except attaching the file, so a
+	 *  document that already has one can have its name, kategoria, wersja and adres BIP
+	 *  corrected and saved with scripting switched off. */
+	bezSkryptow:
+		'Dołączenie pliku wymaga włączonej obsługi JavaScript. Pozostałe pola (nazwa, kategoria, wersja, źródło w BIP) możesz wypełnić i zapisać normalnie, także wtedy, gdy poprawiasz dokument, który plik już ma.'
 } as const;
 
 /** Destructive confirmation pages (Component Contract 11). The copy never promises
@@ -480,6 +528,45 @@ export function opisZmianyWpisu(tytul: string): string {
 
 export function opisUsunieciaWpisu(tytul: string): string {
 	return `usunięto wpis „${tytul}”`;
+}
+
+/** The three commit descriptions of the dokumenty collection, in the same register and for
+ *  the same reasons as the aktualności ones above: three different verbs, so `git log`
+ *  distinguishes a create from an edit from a deletion without opening the diff. */
+export function opisDodaniaDokumentu(nazwa: string): string {
+	return `dodano dokument „${nazwa}”`;
+}
+
+export function opisZmianyDokumentu(nazwa: string): string {
+	return `zaktualizowano dokument „${nazwa}”`;
+}
+
+export function opisUsunieciaDokumentu(nazwa: string): string {
+	return `usunięto dokument „${nazwa}”`;
+}
+
+/** Row meta on the dokumenty list (Component Contract 4). Type and the dotted version date,
+ *  with the middot separator the public document rows already use.
+ *
+ *  THE SIZE IS DELIBERATELY ABSENT, and the reason is not cosmetic: the public rows show it
+ *  because they are prerendered and can stat the file on disk, while the panel runs inside
+ *  the Cloudflare Worker, which has no filesystem to stat. A size shown here could only be a
+ *  stored number, which is exactly what D-14 forbids, because a stored size cannot be
+ *  corrected when the file is replaced. */
+export function metaDokumentu(typ: string, wersja: string): string {
+	return `${typ} · wersja z ${wersja}`;
+}
+
+/** The file an editor has just chosen, before anything is saved. Names it and gives its
+ *  size, so the person can see they picked the file they meant to. */
+export function wybranyPlik(nazwa: string, rozmiar: string): string {
+	return `Wybrany plik: ${nazwa} (${rozmiar})`;
+}
+
+/** The file a document ALREADY has, shown as text on the edit screen so an editor knows
+ *  what is attached before deciding whether to replace it. */
+export function obecnyPlik(opis: string): string {
+	return `Obecny plik: ${opis}`;
 }
 
 /** Delete confirmation bodies, quoting exactly what is about to disappear. */
