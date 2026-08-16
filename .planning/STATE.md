@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 04.1
 current_phase_name: replace-sveltia-with-custom-polish-cms
 status: executing
-stopped_at: Completed 04.1-02-PLAN.md (one-time code + panel copy)
-last_updated: "2026-08-16T04:19:09.511Z"
+stopped_at: Completed 04.1-05-PLAN.md (przelacznik naboru); pierwszy prawdziwy zapis na produkcji wciaz owed
+last_updated: "2026-08-16T07:35:22.789Z"
 last_activity: 2026-08-16
-last_activity_desc: Completed 04.1-02 (one-time code, panel copy module)
+last_activity_desc: "Completed 04.1-05 (nabor w JSON, wspolny zapis, ekran /admin/nabor)"
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 38
-  completed_plans: 31
+  completed_plans: 32
   percent: 50
 ---
 
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md (updated 2026-08-14)
 ## Current Position
 
 Phase: 04.1 (replace-sveltia-with-custom-polish-cms) — EXECUTING
-Plan: 5 of 11
+Plan: 6 of 11
 Status: Ready to execute
-Last activity: 2026-08-16 — Completed 04.1-04 (repository write path: GitHub App token, atomic commit, prettier-shaped JSON)
+Last activity: 2026-08-16 — Completed 04.1-05 (nabor przeniesiony do JSON, wspolny orkiestrator zapisu, ekran /admin/nabor z podgladem)
 
 Plan 11 is `autonomous: false`. Plan 04's human prerequisites are now PARTLY done: the GitHub App `Panel redakcyjny zlobka` exists (org-owned, Contents:write on one repository, client id `Iv23lipuQ3hnHl4snF6h`, installation `154059103`) and the private key is converted to PKCS#8 at `~/Documents/panel-redakcyjny-zlobka.pkcs8.pem`. **What is still OWED is the Cloudflare half:** the five admin Pages secrets are not set and no deployment carries them. Exact commands are in `04.1-04-SUMMARY.md` under `CHECKPOINT: human-action`. Plans 05 to 10 can be built and unit-tested without them; no live save works until they are set and a NEW deployment is created (a Pages secret only reaches deployments made after it is set).
 
@@ -96,6 +96,7 @@ Progress: 04.1 plans 1 to 4 of 11 complete; 27/27 plans in phases 1-4 complete (
 | Phase 04.1 P02 | 22min | 3 tasks tasks | 6 files files |
 | Phase 04.1 P03 | 38min | 3 tasks | 15 files |
 | Phase 04.1 P04 | 6 | 3 tasks | 6 files |
+| Phase 04.1 P05 | 3h | 3 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -172,6 +173,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 04.1-04: PANEL_DRY_RUN is a caller concern; zapiszAtomowo takes a dryRun option and never reads the environment, so the module stays pure (P-13)
 - [Phase ?]: 04.1-04: the imported CryptoKey is cached at module scope beside the PEM that produced it, so a rotated key cannot keep signing from a warm isolate
 - [Phase ?]: 04.1-04: CMS-02 stays UNMARKED until a real save produces a real commit (Plan 10), following the Plan 01 and 02 precedent
+- [Phase ?]: 04.1-05: slownik pola formularza naboru wydzielony do src/lib/stan-naboru.ts, bo SvelteKit nie zbuduje klienta importujacego $lib/server
+- [Phase ?]: 04.1-05: stan radia to zapisywalny $derived (Svelte 5.25+), nie $state z propa, zeby odpowiedz serwera po odmowie zapisu nie byla ignorowana
 
 ### Pending Todos
 
@@ -207,6 +210,7 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 - [Phase 04.1 / 04.1-03] LOGIN TIMING PARITY IS NOT PROVEN. The step 1 action defers the Resend send to waitUntil (P-08) but still awaits the KV store, so an address-correlated delta remains: measured locally at about 4.2 ms for an allowlisted address against 3.1 ms for one that is not, ten requests each against wrangler pages dev. Playwright cannot see the real oracle, because PANEL_DRY_RUN short-circuits the send, so tests/admin-auth.spec.ts asserts only the STRUCTURAL property and says so. Plan 10 owes the live response-time distribution comparison, 04.1-VALIDATION.md 'Not Inferable From Unit Tests' item 1. If it shows a usable oracle, defer the KV store as well and give the attempt-cap Playwright case a deterministic wait.
 - [Phase 04.1 / 04.1-03] Five panel nav destinations are 404s for a logged-in editor until plans 05 to 09 land: /admin/aktualnosci, /admin/o-nas, /admin/plan-dnia, /admin/dokumenty, /admin/nabor and /admin/pomoc. The nav is required by UI-SPEC Component Contract 1 in full and the paths are the contract's, so this is expected rather than a defect, but nobody should be shown the panel before Plan 09.
 - 04.1-04 human-action checkpoint OPEN: the five Cloudflare Pages admin secrets (ADMIN_EMAILS, ADMIN_SESSION_SECRET, GITHUB_APP_CLIENT_ID, GITHUB_APP_INSTALLATION_ID, GITHUB_APP_PRIVATE_KEY) are not set and no deployment carries them. Exact commands are in 04.1-04-SUMMARY.md under CHECKPOINT: human-action. Plans 05 to 10 can be built and unit-tested without them, but no live save works until they are set and a NEW deployment is created.
+- 04.1-05: pierwszy PRAWDZIWY zapis z panelu na zywym wdrozeniu nie zostal wykonany (zakaz wypychania i wdrazania w tej sesji). CMS-02 udowodnione tylko lokalnie. Kroki w 04.1-05-SUMMARY.md, sekcja CHECKPOINT
 
 ### Quick Tasks Completed
 
@@ -229,6 +233,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-16T04:18:44.843Z
+Last session: 2026-08-16T07:35:17.239Z
 Stopped at: Completed 04.1-02-PLAN.md (one-time code + panel copy)
 Resume file: .planning/phases/04.1-replace-sveltia-with-custom-polish-cms/04.1-03-PLAN.md
