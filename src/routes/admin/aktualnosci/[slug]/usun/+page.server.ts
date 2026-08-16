@@ -25,6 +25,7 @@ import { readAktualnosci, type PostWithMeta } from '$lib/server/aktualnosci';
 import { KOPIA_ZAPIS, opisUsunieciaWpisu } from '$lib/content/panel';
 import { POLE_SHA, ZNACZNIK_USUNIETO } from '$lib/pola-wpisu';
 import { sciezkaWpisu } from '$lib/server/admin/slug';
+import { okladkaDoUsuniecia } from '$lib/server/admin/uploads';
 import { aktualnyShaGlowy, zapiszTresc } from '$lib/server/admin/zapis';
 import type { PageServerLoad } from './$types';
 
@@ -43,13 +44,26 @@ export interface WynikUsuniecia {
 /**
  * Every repository path that disappears when this entry is deleted.
  *
- * One entry, one list, one commit. Today the list holds the JSON file only, because no
- * aktualność has a cover yet. Plan 07 appends the cover path here, and because it is a
- * list the commit stays a single atomic write: an entry and its picture must never leave
- * the site in two builds four minutes apart.
+ * One entry, one list, one commit: the entry and its picture must never leave the site in
+ * two builds four minutes apart, and this is the append Plan 06 wrote the helper for.
+ *
+ * THE COVER IS ONLY REMOVED WHEN IT IS REALLY THIS ENTRY'S. `okladkaDoUsuniecia` decides
+ * that, and it is deliberately conservative: it removes a file only when the name is the
+ * one this entry's own stem generates, when no other entry points at it, and when it is
+ * actually present in the build. Both seed images in this repository are rendered by the o
+ * nas page as well, so a rule that asked only „does another aktualność use it" would have
+ * deleted a picture a public page needs. An unreferenced leftover costs a few kilobytes in
+ * a directory listing; a missing shared one breaks a page.
  */
-function sciezkiDoUsuniecia(wpis: PostWithMeta): string[] {
-	return [sciezkaWpisu(wpis.slug)];
+function sciezkiDoUsuniecia(wpis: PostWithMeta, inne: readonly PostWithMeta[]): string[] {
+	const sciezki = [sciezkaWpisu(wpis.slug)];
+	const okladka = okladkaDoUsuniecia(
+		wpis.slug,
+		wpis.obraz,
+		inne.map((post) => post.obraz)
+	);
+	if (okladka !== null) sciezki.push(okladka);
+	return sciezki;
 }
 
 export const load: PageServerLoad = async ({ params, platform }) => {
@@ -76,7 +90,8 @@ export const actions: Actions = {
 
 		// Resolved again on the POST rather than trusted from the load: the two requests are
 		// separate, and this is the one that writes.
-		const wpis = readAktualnosci().find((post) => post.slug === params.slug);
+		const wszystkie = readAktualnosci();
+		const wpis = wszystkie.find((post) => post.slug === params.slug);
 		if (!wpis) {
 			return fail(404, {
 				panelNaglowek: KOPIA_ZAPIS.brakTresciNaglowek,
@@ -93,7 +108,10 @@ export const actions: Actions = {
 			// Nothing is written. A deletion is a tree entry whose sha is null, which is why
 			// it costs no blob and needs no mechanism of its own.
 			pliki: [],
-			usun: sciezkiDoUsuniecia(wpis),
+			usun: sciezkiDoUsuniecia(
+				wpis,
+				wszystkie.filter((post) => post.slug !== wpis.slug)
+			),
 			oczekiwanySha:
 				typeof oczekiwanySha === 'string' && oczekiwanySha.length > 0 ? oczekiwanySha : undefined
 		});

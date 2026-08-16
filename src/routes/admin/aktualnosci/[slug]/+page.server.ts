@@ -33,9 +33,11 @@ import { KOPIA_WALIDACJA, KOPIA_ZAPIS, opisZmianyWpisu } from '$lib/content/pane
 import { POLE_SHA, ZNACZNIK_ZAPISANO, wartosciWpisu, type WartosciWpisu } from '$lib/pola-wpisu';
 import { lataDoWyboru } from '$lib/daty';
 import { sciezkaWpisu } from '$lib/server/admin/slug';
+import { nazwaOkladki, okladkaDoUsuniecia, sciezkaOkladki } from '$lib/server/admin/uploads';
 import { serializujJson } from '$lib/server/admin/serializuj';
-import { walidujWpis } from '$lib/server/admin/walidacja/aktualnosci';
+import { walidujWpis, zOkladka } from '$lib/server/admin/walidacja/aktualnosci';
 import { aktualnyShaGlowy, zapiszTresc } from '$lib/server/admin/zapis';
+import type { PlikDoZapisu } from '$lib/server/admin/commit';
 import type { PageServerLoad } from './$types';
 
 /** Commit scope for D-04's `tresc(<zakres>): ...` subject. */
@@ -139,15 +141,50 @@ export const actions: Actions = {
 			} satisfies WynikWpisu);
 		}
 
+		// The entry and its cover are ONE commit (D-07). A new photo overwrites the previous
+		// one IN PLACE, at the same generated path, so a replacement never appears in the
+		// delete list as well: one commit cannot both write and remove one file (P-21).
+		let doZapisu = wynik.dane;
+		const pliki: PlikDoZapisu[] = [];
+		if (wynik.zdjecie !== undefined) {
+			const nazwaObrazu = nazwaOkladki(wpis.slug);
+			doZapisu = zOkladka(doZapisu, nazwaObrazu, wynik.zdjecie.alt);
+			pliki.push({
+				sciezka: sciezkaOkladki(nazwaObrazu),
+				// Passed through unchanged: nothing here decodes or re-encodes the bytes.
+				tresc: wynik.zdjecie.base64,
+				base64: true
+			});
+		}
+		pliki.unshift({ sciezka: sciezkaWpisu(wpis.slug), tresc: serializujJson(doZapisu) });
+
+		// A REMOVAL takes the file out in the same commit that stops pointing at it, so the
+		// site never carries a picture nothing references. `okladkaDoUsuniecia` is what
+		// decides whether the file is really this entry's to remove: the two seed images are
+		// rendered by the o nas page as well, and removing one of those would break a public
+		// page rather than tidy anything up.
+		const usun: string[] = [];
+		if (wynik.usunOkladke) {
+			const doUsuniecia = okladkaDoUsuniecia(
+				wpis.slug,
+				wpis.obraz,
+				readAktualnosci()
+					.filter((post) => post.slug !== wpis.slug)
+					.map((post) => post.obraz)
+			);
+			if (doUsuniecia !== null) usun.push(doUsuniecia);
+		}
+
 		const oczekiwanySha = dane.get(POLE_SHA);
 		const zapis = await zapiszTresc({
 			env: platform?.env,
 			uchwyt: locals.editor,
 			zakres: ZAKRES,
-			opis: opisZmianyWpisu(wynik.dane.tytul),
 			// THE ENTRY'S OWN PATH, from its own slug. Not a name derived from the submitted
 			// title and date, which is what would rename the file and break the URL.
-			pliki: [{ sciezka: sciezkaWpisu(wpis.slug), tresc: serializujJson(wynik.dane) }],
+			opis: opisZmianyWpisu(wynik.dane.tytul),
+			pliki,
+			usun: usun.length > 0 ? usun : undefined,
 			oczekiwanySha:
 				typeof oczekiwanySha === 'string' && oczekiwanySha.length > 0 ? oczekiwanySha : undefined
 		});

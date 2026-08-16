@@ -33,6 +33,7 @@ import {
 	ROZSZERZENIE,
 	bezpiecznaNazwaOkladki,
 	nazwaOkladki,
+	okladkaDoUsuniecia,
 	sciezkaOkladki
 } from '../src/lib/server/admin/uploads.ts';
 import { nazwaPlikuWpisu, ROZSZERZENIE_WPISU } from '../src/lib/server/admin/slug.ts';
@@ -241,6 +242,55 @@ test('nazwa okladki z zadania jest przyjmowana z listy dozwolonych, nie czyszczo
 		bezpiecznaNazwaOkladki(nazwaOkladki('2026-08-20-dzien-otwarty')),
 		'2026-08-20-dzien-otwarty.jpg'
 	);
+});
+
+// ---------------------------------------------------------------------------
+// Which cover a deletion may take with it (P-18)
+// ---------------------------------------------------------------------------
+
+const SLUG = '2026-08-20-dzien-otwarty';
+const OKLADKA = `${SLUG}.jpg`;
+const W_BUDOWIE = new Set([OKLADKA, 'sala-zabaw.jpg', 'plac-zabaw.jpg']);
+
+test('okladka wygenerowana dla tego wpisu i przez nikogo nieuzywana jest usuwana razem z nim', () => {
+	assert.equal(okladkaDoUsuniecia(SLUG, OKLADKA, [], W_BUDOWIE), `${KATALOG_UPLOADS}/${OKLADKA}`);
+});
+
+test('nic nie jest usuwane, gdy wpis nie ma okladki albo jej nazwa nie jest jego wlasna', () => {
+	// No cover at all.
+	assert.equal(okladkaDoUsuniecia(SLUG, undefined, [], W_BUDOWIE), null);
+	// A hand-set name that this entry's stem does not generate. BOTH seed images in this
+	// repository are of exactly this kind, and both are rendered by the o nas page too, so a
+	// rule that only asked „does another aktualność use it" would delete a picture a public
+	// page needs.
+	assert.equal(okladkaDoUsuniecia(SLUG, 'sala-zabaw.jpg', [], W_BUDOWIE), null);
+	assert.equal(okladkaDoUsuniecia(SLUG, 'plac-zabaw.jpg', [], W_BUDOWIE), null);
+	// Another entry's generated name.
+	assert.equal(okladkaDoUsuniecia(SLUG, '2026-01-01-inny-wpis.jpg', [], W_BUDOWIE), null);
+	// A hostile value, which cannot become a path however it is joined (T-04.1-10).
+	assert.equal(okladkaDoUsuniecia(SLUG, '../../../etc/passwd', [], W_BUDOWIE), null);
+});
+
+test('okladka, na ktora wskazuje inny wpis, zostaje na miejscu', () => {
+	assert.equal(okladkaDoUsuniecia(SLUG, OKLADKA, [OKLADKA], W_BUDOWIE), null);
+	// Including a stored value that kept a path in front of the same basename.
+	assert.equal(
+		okladkaDoUsuniecia(SLUG, OKLADKA, [`src/lib/assets/uploads/${OKLADKA}`], W_BUDOWIE),
+		null
+	);
+	// Positive control: other entries with other covers, or none, do not protect it.
+	assert.equal(
+		okladkaDoUsuniecia(SLUG, OKLADKA, [undefined, 'sala-zabaw.jpg'], W_BUDOWIE),
+		`${KATALOG_UPLOADS}/${OKLADKA}`
+	);
+});
+
+test('plik spoza ostatniej budowy nie jest usuwany, bo nie ma czego usuwac', () => {
+	// The panel reads the LAST BUILD, so a cover committed a minute ago is not visible to it
+	// yet. Being out of date in this direction is safe: it means „delete nothing", never
+	// „delete something else". Asking git to remove a path that is not there would fail the
+	// whole atomic save and turn a successful deletion into an error panel.
+	assert.equal(okladkaDoUsuniecia(SLUG, OKLADKA, [], new Set()), null);
 });
 
 // ---------------------------------------------------------------------------

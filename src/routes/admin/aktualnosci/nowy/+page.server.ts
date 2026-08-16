@@ -36,9 +36,11 @@ import {
 } from '$lib/pola-wpisu';
 import { lataDoWyboru } from '$lib/daty';
 import { ROZSZERZENIE_WPISU, nazwaPlikuWpisu, sciezkaWpisu } from '$lib/server/admin/slug';
+import { nazwaOkladki, sciezkaOkladki } from '$lib/server/admin/uploads';
 import { serializujJson } from '$lib/server/admin/serializuj';
-import { walidujWpis } from '$lib/server/admin/walidacja/aktualnosci';
+import { walidujWpis, zOkladka } from '$lib/server/admin/walidacja/aktualnosci';
 import { aktualnyShaGlowy, zapiszTresc } from '$lib/server/admin/zapis';
+import type { PlikDoZapisu } from '$lib/server/admin/commit';
 import type { PageServerLoad } from './$types';
 
 /** Commit scope for D-04's `tresc(<zakres>): ...` subject. */
@@ -108,6 +110,30 @@ export const actions: Actions = {
 			} satisfies WynikWpisu);
 		}
 
+		// THE ENTRY AND ITS COVER ARE ONE COMMIT, and that is D-07 rather than an
+		// optimisation. Two commits would be two Cloudflare builds, roughly four minutes, and
+		// a window in which the post is live on the żłobek's website without its picture. The
+		// cover is named from the SAME stem as the JSON (P-19), so the pair is obvious in a
+		// directory listing and the name is inside the glob the public card resolves through.
+		let doZapisu = wynik.dane;
+		const pliki: PlikDoZapisu[] = [];
+		if (wynik.zdjecie !== undefined) {
+			const nazwaObrazu = nazwaOkladki(slug);
+			doZapisu = zOkladka(doZapisu, nazwaObrazu, wynik.zdjecie.alt);
+			pliki.push({
+				sciezka: sciezkaOkladki(nazwaObrazu),
+				// PASSED THROUGH UNCHANGED. The browser produced this encoding while the editor
+				// was looking at the preview, and nothing on the server reads, decodes or
+				// re-encodes it: see the header of src/lib/server/admin/obraz.ts for the
+				// measurement that decision rests on.
+				tresc: wynik.zdjecie.base64,
+				base64: true
+			});
+		}
+		// The JSON goes FIRST, so a person reading the commit sees the entry before its
+		// picture.
+		pliki.unshift({ sciezka: sciezkaWpisu(slug), tresc: serializujJson(doZapisu) });
+
 		const oczekiwanySha = dane.get(POLE_SHA);
 		const zapis = await zapiszTresc({
 			env: platform?.env,
@@ -116,7 +142,7 @@ export const actions: Actions = {
 			opis: opisDodaniaWpisu(wynik.dane.tytul),
 			// Serialized HERE, by the caller, which is what makes an unvalidated save
 			// inexpressible in zapiszTresc's signature. See its module header.
-			pliki: [{ sciezka: sciezkaWpisu(slug), tresc: serializujJson(wynik.dane) }],
+			pliki,
 			oczekiwanySha:
 				typeof oczekiwanySha === 'string' && oczekiwanySha.length > 0 ? oczekiwanySha : undefined
 		});

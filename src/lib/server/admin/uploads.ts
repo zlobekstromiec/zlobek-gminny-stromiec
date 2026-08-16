@@ -120,7 +120,12 @@ export function istniejaceNazwy(): ReadonlySet<string> {
 export function okladkaDoUsuniecia(
 	slug: string,
 	obraz: string | undefined,
-	obrazyInnychWpisow: readonly (string | undefined)[]
+	obrazyInnychWpisow: readonly (string | undefined)[],
+	// Injected by the unit suite, exactly as every other side effect in this phase is, so
+	// the whole decision is drivable with no build and no browser. The default is evaluated
+	// only when a caller omits it, which is why importing this module costs nothing under a
+	// plain test runner.
+	istniejace: ReadonlySet<string> = istniejaceNazwy()
 ): string | null {
 	if (obraz === undefined) return null;
 	const nazwa = bezpiecznaNazwaOkladki(obraz.split('/').pop());
@@ -128,6 +133,6 @@ export function okladkaDoUsuniecia(
 	if (nazwa !== nazwaOkladki(slug)) return null;
 	const uzywana = obrazyInnychWpisow.some((inny) => inny !== undefined && inny.endsWith(nazwa));
 	if (uzywana) return null;
-	if (!istniejaceNazwy().has(nazwa)) return null;
+	if (!istniejace.has(nazwa)) return null;
 	return sciezkaOkladki(nazwa);
 }
