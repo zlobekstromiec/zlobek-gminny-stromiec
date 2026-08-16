@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 04.1
-current_phase_name: INSERTED
-status: planning
-stopped_at: Phase 04.1 planned (11 plans, 10 waves)
-last_updated: "2026-08-16T00:00:00.000Z"
+current_phase_name: replace-sveltia-with-custom-polish-cms
+status: executing
+stopped_at: Completed 04.1-01-PLAN.md (gate + Sveltia removal)
+last_updated: "2026-08-16T02:33:17.216Z"
 last_activity: 2026-08-16
-last_activity_desc: Phase 04.1 planned — 11 plans in 10 waves, plan-checker VERIFICATION PASSED
+last_activity_desc: Phase 04.1 execution started
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 38
-  completed_plans: 27
+  completed_plans: 28
   percent: 50
 ---
 
@@ -24,18 +24,20 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-14)
 
 **Core value:** A parent lands on the site and, within seconds, both feels the żłobek's warmth and finds the exact information they need (enrollment, documents, contact) — on any device.
-**Current focus:** Phase 04.1 — Replace Sveltia with custom Polish CMS (INSERTED)
+**Current focus:** Phase 04.1 — replace-sveltia-with-custom-polish-cms
 
 ## Current Position
 
-Phase: 04.1 — Replace Sveltia with custom Polish CMS (INSERTED)
-Plan: 0/11 executed
+Phase: 04.1 (replace-sveltia-with-custom-polish-cms) — EXECUTING
+Plan: 2 of 11
 Status: Ready to execute
-Last activity: 2026-08-16 — Phase 04.1 planned: 11 plans in 10 waves, plan-checker VERIFICATION PASSED
+Last activity: 2026-08-16 — Phase 04.1 execution started
 
-Plans 04 and 11 are `autonomous: false`. Plan 04 opens with a human checkpoint (create the GitHub App, convert the private key PKCS#1 → PKCS#8 with `openssl pkcs8 -topk8 -nocrypt`, set the Pages secrets). Plan 11 opens with the D-20 live-UAT gate and closes with deleting the GitHub OAuth App and the `sveltia-cms-auth` Worker, both dashboard-only. Sveltia is removed only after that UAT passes.
+Plans 04 and 11 are `autonomous: false`. Plan 04 opens with a human checkpoint (create the GitHub App, convert the private key PKCS#1 → PKCS#8 with `openssl pkcs8 -topk8 -nocrypt`, set the Pages secrets).
 
-Progress: [█████████████████░░░] 27/27 plans in phases 1-4 complete (4 of 8 phases, 50%)
+**D-20 IS SUPERSEDED as of Plan 01 (user-approved Rule 4 deviation).** Sveltia's repository footprint was deleted in Plan 01, not Plan 11, because `static/admin/` is a Cloudflare Pages static asset and static assets resolve before the Worker, so the bare `/admin` never reached the new gate and the plan's own assertions were unprovable. Staff therefore have NO working editor until Plan 10 lands, which the user accepted. Plan 11 must be re-read rather than executed as written: its Task 2 is now largely a no-op (see `04.1-01-SUMMARY.md` "Knock-on Effects for Plan 11" for the exact split), and its ordering prohibition no longer applies. Plan 11 Task 3 is unchanged and still owed: deleting the GitHub OAuth App and the deployed `sveltia-cms-auth` Worker, both dashboard-only and both still live.
+
+Progress: 04.1 plan 1 of 11 complete; 27/27 plans in phases 1-4 complete (4 of 8 phases)
 
 **Phase 5 (Gallery & Fees) is deferred behind 04.1.** Its `05-CONTEXT.md` was gathered on 2026-08-15 assuming Sveltia is the CMS; re-read and refresh it after 04.1 lands, because gallery photo management and the fees editor are now authored in the replacement panel.
 
@@ -88,6 +90,7 @@ Progress: [█████████████████░░░] 27/27 p
 | Phase 04 P07 | 68min | 3 tasks tasks | 7 files files |
 | Phase 04 P09 | 4min | 1 task tasks | 2 files files |
 | Phase 04 P08 | 16 | 3 tasks tasks | 5 files files |
+| Phase 04.1 P01 | 22min | 4 tasks tasks | 18 files files |
 
 ## Accumulated Context
 
@@ -148,6 +151,10 @@ Recent decisions affecting current work:
 - [Phase ?]: [04-09] WR-02 closed: the Turnstile $effect now owns the lifetime of everything it installs. Cleanup clears window.__onTurnstileLoad ONLY when it is identity-equal to that instance's own rysuj closure (an unconditional clear was rejected: a fast-path instance that installed nothing would delete a waiting instance's callback, the same cross-instance bug inverted), and rysuj returns early when the bound container is no longer connected, so a late loader callback or a re-executed svelte:head script after client-side navigation between /kontakt and /rekrutacja cannot orphan a widget. Pinned by a Playwright case observed RED (typeof was 'function') then GREEN, with a window sentinel proving the navigation was client side. Token contract, sitekey constants, host allow-list, render options and .slot sizing byte-identical; the ambient turnstile declarations were already optional so no d.ts change was needed. The live real-widget check across client-side navigation stays a human step.
 - [Phase 04]: [04-08] CR-01 closed by moving the rate-limit WINDOW INTO THE KV KEY: the per-client key gains an hour-of-epoch bucket appended outside the digest and the site-wide counter becomes rl:doba:YYYY-MM-DD (UTC). expirationTtl is demoted to a cleanup-only MNOZNIK_TTL(2) x window lifetime, because a KV write overwrites the stored expiration, so the old bare-window value made the single daily counter monotonic: ordinary traffic drove it to 40 and returned 429 to every parent on BOTH forms until 24h of total site silence. podLimitem takes the clock as the SEVENTH parameter with a Date.now() default, which is what keeps both positional endpoint call sites byte-identical; the clock is read once and feeds both key builders so no request can straddle a boundary.
 - [Phase 04]: [04-08] WR-01 closed: podLimitem returns true and stores nothing when sol.trim() is empty. trim is deliberate (both endpoints pass env.RATE_LIMIT_SALT ?? ''), and the guard sits BEFORE kluczLimitu so zero KV reads and zero writes happen: an unsalted truncated SHA-256 of a client address is enumerable across IPv4 and would turn the stored key into a reversible pseudonym, contradicting the klauzula sentence pinned by tests/forms-copy.unit.ts. Skipping is the same documented fail-open degrade as an absent binding; failing closed would discard enquiries stored nowhere.
+- [Phase ?]: [04.1-01] Panel gate shipped: ONE handle() in src/hooks.server.ts runs before routing, so it covers pages, form actions and paths whose routes later plans have not written yet, and every branch fails CLOSED (deliberately the opposite of the documented fail-open degrade in the forms rate limiter, which sits behind Turnstile rather than being the authentication boundary). Session is a stateless HMAC-SHA256 __Host-panel_sesja cookie (WebCrypto only, 30 days, renewed only past a 5-day threshold so most responses carry no Set-Cookie), made revocable by re-running naLiscie against ADMIN_EMAILS on EVERY request instead of only at login. Mutation-proven both ways: deleting the naLiscie call leaves the file type-clean and all 216 unit tests green but turns the de-allowlisted Playwright case red (200 instead of 303); deleting the expiry comparison turns admin-sesja.unit.ts red.
+- [Phase ?]: [04.1-01] SVELTIA REMOVED IN PLAN 01, SUPERSEDING D-20 (user-approved Rule 4 deviation at the plan checkpoint). static/admin/ is a Cloudflare Pages static asset and Pages resolves static assets BEFORE invoking the Worker, so the bare /admin returned Sveltia index.html with a 200 and never reached handle(). The plan's own assertions were unprovable while the bundle existed. Removed: static/admin/, sveltia-cms-auth/, scripts/cms-sync.mjs, the cms:sync script, the @sveltia/cms dependency (lockfile regenerated, zero matches), two eslint ignore blocks, one .prettierignore entry, and the path-scoped /admin/* CSP block in _headers. ACCEPTED CONSEQUENCE: staff have no working editor until Plan 10 lands.
+- [Phase ?]: [04.1-01] The path-scoped /admin/* CSP block was DELETED, not rewritten: the panel is SvelteKit routes, so kit.csp already covers it, confirmed by curl against wrangler pages dev on both /admin/logowanie and an authenticated /admin (content-security-policy header with a fresh per-response nonce). kit.csp was NOT widened. The old block was not merely dead but actively wrong for the new panel (it permitted frame-src github.com, connect-src the auth Worker origin, and img-src two githubusercontent hosts). A comment now sits where the block was, stating there is deliberately no path-scoped block and that kit.csp must not be widened for the panel.
+- [Phase ?]: [04.1-01] Two Playwright harness facts, observed not assumed. (1) A __Host- cookie CANNOT be seeded with context.addCookies url http://localhost:4173: Chromium drops the Secure flag when the seeding url is plain http (an ordinary-named cookie seeded that way returns secure:false), so the prefix fails its own validation and the call throws 'Invalid cookie fields'. Explicit domain localhost + path / + secure true and NO url is accepted, stores a genuinely Secure host-only cookie, and Chromium then sends it to http://localhost because localhost is a trustworthy origin. (2) A panel POST case must send an origin header: SvelteKit's CSRF layer answers 403 BEFORE hooks run, so without it every POST case would measure the CSRF check instead of the gate. tests/fixtures/admin.ts also READS the secret and address out of the preview:test script rather than retyping them, so harness bindings and fixture cannot drift apart silently.
 
 ### Pending Todos
 
@@ -177,6 +184,8 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 - [Phase 4 / 04-REVIEW WR-01] **Process risk, carried forward.** `tests/forms.unit.ts` is the entire regression proof for the CR-01 rate-limiter fix, and it runs in NO automated gate: `npm run test` is Playwright-only (the `.unit.ts` suffix deliberately dodges the matcher), pre-commit runs only svelte-check + prettier/eslint, and there is no CI workflow. `docs/dev-env.md` still documents the verify gate as `check && lint && test`, omitting `test:unit`. Same finding was raised at `03-REVIEW.md:99-105` and left open. Two mutation-proven corollaries recorded in 04-REVIEW.md: setting `MNOZNIK_TTL = 1` (the original bug shape) leaves all 180 tests green, and swapping `kluczDobowy` to local time still passes at `TZ=Europe/Warsaw`. Worth a small follow-up in Phase 5 or 6.
 
 - [Phase 04.1] CMS requirements are stated as implementation and go stale the moment Sveltia leaves. `REQUIREMENTS.md` CMS-01 reads "log into a git-based CMS (Sveltia) via GitHub OAuth (self-hosted auth Worker)" and is ticked complete; CMS-03 (Polish admin portal) is also ticked despite the English-chrome caveat recorded in the 02-05 decision, which is one of the reasons this phase exists. Both were left untouched by the phase insertion (a phase-op does not edit requirements). Reword them during `/gsd-discuss-phase 04.1` and re-verify them when the phase completes, otherwise the traceability table will claim a Sveltia+GitHub login that no longer exists.
+- [Phase 04.1 / 04.1-01] TWO LIVE SERVICES FROM THE OLD EDITOR ARE STILL RUNNING, now orphaned. Sveltia's files are gone from the repo (user-approved early removal, see decisions), but no file deletion can reach either of these: (a) the sveltia-cms-auth Worker is still DEPLOYED on sveltia-cms-auth.devzlobekstromiec.workers.dev and still answering; (b) the GitHub OAuth App still exists in the zlobekstromiec Org and can still authorize access to the PUBLIC repository. Both are Plan 11 Task 3 (dashboard-only: the scoped CLOUDFLARE_API_TOKEN in .envrc has no Workers permission). The OAuth App is now slightly worse than before, because nothing in the tree points at it any more. Delete it sooner than Plan 11 if convenient. Do NOT confuse it with the GitHub App created in Plan 04, which is the new panel's write identity.
+- [Phase 04.1 / 04.1-01] STAFF HAVE NO WORKING EDITOR until Plan 10 lands. Direct consequence of the user-approved early Sveltia removal that supersedes D-20. Any urgent content change before then is a developer editing JSON under src/lib/content/ and pushing. Plan 11 must be re-read rather than executed as written: its Task 2 is now largely a no-op, and its ordering prohibition (teardown must not start before the live UAT passes) is already superseded.
 
 ### Quick Tasks Completed
 
@@ -199,6 +208,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-16T00:00:00.000Z
-Stopped at: Phase 04.1 planned (11 plans, 10 waves) — VERIFICATION PASSED
-Resume file: .planning/phases/04.1-replace-sveltia-with-custom-polish-cms/04.1-01-PLAN.md
+Last session: 2026-08-16T02:33:10.645Z
+Stopped at: Completed 04.1-01-PLAN.md (gate + Sveltia removal)
+Resume file: .planning/phases/04.1-replace-sveltia-with-custom-polish-cms/04.1-02-PLAN.md

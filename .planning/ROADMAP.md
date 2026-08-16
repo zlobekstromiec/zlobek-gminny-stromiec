@@ -211,13 +211,13 @@ Plans:
 - Write path: the panel still has to persist content. Commit to the repo through the GitHub API with a server-side token (keeps git history, keeps prerender, needs a secret with write scope) vs. move editable content out of git into a store, which changes the build model for every reader written in Phases 2-3.
 - Media uploads: cover images currently flow through the Vite/`enhanced-img` pipeline because they live in the repo; whatever write path is chosen must not break that.
 
-**Plans**: 11 plans
+**Plans**: 1/11 plans executed
 
 Plans:
 
 *(Wave 1)*
 
-- [ ] 04.1-01-PLAN.md — Brama panelu: podpisana sesja, lista dostępu i jedyny strażnik `/admin`
+- [x] 04.1-01-PLAN.md — Brama panelu: podpisana sesja, lista dostępu i jedyny strażnik `/admin`
 
 *(Wave 2)*
 
@@ -330,6 +330,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 5 → 6
 | 2. About, Documents & CMS | 6/6 | Complete    | 2026-08-13 |
 | 3. News (Aktualności) | 7/7 | Complete    | 2026-08-13 |
 | 4. Enrollment, Contact & Email Pipeline | 9/9 | Complete    | 2026-08-15 |
-| 04.1 Replace Sveltia with custom Polish CMS (INSERTED) | 0/TBD | Not started | - |
+| 04.1 Replace Sveltia with custom Polish CMS (INSERTED) | 1/11 | In Progress|  |
 | 5. Gallery & Fees | 0/TBD | Not started | - |
 | 6. Accessibility, Legal Compliance & Launch | 0/TBD | Not started | - |
