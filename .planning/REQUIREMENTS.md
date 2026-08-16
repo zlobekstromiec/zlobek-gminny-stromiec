@@ -62,9 +62,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### CMS & Forms Infrastructure
 
-- [x] **CMS-01**: Authorized staff can log into a git-based CMS (Sveltia) via GitHub OAuth (self-hosted auth Worker)
-- [x] **CMS-02**: CMS edits commit to the repo and trigger a Cloudflare rebuild/deploy
-- [x] **CMS-03**: The CMS admin portal is in Polish — all field labels, hints, and help text (and the editor UI where supported) — so non-English-speaking staff can manage content
+- [ ] **CMS-01**: Authorized staff can sign in to the admin panel with a one-time code sent to their e-mail address, without a GitHub account or any other external account _(Reworded per 04.1 D-21: this states the outcome, not the implementation. Built and proven locally in Phase 04.1; the code-request leg is confirmed on the live deployment. UNMARKED pending the live UAT in which a real staff member completes a login unaided.)_
+- [ ] **CMS-02**: Panel edits commit to the repo and trigger a Cloudflare rebuild/deploy _(UNMARKED since 04.1-04: no save through the panel has yet produced a real commit. Every plan from 04.1-05 onward deferred this to the Plan 11 UAT.)_
+- [ ] **CMS-03**: The admin panel is in Polish end to end (navigation, field labels, hints, validation messages, confirmations, empty states, errors and the login code e-mail), so non-English-speaking staff can manage content _(Reworded per 04.1 D-21, which also closes the English-chrome caveat recorded against the previous editor in 02-05: the panel is our own code, so there is no vendor chrome left to leak. The automated half is enforced by `tests/admin-polski.spec.ts` over 18 panel URLs inside `npm run test`. UNMARKED pending the human half of the UAT: a staff member confirming it reads as Polish to a person rather than to a regular expression.)_
 - [ ] **FORM-01**: Form submissions are delivered by email via a Cloudflare function + email provider (Resend) — sent from our owned domain `zlobekstromiec.pl` and delivered to the Gmina mailbox `zlobek@ugstromiec.pl` — with no database _(BLOCKED: the `zlobek@ugstromiec.pl` mailbox does not exist yet, pending Gmina approval, so the `to:` leg hard-bounces and the BCC backup is the only receiving mailbox. Pipeline itself proven live 2026-08-15.)_
 - [ ] **FORM-02**: The email endpoint verifies Turnstile server-side, sends only to the fixed, hard-coded żłobek address (`zlobek@ugstromiec.pl`, confirmed), and rate-limits abuse _(PENDING the live rate-limit reset re-check: see 04-VERIFICATION.md Acknowledged Gaps AG-1. Refusal inside the bucket passed live; the RESET across a clock-hour boundary, which is the only behaviour that discriminates the CR-01 fix from the bug, is unverified.)_
 
@@ -123,9 +123,9 @@ Which phases cover which requirements. Populated during roadmap creation.
 | ABOUT-02 | Phase 2 | Complete |
 | DOCS-01 | Phase 2 | Complete |
 | DOCS-02 | Phase 2 | Complete |
-| CMS-01 | Phase 2 | Complete |
-| CMS-02 | Phase 2 | Complete |
-| CMS-03 | Phase 2 | Complete |
+| CMS-01 | Phase 04.1 | Pending (live UAT) |
+| CMS-02 | Phase 04.1 | Pending (first real save) |
+| CMS-03 | Phase 04.1 | Pending (live UAT, human half) |
 | NEWS-01 | Phase 3 | Complete |
 | NEWS-02 | Phase 3 | Complete |
 | NEWS-03 | Phase 3 | Complete |
@@ -158,4 +158,4 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 ---
 *Requirements defined: 2026-08-12*
-*Last updated: 2026-08-12 after roadmap creation (traceability populated) + Polish-language requirement (SITE-06, CMS-03)*
+*Last updated: 2026-08-16 (04.1-11): CMS-01 and CMS-03 reworded per D-21 to state the outcome rather than the vendor, and all three CMS rows retargeted from Phase 2 to Phase 04.1. All three were previously ticked complete against an editor that no longer exists in this repository; they are now Pending, and the live UAT that closes them is the open checkpoint on 04.1-11.*

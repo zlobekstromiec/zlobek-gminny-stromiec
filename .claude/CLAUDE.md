@@ -7,22 +7,24 @@ A joyful, mobile-first public website for **Publiczny Żłobek w Stromcu**, the 
 **Core value:** a parent instantly feels the żłobek's warmth AND finds what they need (enrol, documents, contact) on any device.
 
 ## Non-negotiable constraints
-- **Polish only** — all visitor-facing text AND the CMS admin UI (labels/hints). No English shipped. (SITE-06, CMS-03)
+- **Polish only** — all visitor-facing text AND the whole editorial panel: navigation, labels, hints, validation, confirmations, empty states, errors and the login code e-mail. No English shipped. (SITE-06, CMS-03). Enforced, not merely intended: `tests/admin-polski.spec.ts` scans 18 panel URLs inside `npm run test`, and a new panel screen that is not added to its route list has no coverage at all.
 - **WCAG 2.1 AA** + published **Deklaracja dostępności** — legally required for a public body. AA contrast, keyboard operable, visible focus, `prefers-reduced-motion`.
 - **RODO** — forms carry a child's data: unticked consent checkbox + *klauzula informacyjna*; **no database, no storage, no logging** of submissions (email-only).
 - **BIP** — link prominently to the existing BIP `https://ugstromiec.naszbip.pl/zlobek` (do not rebuild it).
-- **Near-zero cost** — free tiers only (git CMS, Resend free, Turnstile free); no paid services, no DB.
+- **Near-zero cost** — free tiers only (the panel is our own code committing to git, Resend free, Turnstile free); no paid services, no DB.
 - **Cloudflare hosting** — content routes prerender; only the two form endpoints are dynamic.
 
 ## Stack — authoritative: `.planning/research/STACK.md`
-SvelteKit 2 + Svelte 5 (runes) · `@sveltejs/adapter-cloudflare` · Tailwind v4 (`@tailwindcss/vite`, CSS-first `@theme`) · Sveltia CMS (git-based) · Resend (email) · Cloudflare Turnstile (spam). See STACK.md for versions, rationale, and alternatives.
+SvelteKit 2 + Svelte 5 (runes) · `@sveltejs/adapter-cloudflare` · Tailwind v4 (`@tailwindcss/vite`, CSS-first `@theme`) · a custom Polish editorial panel at `/admin`, built in-house in Phase 04.1 (no vendor CMS, no third-party bundle) · Resend (email) · Cloudflare Turnstile (spam). See STACK.md for versions, rationale, and alternatives.
 
 ## Must-know gotchas (these cause real mistakes)
 - **adapter-cloudflare:** SvelteKit server routes ARE the Pages Functions — do NOT also hand-author a `/functions` dir (they collide). Read secrets via `event.platform.env.*`, never `import.meta.env`.
 - **Tailwind v4:** CSS-first `@theme{}` tokens in `app.css` — there is **no `tailwind.config.js`**.
 - **Palette/contrast:** two-tier tokens — *expressive* (decorative only) vs *accessible* (text/UI). Never put bright yellow/orange on text. The approved design contract is `.planning/phases/01-live-homepage-design-foundation/01-UI-SPEC.md` — follow it; do not re-derive colors/type/spacing.
 - **Email:** free MailChannels is dead (2024) → Resend from a **verified sending domain**; parent's address goes in `reply-to`, never `from`; recipient hard-coded `zlobek@ugstromiec.pl`.
-- **CMS auth:** Cloudflare has no Netlify Git Gateway → self-hosted `sveltia-cms-auth` OAuth Worker + GitHub OAuth App.
+- **Panel auth:** editors sign in with a **one-time six-digit code e-mailed to them**. No external account of any kind. The allowlist is the `ADMIN_EMAILS` Pages secret and it is re-checked on **every** request, so removing an address logs that person out on their next request. **Adding an editor is two steps: update the secret AND trigger a rebuild.** A secret only reaches deployments created after it is set, and skipping the second step is the failure people actually hit.
+- **Panel writes:** saves commit to the repo through the org-owned GitHub App `Panel redakcyjny zlobka` (Contents:write on one repository). Content is read at **build** time, so a save takes roughly two minutes to appear publicly, and two saves in a row take about four. That delay is normal, not a fault.
+- **`/admin` is SvelteKit routes, never a static bundle.** Cloudflare Pages resolves static assets before invoking the Worker, so anything under `static/admin/` would shadow the panel and bypass its auth gate outright. Never put a file there.
 - **Content:** placeholder-first; mark placeholders with a greppable `PLACEHOLDER` token; children's photos need documented *wizerunek* consent before launch.
 - Full list: `.planning/research/PITFALLS.md`.
 
@@ -35,7 +37,11 @@ SvelteKit 2 + Svelte 5 (runes) · `@sveltejs/adapter-cloudflare` · Tailwind v4 
 - **Recipient mailbox:** `zlobek@ugstromiec.pl` **does not exist yet** (pending Gmina approval), so the `to:` leg of every form mail hard-bounces. The BCC backup `devzlobekstromiec@gmail.com` is currently the only mailbox that receives submissions. Do not change the hard-coded recipient; re-testing once the mailbox exists is a single form submission and needs no deploy.
 
 ## Dev commands (once Phase 1 scaffold lands)
-Standard SvelteKit scripts: `npm run dev`, `npm run build` (output `.svelte-kit/cloudflare`), `npm run check` (svelte-check: types + a11y), `npm run lint`, `npm run test` (Playwright + axe). Local Cloudflare emulation: `wrangler pages dev`; local secrets in `.dev.vars` (gitignored). **Verify before commit:** `npm run check && npm run lint && npm run test`.
+Standard SvelteKit scripts: `npm run dev`, `npm run build` (output `.svelte-kit/cloudflare`), `npm run check` (svelte-check: types + a11y), `npm run lint`, `npm run test:unit` (node:test, the `.unit.ts` files), `npm run test` (Playwright + axe). Local Cloudflare emulation: `npm run preview:test`, which is `wrangler pages dev` plus `--binding` flags.
+
+**Do NOT create a root `.dev.vars`.** `wrangler types` reads it and writes its keys into the committed `worker-configuration.d.ts` as required members, which the Pages build cannot reproduce, so `wrangler types --check` then fails every deploy. See `.dev.vars.example`.
+
+**Verify before commit:** `npm run check && npm run lint && npm run test:unit && npm run test`. Note that pre-commit runs only the first two, and **nothing automated runs `test:unit`** (no CI), so run it by hand.
 
 ## Where authority lives (read before acting)
 - **Read `.planning/STATE.md` first** each session (current phase + position).

@@ -17,8 +17,11 @@ the project-specific specifics.
 | Live URL          | **https://zlobek-gminny-stromiec.pages.dev** (git-integration; push to `main` → auto build+deploy) |
 
 The repository is owned by the dedicated GitHub Organization `zlobekstromiec` (not
-a personal account) so the whole operational surface — repo, CMS OAuth App, staff
-editors — can be handed over intact to a future maintainer / the Gmina (D-07).
+a personal account) so the whole operational surface (the repo, the GitHub App the
+editorial panel commits as, and the Pages project) can be handed over intact to a
+future maintainer or to the Gmina (D-07). Staff editors are **not** GitHub accounts:
+since Phase 04.1 they are e-mail addresses in a Pages secret, so a handover does not
+involve inviting anybody to the Org.
 
 ## Toolchain
 
@@ -42,23 +45,43 @@ direnv allow                 # load .envrc (Cloudflare token)
 
 ## Everyday commands
 
-| Command           | What it does                                                                           |
-| ----------------- | -------------------------------------------------------------------------------------- |
-| `npm run dev`     | Vite dev server.                                                                       |
-| `npm run build`   | `wrangler types --check && vite build` → output **`.svelte-kit/cloudflare`**.          |
-| `npm run preview` | Serves the built Cloudflare output locally via `wrangler pages dev` on `:4173`.        |
-| `npm run check`   | `wrangler types --check` + `svelte-kit sync` + `svelte-check` (types + compiler a11y). |
-| `npm run lint`    | `prettier --check .` + `eslint .`.                                                     |
-| `npm run format`  | `prettier --write .` (source only; `.planning/` is ignored).                           |
-| `npm run test`    | Playwright + `@axe-core/playwright` homepage acceptance/a11y suite.                    |
+| Command             | What it does                                                                           |
+| ------------------- | -------------------------------------------------------------------------------------- |
+| `npm run dev`       | Vite dev server.                                                                       |
+| `npm run build`     | `wrangler types --check && vite build` → output **`.svelte-kit/cloudflare`**.          |
+| `npm run preview`   | Serves the built Cloudflare output locally via `wrangler pages dev` on `:4173`.        |
+| `npm run check`     | `wrangler types --check` + `svelte-kit sync` + `svelte-check` (types + compiler a11y). |
+| `npm run lint`      | `prettier --check .` + `eslint .`.                                                     |
+| `npm run format`    | `prettier --write .` (source only; `.planning/` is ignored).                           |
+| `npm run test:unit` | `node --test` over the `tests/*.unit.ts` files (readers, validators, copy, session).   |
+| `npm run test`      | Playwright + `@axe-core/playwright`: the public acceptance/a11y suites and the panel.  |
 
 ## Verify-before-commit gate
 
-Always green before committing (also enforced by the pre-commit hook):
+Always green before committing:
 
 ```bash
-npm run check && npm run lint && npm run test
+npm run check && npm run lint && npm run test:unit && npm run test
 ```
+
+**The pre-commit hook runs only the first two.** It is `svelte-check` plus
+`prettier`/`eslint`, so it catches a type error and a formatting drift and nothing
+else. Neither test suite is enforced by any hook, and there is no CI workflow, so
+both must be run by hand.
+
+`npm run test:unit` is the one most easily forgotten, and it is the one with the
+least excuse: the `.unit.ts` suffix deliberately sits outside Playwright's matcher,
+so `npm run test` does **not** include it. It is the entire regression proof for the
+form rate limiter, the content readers and the panel's session and one-time-code
+logic. Two mutations were recorded as passing the other three gates while this suite
+was the only thing that would have caught them (04-REVIEW.md).
+
+One structural consequence worth knowing before writing tests: because the hook runs
+`svelte-check` over the **whole working tree** rather than the staged index, a test
+that imports a module which does not exist yet is a type error, and the hook then
+refuses even an unrelated commit while that file sits untracked. A test-driven RED
+commit is therefore not possible in this repository. Observe and record RED, then
+land the test and its implementation in one commit. Do not reach for `--no-verify`.
 
 ## Cloudflare Pages build settings (Git integration — D-04/D-05)
 
@@ -107,8 +130,46 @@ variables**:
 | `FORM_DRY_RUN`   | `1` short-circuits the Resend call. Set in production, the site would silently stop delivering enrollment enquiries while still showing success.  |
 | `RATE_LIMIT_MAX` | Deliberately loose in tests (the suite shares one IP). Left unset, production uses the strict module defaults: 5/hour/client and 40/day sitewide. |
 
-`wrangler pages secret list` must therefore show **exactly the three secrets above
-and neither of these two**.
+Neither of those two may ever appear in `wrangler pages secret list`. The three
+secrets above must all appear, alongside the five panel secrets in the next section:
+**eight in total, and nothing else**.
+
+## Editorial panel: secrets and access (CMS-01 / CMS-02, Phase 04.1)
+
+The panel at `/admin` is our own SvelteKit code, not a vendor bundle. Five further
+Pages secrets make it work, all set the same way as the form secrets above:
+
+| Secret                       | Purpose                                                                                                                                         |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ADMIN_EMAILS`               | The editor allowlist. Re-checked on **every** request, so removing an address logs that person out on their next request rather than at expiry. |
+| `ADMIN_SESSION_SECRET`       | Signs the `__Host-panel_sesja` session cookie (HMAC-SHA256). Rotating it invalidates every existing session immediately.                        |
+| `GITHUB_APP_CLIENT_ID`       | Identifies the org-owned GitHub App `Panel redakcyjny zlobka`, which is the panel's write identity.                                             |
+| `GITHUB_APP_INSTALLATION_ID` | The App's installation on this one repository.                                                                                                  |
+| `GITHUB_APP_PRIVATE_KEY`     | Signs the App JWT. Must be **PKCS#8**: GitHub hands out PKCS#1, and WebCrypto cannot import that form.                                          |
+
+**Adding or removing an editor is two steps, and the second is the one people skip.**
+Update `ADMIN_EMAILS`, then trigger a rebuild. A Pages secret only reaches
+deployments created **after** it is set, so without the rebuild nothing changes.
+
+`PANEL_DRY_RUN` is the panel's counterpart to `FORM_DRY_RUN`: `1` short-circuits the
+commit so a save writes nothing. It is **local-only and must never become a Cloudflare
+Pages variable**, for exactly the same reason: staff would see every save succeed
+while nothing was ever written. `npm run preview:test` supplies it, along with test
+values for all five secrets above, so the local suites need no setup.
+
+Two properties are worth knowing before touching this code:
+
+- **`/admin` must never have a static counterpart.** Cloudflare Pages resolves static
+  assets before invoking the Worker, so a file under `static/admin/` would shadow the
+  panel and its authentication gate would never run. This is not hypothetical: it is
+  what forced the removal of the previous editor a phase earlier than planned.
+- **No `/admin` route may import `src/lib/server/dokumenty.ts`.** It carries `node:fs`
+  and the panel is the Worker, where only `nodejs_als` is enabled. The panel's own
+  reader is `src/lib/server/admin/dokumenty.ts`.
+
+Login codes are stored in the same `FORMS_KV` namespace as the rate-limit counters,
+under `adm:kod:` plus a salted digest of the address. Neither the address nor the
+code is stored in readable form, and a successful exchange deletes the entry.
 
 ### Local and CI runs: do NOT create `.dev.vars`
 
@@ -142,8 +203,9 @@ server-side by `siteverify` against the live secret, so a dummy token fails clos
 
 ### KV binding
 
-`FORMS_KV` (declared in `wrangler.jsonc`) holds the rate-limit counters: integers
-only, under two key shapes.
+`FORMS_KV` (declared in `wrangler.jsonc`) holds the rate-limit counters, plus the
+pending panel login codes described in the previous section. The counters are
+integers only, under two key shapes.
 
 | Key        | Shape                                                                                                          | Example                              |
 | ---------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
