@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Locator, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
 /**
@@ -23,8 +23,9 @@ import AxeBuilder from '@axe-core/playwright';
  *
  * Do NOT weaken these assertions to make the suite pass.
  *
- * The lightbox half of this contract (GAL-3, GAL-4 and the dialog half of GAL-6) is added to
- * this same file by plan 05-08.
+ * The lightbox half of this contract (GAL-3 open state, GAL-4 and the dialog half of GAL-6)
+ * lives in the second describe block below, added by plan 05-08. The tile and the dialog are
+ * ONE contract and they stay in one file: splitting them means two places to keep in step.
  */
 
 function wczytaj<T>(wzgledna: string): T {
@@ -68,6 +69,89 @@ function kafelki(page: Page) {
 function sciezkiKolumn(page: Page): Promise<string[]> {
 	return lista(page).evaluate((element) =>
 		getComputedStyle(element).gridTemplateColumns.trim().split(/\s+/u)
+	);
+}
+
+/* --- Podgląd zdjęcia (lightbox), plan 05-08. Helpers used only by the second block. ------- */
+
+/** The close button's accessible name, 05-UI-SPEC Copywriting Contract §Lightbox. Not editor
+ *  owned, so it is pinned literally rather than interpolated. */
+const PRZYCISK_ZAMKNIJ = 'Zamknij podgląd';
+
+/** The selector the browser's own tab order follows, and the one the island's trap must bound.
+ *  Kept as one string so the test and the assertion cannot drift apart. */
+const FOKUSOWALNE = 'a[href], button:not([disabled]), [tabindex]';
+
+function kafelek(page: Page, i = 0): Locator {
+	return lista(page).locator('a').nth(i);
+}
+
+function podglad(page: Page): Locator {
+	return page.getByRole('dialog');
+}
+
+/** True when focus is still somewhere inside the dialog. Evaluated INSIDE the page, because
+ *  `document.activeElement` is the only authority on where focus actually went. */
+function fokusWPodgladzie(page: Page): Promise<boolean> {
+	return podglad(page).evaluate((element) => element.contains(document.activeElement));
+}
+
+/** The dialog's focusable elements in DOM order, described well enough to assert which one is
+ *  first without asserting how it is implemented. */
+function kolejnoscFokusu(page: Page): Promise<string[]> {
+	return podglad(page).evaluate(
+		(element, wybor) =>
+			Array.from(element.querySelectorAll<HTMLElement>(wybor))
+				.filter((kandydat) => kandydat.tabIndex >= 0)
+				.map(
+					(kandydat) =>
+						`${kandydat.tagName.toLowerCase()}:${kandydat.getAttribute('aria-label') ?? kandydat.textContent?.trim() ?? ''}`
+				),
+		FOKUSOWALNE
+	);
+}
+
+/**
+ * Milliseconds from the frame the dialog first exists to the frame it reaches full opacity,
+ * measured inside the page with requestAnimationFrame.
+ *
+ * WHY NOT `getComputedStyle(...).transitionDuration`: the fade is a Svelte transition, not a
+ * declared CSS `transition`, so that property reads `0s` with the preference and without it,
+ * and an assertion built on it would pass whatever the component did. This measures what a
+ * visitor actually sees and is agnostic to how the fade is produced.
+ *
+ * The clock starts when the element APPEARS, not when the probe is installed, so the click
+ * round trip is outside the measurement and a slow shared server cannot inflate it.
+ */
+async function czasPojawienia(page: Page, wyzwalacz: Locator): Promise<number> {
+	await page.evaluate(() => {
+		const okno = window as unknown as { __czasPojawienia?: Promise<number> };
+		okno.__czasPojawienia = new Promise<number>((rozwiaz) => {
+			const limit = performance.now() + 5000;
+			let poczatek: number | null = null;
+			const krok = () => {
+				const element = document.querySelector('[role="dialog"]');
+				if (element) {
+					if (poczatek === null) poczatek = performance.now();
+					if (Number(getComputedStyle(element).opacity) >= 1) {
+						rozwiaz(performance.now() - poczatek);
+						return;
+					}
+				}
+				if (performance.now() > limit) {
+					rozwiaz(-1);
+					return;
+				}
+				requestAnimationFrame(krok);
+			};
+			requestAnimationFrame(krok);
+		});
+	});
+
+	await wyzwalacz.click();
+
+	return page.evaluate(
+		() => (window as unknown as { __czasPojawienia: Promise<number> }).__czasPojawienia
 	);
 }
 
@@ -336,5 +420,285 @@ test.describe('Galeria na /o-nas: kontrakt publiczny (GALLERY-01)', () => {
 			'Nasza kadra',
 			NAGLOWEK
 		]);
+	});
+});
+
+/* -------------------------------------------------------------------------------------------
+   Podgląd zdjęcia (lightbox): GAL-3 in its OPEN state, GAL-4, the dialog half of GAL-6.
+
+   THREE OF THESE ASSERTIONS ARE THE FIRST OF THEIR KIND IN THIS REPOSITORY, and that is the
+   reason this block was written rather than copied. `AxeBuilder` is called in twelve spec files
+   and every one of those calls scans a page in a LOAD-TIME state; not one scans an OPEN
+   OVERLAY. `tests/nav.spec.ts` proves the drawer's dialog role, first focus, Escape and focus
+   restore, but it runs no axe scan while the drawer is open and it never presses Tab. A focus
+   trap that is never Tab tested is a focus trap nobody has verified, so the trap here is
+   pressed in BOTH directions against the real browser tab order.
+
+   EVERY ASSERTION IS WRITTEN SO THAT IT FAILS ON THE PAGE AS IT STANDS WITHOUT THE ISLAND:
+   - the boundedness cases fail because focus leaves the dialog for the tile link that precedes
+     it and the tile link that follows it, both outside the dialog;
+   - the reduced-motion case runs its POSITIVE CONTROL first, so „pojawia się natychmiast"
+     cannot pass on a component that never faded at all;
+   - the modifier-click negative carries its own positive control in the same test, so it
+     cannot pass on a component that never opens.
+   ------------------------------------------------------------------------------------------- */
+test.describe('Podglad zdjecia na /o-nas: kontrakt dialogu (GAL-3 otwarty, GAL-4, GAL-6)', () => {
+	test('kafelek otwiera dialog modalny nazwany podpisem tego zdjecia', async ({ page }) => {
+		await page.goto('/o-nas');
+		// At rest there is no dialog anywhere on the page: the drawer's one is mobile-only and
+		// closed, so a match here would be the lightbox rendering when nobody asked for it.
+		await expect(podglad(page)).toHaveCount(0);
+
+		await kafelek(page).click();
+
+		await expect(podglad(page)).toBeVisible();
+		await expect(podglad(page)).toHaveAttribute('aria-modal', 'true');
+		await expect(podglad(page)).toHaveAttribute('tabindex', '-1');
+
+		// The name comes from the caption element INSIDE the dialog, never from a literal
+		// (05-UI-SPEC Contract 2 and the Copywriting Contract: the podpis is editor owned).
+		const nazwaneprzez = await podglad(page).getAttribute('aria-labelledby');
+		expect(nazwaneprzez).toBeTruthy();
+		const podpisWDialogu = podglad(page).locator(`[id="${nazwaneprzez}"]`);
+		await expect(podpisWDialogu).toHaveCount(1);
+		await expect(podpisWDialogu).toHaveText(galeria.zdjecia[0].podpis);
+
+		// ...and the engine that computes accessible names agrees with that reconstruction.
+		await expect(page.getByRole('dialog', { name: galeria.zdjecia[0].podpis })).toHaveCount(1);
+	});
+
+	test('po otwarciu fokus jest na przycisku zamkniecia i to on jest pierwszy w kolejnosci', async ({
+		page
+	}) => {
+		await page.goto('/o-nas');
+		await kafelek(page).click();
+
+		await expect(podglad(page).getByRole('button', { name: PRZYCISK_ZAMKNIJ })).toBeFocused();
+
+		// „First focusable" is a stronger claim than „focused": it is what makes the forward
+		// half of the trap a cycle rather than a coincidence.
+		const kolejnosc = await kolejnoscFokusu(page);
+		expect(kolejnosc.length).toBeGreaterThan(0);
+		expect(kolejnosc[0]).toBe(`button:${PRZYCISK_ZAMKNIJ}`);
+	});
+
+	// GAL-4, the property no test in this repository has ever asserted.
+	test('fokus jest domkniety w obie strony: Shift+Tab z pierwszego i Tab z ostatniego (GAL-4)', async ({
+		page
+	}) => {
+		await page.goto('/o-nas');
+		await kafelek(page).click();
+		await expect(podglad(page).getByRole('button', { name: PRZYCISK_ZAMKNIJ })).toBeFocused();
+
+		// BACKWARDS from the first focusable. Without the trap this lands on the tile link,
+		// which is a sibling of the dialog and outside it, so this is not a tautology.
+		await page.keyboard.press('Shift+Tab');
+		expect(
+			await fokusWPodgladzie(page),
+			'Shift+Tab z pierwszego elementu wypuscil fokus poza dialog'
+		).toBe(true);
+
+		// FORWARDS from the last focusable. Without the trap this lands on the next tile link.
+		await podglad(page).evaluate((element, wybor) => {
+			const kandydaci = Array.from(element.querySelectorAll<HTMLElement>(wybor)).filter(
+				(kandydat) => kandydat.tabIndex >= 0
+			);
+			kandydaci[kandydaci.length - 1]?.focus();
+		}, FOKUSOWALNE);
+		await page.keyboard.press('Tab');
+		expect(
+			await fokusWPodgladzie(page),
+			'Tab z ostatniego elementu wypuscil fokus poza dialog'
+		).toBe(true);
+	});
+
+	// GAL-3, the open state. The project's FIRST axe scan of an open overlay, at the same four
+	// tag values every other scan in this repository uses.
+	test('otwarty podglad nie narusza WCAG 2.1 AA (GAL-3, stan otwarty)', async ({ page }) => {
+		await page.goto('/o-nas');
+		await kafelek(page).click();
+		await expect(podglad(page)).toBeVisible();
+
+		const wynik = await new AxeBuilder({ page }).withTags(ZNACZNIKI).analyze();
+		expect(wynik.violations).toEqual([]);
+	});
+
+	test('Escape zamyka podglad i oddaje fokus kafelkowi, ktory go otworzyl (GAL-4)', async ({
+		page
+	}) => {
+		await page.goto('/o-nas');
+		// The SECOND tile deliberately: „focus went back to a tile" would pass with a hardcoded
+		// first tile, „focus went back to THIS tile" would not.
+		const drugi = kafelek(page, 1);
+		await drugi.click();
+		await expect(podglad(page)).toBeVisible();
+
+		await page.keyboard.press('Escape');
+
+		await expect(podglad(page)).toHaveCount(0);
+		await expect(drugi).toBeFocused();
+	});
+
+	test('przycisk zamkniecia zamyka podglad i oddaje fokus temu samemu kafelkowi', async ({
+		page
+	}) => {
+		await page.goto('/o-nas');
+		const drugi = kafelek(page, 1);
+		await drugi.click();
+
+		await podglad(page).getByRole('button', { name: PRZYCISK_ZAMKNIJ }).click();
+
+		await expect(podglad(page)).toHaveCount(0);
+		await expect(drugi).toBeFocused();
+	});
+
+	test('klikniecie tla zamyka podglad i oddaje fokus temu samemu kafelkowi', async ({ page }) => {
+		await page.goto('/o-nas');
+		const drugi = kafelek(page, 1);
+		await drugi.click();
+		await expect(podglad(page)).toBeVisible();
+
+		// The panel is centred, so the top-left corner of the viewport is the scrim.
+		await page.mouse.click(4, 4);
+
+		await expect(podglad(page)).toHaveCount(0);
+		await expect(drugi).toBeFocused();
+	});
+
+	test('klawiatura otwiera podglad: Enter i spacja na kafelku', async ({ page }) => {
+		await page.goto('/o-nas');
+		const pierwszy = kafelek(page);
+
+		await pierwszy.focus();
+		await page.keyboard.press('Enter');
+		await expect(podglad(page)).toBeVisible();
+
+		await page.keyboard.press('Escape');
+		await expect(podglad(page)).toHaveCount(0);
+		await expect(pierwszy).toBeFocused();
+
+		await page.keyboard.press('Space');
+		await expect(podglad(page)).toBeVisible();
+	});
+
+	// The narrow-interception rule. Without an assertion this is the first thing a later
+	// refactor silently breaks, and „open image in a new tab" stops working with no gate going
+	// red anywhere.
+	test('modyfikator i srodkowy przycisk nie otwieraja dialogu, zwykle klikniecie otwiera', async ({
+		page
+	}) => {
+		await page.goto('/o-nas');
+
+		// The listener sits on `document`, so it runs AFTER the island has had its chance, and
+		// records whether the island had already called preventDefault. It then prevents the
+		// event itself, which is what stops the fall-through cases from opening a browser tab
+		// and turning this test into a tab-juggling exercise.
+		await page.evaluate(() => {
+			const okno = window as unknown as { __zablokowane: boolean[] };
+			okno.__zablokowane = [];
+			const nasluch = (zdarzenie: Event) => {
+				okno.__zablokowane.push(zdarzenie.defaultPrevented);
+				zdarzenie.preventDefault();
+			};
+			document.addEventListener('click', nasluch);
+			document.addEventListener('auxclick', nasluch);
+		});
+
+		const pierwszy = kafelek(page);
+
+		await pierwszy.click({ modifiers: ['ControlOrMeta'] });
+		await expect(podglad(page)).toHaveCount(0);
+
+		await pierwszy.click({ button: 'middle' });
+		await expect(podglad(page)).toHaveCount(0);
+
+		// POSITIVE CONTROL, in the same test on purpose: the two negatives above would both
+		// pass on a component that never opens anything at all.
+		await pierwszy.click();
+		await expect(podglad(page)).toBeVisible();
+
+		const zablokowane = await page.evaluate(
+			() => (window as unknown as { __zablokowane: boolean[] }).__zablokowane
+		);
+		expect(zablokowane, 'kolejno: Ctrl lub Cmd, srodkowy, zwykly').toEqual([false, false, true]);
+	});
+
+	test('podglad pokazuje zdjecie, podpis i opis alternatywny, w kolejnosci z kontraktu', async ({
+		page
+	}) => {
+		await page.goto('/o-nas');
+		const zdjecie = galeria.zdjecia[0];
+		await kafelek(page).click();
+
+		const obraz = podglad(page).locator('img');
+		await expect(obraz).toHaveCount(1);
+		await expect(obraz).toHaveAttribute('alt', zdjecie.alt);
+
+		// The alt is also VISIBLE text, so a sighted visitor reads the description instead of
+		// only a screen reader announcing it (05-UI-SPEC Contract 2, the description line).
+		await expect(podglad(page).getByText(zdjecie.podpis, { exact: true })).toBeVisible();
+		await expect(podglad(page).getByText(zdjecie.alt, { exact: true })).toBeVisible();
+
+		// DOM order from Contract 2: close button, image, caption, description line.
+		const kolejnosc = await podglad(page).evaluate((element) =>
+			Array.from(element.querySelectorAll('button, img, h2, p')).map((dziecko) =>
+				dziecko.tagName.toLowerCase()
+			)
+		);
+		expect(kolejnosc).toEqual(['button', 'img', 'h2', 'p']);
+	});
+
+	// GAL-6, the dialog half. Positive control FIRST, exactly as the tile half above does it.
+	test('podglad wygasza sie plynnie, a przy prefers-reduced-motion pojawia sie od razu (GAL-6)', async ({
+		page
+	}) => {
+		await page.goto('/o-nas');
+		const zRuchem = await czasPojawienia(page, kafelek(page));
+		expect(
+			zRuchem,
+			'kontrola dodatnia: bez preferencji podglad ma sie wygaszac, a nie pojawiac skokiem'
+		).toBeGreaterThan(100);
+
+		await page.emulateMedia({ reducedMotion: 'reduce' });
+		await page.reload();
+		const bezRuchu = await czasPojawienia(page, kafelek(page));
+		expect(bezRuchu, 'przy reduced-motion podglad ma sie pojawiac natychmiast').toBeGreaterThan(-1);
+		expect(bezRuchu, 'przy reduced-motion podglad ma sie pojawiac natychmiast').toBeLessThan(100);
+	});
+
+	test('przewijanie strony jest zablokowane tylko na czas otwartego podgladu', async ({ page }) => {
+		await page.goto('/o-nas');
+		const przelew = () => page.evaluate(() => getComputedStyle(document.body).overflow);
+		const przed = await przelew();
+
+		await kafelek(page).click();
+		await expect(podglad(page)).toBeVisible();
+		expect(await przelew(), 'przy otwartym podgladzie strona pod spodem ma sie nie przewijac').toBe(
+			'hidden'
+		);
+
+		await page.keyboard.press('Escape');
+		await expect(podglad(page)).toHaveCount(0);
+		expect(await przelew(), 'blokada przewijania ma byc zdjeta po zamknieciu').toBe(przed);
+	});
+
+	// GAL-5 again, from the dialog's side: hydration must add behaviour without taking the
+	// no-scripting affordance away, and without leaving a control that does nothing.
+	test('bez skryptow nie ma zadnego dialogu, a kafelek zostaje zwyklym odnosnikiem', async ({
+		browser
+	}) => {
+		const kontekst = await browser.newContext({ javaScriptEnabled: false });
+		try {
+			const page = await kontekst.newPage();
+			await page.goto('/o-nas');
+
+			await expect(page.locator('[role="dialog"]')).toHaveCount(0);
+			await expect(lista(page).locator('button')).toHaveCount(0);
+
+			const adres = (await kafelek(page).getAttribute('href')) ?? '';
+			expect(adres).toMatch(ROZSZERZENIA);
+		} finally {
+			await kontekst.close();
+		}
 	});
 });

@@ -5,11 +5,12 @@
 	// PRERENDERED (inherits prerender = true from +layout.ts): NO +server.ts, NO extra
 	// <main>/landmark, NO extra h1 beyond the page heading (layout owns <main>).
 	//
-	// THIS PAGE IS NO LONGER ZERO-JS, and that changed here rather than being discovered
-	// later. It carries exactly ONE hydrated island, the gallery lightbox added in plan
-	// 05-08: the site's fourth island and the first on a content route. Every tile is an
-	// <a href> to the full-size asset in the prerendered HTML, so with scripting switched off
-	// the link opens the photograph and nothing on the page is a control that does nothing.
+	// THIS PAGE IS NO LONGER ZERO-JS. It carries exactly ONE hydrated island, the gallery
+	// lightbox ($lib/components/Lightbox.svelte): the site's fourth island and the first on a
+	// content route. Every tile is an <a href> to the full-size asset in the prerendered HTML,
+	// so with scripting switched off the link opens the photograph and nothing on the page is
+	// a control that does nothing. The island renders that anchor and owns its styling; this
+	// page keeps the <figure>, the caption and the image elements themselves.
 	//
 	// TWO CONTENT SOURCES, and the split is deliberate (05 D-19, D-20, D-26). The gallery
 	// photographs, their captions and their alt text live in their own store
@@ -30,6 +31,7 @@
 	import Seo from '$lib/components/Seo.svelte';
 	import DayPlan from '$lib/components/DayPlan.svelte';
 	import Cta from '$lib/components/Cta.svelte';
+	import Lightbox from '$lib/components/Lightbox.svelte';
 	import { renderInline } from '$lib/markdown';
 	import { odmienRzeczownik } from '$lib/liczebniki';
 	import { FORMY_OPIEKUNKI, FORMY_PERSONELU } from '$lib/content/kadra';
@@ -164,18 +166,32 @@
 						<figure>
 							<!-- The tile is a LINK to the full-size asset, which is what makes the
 							     no-scripting path a real affordance instead of a dead button
-							     (05-UI-SPEC Contract 2). The visually-hidden prefix plus the photo's
-							     own alt is what gives twelve otherwise identical links twelve
-							     different accessible names (WCAG 2.4.4). -->
-							<a class="kafelek" href={zdjecie.obraz.img.src}>
-								<span class="visually-hidden">Powiększ zdjęcie: </span>
-								<enhanced:img
-									src={zdjecie.obraz}
-									alt={zdjecie.alt}
-									loading={i < PILNE_KAFELKI ? 'eager' : 'lazy'}
-									sizes="(min-width:1024px) 33vw, (min-width:768px) 50vw, 100vw"
-								/>
-							</a>
+							     (05-UI-SPEC Contract 2). The island renders that link, its
+							     visually-hidden prefix and, once a visitor asks for it, the dialog;
+							     the prefix plus the photo's own alt is what gives twelve otherwise
+							     identical links twelve different accessible names (WCAG 2.4.4).
+
+							     BOTH IMAGE ELEMENTS STAY HERE, one per snippet, so the island carries
+							     no image-processing concern and knows nothing about enhanced-img. The
+							     two differ only in `sizes`: the tile fills a grid cell, the dialog
+							     fills the viewport (05-UI-SPEC Contract 2). -->
+							<Lightbox podpis={zdjecie.podpis} opis={zdjecie.alt} zrodlo={zdjecie.obraz.img.src}>
+								{#snippet miniatura()}
+									<enhanced:img
+										src={zdjecie.obraz}
+										alt={zdjecie.alt}
+										loading={i < PILNE_KAFELKI ? 'eager' : 'lazy'}
+										sizes="(min-width:1024px) 33vw, (min-width:768px) 50vw, 100vw"
+									/>
+								{/snippet}
+								{#snippet powiekszenie()}
+									<enhanced:img
+										src={zdjecie.obraz}
+										alt={zdjecie.alt}
+										sizes="(min-width:1024px) 90vw, 100vw"
+									/>
+								{/snippet}
+							</Lightbox>
 							<figcaption>{zdjecie.podpis}</figcaption>
 						</figure>
 					</li>
@@ -458,30 +474,10 @@
 		margin: 0;
 	}
 
-	/* The tile: the photo is its own boundary, so no border and no shadow. The 4:3 box is
-	   reserved BEFORE the image paints (no CLS) and `cover` is the safety net for the two
-	   hand-placed seed photographs, which the panel's own upload path would have cropped. */
-	.kafelek {
-		display: block;
-		overflow: hidden;
-		border-radius: var(--radius-lg);
-		aspect-ratio: 4 / 3;
-	}
-
-	.kafelek :global(img) {
-		display: block;
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		transition: transform 150ms ease;
-	}
-
-	/* Hover: the image scales INSIDE its clipped box and the caption underlines. No
-	   translate, no shadow change, no accent colour anywhere on the tile. */
-	.kafelek:hover :global(img) {
-		transform: scale(1.03);
-	}
-
+	/* The TILE itself is styled by the island that renders it ($lib/components/Lightbox.svelte),
+	   together with its hover scale and its own reduced-motion guard: a page-scoped selector
+	   cannot reach an element another component renders. What stays here is everything the page
+	   still renders, which is the grid, the figure and the caption. */
 	.galeria figcaption {
 		margin-top: 8px;
 		font-family: var(--font-body);
@@ -493,17 +489,6 @@
 
 	.galeria li:hover figcaption {
 		text-decoration: underline;
-	}
-
-	/* The component's OWN guard, in addition to the global neutraliser in app.css. That one
-	   shortens transitions and animations; it does not remove a transform, so without this
-	   block the tile would still jump to its scaled size instantly. */
-	@media (prefers-reduced-motion: reduce) {
-		.kafelek :global(img),
-		.kafelek:hover :global(img) {
-			transform: none;
-			transition: none;
-		}
 	}
 
 	/* Empty-state panel, the inherited one (mirrors /aktualnosci and NewsPreview.svelte),
@@ -545,18 +530,6 @@
 	/* The sticky header must never cover the heading a footer link jumps to. */
 	#galeria {
 		scroll-margin-top: 96px;
-	}
-
-	.visually-hidden {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		padding: 0;
-		margin: -1px;
-		overflow: hidden;
-		clip: rect(0 0 0 0);
-		white-space: nowrap;
-		border: 0;
 	}
 
 	.cta-band .inner {
