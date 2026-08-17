@@ -1,9 +1,9 @@
 ---
 phase: 5
 slug: gallery-fees
-status: draft
+status: verified
 # threats_open = count of OPEN threats at or above workflow.security_block_on (high)
-threats_open: 3
+threats_open: 0
 asvs_level: 1
 created: 2026-08-18
 ---
@@ -16,8 +16,10 @@ created: 2026-08-18
 > independent adversarial reviewer was asked to REFUTE every claimed closure. Six closures
 > were overturned that way, and two of them are real code defects rather than paperwork gaps.
 
-**Verdict: BLOCKED. 3 high-severity threats are open.** Phase 5 does not advance until they
-are closed or accepted in writing.
+**Verdict: VERIFIED. `threats_open: 0`.** The audit opened three high-severity threats; all
+three were fixed in code on 2026-08-18 (commits `8fff192` and `7f50010`), each with a test
+that fails against the old behaviour. Three medium threats remain open below the `high` block
+threshold and are recorded, non-blocking, in Open Threats below.
 
 ---
 
@@ -45,32 +47,32 @@ are closed or accepted in writing.
 | T-05-01-03 | Information disclosure (RODO / wizerunek) | consent rule conflict between `02-UI-SPEC.md:115` and `DESIGN-BANK.md:37` | high | mitigate | `.planning/phases/02-about-documents-cms/02-UI-SPEC.md`, `.planning/DESIGN-BANK.md`, `src/lib/content/galeria.json` | closed |
 | T-05-01-04 | Repudiation | `05-UI-SPEC.md` approval state | low | mitigate | `.planning/phases/05-gallery-fees/05-UI-SPEC.md` | closed |
 | T-05-05-SC | Tampering (supply chain) | npm installs | high | mitigate | `package.json`, `package-lock.json` | closed |
-| T-05-02-01 | Information disclosure (regulatory, `dane-bip` §10 item 1) | /cennik rendered text | high | mitigate | `src/lib/content/cennik.ts`, `src/routes/cennik/+page.svelte`, `tests/cennik.spec.ts` +3 | **open** |
+| T-05-02-01 | Information disclosure (regulatory, `dane-bip` §10 item 1) | /cennik rendered text | high | mitigate | `src/lib/content/cennik.ts`, `src/routes/cennik/+page.svelte`, `tests/cennik.spec.ts` +3 | closed (fixed `8fff192`) |
 | T-05-02-02 | Tampering (arithmetic integrity) | cennikZWpisu breakdown | high | mitigate | `src/lib/cennik.ts`, `src/lib/content/cennik.json`, `src/lib/kwoty.ts` +2 | closed |
 | T-05-02-03 | Denial of service (availability of the prerendered site) | module-scope throw in `src/lib/cennik.ts` | medium | accept | `src/lib/cennik.ts`, `src/routes/+layout.ts`, `src/routes/cennik/+page.svelte` +3 | closed |
 | T-05-02-04 | Tampering (stored XSS through editor prose) | the five fee strings | medium | mitigate | `src/routes/cennik/+page.svelte`, `src/lib/content/cennik.ts`, `src/lib/cennik.ts` +5 | closed |
 | T-05-02-05 | Spoofing (silent formatting drift) | `src/lib/kwoty.ts` separator | medium | mitigate | `tests/home.spec.ts`, `tests/kwoty.unit.ts`, `src/lib/kwoty.ts` +3 | open — below high threshold (non-blocking) |
 | T-05-02-SC | Tampering (supply chain) | npm installs | high | mitigate | `package.json`, `package-lock.json`, `src/lib/kwoty.ts` +3 | closed |
-| T-05-03-01 | Denial of service (a visitor cannot reach the information) | footer fragment shortcuts | medium | mitigate | `/Users/devopsdom/src/client-zlobekstromiec/tests/nav.spec.ts`, `/Users/devopsdom/src/client-zlobekstromiec/src/lib/components/Footer.svelte`, `/Users/devopsdom/src/client-zlobekstromiec/src/routes/kontakt/+page.svelte` +1 | closed |
-| T-05-03-02 | Tampering (silent regression in the prerender gate) | KNOWN_FUTURE_ROUTES | medium | mitigate | `/Users/devopsdom/src/client-zlobekstromiec/svelte.config.js`, `/Users/devopsdom/src/client-zlobekstromiec/playwright.config.ts`, `/Users/devopsdom/src/client-zlobekstromiec/package.json` +1 | closed |
-| T-05-03-03 | Denial of service (keyboard and small-screen access) | Header breakpoint move 768px to 1024px | medium | mitigate | `/Users/devopsdom/src/client-zlobekstromiec/tests/responsive.spec.ts`, `/Users/devopsdom/src/client-zlobekstromiec/src/lib/components/Header.svelte`, `/Users/devopsdom/src/client-zlobekstromiec/src/lib/nav.ts` +2 | open — below high threshold (non-blocking) |
-| T-05-03-04 | Information disclosure | none introduced | low | accept | `/Users/devopsdom/src/client-zlobekstromiec/.planning/phases/05-gallery-fees/05-03-PLAN.md`, `/Users/devopsdom/src/client-zlobekstromiec/.planning/phases/05-gallery-fees/05-03-SUMMARY.md`, `/Users/devopsdom/src/client-zlobekstromiec/src/lib/nav.ts` +1 | closed |
-| T-05-03-SC | Tampering (supply chain) | npm installs | high | mitigate | `/Users/devopsdom/src/client-zlobekstromiec/package.json`, `/Users/devopsdom/src/client-zlobekstromiec/package-lock.json` | closed |
+| T-05-03-01 | Denial of service (a visitor cannot reach the information) | footer fragment shortcuts | medium | mitigate | `tests/nav.spec.ts`, `src/lib/components/Footer.svelte`, `src/routes/kontakt/+page.svelte` +1 | closed |
+| T-05-03-02 | Tampering (silent regression in the prerender gate) | KNOWN_FUTURE_ROUTES | medium | mitigate | `svelte.config.js`, `playwright.config.ts`, `package.json` +1 | closed |
+| T-05-03-03 | Denial of service (keyboard and small-screen access) | Header breakpoint move 768px to 1024px | medium | mitigate | `tests/responsive.spec.ts`, `src/lib/components/Header.svelte`, `src/lib/nav.ts` +2 | open — below high threshold (non-blocking) |
+| T-05-03-04 | Information disclosure | none introduced | low | accept | `.planning/phases/05-gallery-fees/05-03-PLAN.md`, `.planning/phases/05-gallery-fees/05-03-SUMMARY.md`, `src/lib/nav.ts` +1 | closed |
+| T-05-03-SC | Tampering (supply chain) | npm installs | high | mitigate | `package.json`, `package-lock.json` | closed |
 | T-05-04-01 | Tampering (index injection into a repeated group; T-04.1-34 in a new action) | the two move actions | high | mitigate | `src/lib/pola-strony.ts`, `src/routes/admin/plan-dnia/+page.server.ts`, `src/routes/admin/galeria/+page.server.ts` +1 | closed |
 | T-05-04-02 | Tampering (stale-save baseline drift) | head SHA on a move round trip | high | mitigate | `src/routes/admin/plan-dnia/+page.server.ts`, `src/routes/admin/galeria/+page.server.ts`, `src/routes/admin/plan-dnia/+page.svelte` +1 | closed |
 | T-05-04-03 | Denial of service (keyboard operability regression) | focus effect branch | medium | mitigate | `src/lib/components/admin/PowtarzalnaGrupa.svelte`, `tests/admin-strony.spec.ts`, `tests/admin-galeria.spec.ts` | closed |
 | T-05-04-04 | Tampering (silent regression on unrelated screens) | PowtarzalnaGrupa shared markup | high | mitigate | `src/lib/components/admin/PowtarzalnaGrupa.svelte`, `src/lib/components/admin/Przycisk.svelte`, `src/routes/admin/o-nas/+page.svelte` +1 | closed |
 | T-05-04-05 | Elevation of privilege | new panel actions | low | accept | `src/hooks.server.ts`, `src/routes/admin/plan-dnia/+page.server.ts`, `src/routes/admin/galeria/+page.server.ts` +2 | closed |
 | T-05-04-SC | Tampering (supply chain) | npm installs | high | mitigate | `package.json`, `package-lock.json`, `src/lib/components/admin/PowtarzalnaGrupa.svelte` | closed |
-| T-05-05-01 | Information disclosure (regulatory, `dane-bip` §10 item 1) | `walidujCennik` conditional-zero rule | high | mitigate | `/Users/devopsdom/src/client-zlobekstromiec/src/lib/server/admin/walidacja/cennik.ts`, `/Users/devopsdom/src/client-zlobekstromiec/tests/admin-walidacja-cennik.unit.ts`, `/Users/devopsdom/src/client-zlobekstromiec/src/lib/cennik.ts` +1 | **open** |
-| T-05-05-02 | Tampering (arithmetic integrity) | cross-field invariant | high | mitigate | `/Users/devopsdom/src/client-zlobekstromiec/src/lib/server/admin/walidacja/cennik.ts`, `/Users/devopsdom/src/client-zlobekstromiec/src/lib/cennik.ts`, `/Users/devopsdom/src/client-zlobekstromiec/tests/admin-walidacja-cennik.unit.ts` | closed |
-| T-05-05-03 | Tampering (input validation) | the two amount controls | high | mitigate | `/Users/devopsdom/src/client-zlobekstromiec/src/lib/server/admin/walidacja/pola.ts`, `/Users/devopsdom/src/client-zlobekstromiec/src/lib/server/admin/walidacja/cennik.ts` | closed |
-| T-05-05-04 | Tampering (stored XSS through editor prose) | the five fee strings | medium | mitigate | `/Users/devopsdom/src/client-zlobekstromiec/src/routes/admin/cennik/+page.svelte`, `/Users/devopsdom/src/client-zlobekstromiec/src/routes/cennik/+page.svelte`, `/Users/devopsdom/src/client-zlobekstromiec/svelte.config.js` | closed |
-| T-05-05-05 | Tampering (stale-save overwrite) | `zapiszTresc` head-SHA refusal | high | mitigate | `/Users/devopsdom/src/client-zlobekstromiec/src/routes/admin/cennik/+page.server.ts`, `/Users/devopsdom/src/client-zlobekstromiec/src/routes/admin/cennik/+page.svelte`, `/Users/devopsdom/src/client-zlobekstromiec/src/lib/server/admin/zapis.ts` +2 | closed |
-| T-05-05-06 | Elevation of privilege (auth bypass) | the new `/admin/cennik` route | high | mitigate | `/Users/devopsdom/src/client-zlobekstromiec/src/hooks.server.ts`, `/Users/devopsdom/src/client-zlobekstromiec/src/routes/admin/+layout.server.ts`, `/Users/devopsdom/src/client-zlobekstromiec/tests/admin-cennik.spec.ts` +1 | closed |
-| T-05-05-07 | Repudiation / information disclosure | logging | medium | mitigate | `/Users/devopsdom/src/client-zlobekstromiec/src/routes/admin/cennik/+page.server.ts`, `/Users/devopsdom/src/client-zlobekstromiec/src/lib/server/admin/walidacja/cennik.ts`, `/Users/devopsdom/src/client-zlobekstromiec/src/lib/server/admin/zapis.ts` | closed |
-| T-05-05-08 | Denial of service (build ceiling) | one save equals one Pages build | medium | accept | `/Users/devopsdom/src/client-zlobekstromiec/src/routes/admin/cennik/+page.svelte`, `/Users/devopsdom/src/client-zlobekstromiec/src/lib/components/admin/RzedZapisu.svelte`, `/Users/devopsdom/src/client-zlobekstromiec/src/routes/admin/cennik/+page.server.ts` +1 | closed |
-| T-05-05-SC | Tampering (supply chain) | npm installs | high | mitigate | `/Users/devopsdom/src/client-zlobekstromiec/package.json`, `/Users/devopsdom/src/client-zlobekstromiec/package-lock.json` | closed |
+| T-05-05-01 | Information disclosure (regulatory, `dane-bip` §10 item 1) | `walidujCennik` conditional-zero rule | high | mitigate | `src/lib/server/admin/walidacja/cennik.ts`, `tests/admin-walidacja-cennik.unit.ts`, `src/lib/cennik.ts` +1 | closed (fixed `8fff192`) |
+| T-05-05-02 | Tampering (arithmetic integrity) | cross-field invariant | high | mitigate | `src/lib/server/admin/walidacja/cennik.ts`, `src/lib/cennik.ts`, `tests/admin-walidacja-cennik.unit.ts` | closed |
+| T-05-05-03 | Tampering (input validation) | the two amount controls | high | mitigate | `src/lib/server/admin/walidacja/pola.ts`, `src/lib/server/admin/walidacja/cennik.ts` | closed |
+| T-05-05-04 | Tampering (stored XSS through editor prose) | the five fee strings | medium | mitigate | `src/routes/admin/cennik/+page.svelte`, `src/routes/cennik/+page.svelte`, `svelte.config.js` | closed |
+| T-05-05-05 | Tampering (stale-save overwrite) | `zapiszTresc` head-SHA refusal | high | mitigate | `src/routes/admin/cennik/+page.server.ts`, `src/routes/admin/cennik/+page.svelte`, `src/lib/server/admin/zapis.ts` +2 | closed |
+| T-05-05-06 | Elevation of privilege (auth bypass) | the new `/admin/cennik` route | high | mitigate | `src/hooks.server.ts`, `src/routes/admin/+layout.server.ts`, `tests/admin-cennik.spec.ts` +1 | closed |
+| T-05-05-07 | Repudiation / information disclosure | logging | medium | mitigate | `src/routes/admin/cennik/+page.server.ts`, `src/lib/server/admin/walidacja/cennik.ts`, `src/lib/server/admin/zapis.ts` | closed |
+| T-05-05-08 | Denial of service (build ceiling) | one save equals one Pages build | medium | accept | `src/routes/admin/cennik/+page.svelte`, `src/lib/components/admin/RzedZapisu.svelte`, `src/routes/admin/cennik/+page.server.ts` +1 | closed |
+| T-05-05-SC | Tampering (supply chain) | npm installs | high | mitigate | `package.json`, `package-lock.json` | closed |
 | T-05-06-01 | Tampering (path traversal via an editor-controlled filename) | nazwaZdjeciaGalerii | high | mitigate | `src/lib/server/admin/uploads.ts`, `src/lib/server/admin/slug.ts`, `src/lib/server/admin/walidacja/galeria.ts` +2 | closed |
 | T-05-06-02 | Tampering / denial of service (deleting a file another page renders) | zdjecieGaleriiDoUsuniecia | high | mitigate | `src/lib/server/admin/uploads.ts`, `src/routes/admin/galeria/+page.server.ts`, `src/lib/content/galeria.json` +4 | closed |
 | T-05-06-03 | Tampering (index injection into a repeated group; T-04.1-34) | add, remove and the two move actions | high | mitigate | `src/lib/pola-strony.ts`, `src/routes/admin/galeria/+page.server.ts`, `src/lib/server/admin/walidacja/galeria.ts` | closed |
@@ -82,7 +84,7 @@ are closed or accepted in writing.
 | T-05-06-09 | Denial of service (build ceiling) | one save equals one build | medium | accept | `src/routes/admin/galeria/+page.server.ts`, `src/routes/admin/galeria/+page.svelte`, `src/lib/components/admin/RzedZapisu.svelte` +1 | closed |
 | T-05-06-SC | Tampering (supply chain) | npm installs | high | mitigate | `package.json`, `package-lock.json` | closed |
 | T-05-07-01 | Tampering (stored XSS through editor prose) | caption and alt on `/o-nas` | medium | mitigate | `src/routes/o-nas/+page.svelte`, `src/lib/components/Lightbox.svelte`, `src/lib/markdown.ts` +1 | closed |
-| T-05-07-02 | Denial of service (whole-site prerender aborted by one bad entry) | the gallery reader on `/o-nas` | high | mitigate | `src/lib/galeria.ts`, `src/routes/o-nas/+page.svelte`, `src/lib/zdjecia-nazwy.ts` | **open** |
+| T-05-07-02 | Denial of service (whole-site prerender aborted by one bad entry) | the gallery reader on `/o-nas` | high | mitigate | `src/lib/galeria.ts`, `src/routes/o-nas/+page.svelte`, `src/lib/zdjecia-nazwy.ts` | closed (fixed `7f50010`) |
 | T-05-07-03 | Denial of service (duplicate-key exception in production) | the gallery each block | high | mitigate | `src/routes/o-nas/+page.svelte`, `src/routes/admin/galeria/+page.svelte` | closed |
 | T-05-07-04 | Tampering (destructive migration) | `obiekt_zdjecia` removal | high | mitigate | `src/lib/content/o-nas.json`, `src/routes/o-nas/+page.svelte`, `src/routes/admin/o-nas/+page.server.ts` +7 | closed |
 | T-05-07-05 | Information disclosure (RODO / wizerunek) | the shipped photo set | high | mitigate | `src/lib/content/galeria.json`, `src/lib/assets/uploads/sala-zabaw.jpg`, `src/lib/assets/uploads/plac-zabaw.jpg` +1 | closed |
@@ -110,16 +112,21 @@ are closed or accepted in writing.
 
 ---
 
-## Open Threats
+## Threats Raised by This Audit
+
+The first three were blocking and are now fixed in code. The last three sit below the `high`
+block threshold, are not fixed, and are recorded here so they are carried rather than lost.
+
 
 ### T-05-02-01 — Information disclosure (regulatory, `dane-bip` §10 item 1)
 
 | | |
 |---|---|
 | Component | /cennik rendered text |
-| Severity | high (blocking) |
+| Severity | high (was blocking) |
 | Plan | `05-02-PLAN.md` |
 | Auditor verdict | CLOSED, overturned on adversarial review |
+| Resolution | **Fixed 2026-08-18, commit `8fff192`.** `WZORZEC_ZERA` now carries the grosze branch, so the save-time rule refuses the spelling that reached this page |
 
 **What the register promised.** Zero-and-condition are one indivisible string: src/lib/content/cennik.ts:67-74 returns "...pokrywa całą tę opłatę, więc rodzic dopłaca 0 zł..." from przykladZus(), rendered as a single <p> at src/routes/cennik/+page.svelte:122 inside <div class="blok-zus" id="zus-blok"> (opened :120, closed :124). Scoped test PAIR located: tests/cennik.spec.ts:74-81 asserts #zus-blok exists, matches /Aktywnie w żłobku/ and matches ZERO; tests/cennik.spec.ts:83-91 clones <main>, removes #zus-blok and asserts the remainder does NOT match ZERO. The regex is declared independently at tests/cennik.spec.ts:27 (/(^\|[^0-9])0(,00)?\s*zł/), and /rekrutacja's gate is genuinely NOT reused - tests/rekrutacja.spec.ts:183 still carries its own copy scoped to .fee-box. Static check of the store confirms no other field can match: src/lib/content/cennik.json wyzywienie says "20 zł" (digit precedes the 0) and nieobecnosc says "8:00" (no zł). Editor-save boundary additionally guarded downstream by WZORZEC_ZERA + zeroBezWarunku at src/lib/server/admin/walidacja/cennik.ts:107,151,218. CAVEAT: the test pair runs only under `npm run test` (Playwright), which nothing runs automatically - .pre-commit-config.yaml runs only `npm run check` and `npm run lint`, and .github/workflows does not exist.
 
@@ -132,9 +139,10 @@ are closed or accepted in writing.
 | | |
 |---|---|
 | Component | `walidujCennik` conditional-zero rule |
-| Severity | high (blocking) |
+| Severity | high (was blocking) |
 | Plan | `05-05-PLAN.md` |
 | Auditor verdict | CLOSED, overturned on adversarial review |
+| Resolution | **Fixed 2026-08-18, commit `8fff192`.** Save-time and render-time patterns now agree on what a zero amount looks like |
 
 **What the register promised.** Save-time rule present and boundary-anchored as declared. cennik.ts:107 `export const WZORZEC_ZERA = /(?<!\d)0(?!\d)\s*zł/u;` — a lookbehind AND a lookahead, so "1 500 zł" / "20 zł" / "1 000 zł" cannot match; cennik.ts:117 `export const MARKER_ZUS = 'Aktywnie w żłobku'`; cennik.ts:151-154 `zeroBezWarunku()` returns true only when the pattern matches AND the same field's own text lacks the marker (case-folded with toLocaleLowerCase('pl') on both sides). Applied to ALL FIVE text fields, not just the fee sentences, at cennik.ts:210-219 (loop over POLE_NAGLOWKA, POLE_KWOTY_OPIS, POLE_ZUS, POLE_WYZYWIENIA, POLE_NIEOBECNOSCI -> KOPIA_WALIDACJA.kwotaZeroBezWarunku). Both constants are genuinely exported and genuinely imported by the suite rather than retyped: tests/admin-walidacja-cennik.unit.ts:49-53 imports MARKER_ZUS/WZORZEC_ZERA/zeroBezWarunku, and drives them at :298-318 including the explicit four-digit non-trip case. Literal-substring gate confirmed absent (no `.includes('0 zł')` anywhere in the validator). Second layer verified too: build-time reader src/lib/cennik.ts:167 sets `pokazRozbicie: obnizka > 0` so a zero reduction removes the breakdown block rather than rendering "Obniżka 0 zł", and the render-time pair is tests/cennik.spec.ts:74 and :83. CAVEAT: both test tiers (node:test and Playwright) are manual — .pre-commit-config.yaml runs only check+lint and there is no CI — but the mitigation itself is unconditional production code.
 
@@ -147,9 +155,10 @@ are closed or accepted in writing.
 | | |
 |---|---|
 | Component | the gallery reader on `/o-nas` |
-| Severity | high (blocking) |
+| Severity | high (was blocking) |
 | Plan | `05-07-PLAN.md` |
 | Auditor verdict | CLOSED, overturned on adversarial review |
+| Resolution | **Fixed 2026-08-18, commit `7f50010`.** The membership test is `Object.hasOwn`, so an inherited key can no longer be admitted as a picture |
 
 **What the register promised.** Drop-and-warn, never throw, located in production code. src/lib/galeria.ts:74-77 `if (typeof dane !== 'object' \|\| dane === null \|\| Array.isArray(dane)) { console.warn('galeria: pomijam store (nie jest obiektem JSON)'); return []; }` and :79-82 the same for a missing/non-array `zdjecia` list. Per-entry: :55 `if (typeof wpis !== 'object' \|\| wpis === null \|\| Array.isArray(wpis)) return null;` guards the container BEFORE any property access, :57-60 every field passes the single narrowing primitive `czytajTekst` (:39-41) and a missing one returns null, :62 the result is built key-by-key from guarded locals and never spread. :84-87 the loop skips nulls. The file-missing drop is src/lib/galeria.ts:110-111 `const obraz = wedlugNazwy[bazowaNazwa(zdjecie.plik)]; if (obraz === undefined) continue;`. There is no `throw` anywhere in the module (read in full, 115 lines). The page adds no second filter: src/routes/o-nas/+page.svelte:53 is the single call `galeriaZObrazami(czytajGalerie(galeriaStore), wedlugBazowejNazwy(uploads))`, with the reason stated at :51-52. Traced the one remaining downstream dereference for an L3 bypass: :178 `zrodlo={zdjecie.obraz.img.src}` is reachable only for entries `galeriaZObrazami` admitted, i.e. `obraz` is a defined Picture. `bazowaNazwa` (src/lib/zdjecia-nazwy.ts:38-40) is total on any string (`split('/').pop() ?? wartosc`).
 
@@ -201,9 +210,13 @@ are closed or accepted in writing.
 
 ---
 
-## Remediation
+## Remediation (applied 2026-08-18)
 
-Both blocking code defects are small and local. Neither needs a design change.
+Both blocking code defects were small and local, and neither needed a design change. Each was
+driven test-first: the test was written against the old code and observed to fail with the
+right message (`wzorzec przepuscil kwote zerowa: 0,00 zł`, and six gallery entries admitted
+where one was expected) before the fix was applied. Full gate after both: `npm run check`
+0 errors, `npm run lint` clean, `npm run test:unit` 593 passed, `npm run test` 419 passed.
 
 ### 1. `WZORZEC_ZERA` misses the grosze spelling (closes T-05-05-01 and T-05-02-01)
 
@@ -270,7 +283,7 @@ Each fix wants a test in the tier that already covers its neighbours:
 | R-05-02 | T-05-05-08, T-05-06-09 | One save equals one Cloudflare Pages build, roughly two minutes to publish against a free ceiling of 500 builds per month. One "Zapisz" per screen, never per field | Plan 05-05, 05-06 | 2026-08-17 |
 | R-05-03 | T-05-07-07 | `KNOWN_FUTURE_ROUTES` is empty, so a broken internal link fails the build. A failed build leaves the previous deployment live, which this project prefers over a published broken link | Plan 05-07 | 2026-08-17 |
 | R-05-04 | T-05-03-04, T-05-04-05, T-05-08-05 | No new information-disclosure or privilege surface: the lightbox renders only already-prerendered content, and every new `/admin` route inherits the layout gate with no `+server.ts` under `/admin` and nothing under `static/admin/` | Plans 05-03, 05-04, 05-08 | 2026-08-17 |
-| R-05-05 | AG-3 (project-wide) | Every E4 (Playwright + axe) and E5 (`node:test`) mitigation in this register is proven only when a human runs the command. There is no CI. `05-VALIDATION.md` states this is not Phase 5's to fix. The full suite was run by hand during this audit: `npm run check` 0 errors, `npm run lint` clean, `npm run test:unit` 592 passed, `npm run test` 419 passed | This audit | 2026-08-18 |
+| R-05-05 | AG-3 (project-wide) | Every E4 (Playwright + axe) and E5 (`node:test`) mitigation in this register is proven only when a human runs the command. There is no CI. `05-VALIDATION.md` states this is not Phase 5's to fix. The full suite was run by hand during this audit: `npm run check` 0 errors, `npm run lint` clean, `npm run test:unit` 593 passed, `npm run test` 419 passed | This audit | 2026-08-18 |
 
 ---
 
@@ -279,12 +292,19 @@ Each fix wants a test in the tier that already covers its neighbours:
 | Audit Date | Threats Total | Closed | Open | Run By |
 |------------|---------------|--------|------|--------|
 | 2026-08-18 | 64 | 58 | 6 (3 blocking) | gsd-security-auditor x9 + adversarial reviewer x9, orchestrated by /gsd-secure-phase 05 |
+| 2026-08-18 | 64 | 61 | 3 (0 blocking) | Remediation of the three blocking threats, commits `8fff192` and `7f50010` |
 
 Adversarial review overturned six closures the per-plan auditors had accepted:
 T-05-02-01, T-05-03-03, T-05-05-01, T-05-07-02, T-05-08-04 and T-05-09-05.
 T-05-08-04 was restored to closed by the orchestrator on evidence the reviewer did not have:
 its axe open-state scan did execute and pass in this session's `npm run test` run (419 passed).
-The other five stand.
+The other five stood, and the three blocking ones among them were then fixed in code.
+
+**The method is the finding worth keeping.** All nine per-plan auditors reported their
+registers fully mitigated. Every defect in this document came from the second pass, whose only
+instruction was to disprove the first. Two of the six overturned closures were real bugs: an
+editor could publish an unconditioned zero fee, and a hand-edited gallery entry could abort the
+whole-site prerender. A single-pass audit would have signed this phase off clean.
 
 ---
 
@@ -292,7 +312,13 @@ The other five stand.
 
 - [x] All threats have a disposition (mitigate / accept / transfer)
 - [x] Accepted risks documented in Accepted Risks Log
-- [ ] `threats_open: 0` confirmed — **3 open at high severity**
-- [ ] `status: verified` set in frontmatter
+- [x] `threats_open: 0` confirmed — three medium threats remain open below the `high` block threshold and are carried, not closed
+- [x] `status: verified` set in frontmatter
 
-**Approval:** pending — blocked on T-05-02-01, T-05-05-01 and T-05-07-02
+**Approval:** verified 2026-08-18
+
+**Carried forward, not closed.** T-05-02-05, T-05-03-03 and T-05-09-05 are open at medium
+severity. None blocks Phase 5, and each belongs to work already scheduled: the separator twin
+and the `MobileNav` focus escape are both in `deferred-items.md`, and T-05-09-05's mismatch
+between a `PLACEHOLDER` token grep and a JSON boolean lands squarely on the Phase 6 launch
+gate that performs that grep.
