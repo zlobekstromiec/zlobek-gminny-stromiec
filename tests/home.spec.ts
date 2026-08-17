@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { recruitment } from '../src/lib/content/site';
+import { keyFacts, recruitment } from '../src/lib/content/site';
+import { CENNIK } from '../src/lib/cennik';
 
 /**
  * Homepage acceptance test: encodes HOME-01, HOME-02 and the WCAG 2.1 AA
@@ -103,19 +104,65 @@ test.describe('Homepage: Phase 1 + 01.1 acceptance', () => {
 	// not relaxed: the count assertion is untouched and the fee assertions are now
 	// STRONGER, because they additionally pin the dane-bip §10.1 hard gate that the
 	// zero amount may never appear without the ZUS „Aktywnie w żłobku" condition.
+	//
+	// SECOND LOCKSTEP CHANGE (05-UI-SPEC Contract 7, plan 05-09). Two of these four tiles
+	// became EDITOR-OWNED and a third became COMPUTED, so the asymmetry this file used to
+	// carry is now decided PER SURFACE rather than for the whole strip:
+	//
+	//  • the hours, the number of places and the payable amount are INTERPOLATED from the
+	//    modules that own them. A retyped assertion would turn a routine „the żłobek changed
+	//    its opening hours" save into a red build, which is a test punishing the feature it
+	//    was written to protect.
+	//  • the fee tile's SUFFIX stays RETYPED. Its exact shape is the safety property: the
+	//    zero figure may appear only inside the same string as the ZUS condition
+	//    (dane-bip §10, item 1). Interpolating it would assert that the suffix equals
+	//    itself, which is no assertion at all.
 	test('key-facts strip answers the arrival questions', async ({ page }) => {
 		await page.goto('/');
 		const facts = page.locator('section[aria-label="Najważniejsze informacje"]');
 		await expect(facts.locator('.fact-label')).toHaveCount(4);
+
+		// FIXED ARITY (05-UI-SPEC Contract 11): exactly four tiles, walked BY POSITION,
+		// because from plan 05-09 the label is a value the store could in principle disagree
+		// about and the position is what the locked desktop grid is built on.
+		const kafelki = facts.locator('li.fact');
+		await expect(kafelki).toHaveCount(4);
+		for (const [indeks, fakt] of keyFacts.entries()) {
+			const kafelek = kafelki.nth(indeks);
+			await expect(kafelek.locator('.fact-label')).toHaveText(fakt.label);
+			await expect(kafelek.locator('.fact-value')).toHaveText(fakt.value);
+			if (fakt.suffix !== undefined) {
+				await expect(kafelek.locator('.fact-note')).toHaveText(fakt.suffix);
+			}
+		}
+
+		// Wiek: code-authored, statutory and stated a second time in the recruitment info
+		// card, which is why 05-UI-SPEC Contract 7 keeps it out of the editable set.
 		await expect(facts.getByText('od 20. tyg. życia do 3 lat')).toBeVisible();
 		await expect(facts.getByText('wyjątkowo do 4 lat')).toBeVisible();
-		await expect(facts.getByText('1 500 zł')).toBeVisible();
-		await expect(facts.getByText('wyżywienie maks. 20 zł/dzień', { exact: false })).toBeVisible();
+
+		// The payable amount is computed from the cennik store, so the tile, FeeBox and
+		// /cennik cannot disagree about what a parent pays.
+		await expect(kafelki.nth(2).locator('.fact-value')).toHaveText(CENNIK.placiTekst);
+
 		// The zero amount is never unconditional: it is rendered only inside the same
-		// string as the ZUS condition (dane-bip §10.1).
+		// string as the ZUS condition (dane-bip §10, item 1). RETYPED on purpose.
 		await expect(
-			facts.getByText('możliwe 0 zł ze świadczeniem ZUS „Aktywnie w żłobku"', { exact: false })
+			facts.getByText(
+				'+ wyżywienie maks. 20 zł/dzień; możliwe 0 zł ze świadczeniem ZUS „Aktywnie w żłobku"'
+			)
 		).toBeVisible();
+	});
+
+	// The one value plan 05-09 knowingly leaves in two places: the daily food figure is
+	// written into the fee tile's code-authored suffix AND into the wyżywienie sentence an
+	// editor owns on /admin/cennik. This is the cheap guard against the two drifting apart,
+	// and it is the reason the suffix could not simply be interpolated away.
+	test('dzienna stawka wyzywienia z kafelka oplaty wystepuje takze w zdaniu ze sklepu cennika', () => {
+		const sufiks = keyFacts[2].suffix ?? '';
+		const kwota = sufiks.match(/(\d+)\s*zł\/dzień/u);
+		expect(kwota, `sufiks kafelka oplaty nie niesie stawki dziennej: ${sufiks}`).not.toBeNull();
+		expect(CENNIK.wyzywienie).toContain(`${kwota?.[1]} zł`);
 	});
 
 	test('perks band renders four value cards', async ({ page }) => {

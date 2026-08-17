@@ -9,6 +9,12 @@
 // `with { type: 'json' }` is refused outright. Vite accepts the attribute too, so one
 // form works in both places.
 import nabor from './nabor.json' with { type: 'json' };
+// The homepage fact tiles and the opening hours moved to an editor-owned store in plan
+// 05-09 (05-UI-SPEC Contract 7). Both imports are RELATIVE and carry the `.ts` extension for
+// the same reason the JSON import above carries its attribute: this module is loaded
+// directly under bare `node --test`, where the framework's path alias does not resolve.
+import { godzinyPaska } from '../godziny.ts';
+import { ATOMY_GODZIN, KAFELKI, type KeyFact } from '../w-skrocie.ts';
 
 /** VERBATIM client core message (PROJECT.md line 47). FINAL copy: do not alter a
  *  single character. Its em dash and typographic quotes are byte-exempt from the
@@ -51,9 +57,14 @@ export const contact = {
 	phoneHref: 'tel:+48510094051',
 	/** FINAL: confirmed public institutional inbox; do NOT mark placeholder. */
 	email: 'zlobek@ugstromiec.pl',
-	// PLACEHOLDER: [KD]-sourced (confirmed by e-mail, not by a BIP document) and
-	// recorded as "może ulec zmianie"; re-confirm before launch.
-	hours: 'pon.-pt. 6:30–16:30'
+	// DERIVED, not a literal, since plan 05-09: the opening hours have ONE source, the
+	// editor-owned store src/lib/content/w-skrocie.json, and this line, the homepage tile
+	// and the footer are all composed from the same four atoms. Before that they were three
+	// sources on five surfaces and could disagree on a single page.
+	// The launch-gate marker that used to be a `// PLACEHOLDER:` line comment here now lives
+	// in that store as the per-tile boolean `godziny.placeholder`, and
+	// tests/zastepcze.unit.ts is the sweep that finds it (05-UI-SPEC Contract 11).
+	hours: godzinyPaska(ATOMY_GODZIN)
 	// The former żłobek office-hours field is deliberately GONE: the source
 	// document records no such hours, so the old value was invented. Where a
 	// wniosek is filed is an Urząd Gminy fact, see `urzad` below.
@@ -70,43 +81,34 @@ export const urzad = {
 	wnioskiHours: 'pon.-pt. 8:00–15:00'
 } as const;
 
-export type KeyFact = {
-	label: string;
-	value: string;
-	/** rendered inline after the value, Nunito 400 15px muted */
-	suffix?: string;
-	/** bespoke duotone icon shown in the tint chip */
-	icon: 'smile' | 'clock' | 'coins' | 'house';
-	/** tint chip surface (decorative only; icon stroke stays accessible-tier) */
-	tint: 'yellow' | 'blue' | 'orange' | 'green';
-};
+/** Re-exported rather than declared, since plan 05-09 moved the tiles into src/lib/w-skrocie.ts
+ *  (05-UI-SPEC Contract 7). The type had to travel with them: this module imports that one for
+ *  the tiles, so that one cannot import a type back out of this one without closing a cycle.
+ *  Every existing `import type { KeyFact } from '$lib/content/site'` keeps working. */
+export type { KeyFact };
 
-export const keyFacts: KeyFact[] = [
-	/** FINAL: [BIP] statut range (od ukończenia 20. tygodnia życia do 3 lat,
-	 *  wyjątkowo do 4). */
-	{
-		label: 'Wiek dzieci',
-		value: 'od 20. tyg. życia do 3 lat',
-		suffix: 'wyjątkowo do 4 lat',
-		icon: 'smile',
-		tint: 'yellow'
-	},
-	// PLACEHOLDER: [KD]-sourced hours, recorded as "może ulec zmianie".
-	{ label: 'Godziny otwarcia', value: '6:30–16:30', icon: 'clock', tint: 'blue' },
-	// PLACEHOLDER: exact fee wording pending client confirmation (D-09). The amount
-	// itself is [BIP] (uchwała XXIII.134.2026: 2 337 zł minus 837 zł obniżki).
-	// HARD RULE (dane-bip §10.1): the zero figure may appear ONLY attached to the
-	// ZUS „Aktywnie w żłobku" condition. An unconditional zero is a publishing defect.
-	{
-		label: 'Opłata miesięczna',
-		value: '1 500 zł',
-		suffix: '+ wyżywienie maks. 20 zł/dzień; możliwe 0 zł ze świadczeniem ZUS „Aktywnie w żłobku"',
-		icon: 'coins',
-		tint: 'orange'
-	},
-	/** FINAL: [BIP] 50 miejsc utworzonych w programie Aktywny Maluch. */
-	{ label: 'Liczba miejsc', value: '50', icon: 'house', tint: 'green' }
-];
+/**
+ * The four homepage fact tiles, composed in src/lib/w-skrocie.ts (05-UI-SPEC Contract 7).
+ *
+ * WHERE THE FOUR VALUES NOW COME FROM, and why each one sits where it does:
+ *  • Wiek dzieci: still code-authored, in that module beside the slot table. Read-only in the
+ *    panel, because the same [BIP] statut range is stated a second time and in a second
+ *    phrasing in `recruitment.infoCard` below, and an editable tile would let an editor
+ *    change one of them and not the other.
+ *  • Godziny otwarcia: EDITOR-OWNED, composed from src/lib/content/w-skrocie.json, which is
+ *    also what `contact.hours` above and the site footer now read.
+ *  • Opłata miesięczna: COMPUTED from the cennik store, so this tile, FeeBox and /cennik can
+ *    never disagree about what a parent pays. Read-only in the panel: its note carries the
+ *    conditional zero and an editor shortening it would publish a bare zero amount.
+ *  • Liczba miejsc: EDITOR-OWNED, from the same store as the hours.
+ *
+ * THE TWO `// PLACEHOLDER:` LINE COMMENTS THAT USED TO STAND HERE were launch-gate markers,
+ * and moving the data without moving them would have deleted two obligations silently. The
+ * hours marker is now the per-tile boolean `godziny.placeholder` in that store, swept by
+ * tests/zastepcze.unit.ts; the fee marker retired with the amount itself, which is no longer
+ * typed anywhere: it is subtracted from the two [BIP] figures in src/lib/cennik.ts.
+ */
+export const keyFacts: KeyFact[] = KAFELKI;
 
 export type Perk = {
 	title: string;

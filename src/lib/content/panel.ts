@@ -80,6 +80,11 @@ export const SEKCJE_PANELU: Readonly<Record<string, string>> = Object.freeze({
 	cennik: 'Cennik',
 	dokumenty: 'Dokumenty',
 	nabor: 'Nabór',
+	// 05-UI-SPEC Contract 11 and 05 D-34. „W skrócie" is a pulpit tile and NOT a navigation
+	// chip, so it is deliberately absent from NAWIGACJA above and from SCIEZKI_PANELU. It
+	// still owes an entry HERE: this map is the source of the browser tab on every panel
+	// screen, and a route missing from it degrades to the neutral wordmark silently.
+	'w-skrocie': 'W skrócie',
 	pomoc: 'Pomoc'
 });
 
@@ -165,6 +170,12 @@ export const KOPIA_PULPIT = {
 	 *  nobody would think to check after changing it. */
 	cennikTytul: 'Cennik',
 	cennikOpis: 'Kwoty i opis opłat za pobyt oraz wyżywienie.',
+	/** THE ONE DESTINATION THE PANEL NAVIGATION DOES NOT CARRY (05 D-34, 05-UI-SPEC
+	 *  Contract 12). Opening hours and place counts change once every few years, and a tenth
+	 *  chip would put roughly four rows of navigation above every screen in a panel meant for
+	 *  uploading photographs from a phone. No state line, for the same reason as Cennik. */
+	wSkrocieTytul: 'W skrócie',
+	wSkrocieOpis: 'Cztery kafelki na górze strony głównej: wiek, godziny, opłata i liczba miejsc.',
 	pomocTytul: 'Pomoc',
 	pomocOpis: 'Instrukcja krok po kroku, jak korzystać z panelu.'
 } as const;
@@ -317,6 +328,65 @@ export const POLA_CENNIK = {
 	wyzywieniePodpowiedz: 'Stawka za wyżywienie i za co jest pobierana.',
 	nieobecnoscEtykieta: 'Nieobecność dziecka *',
 	nieobecnoscPodpowiedz: 'Zasady odpisów za zgłoszoną nieobecność.',
+	zastepczaEtykieta: 'Treść zastępcza (do potwierdzenia)',
+	zastepczaPodpowiedz: 'Zaznacz, dopóki treść nie została potwierdzona.'
+} as const;
+
+/** The W skrócie editor (05-UI-SPEC Contract 11, 05 D-32, D-33). A FIXED-ARITY singleton
+ *  screen: exactly four tiles, fields only, no add and no remove. Two of the four are
+ *  read-only, and each of them is read-only for a reason the lead sentence tells the editor
+ *  out loud rather than leaving them to discover from a screen that will not respond. */
+export const KOPIA_W_SKROCIE = {
+	naglowek: 'W skrócie',
+	lead: 'To cztery kafelki na górze strony głównej. Dwa z nich zmieniasz gdzie indziej i są tu tylko do wglądu.',
+	wiekLegenda: 'Kafelek: wiek dzieci',
+	/** Read-only, per 05-UI-SPEC Contract 7. The same age range is stated a second time, in
+	 *  a second phrasing, on the Rekrutacja page, and both are statutory final facts: an
+	 *  editable tile would let somebody change one of them and not the other. */
+	wiekPodpowiedz:
+		'Wiek dzieci wynika ze statutu żłobka i jest podany także na stronie Rekrutacja, dlatego zmienia go osoba opiekująca się stroną.',
+	godzinyLegenda: 'Kafelek: godziny otwarcia',
+	/** THE ONE THING AN EDITOR CANNOT SEE FROM THIS SCREEN, and the whole reason the hours
+	 *  were unified rather than left alone: these four fields also feed the footer of every
+	 *  page and the bar at the top of the site, so there is nowhere else to change them. */
+	godzinyUwaga:
+		'Te godziny pokazujemy w trzech miejscach: na stronie głównej, w pasku na górze strony i w stopce. Jeden zapis zmienia wszystkie.',
+	oplataLegenda: 'Kafelek: opłata',
+	/** Read-only, and the hint names the screen that DOES own the value, because „you cannot
+	 *  change this here" without „and here is where you can" is a dead end. */
+	oplataPodpowiedz:
+		'Tę kwotę zmieniasz na ekranie Cennik, żeby wszędzie na stronie była taka sama.',
+	oplataLink: 'Przejdź do Cennika',
+	miejscaLegenda: 'Kafelek: liczba miejsc',
+	/** The „Zapisano" panel's link. Written out rather than built by `zobaczStrone` above,
+	 *  because the front page is the one page in this project whose name is a phrase rather
+	 *  than a label, and „Zobacz stronę: Strona główna" reads like a machine wrote it. */
+	zobaczStroneGlowna: 'Zobacz stronę główną',
+	/** The commit description. Copy like any other: written in Polish by this project and
+	 *  landing in the history of a PUBLIC repository, so it is swept with the labels. */
+	opisZapisu: 'zaktualizowano kafelki na stronie głównej'
+} as const;
+
+/** W skrócie form labels and hints (05-UI-SPEC Contract 11).
+ *
+ *  THE HOURS FIELDSET CARRIES FOUR FIELDS rather than the uniform label, value and note
+ *  shape the other tiles take, because the surfaces that render the hours need different
+ *  fragments: the strip wants the bare range, the top bar wants the short day form beside
+ *  it and the footer wants the full day name on a line of its own. The fixed arity of this
+ *  screen is about the number of TILES, never about every tile carrying the same fields. */
+export const POLA_W_SKROCIE = {
+	godzinyEtykieta: 'Godziny otwarcia *',
+	godzinyPodpowiedz: 'Na przykład 6:30–16:30.',
+	dniPelneEtykieta: 'Dni, pełna nazwa *',
+	dniPelnePodpowiedz: 'Na przykład: poniedziałek-piątek. Tak pokazujemy je w stopce.',
+	dniSkrotEtykieta: 'Dni, skrót *',
+	dniSkrotPodpowiedz: 'Krótka forma używana w pasku na górze strony, na przykład: pon.-pt.',
+	weekendEtykieta: 'Weekend *',
+	weekendPodpowiedz: 'Na przykład: soboty i niedziele: nieczynne.',
+	miejscaEtykieta: 'Liczba miejsc *',
+	miejscaPodpowiedz: 'Sama liczba, na przykład 50.',
+	dopisekEtykieta: 'Dopisek (opcjonalnie)',
+	dopisekPodpowiedz: 'Krótkie wyjaśnienie pod liczbą, jeśli jest potrzebne.',
 	zastepczaEtykieta: 'Treść zastępcza (do potwierdzenia)',
 	zastepczaPodpowiedz: 'Zaznacz, dopóki treść nie została potwierdzona.'
 } as const;
@@ -554,6 +624,19 @@ export const KOPIA_WALIDACJA = {
 	 *  field and gives both ways out, because either is a correct fix. */
 	kwotaZeroBezWarunku:
 		'W tym polu jest kwota 0 zł bez warunku, na jakim rodzic jej nie płaci. Dopisz warunek albo usuń tę kwotę.',
+	/** The five refusals of the W skrócie screen (05-UI-SPEC Contract 11). Each one quotes
+	 *  its OWN field's hint example, so a refusal reads as the same instruction the editor
+	 *  was already given rather than as a second, differently worded demand (WCAG 3.3.3).
+	 *
+	 *  `godzinyBrak` further up is a DIFFERENT message about a different control: that one is
+	 *  a plan-dnia row and its example is a slot in the day („7:00–8:30"), while this one is
+	 *  the żłobek's opening hours. Reusing it would have quoted the wrong example back at
+	 *  somebody who had just been shown the right one. */
+	godzinyOtwarciaBrak: 'Wpisz godziny, na przykład 6:30–16:30.',
+	dniBrak: 'Wpisz dni, na przykład: poniedziałek-piątek.',
+	skrotDniBrak: 'Wpisz skrót dni, na przykład: pon.-pt.',
+	weekendBrak: 'Wpisz, co dzieje się w weekend, na przykład: soboty i niedziele: nieczynne.',
+	liczbaMiejscBrak: 'Wpisz liczbę miejsc, na przykład 50.',
 	/** The catch-all for a required text field left empty on a screen whose other refusals
 	 *  are all specific. Short on purpose: it sits directly under the label and the hint
 	 *  that already say what the field is for. */

@@ -1,0 +1,14 @@
+{
+	"godziny": {
+		"placeholder": true,
+		"godziny": "6:30–16:30",
+		"dniPelne": "poniedziałek-piątek",
+		"dniSkrot": "pon.-pt.",
+		"weekend": "soboty i niedziele: nieczynne"
+	},
+	"miejsca": {
+		"placeholder": false,
+		"wartosc": 50,
+		"dopisek": ""
+	}
+}

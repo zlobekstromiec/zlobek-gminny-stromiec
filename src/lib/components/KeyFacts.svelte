@@ -1,7 +1,11 @@
 <script lang="ts">
 	// Key-facts strip (UI-SPEC v1.2 §6): answers a parent's arrival questions
 	// (age range, hours, fee, capacity) at a glance, directly under the hero.
-	// Values come from src/lib/content/site.ts (PLACEHOLDER markers live there).
+	// Values come from src/lib/content/site.ts, which since plan 05-09 composes them in
+	// src/lib/w-skrocie.ts: two tiles are editor-owned, one is computed from the cennik
+	// store and one stays code-authored (05-UI-SPEC Contract 7). The launch-gate markers
+	// live in src/lib/content/w-skrocie.json as per-tile booleans. The icon and the tint
+	// below are NEVER stored, so the map is indexed only ever with a code-authored key.
 	// Tint chips are decorative surfaces; icon strokes and all text stay
 	// accessible-tier (brand-blue stroke, ink value, muted label).
 	import { keyFacts } from '$lib/content/site';
@@ -17,7 +21,14 @@
 	<!-- Plain list semantics: axe's definition-list rule forbids the chip/text
 	     wrapper divs a <dl> layout would need here. -->
 	<ul class="facts-grid">
-		{#each keyFacts as fact (fact.label)}
+		<!-- Keyed by POSITION, never by the label. Plan 05-09 made two of these tiles
+		     editable from the panel, and Svelte THROWS on a keyed each block with two equal
+		     keys, in production as well as in development: two tiles sharing a label would
+		     break the front page the moment it hydrated. The position is unique by
+		     construction, the list is fixed at four (05-UI-SPEC Contract 11) and static
+		     within one build, and the rendered output is identical. Same fix, and the same
+		     reasoning, as DayPlan.svelte and the /o-nas facility list. -->
+		{#each keyFacts as fact, i (i)}
 			{@const Icon = icons[fact.icon]}
 			<li class="fact">
 				<span class="chip chip-{fact.tint}" aria-hidden="true">

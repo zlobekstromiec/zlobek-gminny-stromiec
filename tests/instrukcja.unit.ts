@@ -38,6 +38,7 @@ import {
 	KOPIA_POWLOKA,
 	KOPIA_PULPIT,
 	KOPIA_USUWANIE,
+	KOPIA_W_SKROCIE,
 	KOPIA_WALIDACJA,
 	KOPIA_ZAPIS,
 	KOPIA_ZDJECIA,
@@ -46,6 +47,7 @@ import {
 	POLA_GALERIA,
 	POLA_O_NAS,
 	POLA_PLAN_DNIA,
+	POLA_W_SKROCIE,
 	POLA_WPIS
 } from '../src/lib/content/panel.ts';
 import { renderInstrukcja } from '../src/lib/markdown.ts';
@@ -138,6 +140,11 @@ test('instrukcja ma sekcje dla kazdego wymaganego tematu', () => {
 		// not turn this red for a reason that has nothing to do with coverage.
 		['cennik', /^\d+\.\s+Cennik$/u],
 		['nabor', /^\d+\.\s+Nabór$/u],
+		// 05-UI-SPEC Contract 11: the W skrócie screen is new in phase 05 and the manual owes it
+		// a section of its own. It is the one screen the panel navigation does NOT carry (05
+		// D-34), so the manual is the only place an editor can read what it is for before ever
+		// opening it.
+		['w skrocie', /^\d+\.\s+W skrócie$/u],
 		['gdy zmiany nie widac', /^\d+\.\s+Co zrobić, gdy zmiany nie widać$/u],
 		['gdy panel odmowi zapisania', /^\d+\.\s+Co zrobić, gdy panel odmówi zapisania$/u],
 		['dodanie i usuniecie redaktora', /dodanie i usunięcie redaktora$/u]
@@ -188,6 +195,7 @@ test('kazda nazwa ekranu i etykieta przycisku jest cytatem z modulu kopii', () =
 		KOPIA_PULPIT.cennikTytul,
 		KOPIA_PULPIT.dokumentyTytul,
 		KOPIA_PULPIT.naborTytul,
+		KOPIA_PULPIT.wSkrocieTytul,
 		KOPIA_PULPIT.pomocTytul,
 		KOPIA_LISTY.aktualnosciAkcja,
 		KOPIA_LISTY.dokumentyAkcja,
@@ -263,6 +271,19 @@ test('kazda nazwa ekranu i etykieta przycisku jest cytatem z modulu kopii', () =
 		POLA_CENNIK.wyzywienieEtykieta,
 		POLA_CENNIK.nieobecnoscEtykieta,
 		POLA_CENNIK.zastepczaEtykieta,
+		KOPIA_W_SKROCIE.naglowek,
+		KOPIA_W_SKROCIE.wiekLegenda,
+		KOPIA_W_SKROCIE.godzinyLegenda,
+		KOPIA_W_SKROCIE.oplataLegenda,
+		KOPIA_W_SKROCIE.oplataLink,
+		KOPIA_W_SKROCIE.miejscaLegenda,
+		POLA_W_SKROCIE.godzinyEtykieta,
+		POLA_W_SKROCIE.dniPelneEtykieta,
+		POLA_W_SKROCIE.dniSkrotEtykieta,
+		POLA_W_SKROCIE.weekendEtykieta,
+		POLA_W_SKROCIE.miejscaEtykieta,
+		POLA_W_SKROCIE.dopisekEtykieta,
+		POLA_W_SKROCIE.zastepczaEtykieta,
 		POLA_DOKUMENT.nazwaEtykieta,
 		POLA_DOKUMENT.kategoriaEtykieta,
 		POLA_DOKUMENT.plikEtykieta,
@@ -382,6 +403,37 @@ test('instrukcja mowi wprost, ze zdjecia sa w Galerii, a nie na ekranie O nas', 
 		false,
 		'instrukcja wciaz kaze dodawac zdjecia na ekranie O nas'
 	);
+});
+
+// 05 D-32 and D-33, and the whole reason the hours were unified rather than left alone. The
+// W skrócie screen is the one screen in this panel whose fields feed surfaces an editor is
+// not looking at while they type: the bar at the top of every page and the footer of every
+// page. If the manual does not say so, the first person to change the hours goes hunting for
+// the second place to change them, finds none, and concludes the panel is broken.
+test('instrukcja mowi, ze godziny z ekranu W skrocie widac takze w pasku i w stopce', () => {
+	assert.ok(
+		ZWARTY.includes(KOPIA_W_SKROCIE.godzinyUwaga),
+		'brak dosłownego zdania o trzech miejscach, w których widać godziny'
+	);
+	// Two of the four tiles are read-only, and an editor who does not know that reads a group
+	// with no controls in it as a screen that failed to load.
+	assert.ok(
+		ZWARTY.includes(KOPIA_W_SKROCIE.lead),
+		'brak dosłownego zdania o dwóch kafelkach do wglądu'
+	);
+	// The refusals quote the panel's own sentences rather than paraphrasing them.
+	assert.ok(
+		ZWARTY.includes(KOPIA_WALIDACJA.godzinyOtwarciaBrak),
+		'brak dosłownej odmowy o godzinach'
+	);
+	assert.ok(ZWARTY.includes(KOPIA_WALIDACJA.skrotDniBrak), 'brak dosłownej odmowy o skrócie dni');
+	assert.ok(
+		ZWARTY.includes(KOPIA_WALIDACJA.liczbaMiejscBrak),
+		'brak dosłownej odmowy o liczbie miejsc'
+	);
+	// FIXED ARITY: four tiles, always. The manual says it out loud, so a screen with no add
+	// button does not read as a fault.
+	assert.match(ZWARTY, /Kafelków nie da się tu dodać ani usunąć/u);
 });
 
 // Contract 7. „Dodanie wiersza nie zapisuje" is the single most common misunderstanding

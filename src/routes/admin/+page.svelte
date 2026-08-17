@@ -76,6 +76,17 @@
 		opis={KOPIA_PULPIT.naborOpis}
 		stan={obecnieNabor(data.naborOtwarty)}
 	/>
+	<!-- W SKRÓCIE IS REACHED FROM HERE AND FROM NOWHERE ELSE (05 D-34, 05-UI-SPEC Contract
+	     12). It is deliberately not a navigation chip: opening hours and place counts change
+	     once every few years, and a tenth chip would put roughly four rows of navigation
+	     above every screen in a panel meant for uploading photographs from a phone. Placed
+	     before Pomoc so this list mirrors the nav order with the one extra screen inserted.
+	     No state line, for the same reason as Cennik. -->
+	<KafelPulpitu
+		cel="/admin/w-skrocie"
+		tytul={KOPIA_PULPIT.wSkrocieTytul}
+		opis={KOPIA_PULPIT.wSkrocieOpis}
+	/>
 	<KafelPulpitu cel="/admin/pomoc" tytul={KOPIA_PULPIT.pomocTytul} opis={KOPIA_PULPIT.pomocOpis} />
 </ul>
 

@@ -6,6 +6,8 @@
 	// do NOT rebuild it (RESEARCH Pitfall 14).
 	import Wave from './Wave.svelte';
 	import { contact } from '$lib/content/site';
+	import { godzinyStopkiDni, godzinyStopkiWeekend, godzinyStopkiZakres } from '$lib/godziny';
+	import { ATOMY_GODZIN } from '$lib/w-skrocie';
 	import logoFull from '$lib/assets/brand/logo-full.png?enhanced';
 </script>
 
@@ -81,10 +83,18 @@
 
 		<div class="col">
 			<h2 class="col-heading">Godziny otwarcia</h2>
-			<!-- PLACEHOLDER: opening hours pending written client confirmation (site.ts). -->
-			<p class="hours-line">poniedziałek-piątek</p>
-			<p class="hours-big">6:30–16:30</p>
-			<p class="hours-line">soboty i niedziele: nieczynne</p>
+			<!-- COMPOSED, not typed. Until plan 05-09 these three lines were hard-coded here
+			     while the same hours also lived in the homepage tile and in `contact.hours`,
+			     so an editor could change the strip at the top of a page and leave the footer
+			     of that very page saying something else. All three lines, the tile, the top
+			     bar, the contact block and /kontakt now read the same four atoms from
+			     src/lib/content/w-skrocie.json (05-UI-SPEC Contract 7). The launch-gate
+			     marker that used to be a `PLACEHOLDER` line comment here is the per-tile
+			     boolean `godziny.placeholder` in that store, swept by
+			     tests/zastepcze.unit.ts. -->
+			<p class="hours-line">{godzinyStopkiDni(ATOMY_GODZIN)}</p>
+			<p class="hours-big">{godzinyStopkiZakres(ATOMY_GODZIN)}</p>
+			<p class="hours-line">{godzinyStopkiWeekend(ATOMY_GODZIN)}</p>
 		</div>
 	</div>
 
