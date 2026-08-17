@@ -31,10 +31,14 @@
 // function's four conditions are the ownership rule, and a second path from a stored filename
 // to a deleted path would be a second, unreviewed answer to „may the panel remove this file".
 //
-// NO +server.ts LIVES UNDER /admin, HERE OR ANYWHERE, and nothing goes under static/admin/:
-// the session gate covers pages and their POSTs by layout inheritance, while Cloudflare Pages
-// resolves static assets BEFORE invoking the Worker, so a file there would shadow the panel
-// and bypass the gate outright (T-05-06-07).
+// THE AUTH BOUNDARY IS src/hooks.server.ts, NOT THIS FILE AND NOT A LAYOUT. `handle()` runs
+// BEFORE the router and matches on the pathname, so it covers this page, its POSTs and any
+// +server.ts endpoint under /admin alike; only /admin/logowanie is exempt. There IS such an
+// endpoint (src/routes/admin/pomoc/instrukcja/+server.ts), and it is gated by that hook like
+// everything else. src/routes/admin/+layout.server.ts authenticates nothing at all: it returns
+// the section name and the short editor handle and no more. Nothing goes under static/admin/,
+// because Cloudflare Pages resolves static assets BEFORE invoking the Worker, so a file there
+// would shadow the panel and bypass the gate outright (T-05-06-07).
 //
 // Secrets come from platform.env only. The Vite build-time env object is undefined at runtime
 // on Cloudflare and produces a silent production-only failure, so its name is grep-banned

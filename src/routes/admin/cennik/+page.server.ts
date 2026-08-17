@@ -26,9 +26,14 @@
 // that later grows a second action does not have to be rewired first. The page posts to
 // `AKCJA_ZAPISU` from src/lib/pola-strony.ts, which is that constant's whole purpose.
 //
-// NO +server.ts LIVES UNDER /admin, HERE OR ANYWHERE. The session gate covers pages and
-// their POSTs by layout inheritance; a standalone endpoint is the one construct that would
-// sit outside it (T-05-05-06).
+// THE AUTH BOUNDARY IS src/hooks.server.ts, NOT THIS FILE AND NOT A LAYOUT. `handle()` runs
+// BEFORE the router and matches on the pathname, so it covers this page, its POSTs and any
+// +server.ts endpoint under /admin alike; only /admin/logowanie is exempt. There IS such an
+// endpoint (src/routes/admin/pomoc/instrukcja/+server.ts), and it is gated by that hook like
+// everything else. src/routes/admin/+layout.server.ts authenticates nothing at all: it
+// returns the section name and the short editor handle and no more. Nothing goes under
+// static/admin/, because Cloudflare Pages resolves static assets BEFORE invoking the Worker,
+// so a file there would shadow the panel and bypass the gate outright (T-05-05-06).
 import { fail, redirect, type Actions } from '@sveltejs/kit';
 import { CENNIK } from '$lib/cennik';
 import { KOPIA_CENNIK, KOPIA_WALIDACJA, KOPIA_ZAPIS } from '$lib/content/panel';

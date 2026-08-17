@@ -25,9 +25,14 @@
 // ONE NAMED ACTION, not a default one. SvelteKit forbids mixing a default action with named
 // ones on a single page, and every other editor screen in this panel is named.
 //
-// NO +server.ts LIVES UNDER /admin, HERE OR ANYWHERE. The session gate covers pages and
-// their POSTs by layout inheritance; a standalone endpoint is the one construct that would
-// sit outside it (T-05-09-07).
+// THE AUTH BOUNDARY IS src/hooks.server.ts, NOT THIS FILE AND NOT A LAYOUT. `handle()` runs
+// BEFORE the router and matches on the pathname, so it covers this page, its POSTs and any
+// +server.ts endpoint under /admin alike; only /admin/logowanie is exempt. There IS such an
+// endpoint (src/routes/admin/pomoc/instrukcja/+server.ts), and it is gated by that hook like
+// everything else. src/routes/admin/+layout.server.ts authenticates nothing at all: it
+// returns the section name and the short editor handle and no more. Nothing goes under
+// static/admin/, because Cloudflare Pages resolves static assets BEFORE invoking the Worker,
+// so a file there would shadow the panel and bypass the gate outright (T-05-09-07).
 import { fail, redirect, type Actions } from '@sveltejs/kit';
 import { KOPIA_W_SKROCIE, KOPIA_WALIDACJA, KOPIA_ZAPIS } from '$lib/content/panel';
 import {
