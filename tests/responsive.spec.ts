@@ -3,14 +3,18 @@ import { test, expect } from '@playwright/test';
 /**
  * Responsive acceptance (SITE-02): the homepage is mobile-first and adapts across
  * a phone/tablet/desktop viewport matrix without horizontal overflow, and the
- * navigation swaps between the hamburger drawer (phone) and the inline links
- * (desktop). Authoritative breakpoints: 01-UI-SPEC §Layout & Breakpoints
- * (md = 768px flips the nav to horizontal).
+ * navigation swaps between the hamburger drawer (phone and tablet) and the inline
+ * links (desktop). Authoritative breakpoint: 01-UI-SPEC Amendment v1.7 §1, which
+ * moves the nav flip from 768px to 1024px so a sixth chip fits without touching
+ * the locked 44px-target chip geometry.
  */
 
 const VIEWPORTS = {
 	phone: { width: 375, height: 667 },
 	tablet: { width: 768, height: 1024 },
+	// The tier the v1.7 nav flip lands on. Named separately from `desktop` so the
+	// pre-existing 1280px assertions keep measuring what they always measured.
+	desktopSm: { width: 1024, height: 768 },
 	desktop: { width: 1280, height: 800 },
 	desktopXl: { width: 1920, height: 1080 }
 } as const;
@@ -28,7 +32,10 @@ for (const [name, viewport] of Object.entries(VIEWPORTS)) {
 }
 
 /* Amendment v1.6 §12: every public route stays overflow-free at both desktop
- * tiers, now that the recomposed sections fill the 72rem container. */
+ * tiers, now that the recomposed sections fill the 72rem container. Amendment
+ * v1.7 §1 adds the 768px and 1024px widths, the two tiers the nav flip moves
+ * between: the breakpoint move is invisible to a 375px or 1280px assertion in
+ * either direction. */
 const ROUTES = [
 	'/',
 	'/o-nas',
@@ -40,7 +47,12 @@ const ROUTES = [
 ] as const;
 
 for (const route of ROUTES) {
-	for (const viewport of [VIEWPORTS.desktop, VIEWPORTS.desktopXl]) {
+	for (const viewport of [
+		VIEWPORTS.tablet,
+		VIEWPORTS.desktopSm,
+		VIEWPORTS.desktop,
+		VIEWPORTS.desktopXl
+	]) {
 		test(`no horizontal overflow on ${route} at ${viewport.width}px`, async ({ page }) => {
 			await page.setViewportSize(viewport);
 			await page.goto(route);
@@ -96,6 +108,36 @@ test('desktop width shows the inline nav links, hides the hamburger (SITE-02)', 
 	page
 }) => {
 	await page.setViewportSize(VIEWPORTS.desktop);
+	await page.goto('/');
+	await expect(
+		page.getByRole('navigation', { name: 'Główna nawigacja' }).getByRole('link', {
+			name: 'Aktualności'
+		})
+	).toBeVisible();
+	await expect(page.getByRole('button', { name: 'Otwórz menu' })).toBeHidden();
+});
+
+/* The two tiers the v1.7 nav flip sits between. Without these the move from 768px
+ * to 1024px passes the suite unchanged in either direction, so the change would be
+ * unfalsifiable. The 375px and 1280px tests above stay untouched on purpose: they
+ * are what proves neither end of the range regressed. */
+test('szerokość 768px pokazuje hamburgera i chowa odnośniki w pasku (v1.7 §1)', async ({
+	page
+}) => {
+	await page.setViewportSize(VIEWPORTS.tablet);
+	await page.goto('/');
+	await expect(page.getByRole('button', { name: 'Otwórz menu' })).toBeVisible();
+	await expect(
+		page.getByRole('navigation', { name: 'Główna nawigacja' }).getByRole('link', {
+			name: 'Aktualności'
+		})
+	).toBeHidden();
+});
+
+test('szerokość 1024px pokazuje odnośniki w pasku i chowa hamburgera (v1.7 §1)', async ({
+	page
+}) => {
+	await page.setViewportSize(VIEWPORTS.desktopSm);
 	await page.goto('/');
 	await expect(
 		page.getByRole('navigation', { name: 'Główna nawigacja' }).getByRole('link', {
