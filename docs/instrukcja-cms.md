@@ -66,8 +66,8 @@ ekranie.
 
 - **Aktualności**: wpisy z życia żłobka, czyli ogłoszenia, wydarzenia, zaproszenia.
   Kafelek pokazuje, ile wpisów jest teraz na stronie.
-- **O nas**: wprowadzenie, misja, wartości, opis kadry i opis budynku wraz ze zdjęciami
-  obiektu.
+- **O nas**: wprowadzenie, misja, wartości, opis kadry i opis budynku. Sam tekst: zdjęcia
+  są w Galerii.
 - **Galeria**: zdjęcia sal, placu zabaw i budynku, pokazywane na stronie O nas. Kafelek
   pokazuje, ile zdjęć jest teraz w galerii.
 - **Plan dnia**: godziny i zajęcia w ciągu dnia.
@@ -143,8 +143,10 @@ tego samodzielnie z panelu.
 
 ## 5. Dodanie zdjęcia z opisem alternatywnym
 
-Zdjęcie dodaje się na ekranie wpisu (jedno zdjęcie nagłówkowe) oraz na ekranie O nas
-(zdjęcia budynku, sali i placu zabaw). Obsługa jest w obu miejscach taka sama.
+Zdjęcie dodaje się na ekranie wpisu (jedno zdjęcie nagłówkowe) oraz na ekranie **Galeria**
+(zdjęcia sal, placu zabaw i budynku). Obsługa jest w obu miejscach taka sama. Na ekranie
+**O nas** nie dodaje się już żadnych zdjęć: wszystkie zdjęcia żłobka są w Galerii, a rodzic
+ogląda je na stronie O nas. Szczegóły opisuje sekcja 8.
 
 1. Kliknij **Wybierz zdjęcie** i wskaż plik z telefonu albo z komputera.
 2. Poczekaj chwilę. Pod przyciskiem pojawi się napis „Przygotowywanie zdjęcia...", a po
@@ -184,9 +186,9 @@ Jak pisać:
 
 ### Zdjęcia dzieci i zdjęcia budynku
 
-Zdjęcia na stronie O nas mają przedstawiać budynek, sale i plac zabaw, bez osób.
-Zdjęcie, na którym da się rozpoznać dziecko, można opublikować tylko wtedy, gdy żłobek
-ma na to pisemną zgodę rodziców. W razie wątpliwości wybierz zdjęcie bez osób.
+Zdjęcia w Galerii mają przedstawiać budynek, sale i plac zabaw, bez osób. Zdjęcie, na
+którym da się rozpoznać dziecko, można opublikować tylko wtedy, gdy żłobek ma na to
+pisemną zgodę rodziców. W razie wątpliwości wybierz zdjęcie bez osób.
 
 ### Dodanie zdjęcia wymaga włączonych skryptów
 
@@ -261,18 +263,19 @@ Ekran **O nas** zbiera całą treść podstrony O nas w jednym formularzu:
   i usuwa przyciskami **Dodaj wartość** oraz **Usuń tę wartość**.
 - **Kadra: opis**, **Liczba opiekunek**, **Personel pomocniczy (liczba)**: opis zespołu i
   dwie liczby. Opis piszemy bez nazwisk.
-- **O budynku**: opis budynku, sali i placu zabaw.
-- **Zdjęcia (budynek, sala, plac zabaw)**: lista zdjęć obiektu, każde z własnym opisem
-  alternatywnym. Pozycje dodaje się i usuwa przyciskami **Dodaj zdjęcie** oraz
-  **Usuń to zdjęcie**. Patrz sekcja 5.
+- **O budynku**: opis budynku, sali i placu zabaw. Sam tekst: zdjęcia dodajesz w sekcji
+  Galeria.
 - **Treść zastępcza (do potwierdzenia)**: tak samo jak przy wpisie.
+
+**Na tym ekranie nie ma już zdjęć.** Wszystkie zdjęcia żłobka są na ekranie **Galeria**,
+opisanym w sekcji 8. Rodzic i tak ogląda je na stronie O nas, pod opisem budynku, więc dla
+niego nic się nie zmienia.
 
 Cały ten ekran ma jeden przycisk **Zapisz** na dole. Możesz zmienić kilka rzeczy naraz i
 zapisać je jednym kliknięciem.
 
-Kolejność zdjęć obiektu zmieniasz przyciskami **Przenieś wyżej** i **Przenieś niżej** przy
-każdym zdjęciu. Kolejności wartości nie da się przestawiać: żeby ją zmienić, trzeba
-przepisać treść wierszy.
+Kolejności wartości nie da się przestawiać: żeby ją zmienić, trzeba przepisać treść
+wierszy.
 
 ---
 

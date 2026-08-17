@@ -40,12 +40,13 @@
 					<li><a class="footer-link" href="/rekrutacja">Rekrutacja</a></li>
 					<li><a class="footer-link" href="/dokumenty">Dokumenty</a></li>
 					<li><a class="footer-link" href="/cennik">Cennik</a></li>
-					<li><a class="footer-link" href="/galeria">Galeria</a></li>
-					<!-- v1.7 §3: Dojazd points at the map section of /kontakt, never at a
-					     standalone page that was never going to be built. The target id
-					     lives on that section and is asserted by tests/nav.spec.ts. Galeria
-					     is repointed at /o-nas#galeria by plan 05-07, in the same commit
-					     that creates the anchor. -->
+					<!-- v1.7 §3 and 05-UI-SPEC Contract 1: Galeria and Dojazd point at sections of
+					     pages that exist, never at standalone pages that were never going to be
+					     built. Both target ids live on those sections, carry tabindex="-1" and are
+					     asserted by tests/nav.spec.ts, which reads the hrefs off what this file
+					     really renders. The LABELS are what the locked footer contract enumerates,
+					     so repointing either one is compatible with it. -->
+					<li><a class="footer-link" href="/o-nas#galeria">Galeria</a></li>
 					<li><a class="footer-link" href="/kontakt#dojazd">Dojazd</a></li>
 				</ul>
 			</div>
