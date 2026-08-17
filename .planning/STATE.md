@@ -5,8 +5,8 @@ milestone_name: milestone
 current_phase: 04.1
 current_phase_name: replace-sveltia-with-custom-polish-cms
 status: awaiting-human
-stopped_at: "Faza 5: kontekst odswiezony po 04.1 (galeria przeniesiona na /o-nas, /galeria rozwiazana)"
-last_updated: "2026-08-17T13:20:32.556Z"
+stopped_at: "Faza 5: kontrakt UI (05-UI-SPEC.md) zatwierdzony przez checkera 6/6, gotowy do planowania"
+last_updated: "2026-08-17T13:52:59.077Z"
 last_activity: 2026-08-16
 last_activity_desc: 04.1-11 (komentarze zrodlowe i dokumentacja przepisane na nowy panel, D-21 w REQUIREMENTS.md, scenariusz zywego UAT)
 progress:
@@ -271,6 +271,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-17T13:20:32.550Z
-Stopped at: Faza 5: kontekst odswiezony po 04.1 (galeria przeniesiona na /o-nas, /galeria rozwiazana)
-Resume file: .planning/phases/05-gallery-fees/05-CONTEXT.md
+Last session: 2026-08-17T13:52:59.070Z
+Stopped at: Faza 5: kontrakt UI (05-UI-SPEC.md) zatwierdzony przez checkera 6/6, gotowy do planowania
+Resume file: .planning/phases/05-gallery-fees/05-UI-SPEC.md
