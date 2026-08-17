@@ -5,8 +5,8 @@ milestone_name: milestone
 current_phase: 04.1
 current_phase_name: replace-sveltia-with-custom-polish-cms
 status: awaiting-human
-stopped_at: "04.1 kompletna w kodzie (11/11 planow, weryfikacja human_needed); CR-01 i WR-02 z przegladu naprawione i wdrozone jako a1a447d6 (8e6c858); OTWARTY checkpoint human-action: zywy UAT wedlug 04.1-UAT.md"
-last_updated: "2026-08-16T12:06:01.578Z"
+stopped_at: "Faza 5: kontekst odswiezony po 04.1 (galeria przeniesiona na /o-nas, /galeria rozwiazana)"
+last_updated: "2026-08-17T13:20:32.556Z"
 last_activity: 2026-08-16
 last_activity_desc: 04.1-11 (komentarze zrodlowe i dokumentacja przepisane na nowy panel, D-21 w REQUIREMENTS.md, scenariusz zywego UAT)
 progress:
@@ -271,6 +271,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-16T12:00:47.562Z
-Stopped at: Ukonczono 04.1-10-PLAN.md
-Resume file: None
+Last session: 2026-08-17T13:20:32.550Z
+Stopped at: Faza 5: kontekst odswiezony po 04.1 (galeria przeniesiona na /o-nas, /galeria rozwiazana)
+Resume file: .planning/phases/05-gallery-fees/05-CONTEXT.md
