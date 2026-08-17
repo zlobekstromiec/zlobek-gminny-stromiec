@@ -24,6 +24,8 @@ Requirements in scope: GALLERY-01, GALLERY-02, FEES-01.
 
 Phase 5 formally depends on Phase 04.1 (`ROADMAP.md`), and that dependency is **not yet met**. The authoritative ledger is `.planning/phases/04.1-replace-sveltia-with-custom-polish-cms/04.1-UAT.md`, NOT `STATE.md`, which is stale on this point.
 
+**Resolved by the user on 2026-08-17: the build proceeds against these risks. See D-37.** The constraints below are therefore inputs to planning, not gates on it. Read them for what they change about the design, not for permission to start.
+
 - **UAT status as of 2026-08-17: 7 of 27 rows passed** (A0, A1, A2, B1, C1, D3, F5), 19 outstanding, 1 deferred. Proven live: panel login, the human half of the Polish-copy check, and the nabór save loop. NOT proven live: the save path for any other content type, and the authenticated render of any editing screen (row A3 is `CZĘŚCIOWE`).
 - **`STATE.md:40` is wrong.** It says the deployment predates plans 05 to 10 so the editing screens are not live. They are: the screens exist on the deployed site today. A plan must not schedule a redundant „push first" step, and must assume any panel work ships onto a live, staff-reachable panel.
 - **Row B2 is deferred and it is this phase's problem.** B2 is the phone-photo upload, and it is the only test of the image ingestion path (`src/lib/server/admin/obraz.ts`, `uploads.ts`) against a real phone photo on the live Worker. **The HEIC assumption is explicitly unconfirmed.** Phase 5's gallery is a photo-upload feature. A plan must either sequence B2 before its upload work or carry HEIC as a live risk it retires itself.
@@ -127,6 +129,15 @@ Numbering continues from the 2026-08-15 version so that external references stay
 
 - **D-36: this phase does NOT tick CMS-01, CMS-02 or CMS-03.** They are unticked and retargeted to Phase 04.1, and only the 04.1 UAT closes them. Phase 5 proceeds against a formally open dependency; that is a deliberate, user-visible choice and the plan must say so rather than imply the dependency is met.
 - **GALLERY-01, GALLERY-02 and FEES-01 are all closable by this phase**, each on its own evidence: a visitor viewing the gallery section, an editor adding and removing a photo through `/admin/galeria`, and an editor changing a fee through `/admin/cennik` with the change appearing after a rebuild.
+
+### Risk posture
+
+- **D-37: the phase is BUILT against its open risks rather than sequenced behind them.** User decision, 2026-08-17. The deciding fact is not appetite for risk, it is a missing input: **there is no live photography from the żłobek yet.** Row B2 (a real phone photo through the live Worker, and with it the HEIC assumption) cannot be honestly closed with a placeholder, so waiting for it would stall the phase without retiring anything. The same reasoning covers the rest of the open 04.1 UAT: those rows are the previous phase's ledger and close on the previous phase's evidence.
+  What this obliges the plan to do, so that "fix it later" stays cheap rather than becoming a rewrite:
+  - **Nothing in the phase's own acceptance evidence may require real photography.** The gallery must be demonstrable end to end with placeholder images carrying the `PLACEHOLDER` token (D-14), on the formats `TYPY_ZDJECIA` already accepts (jpeg, png, webp). HEIC is deliberately NOT in that list: it works only because the browser decodes it before upload (04.1 D-12), which is precisely the leg no test has exercised live.
+  - **Keep the untested legs isolated and named.** The HEIC decode path and the stale-save conflict panel (row B4) are the two places where a later fix must not ripple. Reuse the existing head-SHA refusal rather than inventing a second mechanism, and do not build gallery behaviour that depends on either leg behaving a particular way.
+  - **Carry both forward explicitly to the Phase 6 launch gate**, where the real consented photo set lands anyway. That gate is the natural and honest moment to retire B2, re-check the gallery with real material, and sweep the placeholders. Record them there rather than letting them dissolve.
+  - **The phase's own verification must state plainly which properties are proven and which are deferred**, in the style the project already uses for FORM-01 and FORM-02. This is tracked debt, not a silent descope.
 
 ### Claude's Discretion
 
@@ -259,6 +270,7 @@ Numbering continues from the 2026-08-15 version so that external references stay
 - **The drag-to-position cropper.** Deferred for the second time, now with a stronger reason (D-24).
 - **Editor-defined extra fee rows.** Every new row is an amount no test knows about, so the D-07 guarantee would stop being machine checkable.
 - **Unifying the three sources of the opening hours** (tile, `contact.hours`, the Footer literal), if D-33 excludes the hours rather than unifying them.
+- **Retiring the HEIC assumption (04.1 UAT row B2) and the stale-save conflict panel (row B4)** at the Phase 6 launch gate, per D-37. Both need inputs this phase does not have: a real phone photo from the żłobek, and a second editor in a second tab. The Phase 6 gate already receives the real consented photo set and runs the placeholder sweep, so it is where these belong.
 - **AG-3, the unrun unit-test tier.** Not this phase's scope, but this phase enlarges the blind spot and should say so in its own verification rather than lean on suites nothing runs.
 - **`/dojazd` as a standalone page.** Dead; D-17 repoints the link.
 - **Correcting the „18 panel URLs" figure** in `.claude/CLAUDE.md`, `REQUIREMENTS.md`, `STATE.md` and `04.1-11-SUMMARY.md`. The real count is 14 and the wrong number is being copied forward.
