@@ -356,5 +356,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 5 → 6
 | 3. News (Aktualności) | 7/7 | Complete    | 2026-08-13 |
 | 4. Enrollment, Contact & Email Pipeline | 9/9 | Complete    | 2026-08-15 |
 | 04.1 Replace Sveltia with custom Polish CMS (INSERTED) | 11/11 | Awaiting UAT | - |
-| 5. Gallery & Fees | 9/9 | Complete   | 2026-08-17 |
+| 5. Gallery & Fees | 9/9 | Complete    | 2026-08-17 |
 | 6. Accessibility, Legal Compliance & Launch | 0/TBD | Not started | - |

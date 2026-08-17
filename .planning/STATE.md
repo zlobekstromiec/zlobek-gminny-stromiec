@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 05
-current_phase_name: gallery-fees
+current_phase: 6
+current_phase_name: Accessibility, Legal Compliance & Launch
 status: executing
-stopped_at: "Faza 5 zaplanowana: 9 planow w 5 falach, plan-checker zdal bez blokerow. Faza 04.1 pozostaje OTWARTA (zywy UAT), faza 5 rusza mimo to na mocy D-37"
-last_updated: "2026-08-17T15:26:05.516Z"
+stopped_at: "Faza 5 zamknieta: 9/9 planow, UAT 3/3 na zywej stronie, bramka bezpieczenstwa threats_open 0. Faza 04.1 pozostaje OTWARTA (zywy UAT) i to ona zamyka CMS-01..03"
+last_updated: "2026-08-17T23:22:26.069Z"
 last_activity: 2026-08-17
-last_activity_desc: Phase 05 execution started
+last_activity_desc: Phase 05 complete, transitioned to Phase 6
 progress:
   total_phases: 8
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 47
-  completed_plans: 38
-  percent: 63
+  completed_plans: 47
+  percent: 75
 ---
 
 # Project State
@@ -24,16 +24,30 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-14)
 
 **Core value:** A parent lands on the site and, within seconds, both feels the żłobek's warmth and finds the exact information they need (enrollment, documents, contact) — on any device.
-**Current focus:** Phase 05 — gallery-fees
+**Current focus:** Phase 6 — Accessibility, Legal Compliance & Launch
 
 ## Current Position
 
-Phase: 05 (gallery-fees) — EXECUTING
-Plans: 9 planow w 5 falach, zero wykonanych
-Status: Executing Phase 05
-Last activity: 2026-08-17 — Phase 05 execution started
+Phase: 6 — Accessibility, Legal Compliance & Launch
+Plans: Not started
+Status: Ready to plan Phase 6
+Last activity: 2026-08-17 — Phase 05 complete, transitioned to Phase 6
 
-Artefakty fazy 5, wszystkie zatwierdzone i zacommitowane: `05-CONTEXT.md` (37 decyzji D-01..D-37), `05-UI-SPEC.md` (LOCKED, checker 6/6), `05-RESEARCH.md`, `05-VALIDATION.md`, `05-PATTERNS.md`, `05-01..05-09-PLAN.md`.
+### Faza 5 zamknieta
+
+Dziewiec z dziewieciu planow wykonanych. Wszystkie trzy pozycje `05-UAT.md` zdane na
+ZYWEJ stronie po wdrozeniu commita 5df9a09: zapis cennika dociera na `/cennik` (FEE-9),
+dodanie i usuniecie zdjecia dociera na `/o-nas#galeria` przy nienaruszonych dwoch zdjeciach
+zasianych recznie (GAL-11, GAL-10), podglad zdjecia otwiera sie i zamyka obiema drogami na
+telefonie. GALLERY-01, GALLERY-02 i FEES-01 odhaczone.
+
+Bramka bezpieczenstwa przeszla: `05-SECURITY.md` `threats_open: 0` z 64 pozycji rejestru.
+Audyt otworzyl trzy zagrozenia wysokiej wagi i wszystkie trzy zostaly naprawione w kodzie
+(`8fff192`, `7f50010`), kazde z testem czerwonym przed poprawka. Trzy pozycje sredniej wagi
+zostaja otwarte ponizej progu blokowania i sa NIESIONE, nie zamkniete: T-05-02-05 i
+T-05-03-03 leza w `deferred-items.md`, a T-05-09-05 trafia w bramke uruchomieniowa fazy 6.
+
+Artefakty fazy 5, wszystkie zatwierdzone i zacommitowane: `05-CONTEXT.md` (37 decyzji D-01..D-37), `05-UI-SPEC.md` (LOCKED, checker 6/6), `05-RESEARCH.md`, `05-VALIDATION.md`, `05-PATTERNS.md`, `05-SECURITY.md`, `05-UAT.md`, `05-01..05-09-PLAN.md` z kompletem `-SUMMARY.md`.
 
 **Faza 5 rusza mimo formalnie OTWARTEJ zaleznosci od 04.1** — to jawna decyzja uzytkownika (D-37), nie przeoczenie. Powod jest brakiem wejscia, nie apetytem na ryzyko: **nie ma jeszcze zadnej prawdziwej fotografii ze zlobka**, wiec wiersza B2 UAT 04.1 (zdjecie z telefonu, a z nim zalozenie o HEIC) nie da sie uczciwie zamknac placeholderem. Konsekwencje zapisane w planach: zaden dowod akceptacyjny fazy 5 nie moze wymagac prawdziwych zdjec, a HEIC (B2) i panel konfliktu zapisu (B4) sa PRZENIESIONE do bramy startowej fazy 6, gdzie i tak lada zestaw zdjec za zgoda.
 
@@ -42,7 +56,7 @@ Artefakty fazy 5, wszystkie zatwierdzone i zacommitowane: `05-CONTEXT.md` (37 de
 ### Poprzednia pozycja (faza 04.1, nadal otwarta)
 
 Phase: 04.1 (replace-sveltia-with-custom-polish-cms) — AWAITING HUMAN
-Plan: 11 of 11, wykonany w calosci poza tym, czego nie da sie zrobic bez czlowieka
+Plan: Not started
 Status: **Jedna sesja z czlowiekiem dzieli te faze od zamkniecia.**
 Last activity: 2026-08-16 — 04.1-11 (komentarze zrodlowe i dokumentacja przepisane na nowy panel, D-21 w REQUIREMENTS.md, scenariusz zywego UAT)
 
@@ -72,7 +86,7 @@ Progress: 04.1 wszystkie 11 planow ma SUMMARY; 27/27 planow w fazach 1-4 ukonczo
 
 **Velocity:**
 
-- Total plans completed: 27
+- Total plans completed: 36
 - Average duration: — min
 - Total execution time: 0.0 hours
 
@@ -84,6 +98,7 @@ Progress: 04.1 wszystkie 11 planow ma SUMMARY; 27/27 planow w fazach 1-4 ukonczo
 | 02 | 6 | - | - |
 | 03 | 7 | - | - |
 | 04 | 9 | - | - |
+| 05 | 9 | - | - |
 
 **Recent Trend:**
 

@@ -20,6 +20,9 @@ A parent lands on the site and, within seconds, **both feels the żłobek's warm
 - [x] Git-based CMS (Sveltia/Decap) so staff self-edit news & documents at near-zero cost — *Validated in Phase 2 for O nas + documents (live login-edit-commit-rebuild loop proven on Pages; OAuth Worker; Polish light-theme admin). News collection validated in Phase 3.*
 - [x] **Aktualności** — news/announcements section, editable by staff without a developer — *Validated in Phase 3: News (prerendered `/aktualnosci` list + post pages + homepage preview; UAT proved the full staff round trip: /admin create → GitHub commit → Pages rebuild → live post with correct date-prefixed URL)*
 
+- [x] **Galeria** — a photo gallery of the żłobek, with staff adding and removing photos themselves — *Validated in Phase 5: Gallery & Fees (`/o-nas#galeria` with a keyboard-operable lightbox; live UAT proved the full round trip: /admin/galeria → GitHub commit → Pages rebuild → photo visible, then removed, with both hand-placed seed photos untouched)*
+- [x] **Cennik** — a fees page a parent can read, with the amounts editable by staff — *Validated in Phase 5 (prerendered `/cennik`; live UAT proved a panel save reaches the public page with the amounts computed exactly as the panel's echo showed)*
+
 ### Active
 - [ ] **Rekrutacja** — enrollment info + downloadable PDF forms **and** an online application form that emails submissions to the żłobek (no data storage)
 - [ ] **Kontakt** — contact details, location/map, and a contact form that emails the żłobek
@@ -94,4 +97,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-14 after Phase 3 completion — Aktualności live end-to-end (list, post pages, homepage preview); staff publishing round trip proven in UAT via the Polish Sveltia admin*
+*Last updated: 2026-08-17 after Phase 5 completion — Galeria and Cennik live end-to-end, both staff-editable through the custom Polish panel; live UAT proved the save → commit → rebuild → publish round trip for each. The phase's security review closed three high-severity threats found only because every claimed mitigation was re-checked by an adversarial second pass.*

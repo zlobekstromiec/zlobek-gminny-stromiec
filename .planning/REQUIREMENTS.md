@@ -53,12 +53,12 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Galeria (Gallery)
 
-- [ ] **GALLERY-01**: A visitor can view a photo gallery of the żłobek
-- [ ] **GALLERY-02**: Staff can add and remove gallery photos via the CMS
+- [x] **GALLERY-01**: A visitor can view a photo gallery of the żłobek
+- [x] **GALLERY-02**: Staff can add and remove gallery photos via the CMS
 
 ### Opłaty (Fees)
 
-- [ ] **FEES-01**: A visitor can read a fees page (opłaty, stawki), editable via the CMS
+- [x] **FEES-01**: A visitor can read a fees page (opłaty, stawki), editable via the CMS
 
 ### CMS & Forms Infrastructure
 
@@ -139,9 +139,9 @@ Which phases cover which requirements. Populated during roadmap creation.
 | CONTACT-03 | Phase 4 | Complete |
 | FORM-01 | Phase 4 | Blocked (Gmina mailbox) |
 | FORM-02 | Phase 4 | Pending (live re-check) |
-| GALLERY-01 | Phase 5 | Pending |
-| GALLERY-02 | Phase 5 | Pending |
-| FEES-01 | Phase 5 | Pending |
+| GALLERY-01 | Phase 5 | Complete |
+| GALLERY-02 | Phase 5 | Complete |
+| FEES-01 | Phase 5 | Complete |
 | SITE-05 | Phase 6 | Pending |
 | A11Y-01 | Phase 6 | Pending |
 | A11Y-02 | Phase 6 | Pending |

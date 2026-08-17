@@ -1,17 +1,20 @@
 ---
 phase: 05-gallery-fees
 verified: 2026-08-17T21:18:42Z
-status: human_needed
+status: passed
 score: 15/15 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
 human_verification:
+
   - test: "Log into /admin/cennik, change the ZUS/rate/reduction/food/absence fields, Zapisz, wait ~2 minutes for the Cloudflare Pages build, confirm the change on the live /cennik (FEE-9)."
     expected: "The saved figures appear on the live public /cennik page, computed identically to the panel's echo, after the rebuild completes."
     why_human: "Panel writes commit to the repo via a GitHub App and content is read at BUILD time. No local harness produces a real commit + real Pages build; this is explicitly listed as a manual-only verification in 05-VALIDATION.md."
+
   - test: "Log into /admin/galeria, add a placeholder photo, Zapisz, wait for the build, confirm the photo appears on live /o-nas#galeria; then remove it and repeat the confirmation (GAL-11)."
     expected: "The added photo is visible in the live gallery grid after the rebuild; after removal it disappears from the live grid and the deletion does not touch the two hand-placed seed photos."
     why_human: "Same GitHub App / build-time-read constraint as FEE-9. Also the only path that exercises the two-hand-placed-seeds-survive rule against a real commit, which the unit-tier GAL-10 test cannot do."
+
   - test: "Open /o-nas#galeria on a real touch device (phone), tap a tile to open the lightbox, close it once with the close button and once by tapping the scrim."
     expected: "The lightbox opens and closes correctly with touch gestures; tap targets are usable; the scrim tap closes as expected."
     why_human: "Playwright chromium is not a phone. Tap targets and the scrim gesture are device behaviours per 05-VALIDATION.md's Manual-Only Verifications table."
