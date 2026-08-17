@@ -1,8 +1,8 @@
 <script lang="ts">
-	// Persistent sticky header (SITE-03, UI-SPEC v1.3 §3). Real circular brand
-	// emblem + two-line wordmark left, five section links right on >= md; below md
-	// the links collapse to the MobileNav hamburger drawer. Active section is an
-	// accent pill chip AND aria-current="page", never colour alone.
+	// Persistent sticky header (SITE-03, UI-SPEC v1.3 §3, v1.7 §1). Real circular
+	// brand emblem + two-line wordmark left, six section links right at >= 1024px;
+	// below 1024px the links collapse to the MobileNav hamburger drawer. Active
+	// section is an accent pill chip AND aria-current="page", never colour alone.
 	import { page } from '$app/state';
 	import { navLinks } from '$lib/nav';
 	import MobileNav from './MobileNav.svelte';
@@ -33,7 +33,7 @@
 			</span>
 		</a>
 
-		<!-- Desktop navigation (>= md). -->
+		<!-- Desktop navigation (>= 1024px). -->
 		<nav class="desktop-nav" aria-label="Główna nawigacja">
 			<ul>
 				{#each navLinks as link (link.href)}
@@ -50,7 +50,7 @@
 			</ul>
 		</nav>
 
-		<!-- Mobile drawer island (< md): the one hydrated interaction. -->
+		<!-- Mobile drawer island (< 1024px): the one hydrated interaction. -->
 		<div class="mobile-slot">
 			<MobileNav />
 		</div>
@@ -146,12 +146,16 @@
 		color: var(--color-muted);
 	}
 
-	/* Desktop links: hidden below md, horizontal flex from md up. */
+	/* Desktop links: hidden below lg, horizontal flex from 1024px up (v1.7 §1).
+	   The tier moved from 768px rather than the geometry: a sixth chip does not fit
+	   at 768px beside the 52px emblem and the two-line wordmark without tightening
+	   the chip padding below the locked 44px-target geometry, so below 1024px the
+	   inherited hamburger drawer serves and it carries Cennik too. */
 	.desktop-nav {
 		display: none;
 	}
 
-	@media (min-width: 768px) {
+	@media (min-width: 1024px) {
 		.desktop-nav {
 			display: block;
 		}
@@ -193,12 +197,13 @@
 		box-shadow: 0 3px 0 var(--color-accent-active);
 	}
 
-	/* Hamburger island only appears below md. */
+	/* Hamburger island only appears below lg, that is below 1024px (v1.7 §1).
+	   It is the exact inverse of .desktop-nav above, so the two must move together. */
 	.mobile-slot {
 		display: flex;
 	}
 
-	@media (min-width: 768px) {
+	@media (min-width: 1024px) {
 		.mobile-slot {
 			display: none;
 		}

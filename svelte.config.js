@@ -1,29 +1,37 @@
 import adapter from '@sveltejs/adapter-cloudflare';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
-// Section routes linked from the persistent nav/footer that are authored in
-// later plans of this phase (Plans 04–05) and Phase 6 (deklaracja). The header
-// and footer link to them from now, so the prerender crawler will hit a 404
-// until each route lands. Tolerate 404 for exactly these known-future paths and
-// fail on any other broken link so real regressions still break the build.
+// Section routes linked from the persistent nav/footer that are authored in a
+// later plan. The header and footer link to them from now, so the prerender
+// crawler will hit a 404 until each route lands. Tolerate 404 for exactly these
+// known-future paths and fail on any other broken link so real regressions still
+// break the build.
+//
+// THE GATE ON A REMOVAL IS `npm run build`, NOT A GREP. Once a path leaves this
+// array, any link to it that does not resolve fails `vite build`, which runs
+// inside Playwright's webServer and inside every Cloudflare Pages deploy. Do not
+// write an acceptance criterion that greps this file for the quoted form of a
+// removed path: the comments below name removed paths WITH quotes, so such a
+// criterion is a permanent false positive. (An earlier version of this block
+// claimed the opposite convention; it never held, and it has been deleted rather
+// than reworded.)
 const KNOWN_FUTURE_ROUTES = [
 	// '/aktualnosci' is now a real prerendered route (Plan 03-01) and the
 	// '/aktualnosci/[slug]' posts are prerendered via entries() (Plan 03-02), so
 	// the crawler enforces both the list and every post link (Pitfall 2).
 	// '/dokumenty' is now a real prerendered route (Plan 02-02), so the crawler enforces it.
-	// The /kontakt path is now a real prerendered route (Plan 04-04), so the crawler
+	// '/kontakt' is now a real prerendered route (Plan 04-04), so the crawler
 	// enforces the header, footer and hero „Zadzwoń do nas" links that point at it.
-	// The /rekrutacja path is now a real prerendered route (Plan 04-06) as well, so
+	// '/rekrutacja' is now a real prerendered route (Plan 04-06) as well, so
 	// the crawler enforces the header, footer and hero links that point at it too.
+	// '/cennik' is now a real prerendered route (Plan 05-02) reached from the nav
+	// and the footer, so the crawler enforces both (Plan 05-03).
+	// '/dojazd' was never built and never will be: the footer's Dojazd shortcut
+	// points at the '/kontakt' map section instead (Amendment v1.7 §3, Plan 05-03).
 	// Every section route linked from the persistent nav now resolves.
-	// All three paths are written WITHOUT the surrounding quotes on purpose: the
-	// acceptance gate for each plan greps for the quoted form, and a comment
-	// spelling it would make that gate report a hit forever (same discipline as
-	// Plans 01-03).
-	// Footer v2 shortcuts (UI-SPEC v1.2): pages authored in Phases 4-5.
-	'/cennik',
-	'/galeria',
-	'/dojazd'
+	// Footer v2 shortcut (UI-SPEC v1.2) still awaiting its target: plan 05-07
+	// repoints Galeria at the '/o-nas' gallery section in the commit that creates it.
+	'/galeria'
 	// '/deklaracja-dostepnosci' and '/polityka-prywatnosci' are real prerendered
 	// stubs, so the crawler enforces those footer links.
 ];

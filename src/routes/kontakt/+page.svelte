@@ -97,7 +97,13 @@
 
 		<!-- MapPanel owns the figure, the mandatory OpenStreetMap attribution and the
 		     directions link; none of the three is re-implemented here. -->
-		<section class="kol-mapa" aria-labelledby="mapa-heading">
+		<!-- The id on this section is the target of the footer's „Dojazd" shortcut
+		     (v1.7 §3): do not remove it as unused. Two attributes, two jobs: the id
+		     carries the fragment a link jumps to, aria-labelledby names the section
+		     from its own h2. tabindex="-1" lets that jump move keyboard focus into the
+		     section, and scroll-margin-top below keeps the sticky header off the
+		     heading. -->
+		<section class="kol-mapa" id="dojazd" tabindex="-1" aria-labelledby="mapa-heading">
 			<h2 id="mapa-heading">Mapa dojazdu</h2>
 			<div class="mapa">
 				<MapPanel />
@@ -330,6 +336,17 @@
 
 	.item-link:hover {
 		color: var(--color-brand-blue-hover);
+	}
+
+	/* Fragment target for the footer's „Dojazd" shortcut (v1.7 §3). 96px is the
+	   4xl token: the sticky header is 64px, 72px at >=1024px, so the heading a
+	   footer link jumps to is never covered. The browser's own focus ring on the
+	   section is deliberately left in place, matching the #galeria treatment plan
+	   05-07 ships: it is what shows a keyboard user where the jump landed.
+	   scroll-behavior lives in the global reduced-motion neutraliser and is not
+	   re-declared here. */
+	.kol-mapa {
+		scroll-margin-top: 96px;
 	}
 
 	/* The map column is authored full-width inside MapPanel; capping it here keeps
