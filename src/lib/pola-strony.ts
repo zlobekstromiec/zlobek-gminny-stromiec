@@ -48,9 +48,12 @@ export const POLE_OPISU = 'opis';
 export const PREFIKS_WARTOSCI = 'wartosc';
 export const POLE_TYTULU = 'tytul';
 
-/** O nas: one facility photo. Four names per item, which is why the island took them as
- *  props in Plan 07 instead of hard-coding them: here they are index scoped. */
-export const PREFIKS_ZDJECIA = 'zdjecie';
+/** The four per-field halves of ONE photo item. They are shared by every screen that mounts
+ *  the photo island, which is what lets that component derive its own controls from them.
+ *
+ *  THEY ARE NOT NAMESPACED BY THEMSELVES: the prefix beside them is. An indexed control name
+ *  is `<prefiks>[i].<pole>`, so two screens can safely reuse `plik` while addressing two
+ *  different collectors. */
 /** The basename the photo already has in the repository, carried back so a save that
  *  changes only the alt keeps the picture (P-20). */
 export const POLE_PLIKU = 'plik';
@@ -62,15 +65,15 @@ export const POLE_DANYCH = 'dane';
  *  whole item, and the two cannot share a field. */
 export const POLE_USUNIECIA = 'usun';
 
-/** Galeria: one gallery photo (05-UI-SPEC Contract 8, 05 D-25). FIVE names per item, which is
- *  the o nas photo's four plus the visible caption.
+/** Galeria: one gallery photo (05-UI-SPEC Contract 8, 05 D-25). FIVE names per item: the four
+ *  above plus the visible caption.
  *
- *  A PREFIX OF ITS OWN, not `PREFIKS_ZDJECIA` above, even though the two screens post the same
- *  four remaining keys. The gallery is a different list in a different file with a different
- *  validator, and sharing the prefix would mean one hand-built request could address either
- *  screen's collector with the other's field names. `plik`, `alt`, `dane` and `usun` ARE reused
- *  as the per-field halves, because index-scoped names are already namespaced by the prefix and
- *  the photo island derives its controls from them. */
+ *  THE PREFIX IS THE NAMESPACE and it belongs to exactly one screen. Until plan 05-07 the O
+ *  nas screen carried a photo list of its own under a `zdjecie` prefix; that list and its
+ *  prefix are gone, because /admin/galeria is now the only screen that owns a photograph of
+ *  the żłobek. A future second photo list must mint a prefix of its own rather than borrow
+ *  this one: sharing it would mean one hand-built request could address either screen's
+ *  collector with the other's field names. */
 export const PREFIKS_ZDJECIA_GALERII = 'galeria';
 /** The visible caption: the short room name shown under the picture on the public page. Not
  *  the alt, and never the same string: the alt describes what is IN the photograph. */
@@ -134,10 +137,10 @@ export const AKCJA_USUNIECIA_ZDJECIA = '?/usunZdjecie';
 
 /** Names of the two REORDER actions (05-UI-SPEC Contract 9, 05 D-22).
  *
- *  One pair for both screens rather than a pair per list, unlike the add and remove names
- *  above. Those need a suffix because the O nas screen carries TWO repeatable lists and one
+ *  One pair for every screen rather than a pair per list, unlike the add and remove names
+ *  above. Those carry a suffix because one screen can hold two repeatable lists against one
  *  action table, so `?/dodajWartosc` and `?/dodajZdjecie` have to be different words.
- *  Reordering is opted into by exactly ONE list per screen (the O nas photos, the plan-dnia
+ *  Reordering is opted into by at most ONE list per screen (the gallery photos, the plan-dnia
  *  rows), so a single unsuffixed pair names an unambiguous action on each of them, and a
  *  screen that later opts a second list in would have to say which one it means. */
 export const AKCJA_PRZENIESIENIA_W_GORE = '?/przeniesWGore';
@@ -168,16 +171,14 @@ export function idPola(prefiks: string, indeks: number, pole: string): string {
 	return `${prefiks}-${indeks}-${pole}`;
 }
 
-/** The id the photo island of item `indeks` is mounted with. The island derives its file
- *  control (`-plik`) and its description field (`-alt`) from it, so the summary can link to
- *  either without the page guessing at the island's internals. */
-export function idWyspyZdjecia(indeks: number): string {
-	return `${PREFIKS_ZDJECIA}-${indeks}`;
-}
-
-/** The same, for the gallery island. A function of its own rather than a parameter on the one
- *  above, so the two screens cannot mint the same DOM id and so a validation summary can never
- *  link into the wrong screen's control. */
+/** The id the gallery photo island of item `indeks` is mounted with. The island derives its
+ *  file control (`-plik`) and its description field (`-alt`) from it, so the validation
+ *  summary can link to either without the page guessing at the island's internals.
+ *
+ *  A FUNCTION OF ITS OWN rather than one parameterised by prefix, and it stays that way now
+ *  that plan 05-07 removed its O nas twin: a second photo screen must mint its own, so the
+ *  two can never hand out one DOM id and a summary can never link into the wrong screen's
+ *  control. */
 export function idWyspyGalerii(indeks: number): string {
 	return `${PREFIKS_ZDJECIA_GALERII}-${indeks}`;
 }
@@ -240,16 +241,6 @@ export interface WartoscEcha {
 	opis: string;
 }
 
-/** One facility photo, same contract. `usunieto` is echoed rather than inferred from an
- *  emptied basename: a refused save that forgot it would republish the picture on the next
- *  attempt, or leave the file behind with nothing pointing at it. */
-export interface ZdjecieEcha {
-	plik: string;
-	alt: string;
-	dane: string;
-	usunieto: boolean;
-}
-
 /**
  * The ECHO shape of the day plan screen, not the stored shape.
  *
@@ -275,7 +266,8 @@ export function wartosciPlanuDnia(zrodlo: ZrodloPol): WartosciPlanuDnia {
 	};
 }
 
-/** The echo shape of the O nas screen. */
+/** The echo shape of the O nas screen. TEXT ONLY since plan 05-07: the photo list left this
+ *  screen for /admin/galeria, and `WartosciGalerii` below is its echo shape. */
 export interface WartosciONas {
 	lead: string;
 	misja: string;
@@ -284,7 +276,6 @@ export interface WartosciONas {
 	kadraOpiekunki: string;
 	kadraPersonel: string;
 	obiektOpis: string;
-	zdjecia: ZdjecieEcha[];
 	zastepcza: boolean;
 }
 
@@ -302,27 +293,21 @@ export function wartosciONas(zrodlo: ZrodloPol): WartosciONas {
 		kadraOpiekunki: tekst(zrodlo.get(POLE_KADRY_OPIEKUNKI)),
 		kadraPersonel: tekst(zrodlo.get(POLE_KADRY_PERSONEL)),
 		obiektOpis: tekst(zrodlo.get(POLE_OBIEKTU_OPIS)),
-		zdjecia: zbierzIndeksowane(zrodlo, PREFIKS_ZDJECIA, [
-			POLE_PLIKU,
-			POLE_ALTU,
-			POLE_DANYCH,
-			POLE_USUNIECIA
-		]).map((zdjecie) => ({
-			plik: tekst(zdjecie[POLE_PLIKU]),
-			alt: tekst(zdjecie[POLE_ALTU]),
-			dane: tekst(zdjecie[POLE_DANYCH]),
-			usunieto: tekst(zdjecie[POLE_USUNIECIA]).length > 0
-		})),
 		zastepcza: zaznaczone(zrodlo, POLE_ZASTEPCZA)
 	};
 }
 
-/** One gallery photo, same contract as `ZdjecieEcha` plus the visible caption.
+/** One gallery photo: the four fields of a photo item plus the visible caption.
  *
- *  A SEPARATE INTERFACE rather than `ZdjecieEcha` widened with one member, which is the answer
- *  05-VALIDATION.md's open question 3 recommends: two independent shapes are cheaper than one
- *  shape that has to satisfy two screens' validators and two key-order oracles, and the o nas
- *  echo is left byte-identical so that screen stays out of this plan's blast radius. */
+ *  `usunieto` is echoed rather than inferred from an emptied basename: a refused save that
+ *  forgot it would republish the picture on the next attempt, or leave the file behind with
+ *  nothing pointing at it.
+ *
+ *  A SHAPE OF ITS OWN, which is the answer 05-VALIDATION.md's open question 3 recommends: two
+ *  independent shapes are cheaper than one shape that has to satisfy two screens' validators
+ *  and two key-order oracles. Plan 05-06 introduced it beside an O nas photo echo it
+ *  deliberately left byte-identical; plan 05-07 removed that one, and this is now the only
+ *  photo echo in the panel. */
 export interface ZdjecieGaleriiEcha {
 	plik: string;
 	podpis: string;

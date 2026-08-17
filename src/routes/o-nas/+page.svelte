@@ -1,20 +1,32 @@
 <script lang="ts">
-	// O nas page (ABOUT-01; 02-UI-SPEC Component Contracts /o-nas section order 1-7).
-	// Prerendered, zero-JS (inherits prerender = true from +layout.ts): NO +server.ts,
-	// NO extra <main>/landmark, NO extra h1 beyond the page heading (layout owns <main>).
+	// O nas page (ABOUT-01, GALLERY-01; 02-UI-SPEC Component Contracts /o-nas section order
+	// 1-7, as amended by 05-UI-SPEC Contract 1).
 	//
-	// Content is imported at build from the strict o-nas.json singleton (D-05). Narrative
-	// fields render with renderInline ($lib/markdown): marked with a hardened renderer
-	// that escapes raw inline HTML, drops unsafe link protocols, and flattens images, so
-	// only paragraphs/bold/links reach the DOM (D-08); the public CSP (script-src 'self')
-	// is the second, not the only, layer. Facility images are optimized by
-	// enhanced-img (AVIF/WebP srcset, width/height, no CLS) and resolved by BASENAME so the
-	// route is decoupled from whether the stored value is a bare filename or a full path.
-	// The editorial panel stores the bare filename (04.1-07 P-20), and this lookup would
-	// keep working unchanged if that ever became a path.
+	// PRERENDERED (inherits prerender = true from +layout.ts): NO +server.ts, NO extra
+	// <main>/landmark, NO extra h1 beyond the page heading (layout owns <main>).
+	//
+	// THIS PAGE IS NO LONGER ZERO-JS, and that changed here rather than being discovered
+	// later. It carries exactly ONE hydrated island, the gallery lightbox added in plan
+	// 05-08: the site's fourth island and the first on a content route. Every tile is an
+	// <a href> to the full-size asset in the prerendered HTML, so with scripting switched off
+	// the link opens the photograph and nothing on the page is a control that does nothing.
+	//
+	// TWO CONTENT SOURCES, and the split is deliberate (05 D-19, D-20, D-26). The gallery
+	// photographs, their captions and their alt text live in their own store
+	// (src/lib/content/galeria.json) and are edited on their own panel screen (/admin/galeria);
+	// the facility DESCRIPTION stays in the o-nas store and is still edited on /admin/o-nas.
+	// Narrative fields render with renderInline ($lib/markdown): a hardened renderer that
+	// escapes raw inline HTML, drops unsafe link protocols and flattens images, so only
+	// paragraphs/bold/links reach the DOM (D-08); the public CSP (script-src 'self') is the
+	// second, not the only, layer. Gallery images are optimized by enhanced-img (AVIF/WebP
+	// srcset, width/height, no CLS) and resolved by BASENAME, so the route is decoupled from
+	// whether the stored value is a bare filename or a full path. The editorial panel stores
+	// the bare filename (04.1-07 P-20), and this lookup would keep working unchanged if that
+	// ever became a path.
 	// Plan dnia reuses DayPlan verbatim (D-03: single shared source). Kadra is a collective
 	// narrative + headcount by role, no individual profiles or staff photos (D-02).
 	import type { Picture } from '@sveltejs/enhanced-img';
+	import Images from '@lucide/svelte/icons/images';
 	import Seo from '$lib/components/Seo.svelte';
 	import DayPlan from '$lib/components/DayPlan.svelte';
 	import Cta from '$lib/components/Cta.svelte';
@@ -22,7 +34,9 @@
 	import { odmienRzeczownik } from '$lib/liczebniki';
 	import { FORMY_OPIEKUNKI, FORMY_PERSONELU } from '$lib/content/kadra';
 	import onas from '$lib/content/o-nas.json';
-	import { bazowaNazwa, wedlugBazowejNazwy } from '$lib/zdjecia-nazwy';
+	import galeriaStore from '$lib/content/galeria.json';
+	import { czytajGalerie, galeriaZObrazami } from '$lib/galeria';
+	import { wedlugBazowejNazwy } from '$lib/zdjecia-nazwy';
 
 	// Statically-analyzable glob: keys are absolute file paths, values are processed
 	// enhanced-img Picture objects. Vite analyses this call site, so the glob stays here and
@@ -32,16 +46,19 @@
 		eager: true,
 		import: 'default'
 	});
-	const byName = wedlugBazowejNazwy(uploads);
-	const facility = onas.obiekt_zdjecia
-		.map((item) => ({ alt: item.alt, pic: byName[bazowaNazwa(item.plik)] }))
-		.filter((item): item is { alt: string; pic: Picture } => Boolean(item.pic));
+	// The reader already drops an entry whose file the build does not carry, so this page
+	// adds no filter of its own: one question, one answer, in $lib/galeria.ts.
+	const zdjecia = galeriaZObrazami(czytajGalerie(galeriaStore), wedlugBazowejNazwy(uploads));
 
 	// D-08: inline render only (single paragraph, bold + links), sanitized by the
 	// hardened renderer in $lib/markdown (raw HTML escaped, unsafe hrefs dropped).
 	const misjaHtml = renderInline(onas.misja);
 	const kadraHtml = renderInline(onas.kadra_opis);
 	const obiektHtml = renderInline(onas.obiekt_opis);
+
+	/** Above that section's fold at ≥768px on a typical laptop, so a lazy load here is a
+	 *  measurable LCP regression. Everything after it is lazy. */
+	const PILNE_KAFELKI = 2;
 </script>
 
 <Seo
@@ -113,21 +130,68 @@
 	</div>
 </section>
 
-<!-- 6. Nasze miejsce (facility story + optimized image grid, D-04/D-07) -->
-<section class="band" aria-labelledby="obiekt-heading">
+<!-- 6. Galeria (GALLERY-01; 05-UI-SPEC Contract 1, which replaces „Nasze miejsce" in place
+     and leaves the seven-section order otherwise untouched, 05 D-19 / D-20).
+
+     TWO ATTRIBUTES, TWO JOBS, written out because they are easy to conflate. The section's
+     own id is the fragment the footer's „Galeria" shortcut jumps to; aria-labelledby names
+     the section and points at the h2's OWN id. The heading id this section carried before
+     the rename was retired together with the heading it named: renaming the section without
+     renaming its heading id would have left a label that no longer describes the content.
+     (Neither retired name is written out here, following the repository rule recorded at
+     04-02: a comment explaining a constraint must not make the grep enforcing it report a
+     permanent false positive.)
+
+     tabindex="-1" so a keyboard user following that link lands INSIDE the gallery rather
+     than at the top of the document, and scroll-margin-top below keeps the sticky header
+     off the heading. Same treatment as the #dojazd section of /kontakt.
+
+     THE SECTION, ITS HEADING AND ITS ID ALWAYS RENDER (required zero-photo state). Only the
+     grid is conditional, so the footer link can never land on nothing. -->
+<section id="galeria" class="band" tabindex="-1" aria-labelledby="galeria-heading">
 	<div class="inner uklad-miejsce">
-		<h2 id="obiekt-heading">Nasze miejsce</h2>
+		<h2 id="galeria-heading">Galeria: nasze miejsce</h2>
+		<!-- The stored facility description stays as introductory prose ABOVE the grid. -->
 		<!-- eslint-disable-next-line svelte/no-at-html-tags -- D-08: renderInline sanitizes (raw HTML escaped, link protocols filtered); CSP script-src 'self' is the second layer (T-0201-01) -->
 		<p class="prose">{@html obiektHtml}</p>
-		{#if facility.length > 0}
-			<ul class="gallery">
-				<!-- Keyed by POSITION, for the reason written above the wartości list. -->
-				{#each facility as photo, i (i)}
+		{#if zdjecia.length > 0}
+			<ul class="galeria">
+				<!-- Keyed by POSITION, for the reason written above the wartości list, and it
+				     binds harder here: this list is editor writable from /admin/galeria and two
+				     photographs can carry the same caption. -->
+				{#each zdjecia as zdjecie, i (i)}
 					<li>
-						<enhanced:img src={photo.pic} alt={photo.alt} sizes="(min-width:768px) 50vw, 100vw" />
+						<figure>
+							<!-- The tile is a LINK to the full-size asset, which is what makes the
+							     no-scripting path a real affordance instead of a dead button
+							     (05-UI-SPEC Contract 2). The visually-hidden prefix plus the photo's
+							     own alt is what gives twelve otherwise identical links twelve
+							     different accessible names (WCAG 2.4.4). -->
+							<a class="kafelek" href={zdjecie.obraz.img.src}>
+								<span class="visually-hidden">Powiększ zdjęcie: </span>
+								<enhanced:img
+									src={zdjecie.obraz}
+									alt={zdjecie.alt}
+									loading={i < PILNE_KAFELKI ? 'eager' : 'lazy'}
+									sizes="(min-width:1024px) 33vw, (min-width:768px) 50vw, 100vw"
+								/>
+							</a>
+							<figcaption>{zdjecie.podpis}</figcaption>
+						</figure>
 					</li>
 				{/each}
 			</ul>
+		{:else}
+			<!-- The inherited empty-state panel (the one /aktualnosci and NewsPreview already
+			     ship), so this state is axe proven by construction rather than by a new shape
+			     nobody has scanned. Copy from 05-UI-SPEC's Copywriting Contract. -->
+			<div class="pusto">
+				<Images class="pusto-ikona" size={32} aria-hidden="true" focusable="false" />
+				<h3 class="pusto-naglowek">Wkrótce pokażemy zdjęcia żłobka</h3>
+				<p class="pusto-tresc">
+					Przygotowujemy zdjęcia sal, placu zabaw i budynku. Zajrzyj tutaj wkrótce.
+				</p>
+			</div>
 		{/if}
 	</div>
 </section>
@@ -209,7 +273,10 @@
 			row-gap: 32px;
 		}
 
-		.uklad-miejsce .gallery {
+		/* The gallery spans BOTH tracks of the editorial split, so the three-column tier
+		   below and the split do not fight. The intro prose stays in the right track. */
+		.uklad-miejsce .galeria,
+		.uklad-miejsce .pusto {
 			grid-column: 1 / -1;
 			margin-top: 0;
 		}
@@ -355,27 +422,141 @@
 		color: var(--color-muted);
 	}
 
-	/* Facility gallery: 1 col -> 2 col image grid, radius-lg slots. */
-	.gallery {
+	/* -------------------------------------------------------------------------------
+	   Galeria (05-UI-SPEC Contract 1). 1 / 2 / 3 columns at base / 768px / 1024px, gap
+	   24px at every width.
+
+	   EXPLICIT TRACK COUNTS, never auto-fit or auto-fill. An auto-fitting track list
+	   would stretch a LONE tile to the full container width and make it read as a second
+	   hero competing with the page header, and one photograph is a state an editor can
+	   reach in two clicks.
+	   ------------------------------------------------------------------------------- */
+	.galeria {
 		list-style: none;
 		margin: 24px 0 0;
 		padding: 0;
 		display: grid;
 		grid-template-columns: 1fr;
 		gap: 24px;
+		justify-content: start;
 	}
 
 	@media (min-width: 768px) {
-		.gallery {
+		.galeria {
 			grid-template-columns: repeat(2, 1fr);
 		}
 	}
 
-	.gallery :global(img) {
+	/* NEW tier (05 D-12 as amended): 02-UI-SPEC stopped at two columns. */
+	@media (min-width: 1024px) {
+		.galeria {
+			grid-template-columns: repeat(3, 1fr);
+		}
+	}
+
+	.galeria figure {
+		margin: 0;
+	}
+
+	/* The tile: the photo is its own boundary, so no border and no shadow. The 4:3 box is
+	   reserved BEFORE the image paints (no CLS) and `cover` is the safety net for the two
+	   hand-placed seed photographs, which the panel's own upload path would have cropped. */
+	.kafelek {
+		display: block;
+		overflow: hidden;
+		border-radius: var(--radius-lg);
+		aspect-ratio: 4 / 3;
+	}
+
+	.kafelek :global(img) {
 		display: block;
 		width: 100%;
-		height: auto;
-		border-radius: var(--radius-lg);
+		height: 100%;
+		object-fit: cover;
+		transition: transform 150ms ease;
+	}
+
+	/* Hover: the image scales INSIDE its clipped box and the caption underlines. No
+	   translate, no shadow change, no accent colour anywhere on the tile. */
+	.kafelek:hover :global(img) {
+		transform: scale(1.03);
+	}
+
+	.galeria figcaption {
+		margin-top: 8px;
+		font-family: var(--font-body);
+		font-weight: 700;
+		font-size: 15px;
+		line-height: 1.4;
+		color: var(--color-ink);
+	}
+
+	.galeria li:hover figcaption {
+		text-decoration: underline;
+	}
+
+	/* The component's OWN guard, in addition to the global neutraliser in app.css. That one
+	   shortens transitions and animations; it does not remove a transform, so without this
+	   block the tile would still jump to its scaled size instantly. */
+	@media (prefers-reduced-motion: reduce) {
+		.kafelek :global(img),
+		.kafelek:hover :global(img) {
+			transform: none;
+			transition: none;
+		}
+	}
+
+	/* Empty-state panel, the inherited one (mirrors /aktualnosci and NewsPreview.svelte),
+	   on the warm surface 05-UI-SPEC Contract 1 names. */
+	.pusto {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+		gap: 12px;
+		margin-top: 24px;
+		background: var(--color-surface-warm);
+		border-radius: var(--radius-md);
+		padding: 24px;
+	}
+
+	.pusto :global(.pusto-ikona) {
+		color: var(--color-muted);
+	}
+
+	.pusto-naglowek {
+		font-family: var(--font-display);
+		font-weight: 700;
+		font-size: 20px;
+		line-height: 1.2;
+		color: var(--color-ink);
+		margin: 0;
+	}
+
+	.pusto-tresc {
+		font-family: var(--font-body);
+		font-size: 16px;
+		line-height: 1.5;
+		color: var(--color-muted);
+		max-width: 48ch;
+		margin: 0;
+	}
+
+	/* The sticky header must never cover the heading a footer link jumps to. */
+	#galeria {
+		scroll-margin-top: 96px;
+	}
+
+	.visually-hidden {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0 0 0 0);
+		white-space: nowrap;
+		border: 0;
 	}
 
 	.cta-band .inner {

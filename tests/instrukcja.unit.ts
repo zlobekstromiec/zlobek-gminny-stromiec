@@ -243,7 +243,9 @@ test('kazda nazwa ekranu i etykieta przycisku jest cytatem z modulu kopii', () =
 		POLA_O_NAS.kadraOpiekunkiEtykieta,
 		POLA_O_NAS.kadraPersonelEtykieta,
 		POLA_O_NAS.obiektOpisEtykieta,
-		POLA_O_NAS.zdjeciaLegenda,
+		// The O nas photo group legend was here until plan 05-07 removed that group. Its
+		// replacement is the gallery's own legend, two entries down: a lockstep edit, not a
+		// weakening, and the manual still has to quote a photo group legend verbatim.
 		KOPIA_EKRAN_GALERII.naglowek,
 		POLA_GALERIA.zdjeciaLegenda,
 		POLA_GALERIA.podpisEtykieta,

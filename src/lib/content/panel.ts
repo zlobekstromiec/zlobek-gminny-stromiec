@@ -354,7 +354,11 @@ export const POLA_WPIS = {
 	zastepczaPodpowiedz: 'Zaznacz, dopóki treść nie została potwierdzona.'
 } as const;
 
-/** O nas form labels and hints. */
+/** O nas form labels and hints.
+ *
+ *  NO PHOTO LABELS HERE SINCE PLAN 05-07. The facility photographs, their group legend and
+ *  their alt field moved to `POLA_GALERIA` below with the screen that owns them. „O budynku"
+ *  stayed, because it is prose about the building rather than a picture of it. */
 export const POLA_O_NAS = {
 	leadEtykieta: 'Wprowadzenie *',
 	leadPodpowiedz: 'Krótki tekst wprowadzający na górze strony O nas.',
@@ -371,12 +375,7 @@ export const POLA_O_NAS = {
 	kadraPersonelEtykieta: 'Personel pomocniczy (liczba) *',
 	kadraPersonelPodpowiedz: 'Wpisz liczbę, na przykład 3.',
 	obiektOpisEtykieta: 'O budynku *',
-	obiektOpisPodpowiedz: 'Opis budynku, sali i placu zabaw.',
-	zdjeciaLegenda: 'Zdjęcia (budynek, sala, plac zabaw)',
-	zdjeciaPodpowiedz: 'Zdjęcia bez osób. Przytniemy je do proporcji 4:3 i zmniejszymy.',
-	zdjecieAltEtykieta: 'Opis alternatywny (alt) *',
-	zdjecieAltPodpowiedz:
-		'Napisz, co widać na zdjęciu, na przykład: Sala zabaw z kolorowymi zabawkami.',
+	obiektOpisPodpowiedz: 'Opis budynku, sali i placu zabaw. Zdjęcia dodajesz w sekcji Galeria.',
 	zastepczaEtykieta: 'Treść zastępcza (do potwierdzenia)',
 	zastepczaPodpowiedz: 'Zaznacz, dopóki treść nie została potwierdzona.'
 } as const;
@@ -384,11 +383,11 @@ export const POLA_O_NAS = {
 /** Galeria form labels and hints (05-UI-SPEC Contract 8, 05 D-25).
  *
  *  THE FILE CONTROL'S OWN VISIBLE LABEL IS NOT HERE, deliberately, and neither is the item's
- *  numbered legend. Both already exist and are shared with the O nas photo list:
- *  `KOPIA_ZDJECIA.wybierzEtykieta` labels the native control (its declaration records why it is
- *  authored there rather than borrowed) and `legendaZdjecia` numbers the item. Adding a third
- *  „Zdjęcie" label beside them would announce the same word twice to a screen-reader user,
- *  which is the very thing that declaration exists to prevent. */
+ *  numbered legend. Both already exist and are shared with every screen that mounts the photo
+ *  island: `KOPIA_ZDJECIA.wybierzEtykieta` labels the native control (its declaration records
+ *  why it is authored there rather than borrowed) and `legendaZdjecia` numbers the item.
+ *  Adding a third „Zdjęcie" label beside them would announce the same word twice to a
+ *  screen-reader user, which is the very thing that declaration exists to prevent. */
 export const POLA_GALERIA = {
 	zdjeciaLegenda: 'Zdjęcia galerii',
 	zdjeciaPodpowiedz:

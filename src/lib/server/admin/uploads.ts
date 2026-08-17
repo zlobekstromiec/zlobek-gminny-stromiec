@@ -112,10 +112,10 @@ export function istniejaceNazwy(): ReadonlySet<string> {
  *  1. The name must be the one THIS entry's stem generates. A cover the panel created is
  *     named after its entry and belongs to nothing else, so removing it with the entry
  *     leaves no orphan. A cover that carries any other name was put there by hand and may
- *     be shared: both seed images in this repository are referenced by the o nas page as
- *     well, and a rule that only asked „does another aktualność use it" would have removed
- *     a picture the o nas page renders. Leaving an unreferenced legacy file behind costs a
- *     few kilobytes in a directory listing; deleting a shared one breaks a public page.
+ *     be shared: both seed images in this repository are referenced by the gallery as well,
+ *     and a rule that only asked „does another aktualność use it" would have removed a
+ *     picture /o-nas renders. Leaving an unreferenced legacy file behind costs a few
+ *     kilobytes in a directory listing; deleting a shared one breaks a public page.
  *  2. No other entry may point at the name, which is the check P-18 named. Reachable only
  *     by hand-edited content today, and cheap enough to keep as defence in depth.
  *  3. The file must be present in the build. Nothing to delete otherwise, and asking git to
@@ -143,119 +143,23 @@ export function okladkaDoUsuniecia(
 }
 
 // ---------------------------------------------------------------------------------------
-// O nas facility photos (Plan 04.1-09, P-25).
+// Gallery photos (Phase 05, Plans 05-06 and 05-07; GALLERY-01, GALLERY-02, 05 D-23 to D-26;
+// 05-UI-SPEC Contract 8).
 //
-// An o nas photo has neither of the two things a cover is named from: no publication date
-// and no entry slug. The only human-meaningful thing it carries is its own alt text, which
-// D-15 already makes required, so that is what the name is derived from.
-//
-// THE PREFIX DOES TWO JOBS, and the second one is why it is not merely decorative. It keeps
-// the uploads directory readable, which is the reason P-25 gives; and it is the marker that
-// says „the panel generated this name for the o nas page", which is what makes the deletion
-// rule below safe. The identical reasoning is written out at `okladkaDoUsuniecia`: both
-// pictures currently in this directory were placed by hand and are rendered by BOTH the o
-// nas page and a seeded aktualność, so a deletion rule that only asked „does anything else
-// point at this name" would eventually remove a file a public page renders.
-// ---------------------------------------------------------------------------------------
-
-/** Prefix of every basename this panel generates for an o nas facility photo. */
-export const PREFIKS_O_NAS = 'obiekt-';
-
-/** Longest slug taken from an alt sentence. An alt is a whole sentence and a filename made
- *  of one is unreadable in a directory listing, which is the thing the prefix exists to
- *  protect. */
-export const MAKS_RDZENIA_O_NAS = 40;
-
-/** Used when the alt slugs to nothing, which is reachable: „..." is a legal alt as far as
- *  the text rules are concerned and produces an empty slug. A bare prefix would give a
- *  filename that is only a prefix and a dot. */
-const RDZEN_ZAPASOWY = 'zdjecie';
-
-/**
- * The basename a NEW o nas photo is written under (P-25).
- *
- * `zajete` is every name that must not be taken: the basenames already in the build PLUS
- * the ones handed out earlier in the same submission, because several photos can arrive at
- * once and two of them can carry the same description. When the derived name is taken, an
- * ascending numeric suffix is appended rather than the existing file being overwritten:
- * overwriting would replace a picture that another item, or the aktualności collection,
- * still points at.
- *
- * A REPLACEMENT DOES NOT COME THROUGH HERE. When an item already has a panel-generated
- * basename and the editor chooses a new picture for it, the new bytes are written at the
- * name the item already has, which is P-21 exactly: a replacement is an overwrite in place
- * and needs neither a new name nor a deletion. The consequence, recorded because it is
- * visible: after an alt edit the filename no longer echoes the description. The name is a
- * readability aid, never an identity, and the alternative costs an orphaned file plus a
- * moved URL for every wording fix.
- */
-export function nazwaZdjeciaONas(alt: string, zajete: ReadonlySet<string>): string {
-	const rdzen = slugAscii(alt, MAKS_RDZENIA_O_NAS) || RDZEN_ZAPASOWY;
-	const podstawa = `${PREFIKS_O_NAS}${rdzen}`;
-	if (!zajete.has(`${podstawa}${ROZSZERZENIE}`)) return `${podstawa}${ROZSZERZENIE}`;
-	// From two, because the unsuffixed name IS the first one. Bounded by the group size the
-	// form can post, so this cannot spin.
-	for (let numer = 2; numer < 1000; numer++) {
-		const kandydat = `${podstawa}-${numer}${ROZSZERZENIE}`;
-		if (!zajete.has(kandydat)) return kandydat;
-	}
-	// Unreachable through the panel: the group is capped far below this. Answering with the
-	// suffixed name anyway is still better than an unbounded loop or a throw, because the
-	// caller's own collision check is what decides whether it may be written.
-	return `${podstawa}-1000${ROZSZERZENIE}`;
-}
-
-/**
- * The path a save may safely remove when a facility photo leaves the o nas list, or null.
- *
- * FOUR CONDITIONS, and the first is the one Plan 07 had to learn:
- *
- *  1. The name must carry the prefix this module generates. A picture placed by hand may be
- *     shared with any other surface, and both of the ones in this repository are: the o nas
- *     page and a seeded aktualność render the same two files. Leaving an unreferenced
- *     legacy file behind costs a few kilobytes in a directory listing; deleting a shared
- *     one breaks a public page.
- *  2. It must be admissible as a basename at all, by the same allowlist a cover goes
- *     through, so nothing that arrived in a request can name a path outside this directory.
- *  3. Nothing else may point at it: neither a photo still in the submitted list nor an
- *     aktualność cover. Defence in depth given condition 1, and cheap.
- *  4. The file must be present in the build. Asking git to remove a path that is not in the
- *     tree fails the whole atomic save, which would turn a successful edit into a Polish
- *     error panel for no reason.
- */
-export function zdjecieONasDoUsuniecia(
-	plik: string,
-	nadalUzywane: readonly (string | undefined)[],
-	// Injected exactly as it is for a cover, so the whole decision is drivable under a plain
-	// test runner with no build and no browser. The default is evaluated only when a caller
-	// omits it.
-	istniejace: ReadonlySet<string> = istniejaceNazwy()
-): string | null {
-	const nazwa = bezpiecznaNazwaOkladki(bazowaNazwa(plik));
-	if (nazwa === null) return null;
-	if (!nazwa.startsWith(PREFIKS_O_NAS)) return null;
-	const uzywana = nadalUzywane.some((inny) => inny !== undefined && inny.endsWith(nazwa));
-	if (uzywana) return null;
-	if (!istniejace.has(nazwa)) return null;
-	return sciezkaOkladki(nazwa);
-}
-
-// ---------------------------------------------------------------------------------------
-// Gallery photos (Phase 05, Plan 05-06; GALLERY-02, 05 D-23 to D-26; 05-UI-SPEC Contract 8).
-//
-// THE TWO FUNCTIONS BELOW ARE REPRODUCED FROM THE O NAS BLOCK ABOVE, NOT SHARED WITH IT
-// BEHIND A PREFIX PARAMETER, and that is a deliberate refusal to remove a duplication. The
+// THE TWO FUNCTIONS BELOW WERE REPRODUCED FROM AN O NAS PHOTO BLOCK, NOT SHARED WITH IT
+// BEHIND A PREFIX PARAMETER, and that was a deliberate refusal to remove a duplication: the
 // four conditions of the deletion rule ARE the ownership rule of this repository's uploads
-// directory: a single generic function parameterised by prefix would make one careless edit
-// able to weaken the o nas rule and the gallery rule at the same time, in one commit, with
-// one test file to notice it. Two readable copies with two doc comments cost twenty lines;
-// one shared copy costs the property.
+// directory, and a single generic function parameterised by prefix would have made one
+// careless edit able to weaken two screens' rules at once. Plan 05-07 then removed the O nas
+// photo half entirely, so exactly one copy is left. It is written out in full rather than
+// thinned, because the next screen that needs an ownership rule must reproduce it again
+// rather than parameterise this one.
 //
-// A NEW PREFIX RATHER THAN THE EXISTING `obiekt-` ONE (05-UI-SPEC Contract 8 resolves the
-// open discretion question). There is no `obiekt-` prefixed file in this repository today, so
-// the „every photo an editor already uploaded keeps the old prefix" cost of a new prefix does
-// not exist, while reusing it would leave a module whose name and comments permanently
-// misdescribe which page owns the files.
+// A PREFIX OF ITS OWN RATHER THAN THE `obiekt-` ONE THE O NAS SCREEN USED TO GENERATE
+// (05-UI-SPEC Contract 8 resolves the open discretion question). No `obiekt-` prefixed file
+// was ever committed to this repository, so a new prefix cost nothing, while reusing one
+// named after a page that no longer owns the pictures would have left a module whose name and
+// comments permanently misdescribe which screen owns the files.
 //
 // THREE CONSEQUENCES, stated here rather than discovered later:
 //
@@ -345,7 +249,7 @@ export function nazwaZdjeciaGalerii(
 export function zdjecieGaleriiDoUsuniecia(
 	plik: string,
 	nadalUzywane: readonly (string | undefined)[],
-	// Injected exactly as it is for a cover and for an o nas photo, so the whole decision is
+	// Injected exactly as it is for an aktualność cover, so the whole decision is
 	// drivable under a plain test runner with no build and no browser. The default is
 	// evaluated only when a caller omits it.
 	istniejace: ReadonlySet<string> = istniejaceNazwy()

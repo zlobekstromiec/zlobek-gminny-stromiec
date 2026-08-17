@@ -233,16 +233,19 @@ test.describe('Galeria na /o-nas: kontrakt publiczny (GALLERY-01)', () => {
 		await page.setViewportSize({ width: 1280, height: 1000 });
 		await page.goto('/o-nas');
 
-		const wewnatrz = await sekcja(page).locator('.uklad-miejsce').boundingBox();
+		// The h2 sits in the LEFT rail of the editorial split, so its left edge is where
+		// track 1 begins. Comparing against it rather than against the container's own box
+		// keeps the assertion about the tracks instead of about the container's padding.
+		const pudelkoNaglowka = await sekcja(page).getByRole('heading', { level: 2 }).boundingBox();
 		const pudelkoListy = await lista(page).boundingBox();
 		const pudelkoWstepu = await sekcja(page).locator('p.prose').boundingBox();
-		expect(wewnatrz).not.toBeNull();
+		expect(pudelkoNaglowka).not.toBeNull();
 		expect(pudelkoListy).not.toBeNull();
 		expect(pudelkoWstepu).not.toBeNull();
-		if (!wewnatrz || !pudelkoListy || !pudelkoWstepu) return;
+		if (!pudelkoNaglowka || !pudelkoListy || !pudelkoWstepu) return;
 
-		// The list starts at the container's own left edge: it spans both tracks.
-		expect(Math.abs(pudelkoListy.x - wewnatrz.x)).toBeLessThanOrEqual(1);
+		// The list starts where track 1 starts: it spans both tracks.
+		expect(Math.abs(pudelkoListy.x - pudelkoNaglowka.x)).toBeLessThanOrEqual(1);
 		// The prose stays in the RIGHT track, so it starts well to the right of the list.
 		expect(pudelkoWstepu.x).toBeGreaterThan(pudelkoListy.x + 100);
 

@@ -79,8 +79,10 @@ test.describe('O nas: Phase 2 acceptance', () => {
 	test('every facility image carries a non-empty informative alt (D-04)', async ({ page }) => {
 		await page.goto('/o-nas');
 		// The facility photographs moved into the gallery section (05-UI-SPEC Contract 1), so
-		// they are located through the section's OWN labelling. The retired obiekt-heading id
-		// went with the retired heading.
+		// they are located through that section's OWN labelling. The heading id this section
+		// used to carry was retired with the heading it named, and its absence is asserted in
+		// tests/galeria.spec.ts rather than named here (repository rule 04-02: a comment must
+		// not make the grep enforcing a removal report a permanent false positive).
 		const imgs = page.locator('section[aria-labelledby="galeria-heading"] img');
 		const count = await imgs.count();
 		expect(count).toBeGreaterThan(0);

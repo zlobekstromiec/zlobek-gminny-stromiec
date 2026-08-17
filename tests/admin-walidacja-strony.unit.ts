@@ -1,5 +1,5 @@
 // The two singleton validators, proven against the REAL committed content files (Phase
-// 04.1, Plan 04.1-09; CMS-02, SC5, D-09, D-15, P-25, P-26, threat T-04.1-34).
+// 04.1, Plan 04.1-09; Phase 05, Plan 05-07; CMS-02, SC5, D-09, P-26, threat T-04.1-34).
 //
 // WHY THE COMMITTED FILES ARE THE ORACLE. Neither of these two content files has a guarding
 // reader between it and the page: src/routes/o-nas/+page.svelte imports o-nas.json and
@@ -307,8 +307,7 @@ test('niepelna wartosc na stronie O nas jest odmowiona jednym komunikatem na wie
 				{ [POLE_TYTULU]: 'Bezpieczeństwo', [POLE_OPISU]: 'Opis pierwszej wartości.' },
 				{ [POLE_TYTULU]: '', [POLE_OPISU]: '' }
 			])
-		}),
-		new Set()
+		})
 	);
 	assert.equal(wynik.ok, false);
 	if (!wynik.ok) {
@@ -364,7 +363,7 @@ test('zapisany plan dnia przechodzi przez prettier bez ani jednej zmiany bajtu',
 // =========================================================================================
 
 test('strona O nas wychodzi z walidatora z dokladnie tymi kluczami i w tej kolejnosci, co plik', () => {
-	const wynik = walidujONas(zrodlo(polaONasZPliku()), new Set());
+	const wynik = walidujONas(zrodlo(polaONasZPliku()));
 	assert.equal(wynik.ok, true);
 	if (!wynik.ok) return;
 
@@ -377,7 +376,7 @@ test('strona O nas wychodzi z walidatora z dokladnie tymi kluczami i w tej kolej
 });
 
 test('liczebnosc kadry jest liczba, a nie napisem, i odmawia wartosci, ktora liczba nie jest', () => {
-	const wynik = walidujONas(zrodlo(polaONasZPliku()), new Set());
+	const wynik = walidujONas(zrodlo(polaONasZPliku()));
 	assert.equal(wynik.ok, true);
 	if (wynik.ok) {
 		assert.equal(typeof wynik.dane.kadra_opiekunki, 'number');
@@ -386,10 +385,7 @@ test('liczebnosc kadry jest liczba, a nie napisem, i odmawia wartosci, ktora lic
 	}
 
 	for (const zle of ['sześć', '6 osób', '6.0', '', '-1', '100', '6abc']) {
-		const odmowa = walidujONas(
-			zrodlo({ ...polaONasZPliku(), [POLE_KADRY_OPIEKUNKI]: zle }),
-			new Set()
-		);
+		const odmowa = walidujONas(zrodlo({ ...polaONasZPliku(), [POLE_KADRY_OPIEKUNKI]: zle }));
 		assert.equal(odmowa.ok, false, `„${zle}" nie powinno byc przyjete jako liczba`);
 		if (!odmowa.ok) {
 			assert.equal(odmowa.pola[POLE_KADRY_OPIEKUNKI], KOPIA_WALIDACJA.liczbaNiepoprawna);
@@ -398,7 +394,7 @@ test('liczebnosc kadry jest liczba, a nie napisem, i odmawia wartosci, ktora lic
 });
 
 test('zapisana strona O nas przechodzi przez prettier bez ani jednej zmiany bajtu', () => {
-	const wynik = walidujONas(zrodlo(polaONasZPliku()), new Set());
+	const wynik = walidujONas(zrodlo(polaONasZPliku()));
 	assert.equal(wynik.ok, true);
 	if (!wynik.ok) return;
 
@@ -414,10 +410,7 @@ test('za dlugi akapit jest odmowiony komunikatem cytujacym wlasny limit', () => 
 		[POLE_KADRY_OPIS, MAKS_AKAPITU],
 		[POLE_OBIEKTU_OPIS, MAKS_AKAPITU]
 	] as const) {
-		const wynik = walidujONas(
-			zrodlo({ ...polaONasZPliku(), [pole]: 'a'.repeat(limit + 1) }),
-			new Set()
-		);
+		const wynik = walidujONas(zrodlo({ ...polaONasZPliku(), [pole]: 'a'.repeat(limit + 1) }));
 		assert.equal(wynik.ok, false);
 		if (!wynik.ok) assert.equal(wynik.pola[pole], tekstZaDlugi(limit));
 	}
@@ -430,8 +423,7 @@ test('za dlugie pole wartosci jest odmowione komunikatem cytujacym wlasny limit'
 			...polaListy(PREFIKS_WARTOSCI, [
 				{ [POLE_TYTULU]: 't'.repeat(MAKS_TYTULU_WARTOSCI + 1), [POLE_OPISU]: 'Opis.' }
 			])
-		}),
-		new Set()
+		})
 	);
 	assert.equal(wynik.ok, false);
 	if (!wynik.ok) {

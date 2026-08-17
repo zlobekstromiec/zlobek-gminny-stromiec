@@ -22,10 +22,11 @@
 // somebody ran `prettier --write`. A panel that can break a developer's ability
 // to commit is worse than no panel.
 //
-// EXPECTED one-off diff on the first panel save: day-plan.json holds its rows and
-// o-nas.json holds its obiekt_zdjecia as one-line objects today, which prettier
-// preserves because their source has no newline after the brace. The first save
-// expands them. That is correct output, not a regression.
+// EXPECTED one-off diff on the first panel save: day-plan.json holds its rows as
+// one-line objects today, which prettier preserves because their source has no
+// newline after the brace. The first save expands them. That is correct output,
+// not a regression. (o-nas.json used to be the second example; plan 05-07 removed
+// the photo list that was its one-line member.)
 //
 // EXPLICITLY REJECTED alternative: adding src/lib/content/ to .prettierignore.
 // It would silence this class of defect rather than prevent it, and it would hide
