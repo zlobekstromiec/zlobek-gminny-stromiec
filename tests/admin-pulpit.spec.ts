@@ -47,6 +47,10 @@ const KAFLE = [
 	{ tytul: KOPIA_PULPIT.cennikTytul, cel: '/admin/cennik' },
 	{ tytul: KOPIA_PULPIT.dokumentyTytul, cel: '/admin/dokumenty' },
 	{ tytul: KOPIA_PULPIT.naborTytul, cel: '/admin/nabor' },
+	// 05-UI-SPEC Contract 11 and 05 D-34: W skrócie is a pulpit tile and NOT a navigation
+	// chip, so the pulpit is the only surface that can lead an editor to it at all. Placed
+	// before Pomoc, mirroring the nav order with the one extra screen inserted.
+	{ tytul: KOPIA_PULPIT.wSkrocieTytul, cel: '/admin/w-skrocie' },
 	{ tytul: KOPIA_PULPIT.pomocTytul, cel: POMOC }
 ] as const;
 
@@ -62,7 +66,7 @@ async function policzWiersze(
 }
 
 test.describe('Pulpit: kafle, liczniki i stan naboru (Contract 3)', () => {
-	test('pulpit ma jeden naglowek pierwszego poziomu i osiem kafli', async ({
+	test('pulpit ma jeden naglowek pierwszego poziomu i dziewiec kafli', async ({
 		page,
 		zalogowany
 	}) => {
@@ -110,6 +114,7 @@ test.describe('Pulpit: kafle, liczniki i stan naboru (Contract 3)', () => {
 			KOPIA_PULPIT.cennikOpis,
 			KOPIA_PULPIT.dokumentyOpis,
 			KOPIA_PULPIT.naborOpis,
+			KOPIA_PULPIT.wSkrocieOpis,
 			KOPIA_PULPIT.pomocOpis
 		]) {
 			await expect(page.locator('main li a', { hasText: opis })).toHaveCount(1);

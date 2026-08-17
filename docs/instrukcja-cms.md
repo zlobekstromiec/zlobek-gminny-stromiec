@@ -60,9 +60,10 @@ zalogowania: następna osoba, która otworzy ten adres, trafi prosto do panelu.
 
 ## 2. Pulpit
 
-Pulpit to pierwszy ekran po zalogowaniu. Jest na nim osiem kafelków i każdy prowadzi do
-jednego miejsca, które można zmienić. Te same sekcje są w menu, widocznym na każdym
-ekranie.
+Pulpit to pierwszy ekran po zalogowaniu. Jest na nim dziewięć kafelków i każdy prowadzi do
+jednego miejsca, które można zmienić. Prawie wszystkie te sekcje są też w menu, widocznym
+na każdym ekranie. Wyjątkiem jest **W skrócie**: do tego ekranu wchodzi się tylko z
+pulpitu, bo godziny otwarcia i liczba miejsc zmieniają się raz na kilka lat.
 
 - **Aktualności**: wpisy z życia żłobka, czyli ogłoszenia, wydarzenia, zaproszenia.
   Kafelek pokazuje, ile wpisów jest teraz na stronie.
@@ -76,6 +77,8 @@ ekranie.
   ile dokumentów jest teraz na stronie.
 - **Nabór**: przełącznik informacji o naborze. Kafelek pokazuje, jak jest ustawiony w tej
   chwili.
+- **W skrócie**: cztery kafelki na górze strony głównej, czyli wiek, godziny, opłata i
+  liczba miejsc.
 - **Pomoc**: ta instrukcja, dostępna także z każdego ekranu przez odnośnik
   „Instrukcja obsługi panelu" na dole strony.
 
@@ -431,7 +434,66 @@ stronie.
 
 ---
 
-## 12. Co zrobić, gdy zmiany nie widać
+## 12. W skrócie
+
+Ekran **W skrócie** to cztery kafelki, które rodzic widzi na samej górze strony głównej:
+wiek dzieci, godziny otwarcia, opłata i liczba miejsc. Wchodzi się na niego z pulpitu, bo
+te dane zmieniają się rzadko.
+
+Na górze ekranu stoi to samo zdanie: „To cztery kafelki na górze strony głównej. Dwa z
+nich zmieniasz gdzie indziej i są tu tylko do wglądu."
+
+Na ekranie są cztery grupy pól, w tej samej kolejności, w jakiej kafelki stoją na stronie.
+Te dwie grupy, których nie zmienia się tutaj, są pokazane jako zwykły tekst, żeby było
+widać, co jest teraz na stronie, i nie da się w nie kliknąć ani nic w nich wpisać. Tak ma
+być.
+
+### Kafelek: wiek dzieci
+
+Tylko do wglądu. Wiek dzieci wynika ze statutu żłobka i jest podany także na stronie
+Rekrutacja, więc gdyby dało się go zmienić w jednym miejscu, strona zaczęłaby podawać dwie
+różne odpowiedzi. Zmienia go osoba opiekująca się stroną.
+
+### Kafelek: godziny otwarcia
+
+To jedyne miejsce w panelu, w którym zmienia się godziny otwarcia żłobka. **Te godziny
+pokazujemy w trzech miejscach: na stronie głównej, w pasku na górze strony i w stopce.
+Jeden zapis zmienia wszystkie.** Nie ma więc drugiego miejsca, w którym trzeba by
+je poprawić, i nie da się doprowadzić do tego, żeby góra strony podawała inne godziny niż
+jej dół.
+
+Cztery pola, bo każde z tych miejsc potrzebuje innego kawałka tej samej informacji:
+
+- **Godziny otwarcia**: sam zakres godzin, na przykład 6:30–16:30.
+- **Dni, pełna nazwa**: dni napisane w całości. Tak pokazujemy je w stopce.
+- **Dni, skrót**: krótka forma, używana w pasku na górze strony.
+- **Weekend**: co dzieje się w sobotę i niedzielę.
+- **Treść zastępcza (do potwierdzenia)**: zaznacz to pole, dopóki godziny czekają na
+  potwierdzenie, i odznacz je, gdy są już pewne.
+
+Każde z czterech pól jest wymagane. Jeśli któreś wyczyścisz i klikniesz **Zapisz**, panel
+odmówi i napisze przy nim, czego brakuje, na przykład „Wpisz godziny, na przykład
+6:30–16:30." albo „Wpisz skrót dni, na przykład: pon.-pt."
+
+### Kafelek: opłata
+
+Tylko do wglądu. Kwota bierze się z ekranu **Cennik** i jest tam wyliczana raz dla całej
+strony, więc na tym ekranie nie ma czego wpisywać. Pod kwotą jest odnośnik **Przejdź do
+Cennika**, który prowadzi prosto tam, gdzie się ją zmienia.
+
+### Kafelek: liczba miejsc
+
+- **Liczba miejsc**: sama liczba, bez słowa „miejsc". Jeśli wpiszesz cokolwiek innego,
+  panel odmówi i napisze „Wpisz liczbę miejsc, na przykład 50."
+- **Dopisek (opcjonalnie)**: krótkie wyjaśnienie pod liczbą. Można je zostawić puste.
+- **Treść zastępcza (do potwierdzenia)**: jak wyżej, osobno dla tego kafelka.
+
+Na dole jest jeden przycisk **Zapisz** i zapisuje on cały ekran naraz. Kafelków nie da się
+tu dodać ani usunąć: są zawsze cztery, bo tyle mieści się w pasku na stronie głównej.
+
+---
+
+## 13. Co zrobić, gdy zmiany nie widać
 
 Po kliknięciu **Zapisz** strona żłobka przebudowuje się w tle. **Trwa to około 2 minut.**
 Panel nie oszukuje: zmiana jest już zapisana, ale odwiedzający zobaczą ją dopiero po
@@ -458,7 +520,7 @@ Co jeszcze warto wiedzieć:
 
 ---
 
-## 13. Co zrobić, gdy panel odmówi zapisania
+## 14. Co zrobić, gdy panel odmówi zapisania
 
 Panel woli odmówić zapisu, niż skasować czyjąś pracę. W każdym z poniższych przypadków
 **wpisane dane zostają w formularzu**.
@@ -497,7 +559,7 @@ listy i sprawdź.
 
 ---
 
-## 14. Dla osoby administrującej stroną: dodanie i usunięcie redaktora
+## 15. Dla osoby administrującej stroną: dodanie i usunięcie redaktora
 
 Ta sekcja nie jest potrzebna do codziennej pracy. Jest przeznaczona dla osoby, która
 opiekuje się stroną od strony technicznej.

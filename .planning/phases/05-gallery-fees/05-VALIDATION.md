@@ -1,9 +1,9 @@
 ---
 phase: 5
 slug: gallery-fees
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: approved
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-08-17
 ---
 
@@ -96,23 +96,23 @@ Task IDs are assigned when plans are written. Rows are keyed by the research map
 
 New files:
 
-- [ ] `tests/kwoty.unit.ts` — FEE-5, including the byte-identity pin against `OPLATY.kwota` (U+0020, not U+00A0)
-- [ ] `tests/cennik.spec.ts` — FEE-1 to FEE-3, the rendered arithmetic assertion, and the scoped conditional-zero pair
-- [ ] `tests/cennik-reader.unit.ts` — FEE-4, plus the negative-amount reader refusal
-- [ ] `tests/admin-walidacja-cennik.unit.ts` — FEE-7, FEE-8; serialization pin in the shape of `admin-walidacja-nabor.unit.ts:172-190`
-- [ ] `tests/admin-cennik.spec.ts` — FEE-7 browser half, axe clean and with `aria-invalid` rendered
-- [ ] `tests/galeria.spec.ts` — GAL-1 to GAL-6. **The project's first open-overlay axe scan, first focus-trap assertion and first `emulateMedia({ reducedMotion })` usage**
-- [ ] `tests/admin-galeria.spec.ts` — GAL-7 to GAL-9, plus the promoted GAL-10, in a `javaScriptEnabled: false` context
-- [ ] `tests/admin-walidacja-galeria.unit.ts` — GAL-8 to GAL-10
-- [ ] `tests/admin-walidacja-w-skrocie.unit.ts` — fixed arity, hours atoms, liczba miejsc
-- [ ] `tests/admin-w-skrocie.spec.ts` — read-only tiles render as text (not `disabled` inputs); axe clean
-- [ ] `tests/admin-enumeracja.spec.ts` — **RECOMMENDED NEW.** ENUM-1 and the `SCIEZKI`/`NAWIGACJA` index alignment. One file that permanently retires three silent enumeration failure modes. **See Open Question 4 below: descoping this is a checkpoint, not a default.**
+- [x] `tests/kwoty.unit.ts` — FEE-5, including the byte-identity pin against `OPLATY.kwota` (U+0020, not U+00A0)
+- [x] `tests/cennik.spec.ts` — FEE-1 to FEE-3, the rendered arithmetic assertion, and the scoped conditional-zero pair
+- [x] `tests/cennik-reader.unit.ts` — FEE-4, plus the negative-amount reader refusal
+- [x] `tests/admin-walidacja-cennik.unit.ts` — FEE-7, FEE-8; serialization pin in the shape of `admin-walidacja-nabor.unit.ts:172-190`
+- [x] `tests/admin-cennik.spec.ts` — FEE-7 browser half, axe clean and with `aria-invalid` rendered
+- [x] `tests/galeria.spec.ts` — GAL-1 to GAL-6. **The project's first open-overlay axe scan, first focus-trap assertion and first `emulateMedia({ reducedMotion })` usage**
+- [x] `tests/admin-galeria.spec.ts` — GAL-7 to GAL-9, plus the promoted GAL-10, in a `javaScriptEnabled: false` context
+- [x] `tests/admin-walidacja-galeria.unit.ts` — GAL-8 to GAL-10
+- [x] `tests/admin-walidacja-w-skrocie.unit.ts` — fixed arity, hours atoms, liczba miejsc
+- [x] `tests/admin-w-skrocie.spec.ts` — read-only tiles render as text (not `disabled` inputs); axe clean
+- [x] `tests/admin-enumeracja.spec.ts` — **RECOMMENDED NEW.** ENUM-1 and the `SCIEZKI`/`NAWIGACJA` index alignment. One file that permanently retires three silent enumeration failure modes. **See Open Question 4 below: descoping this is a checkpoint, not a default.**
 
 Extensions to existing files:
 
-- [ ] `tests/admin-polski.spec.ts` — `TRASY` from **14** to **17** routes (note: the "18 panel URLs" figure repeated in `.claude/CLAUDE.md`, `REQUIREMENTS.md`, `STATE.md` and `04.1-11-SUMMARY.md` is wrong)
-- [ ] `tests/responsive.spec.ts` — add `/cennik` to `ROUTES`; explicit nav assertions at 768px and 1024px
-- [ ] Lockstep edits: `tests/o-nas.spec.ts`, `tests/nav.spec.ts`, `tests/home.spec.ts`, `tests/admin-strony.spec.ts`, `tests/admin-walidacja-strony.unit.ts`, `tests/admin-pulpit.spec.ts`, `tests/admin-copy.unit.ts`, `tests/instrukcja.unit.ts`
+- [x] `tests/admin-polski.spec.ts` — `TRASY` from **14** to **17** routes (note: the "18 panel URLs" figure repeated in `.claude/CLAUDE.md`, `REQUIREMENTS.md`, `STATE.md` and `04.1-11-SUMMARY.md` is wrong)
+- [x] `tests/responsive.spec.ts` — add `/cennik` to `ROUTES`; explicit nav assertions at 768px and 1024px
+- [x] Lockstep edits: `tests/o-nas.spec.ts`, `tests/nav.spec.ts`, `tests/home.spec.ts`, `tests/admin-strony.spec.ts`, `tests/admin-walidacja-strony.unit.ts`, `tests/admin-pulpit.spec.ts`, `tests/admin-copy.unit.ts`, `tests/instrukcja.unit.ts`
 
 *No framework install needed. Both runners already exist.*
 
@@ -171,12 +171,53 @@ Both must appear in `05-VERIFICATION.md` in the style the project already uses f
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Every E5-only property either promoted to E1/E3/E4 or listed above as honestly unproven
-- [ ] Feedback latency: seconds for E1/E2/E5, one build for E3/E4
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Every E5-only property either promoted to E1/E3/E4 or listed above as honestly unproven
+- [x] Feedback latency: seconds for E1/E2/E5, one build for E3/E4
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Evidence for the seven boxes above, observed in the working tree on 2026-08-17 (plan 05-09,
+task 3). This block REPORTS a run; it does not assert a plan.**
+
+1. Read the `<verify>` block of every task in all nine plans of this phase. Task counts and
+   `<automated>` counts match plan for plan (2/2, 3/3, 2/2, 3/3, 3/3, 3/3, 3/3, 2/2, 3/3+1),
+   so no task lacks an automated command.
+2. Read in execution order across waves 1 to 5: since every task carries one, no three
+   consecutive tasks lack an automated verify.
+3. All thirteen files named under §"Wave 0 Requirements" exist on disk and every command named
+   for them ran in this tree: `npm run test:unit` (592 passed, 0 failed) covers every
+   `*.unit.ts`, and `npm run test` (402 passed) covers every `*.spec.ts`. `TRASY` holds
+   seventeen routes; `tests/responsive.spec.ts` carries `/cennik` and both nav-breakpoint
+   cases.
+4. No verify command anywhere in the phase puts a runner into continuous re-run mode
+   (`grep -ci watch` over every `<automated>` block in the nine plans returns `0`). The
+   `check:watch` script in `package.json` predates this phase and no plan invokes it.
+5. GAL-10 stays recorded as honestly unproven in §"Properties Proven vs Deferred", with its
+   reason, and the reason is now stronger than that section knew: its proposed browser
+   promotion is VACUOUS under this harness, because `npm run preview:test` binds
+   `PANEL_DRY_RUN=1` and no Playwright save ever deletes a file, so such an assertion would
+   pass whatever the ownership rule did. It is pinned in the E5 tier instead, plus the
+   acceptance criterion that the route has exactly one writer of the deletion array. FEE-8's
+   E2 twin (`npm run lint`) was observed green in this run.
+6. Timed in this run rather than predicted: E1 `npm run check` about 10 s over 4402 files,
+   E2 `npm run lint` seconds, E5 `npm run test:unit` 6.6 s; E3 `vite build` 4.4 s; E4
+   `npm run test` 41.5 s after that one build.
+7. Ticked after the `nyquist_compliant: true` flip above was written to this file.
+
+**One further row is honestly unproven, and it is NOT closed by the ticks above.** GAL-3's
+axe scan is green for the POPULATED gallery and for the open lightbox, and its EMPTY-gallery
+half was never exercised: doing so would mean committing an empty `galeria.json` to the
+repository, which is a change to shipped content made solely to satisfy a test. Plan 05-07
+declined to fake it and this plan does not fake it either. Evidence tier: E4 for the two
+states that exist, none for the third. It retires the first time the gallery is legitimately
+empty, or at the Phase 6 launch gate when the real consented photo set replaces the
+placeholders.
+
+A ticked sign-off means the validation STRATEGY was executed as designed. It does not mean
+GAL-3, GAL-10, the HEIC decode path (04.1 UAT row B2), the stale-save conflict panel (row B4),
+FEE-9, GAL-11 or CMS-01 to CMS-03 were retired. None of them was.
+
+**Approval:** approved 2026-08-17

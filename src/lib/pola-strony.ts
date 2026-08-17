@@ -121,6 +121,35 @@ export const POLE_ZUS = 'zus';
 export const POLE_WYZYWIENIA = 'wyzywienie';
 export const POLE_NIEOBECNOSCI = 'nieobecnosc';
 
+/** W skrócie: the four hours atoms, the number of places and its optional note
+ *  (05-UI-SPEC Contract 11). Named after the JSON keys of src/lib/content/w-skrocie.json,
+ *  the same rule the Cennik controls above follow, and load bearing for the same two
+ *  reasons: the validator constructs its result in the committed file's key ORDER, and a
+ *  byte-for-byte pin in tests/admin-walidacja-w-skrocie.unit.ts goes red if the two ever
+ *  disagree.
+ *
+ *  THE SCREEN IS FIXED ARITY, so none of these is index scoped and there is no prefix. Four
+ *  tiles, fields only, no add and no remove: a repeatable group would break the locked
+ *  `ul`/`li` semantics, the four `.fact-label` nodes and the `repeat(4, 1fr)` desktop grid
+ *  of 01-UI-SPEC Amendment v1.6 paragraf 3 in one move.
+ *
+ *  `POLE_GODZIN` above is REUSED rather than declared a second time: on a plan-dnia row it
+ *  is `wiersz[i].godziny` and here it is the bare `godziny`, so the two can never address
+ *  one another's collector, and one declaration is one spelling. */
+export const POLE_DNI_PELNYCH = 'dniPelne';
+export const POLE_DNI_SKROTU = 'dniSkrot';
+export const POLE_WEEKENDU = 'weekend';
+export const POLE_MIEJSC = 'miejsca';
+export const POLE_DOPISKU = 'dopisek';
+
+/** The TWO placeholder checkboxes of the W skrócie screen, and the first time in this
+ *  project that the flag is per tile rather than per file (05-UI-SPEC Contract 11).
+ *
+ *  `POLE_ZASTEPCZA` could not simply be reused: one screen carrying two of them would post
+ *  one name twice and the server would be unable to tell which tile the editor ticked. */
+export const POLE_ZASTEPCZA_GODZIN = 'godzinyZastepcza';
+export const POLE_ZASTEPCZA_MIEJSC = 'miejscaZastepcza';
+
 /** `name` of the remove button, whose `value` is the POSITION of the row it sits in. */
 export const POLE_INDEKSU = 'indeks';
 
@@ -371,6 +400,45 @@ export function wartosciCennika(zrodlo: ZrodloPol): WartosciCennika {
 		wyzywienie: tekst(zrodlo.get(POLE_WYZYWIENIA)),
 		nieobecnosc: tekst(zrodlo.get(POLE_NIEOBECNOSCI)),
 		zastepcza: zaznaczone(zrodlo, POLE_ZASTEPCZA)
+	};
+}
+
+/**
+ * The echo shape of the W skrócie screen (05-UI-SPEC Contract 11).
+ *
+ * ALL STRINGS, INCLUDING THE NUMBER OF PLACES, for the same reason `WartosciCennika` echoes
+ * its two amounts as strings: a value the server refused still has to be rendered back into
+ * the control that holds it, and „50abc" is not a number. Parsing here would either throw
+ * away what the editor typed or invent a number they did not.
+ *
+ * TWO BOOLEANS, NOT ONE. The placeholder flag is per tile on this screen, so a refused save
+ * has to hand BOTH checkboxes back exactly as they were ticked.
+ *
+ * The two read-only tiles (wiek dzieci, opłata) carry no member at all: they have no
+ * control, so there is nothing to echo. Their values are read from the modules that own
+ * them, on every render.
+ */
+export interface WartosciWSkrocie {
+	godziny: string;
+	dniPelne: string;
+	dniSkrot: string;
+	weekend: string;
+	godzinyZastepcza: boolean;
+	miejsca: string;
+	dopisek: string;
+	miejscaZastepcza: boolean;
+}
+
+export function wartosciWSkrocie(zrodlo: ZrodloPol): WartosciWSkrocie {
+	return {
+		godziny: tekst(zrodlo.get(POLE_GODZIN)),
+		dniPelne: tekst(zrodlo.get(POLE_DNI_PELNYCH)),
+		dniSkrot: tekst(zrodlo.get(POLE_DNI_SKROTU)),
+		weekend: tekst(zrodlo.get(POLE_WEEKENDU)),
+		godzinyZastepcza: zaznaczone(zrodlo, POLE_ZASTEPCZA_GODZIN),
+		miejsca: tekst(zrodlo.get(POLE_MIEJSC)),
+		dopisek: tekst(zrodlo.get(POLE_DOPISKU)),
+		miejscaZastepcza: zaznaczone(zrodlo, POLE_ZASTEPCZA_MIEJSC)
 	};
 }
 
