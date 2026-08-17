@@ -1,19 +1,22 @@
 <script lang="ts">
-	// „O nas" (04.1-UI-SPEC Component Contracts 5, 6, 7, 8, 9 and 10; D-11, D-13, D-15,
-	// D-17). The largest editor in the phase and the second mounting of the photo island,
-	// which is what proves it generalises: a different aspect, a different ready sentence
-	// and a different set of field names, with no second component.
+	// „O nas" (04.1-UI-SPEC Component Contracts 5, 6, 7 and 10; D-11, D-13, D-17).
+	//
+	// A TEXT-ONLY SCREEN SINCE PLAN 05-07. It used to be the largest editor in the panel and
+	// the second mounting of the photo island; the żłobek's photographs, their alt text and
+	// their ordering moved to /admin/galeria, which is the one screen that owns them now.
+	// The facility DESCRIPTION stayed here, because it is prose about the building rather
+	// than a picture of it.
 	//
 	// THE FIXED DOM ORDER OF CONTRACT 5: back link, h1, save-result region, validation
 	// summary region, required-fields note, field groups, save row. Nothing is inserted
 	// before either of the two regions that receive focus.
 	//
-	// FIELD GROUP ORDER: Wprowadzenie and Misja, Wartości, Kadra, Obiekt with its pictures,
-	// then the placeholder checkbox last. The two repeated lists are fieldsets with the
-	// legends the copy contract names; the three remaining cards have no legend, because the
-	// contract's O nas table gives none for them and inventing one would put a heading in
-	// the panel that the copy module never authored. That is the arrangement PolaWpisu.svelte
-	// already uses on the aktualność screens.
+	// FIELD GROUP ORDER: Wprowadzenie and Misja, Wartości, Kadra, O budynku, then the
+	// placeholder checkbox last. The one repeated list is a fieldset with the legend the copy
+	// contract names; the remaining cards have no legend, because the contract's O nas table
+	// gives none for them and inventing one would put a heading in the panel that the copy
+	// module never authored. That is the arrangement PolaWpisu.svelte already uses on the
+	// aktualność screens.
 	//
 	// THE FORMATTING HELP SITS UNDER THE THREE FIELDS THAT REALLY ACCEPT FORMATTING, and
 	// deliberately not under Wprowadzenie. src/routes/o-nas/+page.svelte renders misja,
@@ -21,12 +24,11 @@
 	// PLAIN TEXT, so a help panel under Wprowadzenie would promise an editor that two
 	// asterisks make bold there and they would publish the asterisks.
 	//
-	// WITHOUT JAVASCRIPT everything on this screen works except CHOOSING a picture, which is
-	// the same honest limitation Contract 8 records and the same one the dokument screen
-	// carries: the island says so itself, in Polish, inside every photo item. An item whose
-	// picture is missing is refused by the server with an instruction naming both ways out.
+	// WITHOUT JAVASCRIPT EVERYTHING ON THIS SCREEN NOW WORKS. The one honest limitation it
+	// used to carry, that choosing a picture needs scripting, left with the photo island;
+	// /admin/galeria and the dokument screen still carry it and still say so in Polish.
 	//
-	// THE FORM RESET IS TURNED OFF ON PURPOSE. All four add and remove actions answer with a
+	// THE FORM RESET IS TURNED OFF ON PURPOSE. Both add and remove actions answer with a
 	// SUCCESS result, and the enhanced default for a success is to call the form element's
 	// own reset, which restores every control to the value the document was parsed with:
 	// everything typed since the page loaded would vanish the moment an editor asked for
@@ -42,33 +44,22 @@
 	import PowrotLink from '$lib/components/admin/PowrotLink.svelte';
 	import PowtarzalnaGrupa from '$lib/components/admin/PowtarzalnaGrupa.svelte';
 	import RzedZapisu from '$lib/components/admin/RzedZapisu.svelte';
-	import ZdjecieIsland from '$lib/components/admin/ZdjecieIsland.svelte';
 	import {
 		KOPIA_EKRAN_O_NAS,
 		KOPIA_LISTY,
 		KOPIA_POWLOKA,
 		KOPIA_ZAPIS,
-		KOPIA_ZDJECIA,
 		POLA_O_NAS,
 		bladWElemencie,
 		legendaWartosci,
-		legendaZdjecia,
-		nazwaPrzeniesieniaWDol,
-		nazwaPrzeniesieniaWGore,
 		zobaczStrone
 	} from '$lib/content/panel';
 	// NOT from the validator beside the action: SvelteKit refuses to bundle $lib/server into
 	// client code, and that refusal is correct.
 	import {
 		AKCJA_DODANIA_WARTOSCI,
-		AKCJA_DODANIA_ZDJECIA,
-		AKCJA_PRZENIESIENIA_W_DOL,
-		AKCJA_PRZENIESIENIA_W_GORE,
 		AKCJA_USUNIECIA_WARTOSCI,
-		AKCJA_USUNIECIA_ZDJECIA,
 		AKCJA_ZAPISU,
-		POLE_ALTU,
-		POLE_DANYCH,
 		POLE_INDEKSU,
 		POLE_KADRY_OPIEKUNKI,
 		POLE_KADRY_OPIS,
@@ -77,18 +68,13 @@
 		POLE_MISJI,
 		POLE_OBIEKTU_OPIS,
 		POLE_OPISU,
-		POLE_PLIKU,
 		POLE_SHA,
 		POLE_TYTULU,
-		POLE_USUNIECIA,
 		POLE_ZASTEPCZA,
 		PREFIKS_WARTOSCI,
-		PREFIKS_ZDJECIA,
 		idPola,
-		idWyspyZdjecia,
 		nazwaPola
 	} from '$lib/pola-strony';
-	import { PROPORCJA_O_NAS } from '$lib/zdjecia';
 	import type { PageData } from './$types';
 	import type { WynikONasEkranu } from './+page.server';
 
@@ -142,22 +128,6 @@
 		prosto(POLE_KADRY_OPIEKUNKI, 'o-nas-kadra-opiekunki');
 		prosto(POLE_KADRY_PERSONEL, 'o-nas-kadra-personel');
 		prosto(POLE_OBIEKTU_OPIS, 'o-nas-obiekt-opis');
-
-		wartosci.zdjecia.forEach((_, indeks) => {
-			// Both picture refusals point at the file control and the description at its own
-			// field: a summary entry linking to a control that is not on the screen would
-			// announce nothing at all.
-			const wyspa = idWyspyZdjecia(indeks);
-			for (const [pole, cel] of [
-				[POLE_DANYCH, `${wyspa}-plik`],
-				[POLE_PLIKU, `${wyspa}-plik`],
-				[POLE_ALTU, `${wyspa}-alt`]
-			] as const) {
-				const komunikat = pola[nazwaPola(PREFIKS_ZDJECIA, indeks, pole)];
-				if (komunikat === undefined) continue;
-				wpisy.push({ cel, tekst: bladWElemencie(legendaZdjecia(indeks + 1), komunikat) });
-			}
-		});
 
 		return wpisy;
 	});
@@ -337,7 +307,8 @@
 		/>
 	</div>
 
-	<!-- 6d. Obiekt: the narrative, then its pictures. -->
+	<!-- 6d. O budynku: the facility narrative. The photographs of that building are edited on
+	     the Galeria screen, which is the only screen that owns them (Plan 05-07). -->
 	<div class="karta">
 		<div class="narracja">
 			<FormField
@@ -352,66 +323,6 @@
 			/>
 			<PomocFormatowania />
 		</div>
-	</div>
-
-	<!-- The photo list. `wlasnaRamka` because the island IS the item's fieldset and carries
-	     the numbered legend: two nested fieldsets would announce two groups for one
-	     picture. The island is MOUNTED here, never rewritten: the ratio, the ready sentence
-	     and all four field names arrive as props, which is exactly why Plan 07 took them as
-	     props (D-13).
-
-	     THIS IS THE ONE GROUP ON THIS SCREEN THAT OPTS INTO REORDERING (05 D-22). The
-	     wartości group above deliberately passes none of those props and must keep rendering
-	     exactly what it rendered before, which is asserted by a test that counts zero move
-	     buttons inside it. The order of facility photographs is editorial and an editor who
-	     wants a different one should not have to retype four descriptions; the order of the
-	     four wartości is not something anyone has asked to change. -->
-	<div class="grupa">
-		<PowtarzalnaGrupa
-			id={PREFIKS_ZDJECIA}
-			legenda={POLA_O_NAS.zdjeciaLegenda}
-			ile={wartosci.zdjecia.length}
-			etykietaElementu={legendaZdjecia}
-			akcjaDodania={AKCJA_DODANIA_ZDJECIA}
-			akcjaUsuniecia={AKCJA_USUNIECIA_ZDJECIA}
-			etykietaDodania={KOPIA_ZAPIS.dodajZdjecie}
-			etykietaUsuniecia={KOPIA_ZAPIS.usunZdjecie}
-			akcjaWGore={AKCJA_PRZENIESIENIA_W_GORE}
-			akcjaWDol={AKCJA_PRZENIESIENIA_W_DOL}
-			etykietaWGore={KOPIA_ZAPIS.przeniesWGore}
-			etykietaWDol={KOPIA_ZAPIS.przeniesWDol}
-			nazwaWGore={nazwaPrzeniesieniaWGore}
-			nazwaWDol={nazwaPrzeniesieniaWDol}
-			nazwaIndeksu={POLE_INDEKSU}
-			nota={KOPIA_ZAPIS.notaGrupyZKolejnoscia}
-			status={form?.statusZdjec ?? ''}
-			zadanie={form?.zadanieZdjec}
-			wlasnaRamka
-		>
-			{#snippet element(indeks)}
-				<ZdjecieIsland
-					id={idWyspyZdjecia(indeks)}
-					legenda={legendaZdjecia(indeks + 1)}
-					podpowiedz={POLA_O_NAS.zdjeciaPodpowiedz}
-					altEtykieta={POLA_O_NAS.zdjecieAltEtykieta}
-					altPodpowiedz={POLA_O_NAS.zdjecieAltPodpowiedz}
-					proporcja={PROPORCJA_O_NAS}
-					komunikatGotowe={KOPIA_ZDJECIA.gotowe43}
-					nazwaZdjecia={nazwaPola(PREFIKS_ZDJECIA, indeks, POLE_DANYCH)}
-					nazwaUsuniecia={nazwaPola(PREFIKS_ZDJECIA, indeks, POLE_USUNIECIA)}
-					nazwaObrazu={nazwaPola(PREFIKS_ZDJECIA, indeks, POLE_PLIKU)}
-					nazwaAltu={nazwaPola(PREFIKS_ZDJECIA, indeks, POLE_ALTU)}
-					obraz={wartosci.zdjecia[indeks].plik}
-					usunieto={wartosci.zdjecia[indeks].usunieto}
-					zdjecie={wartosci.zdjecia[indeks].dane}
-					alt={wartosci.zdjecia[indeks].alt}
-					blad={pola[nazwaPola(PREFIKS_ZDJECIA, indeks, POLE_DANYCH)] ??
-						pola[nazwaPola(PREFIKS_ZDJECIA, indeks, POLE_PLIKU)]}
-					bladAltu={pola[nazwaPola(PREFIKS_ZDJECIA, indeks, POLE_ALTU)]}
-					autofokus={form?.zadanieZdjec?.cel === 'element' && form.zadanieZdjec.indeks === indeks}
-				/>
-			{/snippet}
-		</PowtarzalnaGrupa>
 	</div>
 
 	<!-- 6e. The placeholder checkbox, last control of the last group (Contract 5). -->

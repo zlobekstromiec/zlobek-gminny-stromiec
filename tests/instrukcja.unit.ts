@@ -243,7 +243,9 @@ test('kazda nazwa ekranu i etykieta przycisku jest cytatem z modulu kopii', () =
 		POLA_O_NAS.kadraOpiekunkiEtykieta,
 		POLA_O_NAS.kadraPersonelEtykieta,
 		POLA_O_NAS.obiektOpisEtykieta,
-		POLA_O_NAS.zdjeciaLegenda,
+		// The O nas photo group legend was here until plan 05-07 removed that group. Its
+		// replacement is the gallery's own legend, two entries down: a lockstep edit, not a
+		// weakening, and the manual still has to quote a photo group legend verbatim.
 		KOPIA_EKRAN_GALERII.naglowek,
 		POLA_GALERIA.zdjeciaLegenda,
 		POLA_GALERIA.podpisEtykieta,
@@ -358,6 +360,28 @@ test('instrukcja tlumaczy limit galerii i jej dwa wymagane pola slowami samego p
 	assert.match(DOKUMENT, /proporcji 4:3/u);
 	// The move buttons save nothing on their own, exactly like the add and the remove.
 	assert.match(DOKUMENT, /zdjęcia niczego nie zapisuje/u);
+});
+
+// Plan 05-07. The O nas screen lost its photo half, and an editor who goes looking for it
+// there finds a screen that seems to be missing something. Sections 5 and 7 therefore have to
+// say out loud where the photographs went, and no sentence anywhere may still send somebody
+// to O nas to add one. Asserted as a rule about EVERY mention of the two screens together,
+// not about one sentence, so a paragraph added later cannot slip past by being reworded.
+test('instrukcja mowi wprost, ze zdjecia sa w Galerii, a nie na ekranie O nas', () => {
+	// Matched against the COMPACTED text, for the reason the header of this file records:
+	// prettier hard wraps at 100 characters, so a sentence long enough to matter is split
+	// across two lines in the source and reads as one sentence on the page.
+	assert.match(ZWARTY, /Na tym ekranie nie ma już zdjęć/u);
+	assert.match(ZWARTY, /Na ekranie \*\*O nas\*\* nie dodaje się już żadnych zdjęć/u);
+	// The gallery screen is named by the string the panel really renders, so an editor
+	// reading this looks for a screen that exists under that exact name.
+	assert.ok(ZWARTY.includes(KOPIA_EKRAN_GALERII.naglowek));
+	// And nothing tells anybody to add a photograph on the O nas screen any more.
+	assert.equal(
+		/(?:na|w) ekranie \*\*O nas\*\*[^.]{0,80}(?:dodaj|dodać) (?:zdjęci|nowe zdjęci)/iu.test(ZWARTY),
+		false,
+		'instrukcja wciaz kaze dodawac zdjecia na ekranie O nas'
+	);
 });
 
 // Contract 7. „Dodanie wiersza nie zapisuje" is the single most common misunderstanding

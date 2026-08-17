@@ -1,40 +1,26 @@
 import adapter from '@sveltejs/adapter-cloudflare';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
-// Section routes linked from the persistent nav/footer that are authored in a
-// later plan. The header and footer link to them from now, so the prerender
-// crawler will hit a 404 until each route lands. Tolerate 404 for exactly these
-// known-future paths and fail on any other broken link so real regressions still
-// break the build.
+// THE CRAWLER NOW ENFORCES EVERY INTERNAL LINK, WITH NO EXCEPTION LIST.
 //
-// THE GATE ON A REMOVAL IS `npm run build`, NOT A GREP. Once a path leaves this
-// array, any link to it that does not resolve fails `vite build`, which runs
-// inside Playwright's webServer and inside every Cloudflare Pages deploy. Do not
-// write an acceptance criterion that greps this file for the quoted form of a
-// removed path: the comments below name removed paths WITH quotes, so such a
-// criterion is a permanent false positive. (An earlier version of this block
-// claimed the opposite convention; it never held, and it has been deleted rather
-// than reworded.)
-const KNOWN_FUTURE_ROUTES = [
-	// '/aktualnosci' is now a real prerendered route (Plan 03-01) and the
-	// '/aktualnosci/[slug]' posts are prerendered via entries() (Plan 03-02), so
-	// the crawler enforces both the list and every post link (Pitfall 2).
-	// '/dokumenty' is now a real prerendered route (Plan 02-02), so the crawler enforces it.
-	// '/kontakt' is now a real prerendered route (Plan 04-04), so the crawler
-	// enforces the header, footer and hero „Zadzwoń do nas" links that point at it.
-	// '/rekrutacja' is now a real prerendered route (Plan 04-06) as well, so
-	// the crawler enforces the header, footer and hero links that point at it too.
-	// '/cennik' is now a real prerendered route (Plan 05-02) reached from the nav
-	// and the footer, so the crawler enforces both (Plan 05-03).
-	// '/dojazd' was never built and never will be: the footer's Dojazd shortcut
-	// points at the '/kontakt' map section instead (Amendment v1.7 §3, Plan 05-03).
-	// Every section route linked from the persistent nav now resolves.
-	// Footer v2 shortcut (UI-SPEC v1.2) still awaiting its target: plan 05-07
-	// repoints Galeria at the '/o-nas' gallery section in the commit that creates it.
-	'/galeria'
-	// '/deklaracja-dostepnosci' and '/polityka-prywatnosci' are real prerendered
-	// stubs, so the crawler enforces those footer links.
-];
+// This file used to carry, right here, an array of known-future paths and a
+// matching branch in the prerender error handler that tolerated a 404 on any of
+// them. It existed because the persistent nav and footer linked to section pages
+// that later plans would author, so the crawler hit a 404 on each of them until
+// that plan landed. Every one of those paths has since either become a real
+// prerendered route or been repointed at a section of a page that exists, and
+// plan 05-07 removed the last entry together with the array and the branch that
+// consumed it. Nothing is tolerated any more: a link that does not resolve fails
+// `vite build`, which runs inside Playwright's webServer and inside every
+// Cloudflare Pages deploy.
+//
+// That is deliberately the harder failure. A failed build leaves the previous
+// deployment live, which this project prefers over publishing a broken link.
+//
+// THE GATE HERE IS `npm run build`, NEVER A GREP. Neither the retired constant nor
+// any retired path is written out above, following the repository rule recorded at
+// 04-02: a comment explaining a removal must not make the grep enforcing that
+// removal report a permanent false positive.
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -82,11 +68,9 @@ const config = {
 			}
 		},
 		prerender: {
-			handleHttpError: ({ status, path, message }) => {
-				const known = KNOWN_FUTURE_ROUTES.some(
-					(route) => path === route || path.startsWith(route + '/')
-				);
-				if (status === 404 && known) return; // link resolves once the route is built
+			// No tolerance branch: every broken internal link fails the build. See the
+			// note at the head of this file for what stood here and why it is gone.
+			handleHttpError: ({ message }) => {
 				throw new Error(message);
 			}
 		}

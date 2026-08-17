@@ -5,7 +5,8 @@ import { FORMY_OPIEKUNKI, FORMY_PERSONELU } from '../src/lib/content/kadra';
 
 /**
  * O nas acceptance test: encodes ABOUT-01 (a parent can open /o-nas and read
- * Misja, Wartości, Plan dnia, Kadra, Nasze miejsce) plus the phase decisions
+ * Misja, Wartości, Plan dnia, Kadra and the gallery of the żłobek) plus the
+ * phase decisions
  * D-01 (section order), D-02 (collective kadra, no profiles/photos), D-03
  * (plan dnia shared verbatim with the homepage), D-04 (environment-only
  * facility images with informative alt), D-08 (narrative fields emit no block
@@ -47,7 +48,11 @@ test.describe('O nas: Phase 2 acceptance', () => {
 		await expect(page.getByRole('heading', { name: 'Nasze wartości' })).toBeVisible();
 		await expect(page.getByRole('heading', { name: 'Nasz dzień w żłobku' })).toBeVisible();
 		await expect(page.getByRole('heading', { name: 'Nasza kadra' })).toBeVisible();
-		await expect(page.getByRole('heading', { name: 'Nasze miejsce' })).toBeVisible();
+		// Section 6 is now the gallery (05-UI-SPEC Contract 1, which supersedes
+		// 02-UI-SPEC.md:107 and :109-115). The section KEEPS its position in the order; only
+		// its heading and its contents changed, and the full gallery contract lives in
+		// tests/galeria.spec.ts.
+		await expect(page.getByRole('heading', { name: 'Galeria: nasze miejsce' })).toBeVisible();
 	});
 
 	test('kadra shows a collective headcount by role, no individual profiles (D-02)', async ({
@@ -73,7 +78,12 @@ test.describe('O nas: Phase 2 acceptance', () => {
 
 	test('every facility image carries a non-empty informative alt (D-04)', async ({ page }) => {
 		await page.goto('/o-nas');
-		const imgs = page.locator('section[aria-labelledby="obiekt-heading"] img');
+		// The facility photographs moved into the gallery section (05-UI-SPEC Contract 1), so
+		// they are located through that section's OWN labelling. The heading id this section
+		// used to carry was retired with the heading it named, and its absence is asserted in
+		// tests/galeria.spec.ts rather than named here (repository rule 04-02: a comment must
+		// not make the grep enforcing a removal report a permanent false positive).
+		const imgs = page.locator('section[aria-labelledby="galeria-heading"] img');
 		const count = await imgs.count();
 		expect(count).toBeGreaterThan(0);
 		for (let i = 0; i < count; i++) {
