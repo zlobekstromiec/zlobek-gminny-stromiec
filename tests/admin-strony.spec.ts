@@ -284,9 +284,12 @@ test.describe('Powtarzalna grupa: dodawanie wiersza (kontrakt 7, P-26)', () => {
 		);
 		// Focus is in the new row's first control, so an editor can just start typing.
 		await expect(poleGodzin(page).last()).toBeFocused();
-		// AND NOTHING WAS SAVED: no success panel, and the note says so permanently.
+		// AND NOTHING WAS SAVED: no success panel, and the note says so permanently. Since
+		// this list opted into reordering (05 D-22) the note is the one that names all three
+		// actions; a screen that can be reordered but promises only that adding and removing
+		// are unsaved would be telling an editor two thirds of the truth.
 		await expect(page.locator('[data-panel="sukces"]')).toHaveCount(0);
-		await expect(page.getByText(KOPIA_ZAPIS.notaGrupy).first()).toBeVisible();
+		await expect(page.getByText(KOPIA_ZAPIS.notaGrupyZKolejnoscia).first()).toBeVisible();
 	});
 
 	// REGRESSION GUARD for a defect this plan hit and fixed. Svelte treats `autofocus` as an

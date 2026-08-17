@@ -39,12 +39,16 @@
 		POLA_PLAN_DNIA,
 		bladWElemencie,
 		legendaWiersza,
+		nazwaPrzeniesieniaWDol,
+		nazwaPrzeniesieniaWGore,
 		zobaczStrone
 	} from '$lib/content/panel';
 	// NOT from the validator beside the action: SvelteKit refuses to bundle $lib/server into
 	// client code, and that refusal is correct. The reasoning is in the module header there.
 	import {
 		AKCJA_DODANIA_WIERSZA,
+		AKCJA_PRZENIESIENIA_W_DOL,
+		AKCJA_PRZENIESIENIA_W_GORE,
 		AKCJA_USUNIECIA_WIERSZA,
 		AKCJA_ZAPISU,
 		POLE_GODZIN,
@@ -157,7 +161,14 @@
 	<p class="wymagane">{KOPIA_ZAPIS.wymaganeNota}</p>
 	<p class="uwaga">{KOPIA_EKRAN_PLANU.uwagaWspolna}</p>
 
-	<!-- 6. One field group, and it is the repeated one. -->
+	<!-- 6. One field group, and it is the repeated one.
+
+	     IT OPTS INTO REORDERING (05 D-22). A day plan is read top to bottom by a parent, so
+	     its order is its content, and an editor who put breakfast after the walk previously
+	     had to retype two whole rows to fix it. This is also the mount that exercises the
+	     `<fieldset class="element">` branch of PowtarzalnaGrupa, which the O nas photo group
+	     does not: between the two screens both branches of that split carry the button row
+	     and both are covered by a live test. -->
 	<PowtarzalnaGrupa
 		id={PREFIKS_WIERSZA}
 		legenda={POLA_PLAN_DNIA.grupaLegenda}
@@ -168,8 +179,14 @@
 		akcjaUsuniecia={AKCJA_USUNIECIA_WIERSZA}
 		etykietaDodania={KOPIA_ZAPIS.dodajWiersz}
 		etykietaUsuniecia={KOPIA_ZAPIS.usunWiersz}
+		akcjaWGore={AKCJA_PRZENIESIENIA_W_GORE}
+		akcjaWDol={AKCJA_PRZENIESIENIA_W_DOL}
+		etykietaWGore={KOPIA_ZAPIS.przeniesWGore}
+		etykietaWDol={KOPIA_ZAPIS.przeniesWDol}
+		nazwaWGore={nazwaPrzeniesieniaWGore}
+		nazwaWDol={nazwaPrzeniesieniaWDol}
 		nazwaIndeksu={POLE_INDEKSU}
-		nota={KOPIA_ZAPIS.notaGrupy}
+		nota={KOPIA_ZAPIS.notaGrupyZKolejnoscia}
 		status={form?.status ?? ''}
 		zadanie={form?.zadanie}
 	>
