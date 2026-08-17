@@ -454,7 +454,7 @@ Rest: 0 3px 0 accent-active. Hover: accent-hover fill, translateY(-2px), 0 5px 0
 Reusable aria-hidden SVG (viewBox 0 0 1440 60, height 44px), props fill/bg. Exactly two uses: warm-to-accent above Perks, white-to-brand-blue at the top of the footer (rendered inside Footer.svelte, so on band-colored pages a white seam precedes it: accepted).
 
 ### 6. New/updated component contracts
-- **KeyFacts v2**: 46px tint icon chips (radius-md, brand-blue stroke, white duotone fill) supersede the v1.1 expressive left borders; plain list semantics (ul/li: axe's definition-list rule forbids the chip/text wrapper divs a dl layout needs); facts: 10 mies. – 3 lata / 6:30–16:30 / 400 zł + wyżywienie 14 zł/dzień / 50 miejsc (all PLACEHOLDER).
+- **KeyFacts v2**: 46px tint icon chips (radius-md, brand-blue stroke, white duotone fill) supersede the v1.1 expressive left borders; plain list semantics (ul/li: axe's definition-list rule forbids the chip/text wrapper divs a dl layout needs); facts: 10 mies. – 3 lata / 6:30–16:30 / 50 miejsc (all PLACEHOLDER), plus the two fee strings STRUCK v1.7: „400 zł + wyżywienie 14 zł/dzień" (stale draft copy, dead; the live values are defined by Amendment v1.7 §2 and by `05-UI-SPEC.md` Contract 4).
 - **Perks** (new): accent band, centered ink h2 "Dlaczego rodzice nas wybierają?", 4 white cards (radius-lg, hard shadow 0 5px 0 rgb(15 23 42 / 0.12), NO hover transform), bespoke icon chips, titles ink Baloo 700 20px, body muted 15px.
 - **Recruitment v2**: FOUR steps (34px brand-blue circles); tint-yellow info card (2px accent border, radius-md) between intro and steps; docs panel with SIX rows (meta "PDF" until real files); step 2 e-mail stays plain text, never a mailto.
 - **DayPlan** (new): centered tint-blue panel (max-width 44rem, radius-lg) on white, h2 "Nasz dzień w żłobku", 7 rows: time Baloo 700 19px accent-active (min-width 104px), dashed separators, activity ink 15px. Placement: after Recruitment, before AboutTeaser (keeps surface alternation).
@@ -468,7 +468,7 @@ Reusable aria-hidden SVG (viewBox 0 0 1440 60, height 44px), props fill/bg. Exac
 No emoji. No em dashes in authored copy or comments; use commas, colons, parentheses. En dash only inside numeric ranges (6:30–16:30, 7:00–15:00, 10 mies. – 3 lata); day abbreviations use plain hyphen (pon.-pt.). The verbatim client core message is byte-exempt (its em dash and typographic quotes stay).
 
 ### 9. Facts register update (all PLACEHOLDER until written client confirmation)
-Age corrected: 10 mies. – 3 lata (the previous "20 tyg. – 3 lata" was WRONGLY marked statutory-final; a żłobek statute sets its own minimum). New: address ul. Radomska 5, 26-804 Stromiec; tel 48 619 10 25; 50 miejsc; opłata 400 zł/mies; wyżywienie 14 zł/dzień; sekretariat pon.-pt. 7:00–15:00; day-plan schedule; OSM coords 51.64222/21.09111. FINAL: zlobek@ugstromiec.pl, verbatim core message. Bank-only (never ship without consent): director name. `openingBanner` flag banked in site.ts (when used: accent bg + ink text, never danger, which stays semantic-only).
+Age corrected: 10 mies. – 3 lata (the previous "20 tyg. – 3 lata" was WRONGLY marked statutory-final; a żłobek statute sets its own minimum). New: address ul. Radomska 5, 26-804 Stromiec; tel 48 619 10 25; 50 miejsc; STRUCK v1.7: „opłata 400 zł/mies; wyżywienie 14 zł/dzień" (stale draft copy, dead; the live values are defined by Amendment v1.7 §2 and by `05-UI-SPEC.md` Contract 4); sekretariat pon.-pt. 7:00–15:00; day-plan schedule; OSM coords 51.64222/21.09111. FINAL: zlobek@ugstromiec.pl, verbatim core message. Bank-only (never ship without consent): director name. `openingBanner` flag banked in site.ts (when used: accent bg + ink text, never danger, which stays semantic-only).
 
 ---
 
@@ -546,3 +546,90 @@ KeyFacts note on its own line below the value; DayPlan h2 and intro above the pa
 
 ### 12. Test lockstep
 `tests/responsive.spec.ts` extends to 1920x1080 and to all six public routes at 1280 and 1920 (no-horizontal-overflow), plus two composition guards (the /rekrutacja form rail sits right of the info column; the DayPlan panel sits right of its heading). No acceptance assertion is weakened.
+
+---
+
+## Amendment v1.7 (2026-08-17): Galeria i Cennik
+
+> The Phase 1 contract and Amendments v1.1, v1.2, v1.3, v1.4, v1.5 and v1.6 stay in force
+> in full except where this amendment supersedes them. **Nothing here introduces a new
+> colour value, a new font, a new font weight, a new type size or a new breakpoint token.**
+> Every value it relies on already exists in `src/app.css` or in an approved amendment.
+> **The full component contracts live in `.planning/phases/05-gallery-fees/05-UI-SPEC.md`**
+> (gallery section on `/o-nas`, lightbox island, `/cennik` composition, the fee block and
+> its conditional zero, the amount formatter, navigation v3, KeyFacts v4 and the three new
+> editorial-panel screens). This section points at that document on purpose and does not
+> restate it. Supersedes exactly: `:169` and `:171` (Header contract), `:261` (Copywriting
+> Contract nav row), `:457` (v1.2 §6, KeyFacts fee strings) and `:471` (v1.2 §9, Facts
+> register fee strings). The footer „Na skróty" column at `:462` is compatible and is NOT
+> superseded. Every other line of this file, and every WCAG invariant of the Accessibility
+> Contract, stands.
+
+### 1. Public navigation v3: six items
+
+Supersedes `:169` „Links (5, Polish)" and the Copywriting Contract nav row at `:261`.
+Order: Aktualności, O nas, Rekrutacja, Cennik, Dokumenty, Kontakt. Cennik sits after
+Rekrutacja because cost is part of the enrolment decision (05 D-16). Galeria is **not** a
+nav destination: the gallery is a section of `/o-nas` reached at `#galeria` (05 D-19).
+
+Also supersedes `:171` „Mobile (<`md`)". **The desktop nav's breakpoint moves from 768px to
+1024px.** Below 1024px the inherited hamburger drawer serves and it carries the new Cennik
+item. At 1024px and above all six chips render, with the chip padding, the gap, the 14px/700
+label, the 44px minimum hit target and the hover and `aria-current` treatment **all
+unchanged**. Reason: a sixth chip does not fit at 768px beside a 52px emblem and a two-line
+wordmark without either tightening the chip padding below the locked 44px-target geometry or
+hiding part of the brand lockup. Moving one breakpoint costs a tablet user one extra tap;
+changing the chip geometry would break a locked contract on every route. Amendment v1.6
+already treats 1024px as the desktop tier, so no new breakpoint token appears here.
+
+### 2. Fee figures superseded and struck
+
+Supersedes `:457` (v1.2 §6, KeyFacts v2) and `:471` (v1.2 §9, Facts register). Both lines
+carried stale draft fee figures that were never struck when the shipped values changed, and
+both are now marked **in place** with the literal `STRUCK v1.7:` so a reader who lands on
+either line sees the old value together with the fact that it is dead. The original strings
+stay visible deliberately: deleting them would leave a later reader unable to tell a
+corrected figure from a figure that was never recorded. The live values come from the cennik
+store built in Phase 5 plan 05-02 and are named in `05-UI-SPEC.md` Contracts 3, 4 and 7
+(05 D-02, 05 D-03). No amount is restated here, so this file stops being a source of fee
+copy altogether.
+
+### 3. Footer „Na skróty" repoints
+
+`:462` enumerates that column by LABEL, not by href, so the repoint is compatible with it
+and `:462` is not superseded. Galeria points at `/o-nas#galeria`, Dojazd points at
+`/kontakt#dojazd`, and Cennik resolves for the first time (05 D-17, 05 D-19). `#dojazd` must
+exist on `/kontakt` before the footer points at it, with the same `scroll-margin-top` and
+`tabindex="-1"` treatment as `#galeria`: a repointed link that lands nowhere is worse than
+the 404 it replaced. `KNOWN_FUTURE_ROUTES` in `svelte.config.js` is emptied across plans
+05-03 and 05-07 (05 D-18).
+
+### 4. KeyFacts v4: same visuals, stored values
+
+`:521` (Amendment v1.6 §3, KeyFacts v3) stays in force verbatim: `ul`/`li` semantics, the
+`aria-label`, the four `.fact-label` nodes, the 46px tint chips, the note on its own line,
+the 4/2/1 column grid and `repeat(4, 1fr)` at 1024px and above. **Only the SOURCE of the
+four strings changes**, and only two of the four tiles become editor-writable: Godziny
+otwarcia and Liczba miejsc. Wiek dzieci stays code-authored, because the same range is
+stated twice on the homepage in two phrasings and both are statutory facts, not
+placeholders. Opłata miesięczna is computed from the cennik store, so no editor input can
+separate the amount from its ZUS condition (05 D-32, 05 D-33). Contract 7 of
+`05-UI-SPEC.md` holds the tile table and the implementation rules that travel with the
+store.
+
+### 5. Phase 5 marking and risk posture
+
+- **This phase does not tick CMS-01, CMS-02 or CMS-03** (05 D-36). They are unticked and
+  retargeted to Phase 04.1, and only the 04.1 UAT closes them. A Phase 5 artifact that
+  implies otherwise is wrong.
+- **The phase proceeds against a formally open dependency by explicit user decision**
+  (05 D-37, 2026-08-17). The deciding fact is a missing input, not an appetite for risk:
+  there is no live photography from the żłobek yet, so 04.1 UAT row B2 cannot be honestly
+  closed with a placeholder and waiting would stall the phase without retiring anything.
+- **Two named deferrals are carried, not dissolved:** the HEIC decode path (04.1 UAT row
+  B2) and the stale-save conflict panel (04.1 UAT row B4). Both are carried to the Phase 6
+  launch gate, which already receives the real consented photo set and runs the placeholder
+  sweep.
+- **Nothing in this phase's own acceptance evidence may require real photography.** The
+  gallery is demonstrable end to end with placeholder images on the formats the panel
+  already accepts.
