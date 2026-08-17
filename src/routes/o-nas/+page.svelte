@@ -22,21 +22,19 @@
 	import { odmienRzeczownik } from '$lib/liczebniki';
 	import { FORMY_OPIEKUNKI, FORMY_PERSONELU } from '$lib/content/kadra';
 	import onas from '$lib/content/o-nas.json';
+	import { bazowaNazwa, wedlugBazowejNazwy } from '$lib/zdjecia-nazwy';
 
 	// Statically-analyzable glob: keys are absolute file paths, values are processed
-	// enhanced-img Picture objects. Map by final path segment (basename) for lookup.
+	// enhanced-img Picture objects. Vite analyses this call site, so the glob stays here and
+	// only its RESULT is handed to the shared by-basename mapper ($lib/zdjecia-nazwy).
 	const uploads = import.meta.glob<Picture>('$lib/assets/uploads/*.{jpg,jpeg,png,webp}', {
 		query: { enhanced: true },
 		eager: true,
 		import: 'default'
 	});
-	const byName: Record<string, Picture> = {};
-	for (const [path, mod] of Object.entries(uploads)) {
-		const base = path.split('/').pop();
-		if (base) byName[base] = mod;
-	}
+	const byName = wedlugBazowejNazwy(uploads);
 	const facility = onas.obiekt_zdjecia
-		.map((item) => ({ alt: item.alt, pic: byName[item.plik.split('/').pop() ?? item.plik] }))
+		.map((item) => ({ alt: item.alt, pic: byName[bazowaNazwa(item.plik)] }))
 		.filter((item): item is { alt: string; pic: Picture } => Boolean(item.pic));
 
 	// D-08: inline render only (single paragraph, bold + links), sanitized by the

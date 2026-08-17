@@ -62,6 +62,37 @@ export const POLE_DANYCH = 'dane';
  *  whole item, and the two cannot share a field. */
 export const POLE_USUNIECIA = 'usun';
 
+/** Galeria: one gallery photo (05-UI-SPEC Contract 8, 05 D-25). FIVE names per item, which is
+ *  the o nas photo's four plus the visible caption.
+ *
+ *  A PREFIX OF ITS OWN, not `PREFIKS_ZDJECIA` above, even though the two screens post the same
+ *  four remaining keys. The gallery is a different list in a different file with a different
+ *  validator, and sharing the prefix would mean one hand-built request could address either
+ *  screen's collector with the other's field names. `plik`, `alt`, `dane` and `usun` ARE reused
+ *  as the per-field halves, because index-scoped names are already namespaced by the prefix and
+ *  the photo island derives its controls from them. */
+export const PREFIKS_ZDJECIA_GALERII = 'galeria';
+/** The visible caption: the short room name shown under the picture on the public page. Not
+ *  the alt, and never the same string: the alt describes what is IN the photograph. */
+export const POLE_PODPISU = 'podpis';
+
+/**
+ * Editorial upper bound on the gallery (05 D-23).
+ *
+ * NOT THE WORK BOUND declared further down beside the collector, and the difference is the
+ * whole reason both exist. (That one is described here rather than named, following the
+ * repository rule recorded at 04-02: a comment explaining a constraint must not make the grep
+ * enforcing it report a permanent false positive.) The work bound exists because the collector
+ * reads a fixed number of indices whatever arrives, so it costs the same to read index 900 as
+ * index 3, and it stays at its current value for every group including this one. THIS number
+ * is a NEW EDITORIAL rule about what the żłobek publishes: nine good photographs sell the
+ * żłobek better than forty random ones, and twelve is a three by three grid plus one spare row.
+ *
+ * The screen hides the add button at the limit, which is an affordance. THIS number is
+ * enforced on the server, which is the gate.
+ */
+export const MAKS_ZDJEC_GALERII = 12;
+
 /** O nas: the singleton fields, named after the JSON keys they are stored as so a reader
  *  comparing a control to the committed file needs no translation table. */
 export const POLE_LEAD = 'lead';
@@ -142,6 +173,13 @@ export function idPola(prefiks: string, indeks: number, pole: string): string {
  *  either without the page guessing at the island's internals. */
 export function idWyspyZdjecia(indeks: number): string {
 	return `${PREFIKS_ZDJECIA}-${indeks}`;
+}
+
+/** The same, for the gallery island. A function of its own rather than a parameter on the one
+ *  above, so the two screens cannot mint the same DOM id and so a validation summary can never
+ *  link into the wrong screen's control. */
+export function idWyspyGalerii(indeks: number): string {
+	return `${PREFIKS_ZDJECIA_GALERII}-${indeks}`;
 }
 
 /**
@@ -271,6 +309,45 @@ export function wartosciONas(zrodlo: ZrodloPol): WartosciONas {
 			POLE_USUNIECIA
 		]).map((zdjecie) => ({
 			plik: tekst(zdjecie[POLE_PLIKU]),
+			alt: tekst(zdjecie[POLE_ALTU]),
+			dane: tekst(zdjecie[POLE_DANYCH]),
+			usunieto: tekst(zdjecie[POLE_USUNIECIA]).length > 0
+		})),
+		zastepcza: zaznaczone(zrodlo, POLE_ZASTEPCZA)
+	};
+}
+
+/** One gallery photo, same contract as `ZdjecieEcha` plus the visible caption.
+ *
+ *  A SEPARATE INTERFACE rather than `ZdjecieEcha` widened with one member, which is the answer
+ *  05-VALIDATION.md's open question 3 recommends: two independent shapes are cheaper than one
+ *  shape that has to satisfy two screens' validators and two key-order oracles, and the o nas
+ *  echo is left byte-identical so that screen stays out of this plan's blast radius. */
+export interface ZdjecieGaleriiEcha {
+	plik: string;
+	podpis: string;
+	alt: string;
+	dane: string;
+	usunieto: boolean;
+}
+
+/** The echo shape of the Galeria screen (05-UI-SPEC Contract 8). */
+export interface WartosciGalerii {
+	zdjecia: ZdjecieGaleriiEcha[];
+	zastepcza: boolean;
+}
+
+export function wartosciGalerii(zrodlo: ZrodloPol): WartosciGalerii {
+	return {
+		zdjecia: zbierzIndeksowane(zrodlo, PREFIKS_ZDJECIA_GALERII, [
+			POLE_PLIKU,
+			POLE_PODPISU,
+			POLE_ALTU,
+			POLE_DANYCH,
+			POLE_USUNIECIA
+		]).map((zdjecie) => ({
+			plik: tekst(zdjecie[POLE_PLIKU]),
+			podpis: tekst(zdjecie[POLE_PODPISU]),
 			alt: tekst(zdjecie[POLE_ALTU]),
 			dane: tekst(zdjecie[POLE_DANYCH]),
 			usunieto: tekst(zdjecie[POLE_USUNIECIA]).length > 0

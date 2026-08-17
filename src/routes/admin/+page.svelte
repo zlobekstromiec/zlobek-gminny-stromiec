@@ -7,10 +7,13 @@
 	// or a current state on the three where one exists.
 	//
 	// THE CARDS ARE WRITTEN OUT, not looped over a list. A loop would need a list of
-	// objects pairing a label with a path with an optional value, and the three cards that
-	// carry a value each carry a DIFFERENT KIND of value: two counts and one state
+	// objects pairing a label with a path with an optional value, and the four cards that
+	// carry a value each carry a DIFFERENT KIND of value: three counts and one state
 	// sentence. Written out, each card names its own destination beside its own words and
 	// a reader can check any single one of them without holding the others in mind.
+	//
+	// GALERIA IS THE ONLY CARD THIS PHASE ADDS A COUNTER TO (05-UI-SPEC Contract 12), and its
+	// number comes from the reader that feeds the Galeria screen itself.
 	//
 	// CENNIK DELIBERATELY CARRIES NO STATE LINE (05-UI-SPEC Contract 12). A fee amount
 	// rendered here would be a third place the same number has to stay correct, and this
@@ -20,7 +23,13 @@
 	// the two counts and the state sentence are built by that module's own functions, so
 	// no page ever concatenates copy inline.
 	import KafelPulpitu from '$lib/components/admin/KafelPulpitu.svelte';
-	import { KOPIA_PULPIT, liczbaDokumentow, liczbaWpisow, obecnieNabor } from '$lib/content/panel';
+	import {
+		KOPIA_PULPIT,
+		liczbaDokumentow,
+		liczbaWpisow,
+		liczbaZdjec,
+		obecnieNabor
+	} from '$lib/content/panel';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -39,6 +48,12 @@
 		stan={liczbaWpisow(data.liczbaWpisow)}
 	/>
 	<KafelPulpitu cel="/admin/o-nas" tytul={KOPIA_PULPIT.oNasTytul} opis={KOPIA_PULPIT.oNasOpis} />
+	<KafelPulpitu
+		cel="/admin/galeria"
+		tytul={KOPIA_PULPIT.galeriaTytul}
+		opis={KOPIA_PULPIT.galeriaOpis}
+		stan={liczbaZdjec(data.liczbaZdjec)}
+	/>
 	<KafelPulpitu
 		cel="/admin/plan-dnia"
 		tytul={KOPIA_PULPIT.planDniaTytul}

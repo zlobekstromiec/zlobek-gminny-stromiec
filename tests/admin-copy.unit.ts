@@ -19,6 +19,7 @@ import {
 	KOPIA_CENNIK,
 	KOPIA_FORMATOWANIE,
 	KOPIA_EKRAN_DOKUMENTU,
+	KOPIA_EKRAN_GALERII,
 	KOPIA_EKRAN_O_NAS,
 	KOPIA_EKRAN_PLANU,
 	KOPIA_EKRAN_WPISU,
@@ -39,6 +40,7 @@ import {
 	POLA_CENNIK,
 	POLA_DATA,
 	POLA_DOKUMENT,
+	POLA_GALERIA,
 	POLA_O_NAS,
 	POLA_PLAN_DNIA,
 	POLA_WPIS,
@@ -49,6 +51,7 @@ import {
 	legendaZdjecia,
 	liczbaDokumentow,
 	liczbaWpisow,
+	liczbaZdjec,
 	metaDokumentu,
 	nazwaPrzeniesieniaWDol,
 	nazwaPrzeniesieniaWGore,
@@ -62,6 +65,7 @@ import {
 	opisZmianyDokumentu,
 	opisZmianyWpisu,
 	przeniesionoWiersz,
+	przeniesionoZdjecie,
 	tekstZaDlugi,
 	trescUsunieciaDokumentu,
 	trescUsunieciaWpisu,
@@ -117,11 +121,13 @@ const EKSPORTY: unknown[] = [
 	KOPIA_EKRAN_WPISU,
 	KOPIA_EKRAN_DOKUMENTU,
 	KOPIA_EKRAN_O_NAS,
+	KOPIA_EKRAN_GALERII,
 	KOPIA_EKRAN_PLANU,
 	KOPIA_CENNIK,
 	POLA_DATA,
 	POLA_WPIS,
 	POLA_O_NAS,
+	POLA_GALERIA,
 	POLA_PLAN_DNIA,
 	POLA_DOKUMENT,
 	POLA_CENNIK,
@@ -137,6 +143,7 @@ const EKSPORTY: unknown[] = [
 	wyslanoKodNa(ADRES_PRZYKLADOWY),
 	liczbaWpisow(2),
 	liczbaDokumentow(3),
+	liczbaZdjec(9),
 	[obecnieNabor(true), obecnieNabor(false)],
 	ukryteWpis('Wielkie otwarcie żłobka'),
 	ukryteDokument('Statut żłobka'),
@@ -149,6 +156,7 @@ const EKSPORTY: unknown[] = [
 	dodanoWiersz(4),
 	usunietoWiersz(2),
 	przeniesionoWiersz(3, 2),
+	przeniesionoZdjecie(3, 2),
 	legendaWartosci(1),
 	legendaWiersza(3),
 	legendaZdjecia(2),
@@ -231,15 +239,25 @@ test('lista zamiatanych eksportow obejmuje wszystkie eksporty modulu', () => {
 	assert.equal(EKSPORTY.length, Object.keys(panel).length);
 });
 
-// 05-UI-SPEC Contract 12: Cennik sits after Plan dnia and before Dokumenty, and Nabór and
-// Pomoc keep their tail position. The order is asserted rather than the count alone,
-// because a chip inserted in the wrong place still gives the right number of chips while
-// pairing every label after it with somebody else's path (src/lib/sciezki-panelu.ts pairs
-// the two lists BY POSITION).
-test('nawigacja wymienia osiem sekcji panelu w ustalonej kolejnosci', () => {
+// 05-UI-SPEC Contract 12: Galeria sits directly after O nas because that is the page it
+// renders on, Cennik sits after Plan dnia and before Dokumenty, and Nabór and Pomoc keep their
+// tail position. The order is asserted rather than the count alone, because a chip inserted in
+// the wrong place still gives the right number of chips while pairing every label after it
+// with somebody else's path (src/lib/sciezki-panelu.ts pairs the two lists BY POSITION).
+test('nawigacja wymienia dziewiec sekcji panelu w ustalonej kolejnosci', () => {
 	assert.deepEqual(
 		[...NAWIGACJA],
-		['Pulpit', 'Aktualności', 'O nas', 'Plan dnia', 'Cennik', 'Dokumenty', 'Nabór', 'Pomoc']
+		[
+			'Pulpit',
+			'Aktualności',
+			'O nas',
+			'Galeria',
+			'Plan dnia',
+			'Cennik',
+			'Dokumenty',
+			'Nabór',
+			'Pomoc'
+		]
 	);
 });
 

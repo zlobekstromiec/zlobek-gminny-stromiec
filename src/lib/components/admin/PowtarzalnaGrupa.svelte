@@ -43,6 +43,13 @@
 	// radius. The wartości group on the O nas screen is deliberately left opted out and is
 	// the live subject of a regression test that counts ZERO move buttons inside it.
 	//
+	// THE CAP AND THE EMPTY-STATE SENTENCE ARE OPT-IN ON EXACTLY THE SAME TERMS (05-UI-SPEC
+	// Contract 9, 05 D-23). Three more props, all unset by default, all rendering nothing when
+	// they are absent. Only the gallery of plan 05-06 passes them, and the cap it passes is an
+	// EDITORIAL bound on what the żłobek publishes, not the work bound MAKS_ELEMENTOW that
+	// bounds every group including this one. What the cap does here is stop rendering the add
+	// button; it does not and cannot decide whether a save is accepted, which the server does.
+	//
 	// DRAGGING IS STILL OUT OF SCOPE, in every list that uses this component. It carries its
 	// own accessibility bar (a pointer gesture with no keyboard equivalent is a WCAG 2.1.1
 	// failure unless a second mechanism is built anyway) and it has no no-scripting path at
@@ -80,6 +87,9 @@
 		etykietaWDol,
 		nazwaWGore,
 		nazwaWDol,
+		limit,
+		komunikatLimitu,
+		notaPusta,
 		element
 	}: {
 		/** Prefix every item's wrapper derives its own id from. */
@@ -128,9 +138,30 @@
 		 *  is: the Polish stays where the sweep can reach it. */
 		nazwaWGore?: (legenda: string) => string;
 		nazwaWDol?: (legenda: string) => string;
+		/** Editorial upper bound on the number of items (05-UI-SPEC Contract 9, 05 D-23). Unset
+		 *  by default, exactly like the six reorder props above and for the same reason: three
+		 *  of this component's four mounts must keep rendering what they rendered before.
+		 *
+		 *  THE BUTTON'S DISAPPEARANCE IS AN AFFORDANCE AND NOT THE GATE. A submission carrying
+		 *  more than the limit is refused on the SERVER regardless of what this page rendered,
+		 *  which is the only version of the rule that survives scripting being switched off or
+		 *  a hand-built request. Hiding the control here is what stops an editor from filling
+		 *  in a thirteenth item and only then being told it cannot be saved. */
+		limit?: number;
+		/** What takes the add button's place at the limit. Passed with `limit` or not at all:
+		 *  a limit with no message would remove the control and explain nothing. */
+		komunikatLimitu?: string;
+		/** What the group says when it holds no items at all. Unset by default, so a mount that
+		 *  does not pass it renders exactly today's markup. A repeated group with nothing in it
+		 *  and no sentence reads as a screen that failed to load. */
+		notaPusta?: string;
 		/** Renders the controls of item `indeks`. */
 		element: Snippet<[number]>;
 	} = $props();
+
+	/** True once the editorial bound is reached. A mount that passes no limit can never enter
+	 *  this state, which is what keeps „absent means unchanged" true for the other three. */
+	const naLimicie = $derived(limit !== undefined && ile >= limit);
 
 	/** All six reorder props, or nothing at all. Collapsed into one value so the markup has
 	 *  a single question to ask and so a HALF-configured mount is inexpressible: passing the
@@ -272,6 +303,10 @@
 		<p id="{id}-hint" class="podpowiedz">{podpowiedz}</p>
 	{/if}
 
+	{#if ile === 0 && notaPusta}
+		<p class="nota-pusta">{notaPusta}</p>
+	{/if}
+
 	<div class="lista">
 		{#each indeksy as indeks (indeks)}
 			{#if wlasnaRamka}
@@ -320,11 +355,20 @@
 	     the failure this one sentence prevents. -->
 	<p class="nota">{nota}</p>
 
+	<!-- At the editorial limit the add button is not rendered at all and the message takes its
+	     place. Not a disabled button: a control an editor may never use again in this session
+	     is not the same thing as one that is momentarily unavailable, and „Dodaj zdjęcie"
+	     greyed out with no explanation is the panel looking broken. The removal is an
+	     affordance and never the gate; see the `limit` prop. -->
 	<div class="dodaj" bind:this={przyciskDodania}>
-		<Przycisk wariant="secondary" formaction={akcjaDodania} autofokus={zadanie?.cel === 'dodaj'}>
-			<Plus size={18} aria-hidden="true" focusable="false" />
-			<span>{etykietaDodania}</span>
-		</Przycisk>
+		{#if naLimicie && komunikatLimitu}
+			<p class="limit">{komunikatLimitu}</p>
+		{:else}
+			<Przycisk wariant="secondary" formaction={akcjaDodania} autofokus={zadanie?.cel === 'dodaj'}>
+				<Plus size={18} aria-hidden="true" focusable="false" />
+				<span>{etykietaDodania}</span>
+			</Przycisk>
+		{/if}
 	</div>
 </fieldset>
 
@@ -463,5 +507,19 @@
 
 	.dodaj {
 		display: flex;
+	}
+
+	/* The empty-state sentence and the cap message are the same kind of thing as the standing
+	   note above the add button: quiet, explanatory, never coloured as an error, because
+	   neither one is a failure. */
+	.nota-pusta,
+	.limit {
+		margin: 0;
+		max-width: 65ch;
+		font-family: var(--font-body);
+		font-size: 15px;
+		font-weight: 400;
+		line-height: 1.5;
+		color: var(--color-muted);
 	}
 </style>

@@ -1,0 +1,15 @@
+{
+	"placeholder": true,
+	"zdjecia": [
+		{
+			"plik": "sala-zabaw.jpg",
+			"podpis": "Sala zabaw",
+			"alt": "Sala zabaw z kolorowymi zabawkami"
+		},
+		{
+			"plik": "plac-zabaw.jpg",
+			"podpis": "Plac zabaw",
+			"alt": "Plac zabaw przed budynkiem żłobka"
+		}
+	]
+}

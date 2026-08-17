@@ -28,6 +28,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
 	KOPIA_CENNIK,
+	KOPIA_EKRAN_GALERII,
 	KOPIA_FORMATOWANIE,
 	KOPIA_LISTY,
 	KOPIA_LOGOWANIE,
@@ -42,6 +43,7 @@ import {
 	KOPIA_ZDJECIA,
 	POLA_CENNIK,
 	POLA_DOKUMENT,
+	POLA_GALERIA,
 	POLA_O_NAS,
 	POLA_PLAN_DNIA,
 	POLA_WPIS
@@ -124,6 +126,11 @@ test('instrukcja ma sekcje dla kazdego wymaganego tematu', () => {
 		['dodanie wpisu', /^\d+\.\s+Dodanie wpisu/u],
 		['dodanie zdjecia z opisem alternatywnym', /^\d+\.\s+Dodanie zdjęcia z opisem alternatywnym$/u],
 		['dokumenty', /^\d+\.\s+Dokumenty$/u],
+		// 05-UI-SPEC Contract 12: the Galeria screen is new in phase 05 and the manual owes it a
+		// section of its own, placed to mirror the panel navigation (directly after O nas).
+		// Written in the same numbered-heading form as every entry here, so a renumbering of the
+		// document does not turn this red for a reason that has nothing to do with coverage.
+		['galeria', /^\d+\.\s+Galeria$/u],
 		['plan dnia', /^\d+\.\s+Plan dnia$/u],
 		// 05-UI-SPEC Contract 12: the screen is new in phase 05 and the manual owes it a
 		// section of its own, placed to mirror the panel navigation. Written in the same
@@ -141,7 +148,7 @@ test('instrukcja ma sekcje dla kazdego wymaganego tematu', () => {
 			`brak sekcji: ${temat}`
 		);
 	}
-	assert.ok(naglowki.length >= 11);
+	assert.ok(naglowki.length >= 12);
 });
 
 // The document is rendered into a page that already owns an h1, so the heading structure
@@ -176,6 +183,7 @@ test('kazda nazwa ekranu i etykieta przycisku jest cytatem z modulu kopii', () =
 		KOPIA_PULPIT.naglowek,
 		KOPIA_PULPIT.aktualnosciTytul,
 		KOPIA_PULPIT.oNasTytul,
+		KOPIA_PULPIT.galeriaTytul,
 		KOPIA_PULPIT.planDniaTytul,
 		KOPIA_PULPIT.cennikTytul,
 		KOPIA_PULPIT.dokumentyTytul,
@@ -200,6 +208,8 @@ test('kazda nazwa ekranu i etykieta przycisku jest cytatem z modulu kopii', () =
 		KOPIA_ZAPIS.usunWartosc,
 		KOPIA_ZAPIS.dodajZdjecie,
 		KOPIA_ZAPIS.usunZdjecie,
+		KOPIA_ZAPIS.przeniesWGore,
+		KOPIA_ZAPIS.przeniesWDol,
 		KOPIA_WALIDACJA.podsumowanieNaglowek,
 		KOPIA_WALIDACJA.altBrak,
 		KOPIA_USUWANIE.wpisNaglowek,
@@ -234,6 +244,10 @@ test('kazda nazwa ekranu i etykieta przycisku jest cytatem z modulu kopii', () =
 		POLA_O_NAS.kadraPersonelEtykieta,
 		POLA_O_NAS.obiektOpisEtykieta,
 		POLA_O_NAS.zdjeciaLegenda,
+		KOPIA_EKRAN_GALERII.naglowek,
+		POLA_GALERIA.zdjeciaLegenda,
+		POLA_GALERIA.podpisEtykieta,
+		POLA_GALERIA.altEtykieta,
 		POLA_PLAN_DNIA.godzinyEtykieta,
 		POLA_PLAN_DNIA.opisEtykieta,
 		KOPIA_CENNIK.naglowek,
@@ -321,6 +335,29 @@ test('instrukcja tlumaczy trzy odmowy cennika slowami samego panelu', () => {
 		ZWARTY.includes(KOPIA_CENNIK.obliczonaPodpowiedz),
 		'brak wyjaśnienia, że kwota do zapłaty zmienia się dopiero po zapisaniu'
 	);
+});
+
+// 05 D-23 and D-25. The Galeria screen adds one required field, one hard limit and one
+// reorder control that an editor cannot guess from the screen alone, so the manual quotes the
+// panel's own sentences rather than paraphrasing them. The cap in particular has to be said
+// out loud: an add button that has silently disappeared reads as a fault.
+test('instrukcja tlumaczy limit galerii i jej dwa wymagane pola slowami samego panelu', () => {
+	assert.ok(
+		ZWARTY.includes(KOPIA_EKRAN_GALERII.limitOsiagniety),
+		'brak dosłownego komunikatu o limicie zdjęć'
+	);
+	assert.ok(ZWARTY.includes(KOPIA_WALIDACJA.podpisBrak), 'brak dosłownej odmowy o podpisie');
+	assert.ok(
+		ZWARTY.includes(KOPIA_WALIDACJA.zdjecieGaleriiBrak),
+		'brak dosłownej odmowy o pozycji bez zdjęcia'
+	);
+	// The caption and the alt are two different things, and an editor who thinks they are one
+	// writes the room name twice and leaves the gallery unusable for a screen reader.
+	assert.match(DOKUMENT, /podpis nazywa miejsce/u);
+	// D-24: the crop is automatic, so nobody has to prepare a photograph before uploading it.
+	assert.match(DOKUMENT, /proporcji 4:3/u);
+	// The move buttons save nothing on their own, exactly like the add and the remove.
+	assert.match(DOKUMENT, /zdjęcia niczego nie zapisuje/u);
 });
 
 // Contract 7. „Dodanie wiersza nie zapisuje" is the single most common misunderstanding

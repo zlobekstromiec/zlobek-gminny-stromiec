@@ -3,8 +3,10 @@ import { test, expect } from './fixtures/admin';
 import {
 	KOPIA_POMOC,
 	KOPIA_PULPIT,
+	KOPIA_ZAPIS,
 	liczbaDokumentow,
 	liczbaWpisow,
+	liczbaZdjec,
 	obecnieNabor
 } from '../src/lib/content/panel';
 import { STAN_OTWARTY } from '../src/lib/stan-naboru';
@@ -40,6 +42,7 @@ const POMOC = '/admin/pomoc';
 const KAFLE = [
 	{ tytul: KOPIA_PULPIT.aktualnosciTytul, cel: '/admin/aktualnosci' },
 	{ tytul: KOPIA_PULPIT.oNasTytul, cel: '/admin/o-nas' },
+	{ tytul: KOPIA_PULPIT.galeriaTytul, cel: '/admin/galeria' },
 	{ tytul: KOPIA_PULPIT.planDniaTytul, cel: '/admin/plan-dnia' },
 	{ tytul: KOPIA_PULPIT.cennikTytul, cel: '/admin/cennik' },
 	{ tytul: KOPIA_PULPIT.dokumentyTytul, cel: '/admin/dokumenty' },
@@ -59,7 +62,7 @@ async function policzWiersze(
 }
 
 test.describe('Pulpit: kafle, liczniki i stan naboru (Contract 3)', () => {
-	test('pulpit ma jeden naglowek pierwszego poziomu i siedem kafli', async ({
+	test('pulpit ma jeden naglowek pierwszego poziomu i osiem kafli', async ({
 		page,
 		zalogowany
 	}) => {
@@ -102,6 +105,7 @@ test.describe('Pulpit: kafle, liczniki i stan naboru (Contract 3)', () => {
 		for (const opis of [
 			KOPIA_PULPIT.aktualnosciOpis,
 			KOPIA_PULPIT.oNasOpis,
+			KOPIA_PULPIT.galeriaOpis,
 			KOPIA_PULPIT.planDniaOpis,
 			KOPIA_PULPIT.cennikOpis,
 			KOPIA_PULPIT.dokumentyOpis,
@@ -132,6 +136,23 @@ test.describe('Pulpit: kafle, liczniki i stan naboru (Contract 3)', () => {
 		expect(wiersze).toBeGreaterThan(0);
 		await page.goto(PULPIT);
 		await expect(page.getByText(liczbaDokumentow(wiersze))).toBeVisible();
+	});
+
+	// 05-UI-SPEC Contract 12: Galeria is the one card this phase gives a counter, and the number
+	// is compared against the rows the GALERIA SCREEN renders in the same session rather than
+	// against a literal typed here. A number written into this file would keep passing after an
+	// editor changed the gallery, which is exactly the failure the counting rule exists for.
+	test('licznik zdjec zgadza sie z liczba pozycji, ktore renderuje ekran galerii', async ({
+		page,
+		zalogowany
+	}) => {
+		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
+		await page.goto('/admin/galeria');
+		const pozycje = await page.getByRole('button', { name: KOPIA_ZAPIS.usunZdjecie }).count();
+		expect(pozycje).toBeGreaterThan(0);
+
+		await page.goto(PULPIT);
+		await expect(page.getByText(liczbaZdjec(pozycje))).toBeVisible();
 	});
 
 	test('zdanie o stanie naboru zgadza sie z opcja zaznaczona na ekranie naboru', async ({

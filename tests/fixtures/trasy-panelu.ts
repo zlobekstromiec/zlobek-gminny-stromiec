@@ -50,6 +50,7 @@ export const TRASY: readonly { nazwa: string; sciezka: string }[] = [
 	{ nazwa: 'edycja dokumentu', sciezka: `/admin/dokumenty/${DOKUMENT}` },
 	{ nazwa: 'potwierdzenie usuniecia dokumentu', sciezka: `/admin/dokumenty/${DOKUMENT}/usun` },
 	{ nazwa: 'strona O nas', sciezka: '/admin/o-nas' },
+	{ nazwa: 'galeria', sciezka: '/admin/galeria' },
 	{ nazwa: 'plan dnia', sciezka: '/admin/plan-dnia' },
 	{ nazwa: 'cennik', sciezka: '/admin/cennik' },
 	{ nazwa: 'nabor', sciezka: '/admin/nabor' },
