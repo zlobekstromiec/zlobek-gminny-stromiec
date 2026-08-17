@@ -403,6 +403,56 @@ test.describe('Ekran galerii: odmowy i ich odnosniki', () => {
 		expect(page.url()).not.toContain('zapisano');
 	});
 
+	test('pozycja z dwoma odmowami naraz pokazuje OBA komunikaty i nie wywraca ekranu', async ({
+		page,
+		zalogowany
+	}) => {
+		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
+
+		// An exception thrown while the enhanced round trip re-renders the list surfaces here and
+		// NOWHERE ELSE: the panel would simply stop updating, and a test that only looked at the
+		// DOM would read that as „the summary is not there yet".
+		const bledyStrony: string[] = [];
+		page.on('pageerror', (blad) => bledyStrony.push(blad.message));
+
+		await page.goto(GALERIA);
+
+		// A basename that WZORZEC_NAZWY refuses: capitals and an underscore, which is what a
+		// file placed by hand into src/lib/assets/uploads and named in galeria.json actually
+		// looks like (IMG_2043.jpg, Sala_Zabaw.jpg). ONE malformed value, TWO refusals: the
+		// basename is rejected (…plik) and the item is therefore left with no picture at all
+		// (…dane). Both of them point at the same file control.
+		await page
+			.locator('main input[name^="galeria["][name$=".plik"]')
+			.first()
+			.evaluate((pole) => {
+				(pole as HTMLInputElement).value = 'Sala_Zabaw.JPG';
+			});
+
+		await przyciskZapisz(page).click();
+
+		const panel = page.locator('[data-panel="blad"]');
+		await expect(panel).toBeVisible();
+
+		// BOTH messages, because both are true and an editor needs both: „this file is not a
+		// photograph" without „so this item now has no picture" is half an instruction.
+		await expect(panel).toContainText(KOPIA_WALIDACJA.zdjecieZlyTyp);
+		await expect(panel).toContainText(KOPIA_WALIDACJA.zdjecieGaleriiBrak);
+		await expect(panel.getByRole('link')).toHaveCount(2);
+
+		// Both entries still link to a control that is really on the screen.
+		for (const cel of await panel
+			.getByRole('link')
+			.evaluateAll((odnosniki) =>
+				odnosniki.map((odnosnik) => odnosnik.getAttribute('href') ?? '')
+			)) {
+			expect(cel).toBeTruthy();
+			await expect(page.locator(`main ${cel}`)).toHaveCount(1);
+		}
+
+		expect(bledyStrony, 'ekran galerii rzucil wyjatkiem zamiast pokazac odmowe').toEqual([]);
+	});
+
 	test('pusty opis alternatywny odmawia zapisu przy WYLACZONYM JavaScripcie (D-15)', async ({
 		browser
 	}) => {

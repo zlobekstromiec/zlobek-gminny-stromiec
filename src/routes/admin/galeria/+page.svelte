@@ -84,6 +84,12 @@
 	let zapisywanie = $state(false);
 
 	interface WpisPodsumowania {
+		/** Identity of the row, and NOT its link target. Two of the four fields below share one
+		 *  control, so `cel` is not unique and keying the list on it throws `each_key_duplicate`
+		 *  the moment one photograph carries both refusals at once. That is reachable from one
+		 *  malformed basename in src/lib/content/galeria.json: the name is refused (…plik) and
+		 *  the item is left with no picture because of it (…dane). */
+		klucz: string;
 		cel: string;
 		tekst: string;
 	}
@@ -94,7 +100,11 @@
 	 *
 	 *  FOUR ROWS PER ITEM, one more than the O nas screen has, because this screen has one more
 	 *  field. The caption points at its OWN control: a summary entry linking to a control that is
-	 *  not on the screen would announce nothing at all. */
+	 *  not on the screen would announce nothing at all.
+	 *
+	 *  BOTH REFUSALS OF ONE PICTURE ARE SHOWN, never deduplicated onto their shared control:
+	 *  „ten plik nie jest zdjęciem" and „ta pozycja nie ma zdjęcia" are two different things to
+	 *  do about one item, and hiding either of them leaves the editor with half an instruction. */
 	const podsumowanie: WpisPodsumowania[] = $derived.by(() => {
 		const wpisy: WpisPodsumowania[] = [];
 		wartosci.zdjecia.forEach((_, indeks) => {
@@ -107,7 +117,11 @@
 			] as const) {
 				const komunikat = pola[nazwaPola(PREFIKS_ZDJECIA_GALERII, indeks, pole)];
 				if (komunikat === undefined) continue;
-				wpisy.push({ cel, tekst: bladWElemencie(legendaZdjecia(indeks + 1), komunikat) });
+				wpisy.push({
+					klucz: `${indeks}-${pole}`,
+					cel,
+					tekst: bladWElemencie(legendaZdjecia(indeks + 1), komunikat)
+				});
 			}
 		});
 		return wpisy;
@@ -145,7 +159,7 @@
 			<p>{form.panelTresc}</p>
 			{#if podsumowanie.length > 0}
 				<ul>
-					{#each podsumowanie as wpis (wpis.cel)}
+					{#each podsumowanie as wpis (wpis.klucz)}
 						<li><a href="#{wpis.cel}">{wpis.tekst}</a></li>
 					{/each}
 				</ul>
