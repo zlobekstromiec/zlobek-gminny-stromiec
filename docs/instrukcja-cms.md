@@ -44,7 +44,7 @@ literówkę było widać.
 
 Ekran po wysłaniu kodu wygląda tak samo dla każdego adresu. Jeśli kod nie przychodzi i
 masz pewność, że adres jest wpisany poprawnie, to znaczy, że ten adres nie ma jeszcze
-dostępu do panelu. Zgłoś to osobie, która przekazała Ci dostęp (patrz sekcja 12).
+dostępu do panelu. Zgłoś to osobie, która przekazała Ci dostęp (patrz sekcja 13).
 
 Zalogowanie pamięta się przez 30 dni na tym samym urządzeniu i w tej samej przeglądarce.
 
@@ -60,7 +60,7 @@ zalogowania: następna osoba, która otworzy ten adres, trafi prosto do panelu.
 
 ## 2. Pulpit
 
-Pulpit to pierwszy ekran po zalogowaniu. Jest na nim sześć kafelków i każdy prowadzi do
+Pulpit to pierwszy ekran po zalogowaniu. Jest na nim siedem kafelków i każdy prowadzi do
 jednego miejsca, które można zmienić. Te same sekcje są w menu, widocznym na każdym
 ekranie.
 
@@ -69,6 +69,7 @@ ekranie.
 - **O nas**: wprowadzenie, misja, wartości, opis kadry i opis budynku wraz ze zdjęciami
   obiektu.
 - **Plan dnia**: godziny i zajęcia w ciągu dnia.
+- **Cennik**: kwoty i opis opłat za pobyt oraz wyżywienie.
 - **Dokumenty**: pliki do pobrania, czyli wnioski, statut i uchwały. Kafelek pokazuje,
   ile dokumentów jest teraz na stronie.
 - **Nabór**: przełącznik informacji o naborze. Kafelek pokazuje, jak jest ustawiony w tej
@@ -293,7 +294,64 @@ treść wierszy.
 
 ---
 
-## 9. Nabór
+## 9. Cennik
+
+Ekran **Cennik** to jedno miejsce, w którym zmieniają się wszystkie opłaty. To, co tu
+zapiszesz, rodzic zobaczy na stronie Cennik oraz w ramce z opłatami na stronie Rekrutacja.
+Żadnej z tych kwot nie wpisuje się drugi raz w innym miejscu panelu, więc nie da się
+doprowadzić do tego, żeby dwa miejsca na stronie podawały różne pieniądze.
+
+Ekran ma dwie grupy pól: **Kwoty** i **Opis opłat**. Na dole jest jeden przycisk
+**Zapisz** i zapisuje on całą stronę naraz.
+
+### Kwoty
+
+- **Stawka z uchwały (zł)**: pełna miesięczna stawka za pobyt.
+- **Obniżka (zł)**: o ile tę stawkę obniżamy. Jeśli nie stosujemy obniżki, wpisz 0.
+
+**Obie kwoty wpisujemy w pełnych złotych, bez groszy.** Uchwała podaje grosze, a strona
+pokazuje pełne złote, więc przecinek, spacja czy dopisane „zł" zostaną odrzucone przy
+zapisywaniu.
+
+Kwoty, którą rodzic naprawdę płaci, nie wpisuje się nigdzie. Strona wylicza ją sama,
+odejmując obniżkę od stawki, i pokazuje pod tymi dwoma polami, w zdaniu zaczynającym się
+od słów „Obecnie na stronie". Pod tym zdaniem jest wyjaśnienie: „Ta kwota to stawka z
+uchwały pomniejszona o obniżkę. Zmieni się po zapisaniu." Znaczy to dokładnie tyle: dopóki
+nie klikniesz **Zapisz**, w tym zdaniu stoi kwota, która jest teraz na stronie żłobka, a
+nie ta, którą właśnie wpisujesz. Nie jest to błąd.
+
+**Obniżka musi być mniejsza od stawki z uchwały.** Gdyby była jej równa albo od niej
+większa, na stronie pojawiłaby się kwota 0 zł albo kwota ujemna, więc panel takiego zapisu
+odmawia i pokazuje przy polu zdanie „Obniżka musi być mniejsza od stawki z uchwały.
+Popraw jedną z tych dwóch kwot."
+
+### Opis opłat
+
+Pięć pól tekstowych. Każde z nich to zdanie, które rodzic przeczyta na stronie dokładnie
+tak, jak je tu wpiszesz.
+
+- **Nagłówek panelu opłat**: krótki tytuł nad kwotą.
+- **Opis opłaty**: jedno zdanie wyjaśniające, za co jest ta kwota.
+- **Świadczenie z ZUS**: zdanie o świadczeniu i o warunku, na jakim ZUS je przyznaje.
+- **Wyżywienie**: stawka za wyżywienie i za co jest pobierana.
+- **Nieobecność dziecka**: zasady odpisów za zgłoszoną nieobecność.
+- **Treść zastępcza (do potwierdzenia)**: zaznacz to pole, dopóki kwoty i opisy czekają na
+  potwierdzenie, i odznacz je, gdy są już pewne.
+
+**Pole Świadczenie z ZUS nie może zostać puste.** Jeśli je wyczyścisz i klikniesz
+**Zapisz**, panel odmówi i napisze: „Wpisz zdanie o świadczeniu z ZUS. Bez niego nie
+zapiszemy cennika: kwota nie może pojawić się na stronie bez warunku, na jakim rodzic jej
+nie płaci."
+
+Nie jest to nadgorliwość panelu, tylko reguła treści. Kwota bez warunku, na jakim rodzic
+jej nie płaci, jest dla rodzica informacją niepełną, a strona żłobka jest stroną jednostki
+publicznej i musi podawać opłaty w całości. Z tego samego powodu panel odmawia zapisania
+kwoty 0 zł w polu, w którym nie ma nazwy świadczenia. Jeśli chcesz napisać, że rodzic nie
+płaci nic, napisz w tym samym polu, dzięki czemu tak jest.
+
+---
+
+## 10. Nabór
 
 Ekran **Nabór** ma jedno pytanie i dwie odpowiedzi do wyboru. To jest jedyne miejsce,
 które decyduje o tym, co rodzic widzi na stronie Rekrutacja.
@@ -312,7 +370,7 @@ stronie.
 
 ---
 
-## 10. Co zrobić, gdy zmiany nie widać
+## 11. Co zrobić, gdy zmiany nie widać
 
 Po kliknięciu **Zapisz** strona żłobka przebudowuje się w tle. **Trwa to około 2 minut.**
 Panel nie oszukuje: zmiana jest już zapisana, ale odwiedzający zobaczą ją dopiero po
@@ -339,7 +397,7 @@ Co jeszcze warto wiedzieć:
 
 ---
 
-## 11. Co zrobić, gdy panel odmówi zapisania
+## 12. Co zrobić, gdy panel odmówi zapisania
 
 Panel woli odmówić zapisu, niż skasować czyjąś pracę. W każdym z poniższych przypadków
 **wpisane dane zostają w formularzu**.
@@ -378,7 +436,7 @@ listy i sprawdź.
 
 ---
 
-## 12. Dla osoby administrującej stroną: dodanie i usunięcie redaktora
+## 13. Dla osoby administrującej stroną: dodanie i usunięcie redaktora
 
 Ta sekcja nie jest potrzebna do codziennej pracy. Jest przeznaczona dla osoby, która
 opiekuje się stroną od strony technicznej.

@@ -1,5 +1,6 @@
-// The WIRE VOCABULARY of the two singleton editor screens, O nas and Plan dnia
-// (Phase 04.1, Plan 04.1-09), plus the indexed-field primitive both of them are built on.
+// The WIRE VOCABULARY of the singleton editor screens: O nas and Plan dnia (Phase 04.1,
+// Plan 04.1-09) and Cennik (Phase 05, Plan 05-05), plus the indexed-field primitive the
+// first two are built on.
 //
 // WHY IT IS NOT INSIDE THE VALIDATORS. The fifth occurrence in this phase of the boundary
 // src/lib/stan-naboru.ts, src/lib/daty.ts, src/lib/zdjecia.ts, src/lib/pola-wpisu.ts and
@@ -69,6 +70,22 @@ export const POLE_KADRY_OPIS = 'kadra_opis';
 export const POLE_KADRY_OPIEKUNKI = 'kadra_opiekunki';
 export const POLE_KADRY_PERSONEL = 'kadra_personel';
 export const POLE_OBIEKTU_OPIS = 'obiekt_opis';
+
+/** Cennik: the seven controls of 05-UI-SPEC Contract 10, named after the JSON keys of
+ *  src/lib/content/cennik.json so a reader comparing a control to the committed file needs
+ *  no translation table. That is the same rule the O nas singletons above follow, and here
+ *  it is load bearing twice over: the validator constructs its result in the committed
+ *  file's key ORDER, and a byte-for-byte pin in tests/admin-walidacja-cennik.unit.ts goes
+ *  red if the two ever disagree.
+ *
+ *  The screen has no repeated group at all, so none of these is index scoped. */
+export const POLE_STAWKI = 'stawka';
+export const POLE_OBNIZKI = 'obnizka';
+export const POLE_NAGLOWKA = 'naglowek';
+export const POLE_KWOTY_OPIS = 'kwotaOpis';
+export const POLE_ZUS = 'zus';
+export const POLE_WYZYWIENIA = 'wyzywienie';
+export const POLE_NIEOBECNOSCI = 'nieobecnosc';
 
 /** `name` of the remove button, whose `value` is the POSITION of the row it sits in. */
 export const POLE_INDEKSU = 'indeks';
@@ -258,6 +275,39 @@ export function wartosciONas(zrodlo: ZrodloPol): WartosciONas {
 			dane: tekst(zdjecie[POLE_DANYCH]),
 			usunieto: tekst(zdjecie[POLE_USUNIECIA]).length > 0
 		})),
+		zastepcza: zaznaczone(zrodlo, POLE_ZASTEPCZA)
+	};
+}
+
+/**
+ * The echo shape of the Cennik screen (05-UI-SPEC Contract 10).
+ *
+ * ALL STRINGS, INCLUDING THE TWO AMOUNTS, for the same reason `wartosciONas` echoes the two
+ * kadra counts as strings: a value the server refused still has to be rendered back into
+ * the control that holds it, and „2337abc" is not a number. Parsing here would either throw
+ * away what the editor typed or invent a number they did not, and both of those are how a
+ * refused save quietly loses work (Contract 10c: every typed value intact).
+ */
+export interface WartosciCennika {
+	stawka: string;
+	obnizka: string;
+	naglowek: string;
+	kwotaOpis: string;
+	zus: string;
+	wyzywienie: string;
+	nieobecnosc: string;
+	zastepcza: boolean;
+}
+
+export function wartosciCennika(zrodlo: ZrodloPol): WartosciCennika {
+	return {
+		stawka: tekst(zrodlo.get(POLE_STAWKI)),
+		obnizka: tekst(zrodlo.get(POLE_OBNIZKI)),
+		naglowek: tekst(zrodlo.get(POLE_NAGLOWKA)),
+		kwotaOpis: tekst(zrodlo.get(POLE_KWOTY_OPIS)),
+		zus: tekst(zrodlo.get(POLE_ZUS)),
+		wyzywienie: tekst(zrodlo.get(POLE_WYZYWIENIA)),
+		nieobecnosc: tekst(zrodlo.get(POLE_NIEOBECNOSCI)),
 		zastepcza: zaznaczone(zrodlo, POLE_ZASTEPCZA)
 	};
 }

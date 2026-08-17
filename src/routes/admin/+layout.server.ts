@@ -5,23 +5,15 @@
 //
 // Nothing here logs, and the full e-mail address never reaches this file: the gate
 // in src/hooks.server.ts puts only the short handle into locals (D-04).
+//
+// THE SECTION NAMES ARE NOT DECLARED HERE, and that is not tidiness. They are Polish
+// visible strings (they end up in the browser tab), so they belong in the copy module
+// and have to be swept there; and SvelteKit restricts which names a `+layout.server.ts`
+// may export, so the map could not simply be exported from where it used to sit. Plan
+// 05-05 moved it to src/lib/content/panel.ts, which is also what made
+// tests/admin-enumeracja.spec.ts able to assert that every panel route has an entry.
+import { SEKCJE_PANELU } from '$lib/content/panel';
 import type { LayoutServerLoad } from './$types';
-
-/** Polish section names keyed by the first path segment under /admin, in the
- *  UI-SPEC nav order. This is the source of the „{Sekcja}, panel redakcyjny" page
- *  title that the shell builds through `tytulStrony` in src/lib/content/panel.ts.
- *  An unknown segment falls back to the neutral wordmark rather than leaking a raw
- *  path segment into the title. */
-const SEKCJE: Record<string, string> = {
-	'': 'Pulpit',
-	logowanie: 'Logowanie',
-	aktualnosci: 'Aktualności',
-	'o-nas': 'O nas',
-	'plan-dnia': 'Plan dnia',
-	dokumenty: 'Dokumenty',
-	nabor: 'Nabór',
-	pomoc: 'Pomoc'
-};
 
 export const load: LayoutServerLoad = ({ locals, url }) => {
 	const segment = url.pathname.replace(/^\/admin\/?/, '').split('/')[0] ?? '';
@@ -31,6 +23,6 @@ export const load: LayoutServerLoad = ({ locals, url }) => {
 		// empty string rather than a placeholder handle: the shell must render nothing
 		// rather than something untrue.
 		editor: locals.editor ?? '',
-		sekcja: SEKCJE[segment] ?? 'Panel redakcyjny'
+		sekcja: SEKCJE_PANELU[segment] ?? 'Panel redakcyjny'
 	};
 };

@@ -46,10 +46,37 @@ export const NAWIGACJA: readonly string[] = Object.freeze([
 	'Aktualności',
 	'O nas',
 	'Plan dnia',
+	'Cennik',
 	'Dokumenty',
 	'Nabór',
 	'Pomoc'
 ]);
+
+/** Polish section names keyed by the FIRST path segment under /admin, with the empty
+ *  string standing for the landing screen, in the UI-SPEC nav order.
+ *
+ *  This is the source of the „{Sekcja}, panel redakcyjny" page title that the shell
+ *  builds through `tytulStrony` below, so every value here is a visible string: it
+ *  reaches the browser tab, the window switcher and a screen reader's page announcement.
+ *  That is why it lives in this module and is swept, and it is why it could not stay
+ *  where it was written: SvelteKit restricts the names a `+layout.server.ts` may export,
+ *  so the map sitting beside its one consumer was unreachable by any test.
+ *
+ *  An unknown segment is NOT listed here on purpose. The layout falls back to the
+ *  neutral wordmark rather than leaking a raw path segment into a title, and
+ *  tests/admin-enumeracja.spec.ts asserts that no route the panel actually serves ever
+ *  reaches that fallback. */
+export const SEKCJE_PANELU: Readonly<Record<string, string>> = Object.freeze({
+	'': 'Pulpit',
+	logowanie: 'Logowanie',
+	aktualnosci: 'Aktualności',
+	'o-nas': 'O nas',
+	'plan-dnia': 'Plan dnia',
+	cennik: 'Cennik',
+	dokumenty: 'Dokumenty',
+	nabor: 'Nabór',
+	pomoc: 'Pomoc'
+});
 
 /** Logowanie, both steps and the whole login state matrix (Component Contract 2).
  *
@@ -122,6 +149,12 @@ export const KOPIA_PULPIT = {
 	dokumentyOpis: 'Pliki do pobrania: wnioski, statut i uchwały.',
 	naborTytul: 'Nabór',
 	naborOpis: 'Przełącz informację o naborze na stronie.',
+	/** DELIBERATELY WITHOUT A STATE LINE (05-UI-SPEC Contract 12). The other cards that
+	 *  carry one show a count or a switch position; a fee amount rendered here would be a
+	 *  third place the same number has to stay correct, and the pulpit is the one screen
+	 *  nobody would think to check after changing it. */
+	cennikTytul: 'Cennik',
+	cennikOpis: 'Kwoty i opis opłat za pobyt oraz wyżywienie.',
 	pomocTytul: 'Pomoc',
 	pomocOpis: 'Instrukcja krok po kroku, jak korzystać z panelu.'
 } as const;
@@ -206,6 +239,53 @@ export const KOPIA_EKRAN_PLANU = {
 	 *  rest of the content this panel section is about. */
 	stronaNazwa: 'O nas',
 	opisZapisu: 'zaktualizowano plan dnia'
+} as const;
+
+/** The Cennik editor (05-UI-SPEC Contract 10, FEES-01, 05 D-27, D-28). A singleton screen
+ *  on the Nabór template: one „Zapisz", one commit, one build. */
+export const KOPIA_CENNIK = {
+	naglowek: 'Cennik',
+	kwotyLegenda: 'Kwoty',
+	opisLegenda: 'Opis opłat',
+	/** The hint under the read-only computed line. It has to say TWO things, because the
+	 *  line is the one value on this screen that does not follow what is being typed:
+	 *  where the number comes from, and that it moves only after a save. Recomputing it
+	 *  live would need JavaScript on a screen that otherwise needs none, and a figure that
+	 *  changes as you type is the easiest thing on a form to mistake for a saved one. */
+	obliczonaPodpowiedz:
+		'Ta kwota to stawka z uchwały pomniejszona o obniżkę. Zmieni się po zapisaniu.',
+	/** Name of the public page the „Zapisano" panel links to. */
+	stronaNazwa: 'Cennik',
+	/** The commit description. Copy like any other: written in Polish by this project and
+	 *  landing in the history of a PUBLIC repository, so it is swept with the labels. It
+	 *  names the PAGE rather than a field, because one page is one commit (D-11) and a
+	 *  session here can change every amount and every sentence at once. */
+	opisZapisu: 'zaktualizowano cennik'
+} as const;
+
+/** Cennik form labels and hints (05-UI-SPEC Contract 10). Both amounts are whole złoty:
+ *  the uchwała quotes grosze and this store deliberately drops them, so the hints say
+ *  „bez groszy" rather than leaving an editor to discover it from a refusal. */
+export const POLA_CENNIK = {
+	stawkaEtykieta: 'Stawka z uchwały (zł) *',
+	stawkaPodpowiedz:
+		'Pełna miesięczna stawka za pobyt, w pełnych złotych, bez groszy. Na przykład 2337.',
+	obnizkaEtykieta: 'Obniżka (zł) *',
+	obnizkaPodpowiedz:
+		'O ile obniżamy stawkę. Jeśli nie stosujemy obniżki, wpisz 0. Na przykład 837.',
+	naglowekEtykieta: 'Nagłówek panelu opłat *',
+	naglowekPodpowiedz: 'Krótki tytuł nad kwotą, na przykład: Opłaty w skrócie.',
+	kwotaOpisEtykieta: 'Opis opłaty *',
+	kwotaOpisPodpowiedz: 'Jedno zdanie wyjaśniające, za co jest ta kwota.',
+	zusEtykieta: 'Świadczenie z ZUS *',
+	zusPodpowiedz:
+		'Zdanie o świadczeniu „Aktywnie w żłobku” i o warunku, na jakim ZUS je przyznaje. To pole jest obowiązkowe.',
+	wyzywienieEtykieta: 'Wyżywienie *',
+	wyzywieniePodpowiedz: 'Stawka za wyżywienie i za co jest pobierana.',
+	nieobecnoscEtykieta: 'Nieobecność dziecka *',
+	nieobecnoscPodpowiedz: 'Zasady odpisów za zgłoszoną nieobecność.',
+	zastepczaEtykieta: 'Treść zastępcza (do potwierdzenia)',
+	zastepczaPodpowiedz: 'Zaznacz, dopóki treść nie została potwierdzona.'
 } as const;
 
 /** The three date selects, authored once because both the aktualność publication date
@@ -384,7 +464,31 @@ export const KOPIA_WALIDACJA = {
 	/** The recruitment switch has two states and no third one, so „nothing chosen" and
 	 *  „something unexpected arrived" are the same thing to the person in front of the
 	 *  screen and get the same instruction (WCAG 3.3.3: say what to do). */
-	stanNaboruBrak: 'Zaznacz, czy nabór jest otwarty, czy zamknięty.'
+	stanNaboruBrak: 'Zaznacz, czy nabór jest otwarty, czy zamknięty.',
+	/** The two amounts of 05-UI-SPEC Contract 10. Each quotes its own hint's example, so a
+	 *  refusal reads as the same instruction the editor was already given. */
+	stawkaNiepoprawna: 'Wpisz stawkę z uchwały w pełnych złotych, na przykład 2337.',
+	obnizkaNiepoprawna:
+		'Wpisz kwotę obniżki w pełnych złotych. Jeśli nie stosujecie obniżki, wpisz 0.',
+	/** The cross-field invariant (05 D-28). It names BOTH amounts and leaves the choice to
+	 *  the editor, because either one of them may be the one that is wrong, and a message
+	 *  that guessed would send half of the people who read it to the wrong control. */
+	obnizkaNieMniejsza:
+		'Obniżka musi być mniejsza od stawki z uchwały. Popraw jedną z tych dwóch kwot.',
+	/** 05 D-27, and the sentence that turns an editorial rule into a property of the form.
+	 *  It says WHY, deliberately at length: „to pole jest wymagane" would read as pedantry,
+	 *  while the real reason is that an amount may not appear on the żłobek's website
+	 *  without the condition under which a parent does not pay it. */
+	zusBrak:
+		'Wpisz zdanie o świadczeniu z ZUS. Bez niego nie zapiszemy cennika: kwota nie może pojawić się na stronie bez warunku, na jakim rodzic jej nie płaci.',
+	/** 05 D-31 (dane-bip paragraf 10 punkt 1). The refusal names what is wrong with the
+	 *  field and gives both ways out, because either is a correct fix. */
+	kwotaZeroBezWarunku:
+		'W tym polu jest kwota 0 zł bez warunku, na jakim rodzic jej nie płaci. Dopisz warunek albo usuń tę kwotę.',
+	/** The catch-all for a required text field left empty on a screen whose other refusals
+	 *  are all specific. Short on purpose: it sits directly under the label and the hint
+	 *  that already say what the field is for. */
+	poleBrak: 'Uzupełnij to pole.'
 } as const;
 
 /** Save, conflict and failure surfaces (Component Contracts 9 and 10), plus the
@@ -561,6 +665,17 @@ export function tekstZaDlugi(limit: number): string {
  *  by the component, so the two can never disagree about the wording. */
 export function zobaczStrone(nazwaStrony: string): string {
 	return `Zobacz stronę: ${nazwaStrony}`;
+}
+
+/** The read-only computed line on /admin/cennik (05-UI-SPEC Contract 10).
+ *
+ *  IT TAKES THE WHOLE PROSE FORM („1 500 zł miesięcznie"), not a bare amount, and that is
+ *  the same call plan 05-02 made for the worked example on the public page: the period word
+ *  is welded to the computed figure and is declared exactly once, in src/lib/cennik.ts, as
+ *  part of `kwotaProza`. Re-appending it here would be a second declaration of a word that
+ *  has to agree with the public page character for character. */
+export function obecnieNaStronie(kwotaProza: string): string {
+	return `Obecnie na stronie: ${kwotaProza}.`;
 }
 
 /** Announcements after a repeatable row is added or removed. */

@@ -27,6 +27,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
+	KOPIA_CENNIK,
 	KOPIA_FORMATOWANIE,
 	KOPIA_LISTY,
 	KOPIA_LOGOWANIE,
@@ -39,6 +40,7 @@ import {
 	KOPIA_WALIDACJA,
 	KOPIA_ZAPIS,
 	KOPIA_ZDJECIA,
+	POLA_CENNIK,
 	POLA_DOKUMENT,
 	POLA_O_NAS,
 	POLA_PLAN_DNIA,
@@ -123,6 +125,11 @@ test('instrukcja ma sekcje dla kazdego wymaganego tematu', () => {
 		['dodanie zdjecia z opisem alternatywnym', /^\d+\.\s+Dodanie zdjęcia z opisem alternatywnym$/u],
 		['dokumenty', /^\d+\.\s+Dokumenty$/u],
 		['plan dnia', /^\d+\.\s+Plan dnia$/u],
+		// 05-UI-SPEC Contract 12: the screen is new in phase 05 and the manual owes it a
+		// section of its own, placed to mirror the panel navigation. Written in the same
+		// numbered-heading form as every entry above, so a renumbering of the document does
+		// not turn this red for a reason that has nothing to do with coverage.
+		['cennik', /^\d+\.\s+Cennik$/u],
 		['nabor', /^\d+\.\s+Nabór$/u],
 		['gdy zmiany nie widac', /^\d+\.\s+Co zrobić, gdy zmiany nie widać$/u],
 		['gdy panel odmowi zapisania', /^\d+\.\s+Co zrobić, gdy panel odmówi zapisania$/u],
@@ -134,7 +141,7 @@ test('instrukcja ma sekcje dla kazdego wymaganego tematu', () => {
 			`brak sekcji: ${temat}`
 		);
 	}
-	assert.ok(naglowki.length >= 10);
+	assert.ok(naglowki.length >= 11);
 });
 
 // The document is rendered into a page that already owns an h1, so the heading structure
@@ -170,6 +177,7 @@ test('kazda nazwa ekranu i etykieta przycisku jest cytatem z modulu kopii', () =
 		KOPIA_PULPIT.aktualnosciTytul,
 		KOPIA_PULPIT.oNasTytul,
 		KOPIA_PULPIT.planDniaTytul,
+		KOPIA_PULPIT.cennikTytul,
 		KOPIA_PULPIT.dokumentyTytul,
 		KOPIA_PULPIT.naborTytul,
 		KOPIA_PULPIT.pomocTytul,
@@ -228,6 +236,17 @@ test('kazda nazwa ekranu i etykieta przycisku jest cytatem z modulu kopii', () =
 		POLA_O_NAS.zdjeciaLegenda,
 		POLA_PLAN_DNIA.godzinyEtykieta,
 		POLA_PLAN_DNIA.opisEtykieta,
+		KOPIA_CENNIK.naglowek,
+		KOPIA_CENNIK.kwotyLegenda,
+		KOPIA_CENNIK.opisLegenda,
+		POLA_CENNIK.stawkaEtykieta,
+		POLA_CENNIK.obnizkaEtykieta,
+		POLA_CENNIK.naglowekEtykieta,
+		POLA_CENNIK.kwotaOpisEtykieta,
+		POLA_CENNIK.zusEtykieta,
+		POLA_CENNIK.wyzywienieEtykieta,
+		POLA_CENNIK.nieobecnoscEtykieta,
+		POLA_CENNIK.zastepczaEtykieta,
 		POLA_DOKUMENT.nazwaEtykieta,
 		POLA_DOKUMENT.kategoriaEtykieta,
 		POLA_DOKUMENT.plikEtykieta,
@@ -282,6 +301,26 @@ test('instrukcja kaze skopiowac tekst, ZANIM kaze odswiezyc strone przy konflikc
 test('instrukcja mowi wprost, ze bez opisu alternatywnego zapis jest odmawiany', () => {
 	assert.match(DOKUMENT, /Bez opisu alternatywnego zdjęcia nie da się zapisać/u);
 	assert.ok(DOKUMENT.includes(KOPIA_WALIDACJA.altBrak));
+});
+
+// 05 D-27, D-28 and D-31. The Cennik screen owns three refusals, and every one of them
+// blocks a save for a reason an editor cannot guess from the field alone. The manual
+// therefore quotes the panel's own sentences rather than paraphrasing them, and says out
+// loud why the ZUS field is the one that may never be emptied.
+test('instrukcja tlumaczy trzy odmowy cennika slowami samego panelu', () => {
+	assert.match(DOKUMENT, /Pole Świadczenie z ZUS nie może zostać puste/u);
+	assert.ok(ZWARTY.includes(KOPIA_WALIDACJA.zusBrak), 'brak dosłownej odmowy o polu ZUS');
+	assert.ok(
+		ZWARTY.includes(KOPIA_WALIDACJA.obnizkaNieMniejsza),
+		'brak dosłownej odmowy o obniżce większej od stawki'
+	);
+	assert.match(DOKUMENT, /w pełnych złotych, bez groszy/u);
+	// The computed amount follows the SAVED values and not what is being typed, which is
+	// the one thing on this screen that is easy to read as a fault.
+	assert.ok(
+		ZWARTY.includes(KOPIA_CENNIK.obliczonaPodpowiedz),
+		'brak wyjaśnienia, że kwota do zapłaty zmienia się dopiero po zapisaniu'
+	);
 });
 
 // Contract 7. „Dodanie wiersza nie zapisuje" is the single most common misunderstanding

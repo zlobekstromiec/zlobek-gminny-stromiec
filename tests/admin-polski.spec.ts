@@ -1,4 +1,3 @@
-import { readdirSync } from 'node:fs';
 import { test, expect, ADRES_SPOZA_LISTY } from './fixtures/admin';
 import { KOPIA_LOGOWANIE } from '../src/lib/content/panel';
 import {
@@ -7,6 +6,7 @@ import {
 	KONTROLA_UJEMNA,
 	znajdzAngielskie
 } from './fixtures/angielskie-chrome';
+import { TRASY } from './fixtures/trasy-panelu';
 
 /**
  * THE SC2 GATE: every rendered admin surface is Polish, with no English chrome anywhere
@@ -56,39 +56,13 @@ import {
  *
  * Do NOT narrow the route list to make this suite pass. A surface that cannot be covered
  * belongs in the SUMMARY by name, with its reason.
+ *
+ * THE ROUTE LIST ITSELF NOW LIVES IN A FIXTURE MODULE, imported above, moved there by plan
+ * 05-05 together with the on-disk slug helper. A second suite,
+ * tests/admin-enumeracja.spec.ts, walks src/routes/admin and asserts that every static
+ * route the panel serves is in it, which is what stops a new screen from silently escaping
+ * this sweep. Nothing else about this file changed.
  */
-
-/** Slugs read from the committed content rather than retyped, so a renamed seed file
- *  cannot leave this suite quietly scanning a not-found page instead of an edit screen. */
-function slugi(kolekcja: string): string[] {
-	return readdirSync(new URL(`../src/lib/content/${kolekcja}`, import.meta.url))
-		.filter((nazwa) => nazwa.endsWith('.json'))
-		.map((nazwa) => nazwa.replace(/\.json$/u, ''))
-		.sort();
-}
-
-const WPIS = slugi('aktualnosci')[0];
-const DOKUMENT = slugi('dokumenty')[0];
-
-/** Every admin URL this phase created, in navigation order. The login screen is the one
- *  public entry and reaches this list twice: once as step 1 here, and once as step 2 in
- *  its own case below, because step 2 exists only after an action. */
-const TRASY: readonly { nazwa: string; sciezka: string }[] = [
-	{ nazwa: 'logowanie, krok pierwszy', sciezka: '/admin/logowanie' },
-	{ nazwa: 'pulpit', sciezka: '/admin' },
-	{ nazwa: 'lista wpisow', sciezka: '/admin/aktualnosci' },
-	{ nazwa: 'nowy wpis', sciezka: '/admin/aktualnosci/nowy' },
-	{ nazwa: 'edycja wpisu', sciezka: `/admin/aktualnosci/${WPIS}` },
-	{ nazwa: 'potwierdzenie usuniecia wpisu', sciezka: `/admin/aktualnosci/${WPIS}/usun` },
-	{ nazwa: 'lista dokumentow', sciezka: '/admin/dokumenty' },
-	{ nazwa: 'nowy dokument', sciezka: '/admin/dokumenty/nowy' },
-	{ nazwa: 'edycja dokumentu', sciezka: `/admin/dokumenty/${DOKUMENT}` },
-	{ nazwa: 'potwierdzenie usuniecia dokumentu', sciezka: `/admin/dokumenty/${DOKUMENT}/usun` },
-	{ nazwa: 'strona O nas', sciezka: '/admin/o-nas' },
-	{ nazwa: 'plan dnia', sciezka: '/admin/plan-dnia' },
-	{ nazwa: 'nabor', sciezka: '/admin/nabor' },
-	{ nazwa: 'pomoc', sciezka: '/admin/pomoc' }
-];
 
 /** Rendered text of everything the panel put on the screen. `script` and `style` are
  *  removed because they are code rather than copy; `noscript` is deliberately KEPT, so

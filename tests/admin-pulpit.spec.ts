@@ -34,13 +34,14 @@ import { STAN_OTWARTY } from '../src/lib/stan-naboru';
 const PULPIT = '/admin';
 const POMOC = '/admin/pomoc';
 
-/** The six sections of Component Contract 3, in the contract's own order, each paired
- *  with the path its card must point at. Titles come from the copy module, so a renamed
- *  card renames the assertion with it. */
+/** The sections of Component Contract 3 as 05-UI-SPEC Contract 12 extends it, in the
+ *  contract's own order, each paired with the path its card must point at. Titles come from
+ *  the copy module, so a renamed card renames the assertion with it. */
 const KAFLE = [
 	{ tytul: KOPIA_PULPIT.aktualnosciTytul, cel: '/admin/aktualnosci' },
 	{ tytul: KOPIA_PULPIT.oNasTytul, cel: '/admin/o-nas' },
 	{ tytul: KOPIA_PULPIT.planDniaTytul, cel: '/admin/plan-dnia' },
+	{ tytul: KOPIA_PULPIT.cennikTytul, cel: '/admin/cennik' },
 	{ tytul: KOPIA_PULPIT.dokumentyTytul, cel: '/admin/dokumenty' },
 	{ tytul: KOPIA_PULPIT.naborTytul, cel: '/admin/nabor' },
 	{ tytul: KOPIA_PULPIT.pomocTytul, cel: POMOC }
@@ -58,7 +59,7 @@ async function policzWiersze(
 }
 
 test.describe('Pulpit: kafle, liczniki i stan naboru (Contract 3)', () => {
-	test('pulpit ma jeden naglowek pierwszego poziomu i szesc kafli', async ({
+	test('pulpit ma jeden naglowek pierwszego poziomu i siedem kafli', async ({
 		page,
 		zalogowany
 	}) => {
@@ -86,7 +87,7 @@ test.describe('Pulpit: kafle, liczniki i stan naboru (Contract 3)', () => {
 			await expect(pozycja.locator('h2')).toHaveText(kafel.tytul);
 			// The description and the count live INSIDE the same anchor so they are read
 			// with the card, and `aria-labelledby` narrows the NAME back down to the
-			// heading so a list of six cards is six words rather than six sentences.
+			// heading so the list reads as one word per card rather than one sentence.
 			await expect(linki).toHaveAccessibleName(kafel.tytul);
 			await expect(linki).toHaveAttribute('href', kafel.cel);
 		}
@@ -102,6 +103,7 @@ test.describe('Pulpit: kafle, liczniki i stan naboru (Contract 3)', () => {
 			KOPIA_PULPIT.aktualnosciOpis,
 			KOPIA_PULPIT.oNasOpis,
 			KOPIA_PULPIT.planDniaOpis,
+			KOPIA_PULPIT.cennikOpis,
 			KOPIA_PULPIT.dokumentyOpis,
 			KOPIA_PULPIT.naborOpis,
 			KOPIA_PULPIT.pomocOpis
