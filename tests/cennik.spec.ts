@@ -1,0 +1,125 @@
+import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+
+/**
+ * Cennik acceptance test: encodes FEES-01 (a parent can read the fees page) plus the
+ * WCAG 2.1 AA baseline (SITE-04) for the /cennik route. Covers FEE-1, FEE-2 and FEE-3
+ * of 05-VALIDATION.md.
+ *
+ * Contract highlights (05-UI-SPEC.md Contracts 3 and 4):
+ * - eight sections, no <table>: an amount and its condition are one block, and a table
+ *   splits them into cells that land on different rows at mobile width;
+ * - the payable amount is COMPUTED from two stored numbers (05 D-28), so this file
+ *   pins the ARITHMETIC and never a particular amount. Nothing here retypes a złoty
+ *   figure, which is what lets an editor change the fee in the panel without turning
+ *   the suite red;
+ * - a zero amount may appear ONLY inside the ZUS block, together with its condition
+ *   (dane-bip paragraf 10, punkt 1). That gate is a scoped PAIR, not a copy of
+ *   tests/rekrutacja.spec.ts:183: the older assertion forbids ANY zero inside
+ *   .fee-box, and /cennik renders one on purpose.
+ *
+ * Do NOT weaken these assertions to make the suite pass; they are the executable
+ * acceptance criteria and change only in lockstep with an approved UI-SPEC amendment.
+ */
+
+/* Declared ONCE. The boundary is what makes it safe: „1 500 zł" and „20 zł" both
+   carry a digit before the zero, so only a standalone zero amount matches. */
+const ZERO = /(^|[^0-9])0(,00)?\s*zł/;
+
+test.describe('Cennik: FEES-01 acceptance', () => {
+	test('strona /cennik odpowiada statusem 200', async ({ page }) => {
+		const response = await page.goto('/cennik');
+		expect(response?.status()).toBe(200);
+	});
+
+	test('dokładnie jeden nagłówek h1 o treści Cennik', async ({ page }) => {
+		await page.goto('/cennik');
+		await expect(page.locator('h1')).toHaveCount(1);
+		await expect(page.getByRole('heading', { level: 1 })).toHaveText('Cennik');
+	});
+
+	test('wszystkie sekcje cennika są obecne i opisane własnym nagłówkiem', async ({ page }) => {
+		await page.goto('/cennik');
+		for (const nazwa of [
+			'Opłata za pobyt',
+			'Świadczenie „Aktywnie w żłobku" (ZUS)',
+			'Wyżywienie',
+			'Nieobecność dziecka',
+			'Jak i kiedy płacić',
+			'Podstawa prawna'
+		]) {
+			await expect(page.getByRole('heading', { name: nazwa, exact: true })).toBeVisible();
+		}
+	});
+
+	test('kwoty renderują się jako panele i listy definicji, nigdy jako tabela', async ({ page }) => {
+		await page.goto('/cennik');
+		await expect(page.locator('main table')).toHaveCount(0);
+		await expect(page.locator('.rozbicie dl > div')).toHaveCount(3);
+	});
+
+	test('rozbicie kwoty zgadza się z tym, co strona sama pokazuje (D-28)', async ({ page }) => {
+		await page.goto('/cennik');
+		const wiersze = page.locator('.rozbicie dl > div');
+		const liczba = async (i: number) =>
+			Number((await wiersze.nth(i).locator('dd').innerText()).replace(/[^0-9-]/g, ''));
+		const stawka = await liczba(0);
+		const obnizka = await liczba(1);
+		const placi = await liczba(2);
+		expect(placi).toBe(stawka - obnizka);
+		expect(obnizka).toBeGreaterThanOrEqual(0);
+		expect(obnizka).toBeLessThan(stawka);
+	});
+
+	test('kwota zero pojawia się wyłącznie razem ze swoim warunkiem (D-31)', async ({ page }) => {
+		await page.goto('/cennik');
+		const blokZus = page.locator('#zus-blok');
+		await expect(blokZus).toHaveCount(1);
+		const trescZus = await blokZus.innerText();
+		expect(trescZus).toMatch(/Aktywnie w żłobku/);
+		expect(trescZus).toMatch(ZERO);
+	});
+
+	test('strona bez bloku ZUS nie zawiera już żadnej kwoty zerowej (D-31)', async ({ page }) => {
+		await page.goto('/cennik');
+		const bezZus = await page.evaluate(() => {
+			const main = document.querySelector('main')!.cloneNode(true) as HTMLElement;
+			main.querySelector('#zus-blok')?.remove();
+			return main.innerText;
+		});
+		expect(bezZus).not.toMatch(ZERO);
+	});
+
+	test('sekcja o podstawie prawnej kieruje do dokumentów', async ({ page }) => {
+		await page.goto('/cennik');
+		const link = page.getByRole('link', { name: 'Zobacz dokumenty' });
+		await expect(link).toBeVisible();
+		await expect(link).toHaveAttribute('href', '/dokumenty');
+	});
+
+	test('stronę zamyka wezwanie do zapisu dziecka', async ({ page }) => {
+		await page.goto('/cennik');
+		await expect(page.getByRole('link', { name: 'Zapisz dziecko' })).toHaveAttribute(
+			'href',
+			'/rekrutacja'
+		);
+	});
+
+	test('emituje polskie metadane SEO wraz z noindex (D-11)', async ({ page }) => {
+		await page.goto('/cennik');
+		await expect(page).toHaveTitle('Cennik: Publiczny Żłobek w Stromcu');
+		await expect(page.locator('head meta[name="description"]')).toHaveAttribute(
+			'content',
+			/Opłaty w Publicznym Żłobku w Stromcu/
+		);
+		await expect(page.locator('head meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+	});
+
+	test('brak naruszeń WCAG 2.1 AA (SITE-04 / A11Y baseline)', async ({ page }) => {
+		await page.goto('/cennik');
+		const results = await new AxeBuilder({ page })
+			.withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+			.analyze();
+		expect(results.violations).toEqual([]);
+	});
+});
