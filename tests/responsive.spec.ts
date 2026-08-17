@@ -29,7 +29,15 @@ for (const [name, viewport] of Object.entries(VIEWPORTS)) {
 
 /* Amendment v1.6 §12: every public route stays overflow-free at both desktop
  * tiers, now that the recomposed sections fill the 72rem container. */
-const ROUTES = ['/', '/o-nas', '/rekrutacja', '/kontakt', '/dokumenty', '/aktualnosci'] as const;
+const ROUTES = [
+	'/',
+	'/o-nas',
+	'/rekrutacja',
+	'/cennik',
+	'/kontakt',
+	'/dokumenty',
+	'/aktualnosci'
+] as const;
 
 for (const route of ROUTES) {
 	for (const viewport of [VIEWPORTS.desktop, VIEWPORTS.desktopXl]) {
