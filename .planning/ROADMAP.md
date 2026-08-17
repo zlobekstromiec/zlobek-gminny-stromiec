@@ -270,13 +270,13 @@ Plans:
   2. A visitor can read the fees page (opłaty, stawki).
   3. Staff can add and remove gallery photos and edit the fees page via the CMS, with changes publishing after a Cloudflare rebuild.
 
-**Plans**: 9 plans
+**Plans**: 3/9 plans executed
 
 **Wave 1**
 
-- [ ] 05-01-PLAN.md — Contract amendments: 01-UI-SPEC v1.7, the 02-UI-SPEC supersession pointer, the DESIGN-BANK strike
-- [ ] 05-02-PLAN.md — /cennik: the amount formatter, the fee store, its reader and the public page; OPLATY becomes a typed read
-- [ ] 05-04-PLAN.md — PowtarzalnaGrupa gains move-up and move-down, proven on the two existing screens across both branches
+- [x] 05-01-PLAN.md — Contract amendments: 01-UI-SPEC v1.7, the 02-UI-SPEC supersession pointer, the DESIGN-BANK strike
+- [x] 05-02-PLAN.md — /cennik: the amount formatter, the fee store, its reader and the public page; OPLATY becomes a typed read
+- [x] 05-04-PLAN.md — PowtarzalnaGrupa gains move-up and move-down, proven on the two existing screens across both branches
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -356,5 +356,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 5 → 6
 | 3. News (Aktualności) | 7/7 | Complete    | 2026-08-13 |
 | 4. Enrollment, Contact & Email Pipeline | 9/9 | Complete    | 2026-08-15 |
 | 04.1 Replace Sveltia with custom Polish CMS (INSERTED) | 11/11 | Awaiting UAT | - |
-| 5. Gallery & Fees | 0/TBD | Not started | - |
+| 5. Gallery & Fees | 3/9 | In Progress|  |
 | 6. Accessibility, Legal Compliance & Launch | 0/TBD | Not started | - |
