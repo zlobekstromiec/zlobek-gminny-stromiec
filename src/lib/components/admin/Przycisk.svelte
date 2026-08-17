@@ -34,6 +34,7 @@
 		nazwa,
 		wartosc,
 		zajete = false,
+		wylaczone = false,
 		pelnaSzerokosc = false,
 		onNacisnij,
 		autofokus = false,
@@ -50,6 +51,16 @@
 		wartosc?: string;
 		/** The saving state of Contract 9: disabled plus aria-busy, never a spinner. */
 		zajete?: boolean;
+		/** Disabled because the action is IMPOSSIBLE, not because it is under way. Added by
+		 *  05-04 for the reorder buttons at the two ends of a list, which 05-UI-SPEC
+		 *  Contract 9 requires to be rendered and disabled rather than omitted, so the button
+		 *  row keeps a stable geometry as an editor works down the list.
+		 *
+		 *  A separate prop rather than a second use of `zajete`, because `zajete` also sets
+		 *  aria-busy, and aria-busy on a permanently unavailable button tells a screen reader
+		 *  that something is being updated when nothing is. Absent everywhere else, so every
+		 *  existing call site renders byte-identically to before. */
+		wylaczone?: boolean;
 		pelnaSzerokosc?: boolean;
 		/** Added by 04.1-07 for the photo island's two buttons, which are the first controls
 		 *  in the panel that act on the page instead of submitting it. Absent everywhere
@@ -75,7 +86,7 @@
 	{formaction}
 	name={nazwa}
 	value={wartosc}
-	disabled={zajete}
+	disabled={zajete || wylaczone}
 	aria-busy={zajete ? 'true' : undefined}
 	autofocus={autofokus}
 	onclick={onNacisnij}

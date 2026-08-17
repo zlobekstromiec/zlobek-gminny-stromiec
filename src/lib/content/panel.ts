@@ -430,12 +430,29 @@ export const KOPIA_ZAPIS = {
 	 *  being downloadable. */
 	usunietoDokumentTresc: 'Dokument został usunięty. Zniknie ze strony żłobka po około 2 minutach.',
 	notaGrupy: 'Dodanie lub usunięcie wiersza nie zapisuje zmian. Na końcu kliknij Zapisz.',
+	/** The same promise for a list that can ALSO be reordered (05-UI-SPEC Contract 9,
+	 *  05 D-22). `notaGrupy` above is deliberately left exactly as it is: the wartości group
+	 *  still renders it and still cannot be reordered, and rewording a shipped string that a
+	 *  screen is still showing would be a lockstep nobody asked for.
+	 *
+	 *  The noun is „wiersza" for the same reason `notaGrupy` uses it on all three groups
+	 *  including the photo one: here it is the generic word for one item of a repeated list.
+	 *  05-UI-SPEC's /admin/galeria copy table spells this note with the photo noun instead,
+	 *  and that is a matter for that screen: the note is a PROP and every mount supplies its
+	 *  own, so the gallery-specific variant lands beside this one in plan 05-06. */
+	notaGrupyZKolejnoscia:
+		'Dodanie, usunięcie lub przeniesienie wiersza nie zapisuje zmian. Na końcu kliknij Zapisz.',
 	dodajWartosc: 'Dodaj wartość',
 	dodajWiersz: 'Dodaj wiersz',
 	dodajZdjecie: 'Dodaj zdjęcie',
 	usunWartosc: 'Usuń tę wartość',
 	usunWiersz: 'Usuń ten wiersz',
-	usunZdjecie: 'Usuń to zdjęcie'
+	usunZdjecie: 'Usuń to zdjęcie',
+	/** The VISIBLE half of the two reorder buttons (05-UI-SPEC Contract 9). Only the verb,
+	 *  because the numbered suffix that makes each button's accessible name unique is
+	 *  visually hidden and is composed by nazwaPrzeniesieniaWGore / ...WDol below. */
+	przeniesWGore: 'Przenieś wyżej',
+	przeniesWDol: 'Przenieś niżej'
 } as const;
 
 /** The photo island (Component Contract 8). Nothing here describes motion, because
@@ -555,6 +572,21 @@ export function usunietoWiersz(numer: number): string {
 	return `Usunięto wiersz ${numer}.`;
 }
 
+/** Announcement after a repeatable row CHANGED PLACE (05-UI-SPEC Contract 9, 05 D-22).
+ *
+ *  It names both the number the item carried and the position it now holds, because
+ *  „Przeniesiono wiersz 3" on its own does not tell a screen-reader user whether anything
+ *  happened or in which direction. Same noun register as dodanoWiersz and usunietoWiersz,
+ *  which the photo group already reuses.
+ *
+ *  05-UI-SPEC's /admin/galeria copy table spells this announcement with the photo noun.
+ *  The status line is a PROP of the repeatable group and every mount supplies its own, so
+ *  that gallery-specific variant is added beside this one by plan 05-06 rather than being
+ *  forced onto the two lists that exist today. */
+export function przeniesionoWiersz(numer: number, pozycja: number): string {
+	return `Przeniesiono wiersz ${numer} na pozycję ${pozycja}.`;
+}
+
 /** Numbered legends of the repeatable groups. */
 export function legendaWartosci(numer: number): string {
 	return `Wartość ${numer}`;
@@ -577,6 +609,23 @@ export function legendaZdjecia(numer: number): string {
  *  concatenates copy inline. */
 export function bladWElemencie(legenda: string, komunikat: string): string {
 	return `${legenda}: ${komunikat}`;
+}
+
+/** The FULL accessible name of one reorder button, composed exactly as bladWElemencie
+ *  composes a summary line and for exactly the same reason: twelve buttons all called
+ *  „Przenieś wyżej" are one name twelve times, which is a WCAG 2.4.4 failure by
+ *  construction. The visible half of the button stays the bare verb and the numbered
+ *  legend is a visually hidden suffix, so a sighted editor reads a short label while a
+ *  screen-reader user hears which item the button moves.
+ *
+ *  The verb is read out of KOPIA_ZAPIS rather than retyped, so the label a page renders
+ *  and the name a screen reader announces cannot disagree. */
+export function nazwaPrzeniesieniaWGore(legenda: string): string {
+	return `${KOPIA_ZAPIS.przeniesWGore}: ${legenda}`;
+}
+
+export function nazwaPrzeniesieniaWDol(legenda: string): string {
+	return `${KOPIA_ZAPIS.przeniesWDol}: ${legenda}`;
 }
 
 /** The three commit descriptions of the aktualności collection. They are copy like any

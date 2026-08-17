@@ -84,6 +84,17 @@ export const AKCJA_USUNIECIA_WARTOSCI = '?/usunWartosc';
 export const AKCJA_DODANIA_ZDJECIA = '?/dodajZdjecie';
 export const AKCJA_USUNIECIA_ZDJECIA = '?/usunZdjecie';
 
+/** Names of the two REORDER actions (05-UI-SPEC Contract 9, 05 D-22).
+ *
+ *  One pair for both screens rather than a pair per list, unlike the add and remove names
+ *  above. Those need a suffix because the O nas screen carries TWO repeatable lists and one
+ *  action table, so `?/dodajWartosc` and `?/dodajZdjecie` have to be different words.
+ *  Reordering is opted into by exactly ONE list per screen (the O nas photos, the plan-dnia
+ *  rows), so a single unsuffixed pair names an unambiguous action on each of them, and a
+ *  screen that later opts a second list in would have to say which one it means. */
+export const AKCJA_PRZENIESIENIA_W_GORE = '?/przeniesWGore';
+export const AKCJA_PRZENIESIENIA_W_DOL = '?/przeniesWDol';
+
 /**
  * Upper bound on the number of items in one repeated group.
  *
@@ -251,8 +262,16 @@ export function wartosciONas(zrodlo: ZrodloPol): WartosciONas {
 	};
 }
 
-/** The position a remove button asked for, or null. Read through the same bounds the
- *  collector uses, so an index outside the group can only ever mean „remove nothing". */
+/** The position a remove OR A MOVE button asked for, or null. Read through the same bounds
+ *  the collector uses, so an index outside the group can only ever mean „remove nothing" or
+ *  „move nothing".
+ *
+ *  The two move actions of 05 D-22 reuse this unchanged rather than getting a bounding
+ *  function of their own. The index a move button posts is untrusted input in exactly the
+ *  same way a remove button's is, and this function already bounds it against the DENSE
+ *  array the collector built from the fields that ACTUALLY ARRIVED, which is the existing
+ *  mitigation for threat T-04.1-34. A second implementation would be that same threat with
+ *  a second chance to get it wrong. */
 export function indeksZadania(surowy: unknown, ile: number): number | null {
 	if (typeof surowy !== 'string') return null;
 	if (!/^[0-9]{1,3}$/.test(surowy.trim())) return null;
@@ -266,8 +285,27 @@ export function indeksZadania(surowy: unknown, ile: number): number | null {
  *  from the next: the attribute half of the focus move works only on a document the
  *  browser has just parsed, so the hydrated half has to run again on every answer, even
  *  when the destination is the same button as last time. */
+/** Which way an item was moved. Named rather than a boolean, because the group component
+ *  has to pick one of two BUTTONS from it and „true means up" is a comment waiting to rot. */
+export type KierunekPrzeniesienia = 'gora' | 'dol';
+
 export type ZadanieFokusu =
 	/** The first control of the item at this position, which is the row that was just added. */
 	| { cel: 'element'; indeks: number }
 	/** The add button, which is where focus goes when the item it was in stops existing. */
-	| { cel: 'dodaj' };
+	| { cel: 'dodaj' }
+	/** The move BUTTON of the item now at this position, in this direction (05-UI-SPEC
+	 *  Contract 9's focus rule).
+	 *
+	 *  Deliberately NOT the `element` variant with a new index. The effect that variant
+	 *  drives focuses the item's first form CONTROL, and the selector it uses excludes
+	 *  `<button>` by construction, on purpose, so that an add never focuses a hidden field.
+	 *  Reusing it would silently put focus in the caption input after a move, and the second
+	 *  press of „Przenieś wyżej" would then move nothing at all: the precise failure the
+	 *  contract's focus rule exists to prevent.
+	 *
+	 *  The index is the item's NEW position, because that is where the editor's next press
+	 *  has to land. The direction is carried because the button to focus is the one that
+	 *  performed the move, and when it has become disabled (the item reached an end) the
+	 *  group falls back to the opposite-direction button of the same item. */
+	| { cel: 'przenies'; indeks: number; kierunek: KierunekPrzeniesienia };

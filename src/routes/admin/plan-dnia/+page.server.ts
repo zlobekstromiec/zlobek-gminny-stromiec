@@ -2,11 +2,12 @@
 // and 10). The smaller of the two singleton screens, and the clean proof of the repeatable
 // pattern: one repeated pair of fields and nothing else in the way.
 //
-// TWO OF THE THREE ACTIONS BELOW NEVER TOUCH GIT, and that is the whole design (P-26).
-// `dodajWiersz` and `usunWiersz` read what was typed, change the LENGTH of the list and
-// render the form again. They mint no token, they call no orchestrator, they write no blob
-// and they produce no Cloudflare build. Only `zapisz` writes, which is what makes D-11's
-// „one page, one save, one commit" true no matter how many rows an editor adds first.
+// FOUR OF THE FIVE ACTIONS BELOW NEVER TOUCH GIT, and that is the whole design (P-26).
+// `dodajWiersz`, `usunWiersz` and the two move actions read what was typed, change the
+// LENGTH or the ORDER of the list and render the form again. They mint no token, they call
+// no orchestrator, they write no blob and they produce no Cloudflare build. Only `zapisz`
+// writes, which is what makes D-11's „one page, one save, one commit" true no matter how
+// many rows an editor adds or reorders first.
 //
 // THEY ARE SERVER ROUND TRIPS BECAUSE OF D-17. A row added by client code exists only in a
 // browser that ran the code; this panel has to work with scripting switched off, so adding
@@ -37,6 +38,7 @@ import {
 	KOPIA_WALIDACJA,
 	KOPIA_ZAPIS,
 	dodanoWiersz,
+	przeniesionoWiersz,
 	usunietoWiersz
 } from '$lib/content/panel';
 import {
@@ -45,6 +47,7 @@ import {
 	ZNACZNIK_ZAPISANO,
 	indeksZadania,
 	wartosciPlanuDnia,
+	type KierunekPrzeniesienia,
 	type WartosciPlanuDnia,
 	type ZadanieFokusu
 } from '$lib/pola-strony';
@@ -112,6 +115,40 @@ function shaZFormularza(dane: FormData): string | undefined {
 	return typeof surowy === 'string' && surowy.length > 0 ? surowy : undefined;
 }
 
+/** Move the row at the submitted POSITION one place in `kierunek`. Commits nothing: this is
+ *  the add and remove pair with the list's ORDER changing instead of its length (05 D-22).
+ *
+ *  A day plan is read top to bottom by a parent, so its order IS its content, and an editor
+ *  who put breakfast after the walk previously had to retype two rows to fix it.
+ *
+ *  Deliberately the same shape as the O nas photo move rather than a shared helper: the two
+ *  read different echo shapes out of the form (`wartosciPlanuDnia` here, `wartosciONas`
+ *  there) and touch different lists inside them, which is the same reason the two screens
+ *  already have their own add and remove actions instead of one parameterised pair. */
+function przeniesWiersz(dane: FormData, kierunek: KierunekPrzeniesienia): WynikPlanuDnia {
+	const wartosci = wartosciPlanuDnia(dane);
+	// Bounded against the set that ARRIVED, exactly as the remove action bounds it, so an
+	// index outside this very submission can only ever mean „move nothing" (T-04.1-34).
+	const indeks = indeksZadania(dane.get(POLE_INDEKSU), wartosci.wiersze.length);
+	const docelowy = indeks === null ? -1 : kierunek === 'gora' ? indeks - 1 : indeks + 1;
+	if (indeks === null || docelowy < 0 || docelowy >= wartosci.wiersze.length) {
+		// Already at the requested end, or an index nobody rendered. Answer with the form as
+		// it arrived, and say nothing: no move happened, so there is nothing to announce.
+		return { wartosci, pola: {}, sha: shaZFormularza(dane) };
+	}
+	const [przenoszony] = wartosci.wiersze.splice(indeks, 1);
+	wartosci.wiersze.splice(docelowy, 0, przenoszony);
+	return {
+		wartosci,
+		pola: {},
+		status: przeniesionoWiersz(indeks + 1, docelowy + 1),
+		// A FRESH object naming the NEW position and the direction, so the group can put focus
+		// back on the button that was just pressed.
+		zadanie: { cel: 'przenies', indeks: docelowy, kierunek } satisfies ZadanieFokusu,
+		sha: shaZFormularza(dane)
+	};
+}
+
 export const actions: Actions = {
 	/** Append one empty row. Commits NOTHING: the answer is the same form, one row longer,
 	 *  with every typed value still in it. */
@@ -153,6 +190,13 @@ export const actions: Actions = {
 			sha: shaZFormularza(dane)
 		} satisfies WynikPlanuDnia;
 	},
+
+	/** Move a row one place up. Commits nothing; only the ORDER of the echoed list changes,
+	 *  and the head SHA travels back in the form so a round trip cannot move the conflict
+	 *  baseline forward (D-10). */
+	przeniesWGore: async ({ request }) => przeniesWiersz(await request.formData(), 'gora'),
+
+	przeniesWDol: async ({ request }) => przeniesWiersz(await request.formData(), 'dol'),
 
 	/** The ONE action that writes. Validate, serialize, save, redirect: everything expensive
 	 *  behind everything cheap, the ordering src/lib/server/admin/zapis.ts enforces

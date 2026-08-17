@@ -13,6 +13,10 @@ import {
 	dodanoWiersz,
 	legendaWartosci,
 	legendaWiersza,
+	legendaZdjecia,
+	nazwaPrzeniesieniaWDol,
+	nazwaPrzeniesieniaWGore,
+	przeniesionoWiersz,
 	usunietoWiersz,
 	zobaczStrone
 } from '../src/lib/content/panel';
@@ -97,8 +101,49 @@ function poleTytuluWartosci(page: Strona) {
 	return page.getByLabel(POLA_O_NAS.wartoscTytulEtykieta, { exact: false });
 }
 
+/** The group's OWN polite region, not one of the photo islands' own. The group renders its
+ *  status after the whole list, so inside the photo group the last one is the group's; the
+ *  plan-dnia group has only one and `.last()` is the same element. */
+function statusGrupy(page: Strona, legenda: string) {
+	return grupa(page, legenda).locator('[role="status"]').last();
+}
+
 function przyciskZapisz(page: Strona) {
 	return formularz(page).getByRole('button', { name: KOPIA_ZAPIS.zapisz });
+}
+
+/** The two move buttons of ONE item, located by their ACCESSIBLE NAME. Deliberately not by
+ *  a class: what is under test is the WCAG 2.4.4 contract that each button says which item
+ *  it moves, and a class selector would pass on twelve buttons all called „Przenieś wyżej". */
+function przyciskWGore(page: Strona, legenda: string) {
+	return page.getByRole('button', { name: nazwaPrzeniesieniaWGore(legenda) });
+}
+
+function przyciskWDol(page: Strona, legenda: string) {
+	return page.getByRole('button', { name: nazwaPrzeniesieniaWDol(legenda) });
+}
+
+/** The order of the photo list, read from the hidden basename each item carries. An item
+ *  added on this visit has an empty one, which is precisely what makes it distinguishable
+ *  from the two committed pictures without giving it a file first.
+ *
+ *  ALWAYS READ THROUGH `expect.poll`. This is a plain read and not a web-first assertion,
+ *  so it does not retry: called straight after a click it answers with the order the page
+ *  had BEFORE the enhanced round trip came back and the case passes or fails on timing.
+ *  The no-scripting cases hide the problem, because there the click is a real navigation
+ *  that Playwright waits for on its own. */
+function nazwyZdjec(page: Strona) {
+	return page
+		.locator('main input[name$=".plik"]')
+		.evaluateAll((pola) => pola.map((pole) => (pole as HTMLInputElement).value));
+}
+
+/** The order of the day-plan rows, read from the control the editor actually types into.
+ *  Read through `expect.poll` for the same reason as the one above. */
+function kolejnoscGodzin(page: Strona) {
+	return poleGodzin(page).evaluateAll((pola) =>
+		pola.map((pole) => (pole as HTMLInputElement).value)
+	);
 }
 
 async function zalogujBezSkryptow(browser: import('@playwright/test').Browser) {
@@ -239,9 +284,12 @@ test.describe('Powtarzalna grupa: dodawanie wiersza (kontrakt 7, P-26)', () => {
 		);
 		// Focus is in the new row's first control, so an editor can just start typing.
 		await expect(poleGodzin(page).last()).toBeFocused();
-		// AND NOTHING WAS SAVED: no success panel, and the note says so permanently.
+		// AND NOTHING WAS SAVED: no success panel, and the note says so permanently. Since
+		// this list opted into reordering (05 D-22) the note is the one that names all three
+		// actions; a screen that can be reordered but promises only that adding and removing
+		// are unsaved would be telling an editor two thirds of the truth.
 		await expect(page.locator('[data-panel="sukces"]')).toHaveCount(0);
-		await expect(page.getByText(KOPIA_ZAPIS.notaGrupy).first()).toBeVisible();
+		await expect(page.getByText(KOPIA_ZAPIS.notaGrupyZKolejnoscia).first()).toBeVisible();
 	});
 
 	// REGRESSION GUARD for a defect this plan hit and fixed. Svelte treats `autofocus` as an
@@ -406,6 +454,250 @@ test.describe('Powtarzalna grupa: usuwanie wiersza (kontrakt 7, T-04.1-34)', () 
 		await expect(grupa(page, POLA_O_NAS.wartosciLegenda).locator('[role="status"]')).toHaveText(
 			usunietoWiersz(1)
 		);
+	});
+});
+
+// =========================================================================================
+// 05-UI-SPEC Contract 9: changing the ORDER of a repeated group (05 D-22)
+//
+// The two screens below are the two that mount PowtarzalnaGrupa, and between them they
+// cover BOTH branches of its `wlasnaRamka` split: the O nas photo group is the
+// `<div class="element">` branch (the one the gallery of plan 05-06 will use) and the
+// plan-dnia rows are the `<fieldset class="element">` branch. The O nas wartości group is
+// the live OPT-OUT subject and has a case of its own.
+// =========================================================================================
+
+test.describe('Zmiana kolejnosci zdjec na ekranie O nas (kontrakt 9, D-22)', () => {
+	const BAZOWE = oNas.obiekt_zdjecia.map((zdjecie) => zdjecie.plik);
+
+	test('kazda pozycja ma wlasny przycisk w gore i w dol, a nazwa kazdego z nich wskazuje ta pozycje', async ({
+		page,
+		zalogowany
+	}) => {
+		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
+		await page.goto(O_NAS);
+
+		for (let numer = 1; numer <= BAZOWE.length; numer++) {
+			await expect(przyciskWGore(page, legendaZdjecia(numer))).toHaveCount(1);
+			await expect(przyciskWDol(page, legendaZdjecia(numer))).toHaveCount(1);
+		}
+		// WCAG 2.4.4: not one of them is called only „Przenieś wyżej". A list of identical
+		// names is one name repeated, which is the whole reason the suffix exists.
+		await expect(
+			page.getByRole('button', { name: KOPIA_ZAPIS.przeniesWGore, exact: true })
+		).toHaveCount(0);
+		await expect(
+			page.getByRole('button', { name: KOPIA_ZAPIS.przeniesWDol, exact: true })
+		).toHaveCount(0);
+	});
+
+	test('pierwsza pozycja ma wylaczone przeniesienie w gore, ostatnia w dol, i oba sa wyrenderowane', async ({
+		page,
+		zalogowany
+	}) => {
+		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
+		await page.goto(O_NAS);
+		const ostatnia = BAZOWE.length;
+
+		// RENDERED and disabled, never omitted, so the button row keeps a stable geometry and
+		// a stable focus order as an editor works down the list.
+		await expect(przyciskWGore(page, legendaZdjecia(1))).toBeDisabled();
+		await expect(przyciskWDol(page, legendaZdjecia(ostatnia))).toBeDisabled();
+		await expect(przyciskWDol(page, legendaZdjecia(1))).toBeEnabled();
+		await expect(przyciskWGore(page, legendaZdjecia(ostatnia))).toBeEnabled();
+	});
+
+	test('przeniesienie zamienia pozycje miejscami, oglasza zmiane i niczego nie zapisuje', async ({
+		page,
+		zalogowany
+	}) => {
+		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
+		await page.goto(O_NAS);
+		await expect.poll(() => nazwyZdjec(page)).toEqual(BAZOWE);
+
+		await przyciskWGore(page, legendaZdjecia(2)).click();
+
+		await expect.poll(() => nazwyZdjec(page)).toEqual([BAZOWE[1], BAZOWE[0]]);
+		await expect(statusGrupy(page, POLA_O_NAS.zdjeciaLegenda)).toHaveText(przeniesionoWiersz(2, 1));
+		// AND NOTHING WAS SAVED, which is the property the note above the add button promises
+		// permanently and which this action shares with the add and the remove.
+		await expect(page.locator('[data-panel="sukces"]')).toHaveCount(0);
+		await expect(page.getByText(KOPIA_ZAPIS.notaGrupyZKolejnoscia).first()).toBeVisible();
+	});
+
+	// THE CASE A WRONG FOCUS TARGET ACTUALLY FAILS. One move followed by a second one on the
+	// SAME item, with the second one pressed on whatever has focus rather than located again:
+	// if focus went to the caption field, or to the button at the OLD position, the second
+	// press moves something else or nothing at all.
+	test('dwa przeniesienia pod rzad dzialaja, bo fokus idzie na przycisk w NOWEJ pozycji', async ({
+		page,
+		zalogowany
+	}) => {
+		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
+		await page.goto(O_NAS);
+		await page.getByRole('button', { name: KOPIA_ZAPIS.dodajZdjecie }).click();
+		await expect(przyciskWGore(page, legendaZdjecia(3))).toHaveCount(1);
+		await expect.poll(() => nazwyZdjec(page)).toEqual([...BAZOWE, '']);
+
+		await przyciskWGore(page, legendaZdjecia(3)).click();
+
+		await expect.poll(() => nazwyZdjec(page)).toEqual([BAZOWE[0], '', BAZOWE[1]]);
+		await expect(przyciskWGore(page, legendaZdjecia(2))).toBeFocused();
+
+		await page.keyboard.press('Enter');
+
+		await expect.poll(() => nazwyZdjec(page)).toEqual(['', BAZOWE[0], BAZOWE[1]]);
+		// The item reached the top, so the button that performed the move is now disabled.
+		// Focus goes to the opposite-direction button of the SAME item and is never lost.
+		await expect(przyciskWGore(page, legendaZdjecia(1))).toBeDisabled();
+		await expect(przyciskWDol(page, legendaZdjecia(1))).toBeFocused();
+	});
+
+	// REG-1 of 05-VALIDATION.md, with a LIVE subject rather than a claim: the wartości group
+	// deliberately passes none of the new props, so it must render exactly what it rendered
+	// before. Every prop this plan adds is opt-in precisely so this stays true.
+	test('grupa wartosci nie ma zadnego przycisku przenoszenia, bo nie wlaczyla tych propsow (REG-1)', async ({
+		page,
+		zalogowany
+	}) => {
+		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
+		await page.goto(O_NAS);
+		const wartosci = grupa(page, POLA_O_NAS.wartosciLegenda);
+
+		await expect(wartosci.getByRole('button', { name: KOPIA_ZAPIS.przeniesWGore })).toHaveCount(0);
+		await expect(wartosci.getByRole('button', { name: KOPIA_ZAPIS.przeniesWDol })).toHaveCount(0);
+		// And what it DID have is untouched: one remove button per wartość, and the add.
+		await expect(wartosci.getByRole('button', { name: KOPIA_ZAPIS.usunWartosc })).toHaveCount(
+			oNas.wartosci.length
+		);
+		await expect(wartosci.getByRole('button', { name: KOPIA_ZAPIS.dodajWartosc })).toHaveCount(1);
+	});
+
+	// THE CASE THAT PROVES WHERE THE REORDER LIVES. With scripting off there is no client code
+	// at all, so the only thing that can change the order is the server. The assertion here is
+	// the re-rendered ORDER and not the focus: focus after a full page load is a different
+	// contract, served by the attribute rather than by the effect.
+	test('zmiana kolejnosci dziala przy WYLACZONYM JavaScripcie, wiec przenosi serwer', async ({
+		browser
+	}) => {
+		const kontekst = await zalogujBezSkryptow(browser);
+		try {
+			const page = await kontekst.newPage();
+			const odpowiedz = await page.goto(O_NAS);
+			expect(odpowiedz?.status()).toBe(200);
+			await expect.poll(() => nazwyZdjec(page)).toEqual(BAZOWE);
+
+			await przyciskWDol(page, legendaZdjecia(1)).click();
+
+			await expect.poll(() => nazwyZdjec(page)).toEqual([BAZOWE[1], BAZOWE[0]]);
+			await expect(statusGrupy(page, POLA_O_NAS.zdjeciaLegenda)).toHaveText(
+				przeniesionoWiersz(1, 2)
+			);
+			await expect(page.locator('[data-panel="sukces"]')).toHaveCount(0);
+		} finally {
+			await kontekst.close();
+		}
+	});
+});
+
+test.describe('Zmiana kolejnosci wierszy na ekranie planu dnia (kontrakt 9, D-22)', () => {
+	const BAZOWE = planDnia.rows.map((wiersz) => wiersz.time);
+
+	test('kazdy wiersz ma wlasny przycisk w gore i w dol, a nazwa kazdego z nich wskazuje ten wiersz', async ({
+		page,
+		zalogowany
+	}) => {
+		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
+		await page.goto(PLAN);
+
+		for (let numer = 1; numer <= BAZOWE.length; numer++) {
+			await expect(przyciskWGore(page, legendaWiersza(numer))).toHaveCount(1);
+			await expect(przyciskWDol(page, legendaWiersza(numer))).toHaveCount(1);
+		}
+		await expect(
+			page.getByRole('button', { name: KOPIA_ZAPIS.przeniesWGore, exact: true })
+		).toHaveCount(0);
+	});
+
+	test('pierwszy wiersz ma wylaczone przeniesienie w gore, ostatni w dol', async ({
+		page,
+		zalogowany
+	}) => {
+		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
+		await page.goto(PLAN);
+		const ostatni = BAZOWE.length;
+
+		await expect(przyciskWGore(page, legendaWiersza(1))).toBeDisabled();
+		await expect(przyciskWDol(page, legendaWiersza(ostatni))).toBeDisabled();
+		await expect(przyciskWDol(page, legendaWiersza(1))).toBeEnabled();
+		await expect(przyciskWGore(page, legendaWiersza(ostatni))).toBeEnabled();
+	});
+
+	test('przeniesienie srodkowego wiersza w dol zachowuje kazda niezapisana wartosc i oglasza zmiane', async ({
+		page,
+		zalogowany
+	}) => {
+		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
+		await page.goto(PLAN);
+		// Something typed and NOT saved, in the row that is about to travel.
+		await poleOpisu(page).nth(2).fill('Opis, ktory ma pojechac razem z wierszem');
+
+		await przyciskWDol(page, legendaWiersza(3)).click();
+
+		const oczekiwane = [...BAZOWE];
+		const [przeniesiony] = oczekiwane.splice(2, 1);
+		oczekiwane.splice(3, 0, przeniesiony);
+		await expect.poll(() => kolejnoscGodzin(page)).toEqual(oczekiwane);
+		// The description travelled WITH its row rather than staying at the old position.
+		await expect(poleOpisu(page).nth(3)).toHaveValue('Opis, ktory ma pojechac razem z wierszem');
+		await expect(statusGrupy(page, POLA_PLAN_DNIA.grupaLegenda)).toHaveText(
+			przeniesionoWiersz(3, 4)
+		);
+		await expect(page.locator('[data-panel="sukces"]')).toHaveCount(0);
+	});
+
+	test('dwa przeniesienia pod rzad dzialaja tez tutaj, na drugiej galezi komponentu', async ({
+		page,
+		zalogowany
+	}) => {
+		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
+		await page.goto(PLAN);
+
+		await przyciskWGore(page, legendaWiersza(3)).click();
+
+		const poPierwszym = [BAZOWE[0], BAZOWE[2], BAZOWE[1], ...BAZOWE.slice(3)];
+		await expect.poll(() => kolejnoscGodzin(page)).toEqual(poPierwszym);
+		await expect(przyciskWGore(page, legendaWiersza(2))).toBeFocused();
+
+		await page.keyboard.press('Enter');
+
+		await expect
+			.poll(() => kolejnoscGodzin(page))
+			.toEqual([BAZOWE[2], BAZOWE[0], BAZOWE[1], ...BAZOWE.slice(3)]);
+		await expect(przyciskWGore(page, legendaWiersza(1))).toBeDisabled();
+		await expect(przyciskWDol(page, legendaWiersza(1))).toBeFocused();
+	});
+
+	test('zmiana kolejnosci wierszy dziala przy WYLACZONYM JavaScripcie', async ({ browser }) => {
+		const kontekst = await zalogujBezSkryptow(browser);
+		try {
+			const page = await kontekst.newPage();
+			const odpowiedz = await page.goto(PLAN);
+			expect(odpowiedz?.status()).toBe(200);
+			await expect.poll(() => kolejnoscGodzin(page)).toEqual(BAZOWE);
+
+			await przyciskWDol(page, legendaWiersza(1)).click();
+
+			await expect
+				.poll(() => kolejnoscGodzin(page))
+				.toEqual([BAZOWE[1], BAZOWE[0], ...BAZOWE.slice(2)]);
+			await expect(statusGrupy(page, POLA_PLAN_DNIA.grupaLegenda)).toHaveText(
+				przeniesionoWiersz(1, 2)
+			);
+			await expect(page.locator('[data-panel="sukces"]')).toHaveCount(0);
+		} finally {
+			await kontekst.close();
+		}
 	});
 });
 

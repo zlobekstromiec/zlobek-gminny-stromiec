@@ -34,18 +34,30 @@
 	// nothing after a removal and the wrong row after a second addition. The effect works
 	// from the request itself instead: the position for an item, the button for a removal.
 	//
-	// REORDERING IS OUT OF SCOPE for this phase, in both directions and in every list that
-	// uses this component: no dragging, no up and down buttons. Items are authored in order
-	// and an editor who wants a different order retypes. This sentence is here because the
-	// contract asks for it to be written down where somebody would otherwise add it.
+	// REORDERING IS AN OPT-IN, AND IT IS THE SAME SERVER ROUND TRIP (05-UI-SPEC Contract 9,
+	// 05 D-22). The six reorder props below are all unset by default, and a mount that
+	// passes none of them renders exactly the markup, the button row and the focus behaviour
+	// this component had before they existed. That is not a courtesy: this component is
+	// mounted by two screens at three sites, and only one of those three asked for
+	// reordering, so „absent means unchanged" is what keeps the other two out of the blast
+	// radius. The wartości group on the O nas screen is deliberately left opted out and is
+	// the live subject of a regression test that counts ZERO move buttons inside it.
 	//
-	// NOT ONE VISIBLE STRING IS AUTHORED HERE. The legend word, the note, both button
+	// DRAGGING IS STILL OUT OF SCOPE, in every list that uses this component. It carries its
+	// own accessibility bar (a pointer gesture with no keyboard equivalent is a WCAG 2.1.1
+	// failure unless a second mechanism is built anyway) and it has no no-scripting path at
+	// all, which is the one thing this whole pattern exists to preserve. Two buttons that
+	// submit the form are the mechanism, and they are the mechanism on every branch below.
+	//
+	// NOT ONE VISIBLE STRING IS AUTHORED HERE. The legend word, the note, all four button
 	// labels and the announcement all arrive as props from src/lib/content/panel.ts, which
 	// is what lets the Polish-only sweep cover this component without reading it.
 	import type { Snippet } from 'svelte';
+	import ArrowDown from '@lucide/svelte/icons/arrow-down';
+	import ArrowUp from '@lucide/svelte/icons/arrow-up';
 	import Plus from '@lucide/svelte/icons/plus';
 	import Przycisk from './Przycisk.svelte';
-	import type { ZadanieFokusu } from '$lib/pola-strony';
+	import type { KierunekPrzeniesienia, ZadanieFokusu } from '$lib/pola-strony';
 
 	let {
 		id,
@@ -62,6 +74,12 @@
 		status = '',
 		zadanie,
 		wlasnaRamka = false,
+		akcjaWGore,
+		akcjaWDol,
+		etykietaWGore,
+		etykietaWDol,
+		nazwaWGore,
+		nazwaWDol,
 		element
 	}: {
 		/** Prefix every item's wrapper derives its own id from. */
@@ -96,9 +114,38 @@
 		 *  for one picture. The numbered legend is then passed INTO the island, so Contract
 		 *  7's „each item is a fieldset with a legend numbering it" still holds exactly. */
 		wlasnaRamka?: boolean;
+		/** Form actions the two REORDER buttons post to (05-UI-SPEC Contract 9). Unset by
+		 *  default, which is what makes the whole feature opt-in: see the module header. */
+		akcjaWGore?: string;
+		akcjaWDol?: string;
+		/** Their VISIBLE labels, the bare verbs. */
+		etykietaWGore?: string;
+		etykietaWDol?: string;
+		/** Their full ACCESSIBLE names, composed from the item's numbered legend. Two
+		 *  functions rather than two strings, because a list of twelve buttons all called
+		 *  „Przenieś wyżej" is one name twelve times and a WCAG 2.4.4 failure by
+		 *  construction. Composed in the copy module for the same reason `etykietaElementu`
+		 *  is: the Polish stays where the sweep can reach it. */
+		nazwaWGore?: (legenda: string) => string;
+		nazwaWDol?: (legenda: string) => string;
 		/** Renders the controls of item `indeks`. */
 		element: Snippet<[number]>;
 	} = $props();
+
+	/** All six reorder props, or nothing at all. Collapsed into one value so the markup has
+	 *  a single question to ask and so a HALF-configured mount is inexpressible: passing the
+	 *  action without the name would render a button nobody can identify, which is worse
+	 *  than rendering no button. */
+	const przenoszenie = $derived(
+		akcjaWGore !== undefined &&
+			akcjaWDol !== undefined &&
+			etykietaWGore !== undefined &&
+			etykietaWDol !== undefined &&
+			nazwaWGore !== undefined &&
+			nazwaWDol !== undefined
+			? { akcjaWGore, akcjaWDol, etykietaWGore, etykietaWDol, nazwaWGore, nazwaWDol }
+			: undefined
+	);
 
 	/** The positions to render. Materialised rather than iterated as a length, because the
 	 *  position IS the item's whole identity here: it names every control inside the item
@@ -115,6 +162,33 @@
 	 *  nobody can see or type into. */
 	const WYBIERALNE = 'input:not([type="hidden"]), select, textarea';
 
+	/** The submit button of ONE item carrying this form action.
+	 *
+	 *  This is why the reorder needed a third `ZadanieFokusu` variant rather than reusing the
+	 *  existing one: the typeable-control selector declared above excludes buttons
+	 *  deliberately, so the destination of a move cannot be reached through it at all. (Its
+	 *  name is described rather than written here, following the repository rule that a
+	 *  comment explaining a constraint must not make the grep enforcing it report a
+	 *  permanent false positive.) Found by the ACTION rather than by a class or by a
+	 *  position inside the row, because the action name is the same string the button was
+	 *  rendered with and it is what tells the two directions apart. */
+	function przyciskAkcji(karta: Element, akcja: string): HTMLButtonElement | null {
+		const przycisk = karta.querySelector(`button[formaction="${akcja}"]`);
+		return przycisk instanceof HTMLButtonElement ? przycisk : null;
+	}
+
+	/** Which move button the SERVER-RENDERED attribute should land on for item `indeks`, or
+	 *  undefined. It mirrors the effect below, fallback included, because the two halves of
+	 *  every focus move in this component have to agree: the attribute serves a browser that
+	 *  has just parsed a fresh document, which is the no-scripting path, and the effect
+	 *  serves a hydrated page where an attribute on an already-parsed document does nothing. */
+	function fokusPrzeniesienia(indeks: number): KierunekPrzeniesienia | undefined {
+		if (zadanie?.cel !== 'przenies' || zadanie.indeks !== indeks) return undefined;
+		const naKoncu = zadanie.kierunek === 'gora' ? indeks === 0 : indeks === ile - 1;
+		if (!naKoncu) return zadanie.kierunek;
+		return zadanie.kierunek === 'gora' ? 'dol' : 'gora';
+	}
+
 	$effect(() => {
 		// Read as a whole so a new answer re-runs this even when it names the same
 		// destination: two removals in a row both want the add button focused, and the
@@ -127,10 +201,70 @@
 		}
 		// By POSITION, which is the same identity every other part of this pattern uses.
 		const karty = korzen?.querySelectorAll('.element');
+		if (cel.cel === 'przenies') {
+			// The button that performed the move, at the item's NEW position, so a second
+			// press keeps working on the same item.
+			const karta = karty?.[cel.indeks];
+			if (karta === undefined || przenoszenie === undefined) return;
+			const wGore = cel.kierunek === 'gora';
+			const wlasny = przyciskAkcji(karta, wGore ? przenoszenie.akcjaWGore : przenoszenie.akcjaWDol);
+			if (wlasny !== null && !wlasny.disabled) {
+				wlasny.focus();
+				return;
+			}
+			// The item reached an end and its own button is now disabled, so focus goes to the
+			// opposite direction of the SAME item rather than falling to the top of the page.
+			przyciskAkcji(karta, wGore ? przenoszenie.akcjaWDol : przenoszenie.akcjaWGore)?.focus();
+			return;
+		}
 		const kontrolka = karty?.[cel.indeks]?.querySelector(WYBIERALNE);
 		if (kontrolka instanceof HTMLElement) kontrolka.focus();
 	});
 </script>
+
+<!-- The two reorder buttons of one item, authored ONCE and rendered inside BOTH branches of
+     the `wlasnaRamka` split below. Written as a snippet rather than copied into each branch
+     on purpose: the two branches differing is the exact failure this feature is most likely
+     to ship (the gallery of plan 05-06 is the `<div class="element">` branch, which is not
+     the visually obvious one), and a single definition makes that failure inexpressible
+     rather than merely unlikely. Renders nothing at all when the mount opted out. -->
+{#snippet przyciskiKolejnosci(indeks: number)}
+	{#if przenoszenie}
+		{@const legenda = etykietaElementu(indeks + 1)}
+		<!-- An ordinary submit button carrying its own form action, inside the page's one
+		     form, exactly like the add and the remove: that is what makes reordering work
+		     with scripting switched off and commit nothing until „Zapisz". -->
+		<Przycisk
+			wariant="secondary"
+			formaction={przenoszenie.akcjaWGore}
+			nazwa={nazwaIndeksu}
+			wartosc={String(indeks)}
+			wylaczone={indeks === 0}
+			autofokus={fokusPrzeniesienia(indeks) === 'gora'}
+		>
+			<ArrowUp size={18} aria-hidden="true" focusable="false" />
+			<!-- The visible verb is hidden from the accessibility tree and the FULL name is
+			     supplied once as one string, so what a screen reader announces is exactly what
+			     the copy module composed rather than something re-assembled out of two text
+			     nodes. The visible label stays a prefix of that name, which is what WCAG 2.5.3
+			     asks of a control whose accessible name is longer than its label. -->
+			<span aria-hidden="true">{przenoszenie.etykietaWGore}</span>
+			<span class="visually-hidden">{przenoszenie.nazwaWGore(legenda)}</span>
+		</Przycisk>
+		<Przycisk
+			wariant="secondary"
+			formaction={przenoszenie.akcjaWDol}
+			nazwa={nazwaIndeksu}
+			wartosc={String(indeks)}
+			wylaczone={indeks === ile - 1}
+			autofokus={fokusPrzeniesienia(indeks) === 'dol'}
+		>
+			<ArrowDown size={18} aria-hidden="true" focusable="false" />
+			<span aria-hidden="true">{przenoszenie.etykietaWDol}</span>
+			<span class="visually-hidden">{przenoszenie.nazwaWDol(legenda)}</span>
+		</Przycisk>
+	{/if}
+{/snippet}
 
 <fieldset class="grupa" bind:this={korzen} aria-describedby={podpowiedz ? `${id}-hint` : undefined}>
 	<legend class="legenda">{legenda}</legend>
@@ -144,6 +278,7 @@
 				<div class="element">
 					{@render element(indeks)}
 					<div class="usun">
+						{@render przyciskiKolejnosci(indeks)}
 						<Przycisk
 							wariant="secondary"
 							formaction={akcjaUsuniecia}
@@ -159,6 +294,7 @@
 					<legend class="legenda-elementu">{etykietaElementu(indeks + 1)}</legend>
 					{@render element(indeks)}
 					<div class="usun">
+						{@render przyciskiKolejnosci(indeks)}
 						<Przycisk
 							wariant="secondary"
 							formaction={akcjaUsuniecia}
@@ -273,10 +409,30 @@
 		color: var(--color-ink);
 	}
 
-	/* The remove control sits at the END of the item it removes, so the editor reads what
-	   is about to disappear before reaching the button that removes it. */
+	/* The item's action row. The remove control sits at the END of the item it removes, so
+	   the editor reads what is about to disappear before reaching the button that removes
+	   it, and the two reorder buttons sit before it for the same reason: they are the
+	   reversible pair and the destructive one is last.
+
+	   The gap and the wrap are no-ops for a mount that opted out of reordering, because a
+	   flex row with one child has nothing to space and nothing to wrap. */
 	.usun {
 		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+
+	/* The numbered suffix that makes each reorder button's name its own (WCAG 2.4.4). */
+	.visually-hidden {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0 0 0 0);
+		white-space: nowrap;
+		border: 0;
 	}
 
 	/* Danger as the LABEL colour on a secondary button, never a danger fill: this removes a

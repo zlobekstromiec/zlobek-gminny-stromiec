@@ -53,6 +53,8 @@
 		bladWElemencie,
 		legendaWartosci,
 		legendaZdjecia,
+		nazwaPrzeniesieniaWDol,
+		nazwaPrzeniesieniaWGore,
 		zobaczStrone
 	} from '$lib/content/panel';
 	// NOT from the validator beside the action: SvelteKit refuses to bundle $lib/server into
@@ -60,6 +62,8 @@
 	import {
 		AKCJA_DODANIA_WARTOSCI,
 		AKCJA_DODANIA_ZDJECIA,
+		AKCJA_PRZENIESIENIA_W_DOL,
+		AKCJA_PRZENIESIENIA_W_GORE,
 		AKCJA_USUNIECIA_WARTOSCI,
 		AKCJA_USUNIECIA_ZDJECIA,
 		AKCJA_ZAPISU,
@@ -354,7 +358,14 @@
 	     the numbered legend: two nested fieldsets would announce two groups for one
 	     picture. The island is MOUNTED here, never rewritten: the ratio, the ready sentence
 	     and all four field names arrive as props, which is exactly why Plan 07 took them as
-	     props (D-13). -->
+	     props (D-13).
+
+	     THIS IS THE ONE GROUP ON THIS SCREEN THAT OPTS INTO REORDERING (05 D-22). The
+	     wartości group above deliberately passes none of those props and must keep rendering
+	     exactly what it rendered before, which is asserted by a test that counts zero move
+	     buttons inside it. The order of facility photographs is editorial and an editor who
+	     wants a different one should not have to retype four descriptions; the order of the
+	     four wartości is not something anyone has asked to change. -->
 	<div class="grupa">
 		<PowtarzalnaGrupa
 			id={PREFIKS_ZDJECIA}
@@ -365,8 +376,14 @@
 			akcjaUsuniecia={AKCJA_USUNIECIA_ZDJECIA}
 			etykietaDodania={KOPIA_ZAPIS.dodajZdjecie}
 			etykietaUsuniecia={KOPIA_ZAPIS.usunZdjecie}
+			akcjaWGore={AKCJA_PRZENIESIENIA_W_GORE}
+			akcjaWDol={AKCJA_PRZENIESIENIA_W_DOL}
+			etykietaWGore={KOPIA_ZAPIS.przeniesWGore}
+			etykietaWDol={KOPIA_ZAPIS.przeniesWDol}
+			nazwaWGore={nazwaPrzeniesieniaWGore}
+			nazwaWDol={nazwaPrzeniesieniaWDol}
 			nazwaIndeksu={POLE_INDEKSU}
-			nota={KOPIA_ZAPIS.notaGrupy}
+			nota={KOPIA_ZAPIS.notaGrupyZKolejnoscia}
 			status={form?.statusZdjec ?? ''}
 			zadanie={form?.zadanieZdjec}
 			wlasnaRamka
