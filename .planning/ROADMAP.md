@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: News (Aktualności)** - Staff-publishable news list + single post, feeding the homepage preview (completed 2026-08-13)
 - [x] **Phase 4: Enrollment, Contact & Email Pipeline** - Rekrutacja + Kontakt with the RODO-compliant, Turnstile-gated, email-only form pipeline (Resend) (completed 2026-08-14)
 - [ ] **Phase 04.1: Replace Sveltia with custom Polish CMS (INSERTED)** - Custom Polish-only admin panel with e-mail one-time-code login, replacing Sveltia + GitHub OAuth so non-technical staff need no GitHub account and see no English chrome (all 11 plans executed 2026-08-16, awaiting live UAT: see 04.1-UAT.md)
-- [ ] **Phase 5: Gallery & Fees** - CMS-managed photo gallery and editable fees page
+- [x] **Phase 5: Gallery & Fees** - CMS-managed photo gallery and editable fees page (completed 2026-08-17)
 - [ ] **Phase 6: Accessibility, Legal Compliance & Launch** - WCAG 2.1 AA audit, accessibility widget, Deklaracja dostępności, BIP link, Polityka prywatności, performance, and the real-content launch gate
 
 ## Phase Details
@@ -270,7 +270,7 @@ Plans:
   2. A visitor can read the fees page (opłaty, stawki).
   3. Staff can add and remove gallery photos and edit the fees page via the CMS, with changes publishing after a Cloudflare rebuild.
 
-**Plans**: 7/9 plans executed
+**Plans**: 9/9 plans complete
 
 **Wave 1**
 
@@ -293,8 +293,8 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 05-08-PLAN.md — The lightbox island, with the project's first open-overlay axe scan and first focus-trap assertion
-- [ ] 05-09-PLAN.md — W skrócie: the fact-tile store, the unified opening hours, /admin/w-skrocie and the phase ledger
+- [x] 05-08-PLAN.md — The lightbox island, with the project's first open-overlay axe scan and first focus-trap assertion
+- [x] 05-09-PLAN.md — W skrócie: the fact-tile store, the unified opening hours, /admin/w-skrocie and the phase ledger
 
 **UI hint**: yes
 
@@ -356,5 +356,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 5 → 6
 | 3. News (Aktualności) | 7/7 | Complete    | 2026-08-13 |
 | 4. Enrollment, Contact & Email Pipeline | 9/9 | Complete    | 2026-08-15 |
 | 04.1 Replace Sveltia with custom Polish CMS (INSERTED) | 11/11 | Awaiting UAT | - |
-| 5. Gallery & Fees | 7/9 | In Progress|  |
+| 5. Gallery & Fees | 9/9 | Complete   | 2026-08-17 |
 | 6. Accessibility, Legal Compliance & Launch | 0/TBD | Not started | - |
