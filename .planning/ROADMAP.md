@@ -270,7 +270,7 @@ Plans:
   2. A visitor can read the fees page (opłaty, stawki).
   3. Staff can add and remove gallery photos and edit the fees page via the CMS, with changes publishing after a Cloudflare rebuild.
 
-**Plans**: 6/9 plans executed
+**Plans**: 7/9 plans executed
 
 **Wave 1**
 
@@ -289,7 +289,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 05-07-PLAN.md — The #galeria section on /o-nas, obiekt_zdjecia leaves o-nas.json with every reader, KNOWN_FUTURE_ROUTES emptied
+- [x] 05-07-PLAN.md — The #galeria section on /o-nas, obiekt_zdjecia leaves o-nas.json with every reader, KNOWN_FUTURE_ROUTES emptied
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
@@ -356,5 +356,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 5 → 6
 | 3. News (Aktualności) | 7/7 | Complete    | 2026-08-13 |
 | 4. Enrollment, Contact & Email Pipeline | 9/9 | Complete    | 2026-08-15 |
 | 04.1 Replace Sveltia with custom Polish CMS (INSERTED) | 11/11 | Awaiting UAT | - |
-| 5. Gallery & Fees | 6/9 | In Progress|  |
+| 5. Gallery & Fees | 7/9 | In Progress|  |
 | 6. Accessibility, Legal Compliance & Launch | 0/TBD | Not started | - |
