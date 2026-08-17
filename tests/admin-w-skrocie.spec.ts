@@ -205,6 +205,58 @@ test.describe('Ekran W skrócie: kafelki strony glownej (Kontrakt 11)', () => {
 		expect(page.url()).not.toContain('zapisano');
 	});
 
+	test('cztery pola z tym samym komunikatem daja CZTERY ROZNE odnosniki (WCAG 2.4.4)', async ({
+		page,
+		zalogowany
+	}) => {
+		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
+		await page.goto(W_SKROCIE);
+
+		// Over the shared cap, which is what makes all four answer with the SAME sentence. The
+		// four „brak" messages differ from one another, so a length refusal is the shape in
+		// which the collision is ordinary rather than contrived.
+		const zaDlugi = 'a'.repeat(200);
+		for (const etykieta of [
+			POLA_W_SKROCIE.godzinyEtykieta,
+			POLA_W_SKROCIE.dniPelneEtykieta,
+			POLA_W_SKROCIE.dniSkrotEtykieta,
+			POLA_W_SKROCIE.weekendEtykieta
+		]) {
+			await page.getByLabel(etykieta).fill(zaDlugi);
+		}
+		await formularz(page).getByRole('button', { name: KOPIA_ZAPIS.zapisz }).click();
+
+		const panel = page.locator('[data-panel="blad"]');
+		await expect(panel).toBeVisible();
+
+		const odnosniki = panel.locator('a[href^="#"]');
+		await expect(odnosniki).toHaveCount(4);
+
+		// The link text IS the whole accessible name of the link. Four entries reading the same
+		// sentence and pointing at four different controls are one link four times: a
+		// screen-reader user listing the links hears no difference between them.
+		const teksty = await odnosniki.evaluateAll((lista) =>
+			lista.map((odnosnik) => odnosnik.textContent?.trim() ?? '')
+		);
+		expect(new Set(teksty).size, `odnosniki podsumowania nie sa rozroznialne: ${teksty}`).toBe(
+			teksty.length
+		);
+
+		// Distinctness alone would be satisfiable by a counter. Each entry has to name the
+		// field it will take the editor to, and the name has to be the field's OWN label.
+		for (const etykieta of [
+			POLA_W_SKROCIE.godzinyEtykieta,
+			POLA_W_SKROCIE.dniPelneEtykieta,
+			POLA_W_SKROCIE.dniSkrotEtykieta,
+			POLA_W_SKROCIE.weekendEtykieta
+		]) {
+			expect(
+				teksty.some((tekst) => tekst.includes(etykieta)),
+				`podsumowanie nie nazywa pola „${etykieta}"`
+			).toBe(true);
+		}
+	});
+
 	test('poprawny zapis pokazuje panel Zapisano z odnosnikiem do strony glownej', async ({
 		page,
 		zalogowany

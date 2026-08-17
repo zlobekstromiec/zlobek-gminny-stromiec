@@ -42,6 +42,7 @@
 		KOPIA_POWLOKA,
 		KOPIA_ZAPIS,
 		POLA_CENNIK,
+		bladWElemencie,
 		obecnieNaStronie,
 		zobaczStrone
 	} from '$lib/content/panel';
@@ -86,13 +87,31 @@
 		return `cennik-${pole}`;
 	}
 
+	/** The label of every field, keyed by the name the control posts under, READ from the same
+	 *  declarations the fields themselves render so the summary and the form cannot disagree
+	 *  about what a field is called. This is the singleton-screen counterpart of the numbered
+	 *  legend a repeated group hands to `bladWElemencie`: without it a summary line is the bare
+	 *  error message, and this screen has several messages that several controls carry at once
+	 *  („Uzupełnij to pole." on four fields of one fieldset, the conditional-zero refusal on all
+	 *  five text fields). Identical link texts pointing at different controls are one link
+	 *  repeated, which is a WCAG 2.4.4 failure by construction. */
+	const ETYKIETY: Record<string, string> = {
+		[POLE_STAWKI]: POLA_CENNIK.stawkaEtykieta,
+		[POLE_OBNIZKI]: POLA_CENNIK.obnizkaEtykieta,
+		[POLE_NAGLOWKA]: POLA_CENNIK.naglowekEtykieta,
+		[POLE_KWOTY_OPIS]: POLA_CENNIK.kwotaOpisEtykieta,
+		[POLE_ZUS]: POLA_CENNIK.zusEtykieta,
+		[POLE_WYZYWIENIA]: POLA_CENNIK.wyzywienieEtykieta,
+		[POLE_NIEOBECNOSCI]: POLA_CENNIK.nieobecnoscEtykieta
+	};
+
 	interface WpisPodsumowania {
 		cel: string;
 		tekst: string;
 	}
 
-	/** The summary, in the order of the form, with every entry linking to the control it is
-	 *  about (WCAG 2.4.4). Built by walking the fields rather than by parsing the error
+	/** The summary, in the order of the form, with every entry NAMING and linking to the control
+	 *  it is about (WCAG 2.4.4). Built by walking the fields rather than by parsing the error
 	 *  keys, which is what keeps the order the reading order. */
 	const podsumowanie: WpisPodsumowania[] = $derived.by(() =>
 		[
@@ -105,7 +124,7 @@
 			POLE_NIEOBECNOSCI
 		]
 			.filter((pole) => pola[pole] !== undefined)
-			.map((pole) => ({ cel: ident(pole), tekst: pola[pole] }))
+			.map((pole) => ({ cel: ident(pole), tekst: bladWElemencie(ETYKIETY[pole], pola[pole]) }))
 	);
 </script>
 

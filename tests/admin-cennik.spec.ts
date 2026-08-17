@@ -250,6 +250,54 @@ test.describe('Ekran cennika: trzy odmowy, ktore ten ekran posiada', () => {
 		expect(page.url()).not.toContain('zapisano');
 	});
 
+	test('cztery pola z tym samym komunikatem daja CZTERY ROZNE odnosniki (WCAG 2.4.4)', async ({
+		page,
+		zalogowany
+	}) => {
+		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
+		await page.goto(CENNIK);
+		// Blanking the whole „Opis opłat" fieldset. Four of these five controls answer with the
+		// SAME sentence („Uzupełnij to pole."), and the ZUS one has its own, so the case also
+		// covers the mixed shape rather than only the degenerate one.
+		await wypelnij(page, {
+			[POLA_CENNIK.naglowekEtykieta]: '',
+			[POLA_CENNIK.kwotaOpisEtykieta]: '',
+			[POLA_CENNIK.zusEtykieta]: '',
+			[POLA_CENNIK.wyzywienieEtykieta]: '',
+			[POLA_CENNIK.nieobecnoscEtykieta]: ''
+		});
+		await przyciskZapisz(page).click();
+
+		const panel = page.locator('[data-panel="blad"]');
+		await expect(panel).toBeVisible();
+		await expect(panel.getByRole('link')).toHaveCount(5);
+
+		// The link text IS the whole accessible name of the link. Five entries reading
+		// „Uzupełnij to pole." and pointing at five different controls are one link five
+		// times: a screen-reader user listing the links hears no difference between them.
+		const teksty = await panel
+			.getByRole('link')
+			.evaluateAll((odnosniki) => odnosniki.map((odnosnik) => odnosnik.textContent?.trim() ?? ''));
+		expect(new Set(teksty).size, `odnosniki podsumowania nie sa rozroznialne: ${teksty}`).toBe(
+			teksty.length
+		);
+
+		// Distinctness alone would be satisfiable by a counter. Each entry has to name the
+		// field it will take the editor to, and the name has to be the field's OWN label.
+		for (const etykieta of [
+			POLA_CENNIK.naglowekEtykieta,
+			POLA_CENNIK.kwotaOpisEtykieta,
+			POLA_CENNIK.zusEtykieta,
+			POLA_CENNIK.wyzywienieEtykieta,
+			POLA_CENNIK.nieobecnoscEtykieta
+		]) {
+			expect(
+				teksty.some((tekst) => tekst.includes(etykieta)),
+				`podsumowanie nie nazywa pola „${etykieta}"`
+			).toBe(true);
+		}
+	});
+
 	test('obnizka nie mniejsza od stawki jest odmawiana, wiec kwota ujemna jest niewyrazalna', async ({
 		page,
 		zalogowany
