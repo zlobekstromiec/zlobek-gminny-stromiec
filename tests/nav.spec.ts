@@ -85,16 +85,17 @@ test.describe('Navigation shell: Phase 1 acceptance', () => {
 		await expect(footer.getByRole('heading', { name: 'Godziny otwarcia' })).toBeVisible();
 
 		// Shortcut links. Amendment v1.7 §3 repoints two of them at fragments of
-		// existing pages instead of pages that were never going to be built. Galeria
-		// still points at the standalone path: plan 05-07 repoints it in the very
-		// commit that creates #galeria on /o-nas, because a repointed link that lands
-		// nowhere is worse than the 404 it replaces.
+		// existing pages instead of pages that were never going to be built, and plan
+		// 05-07 repoints the third the moment its target exists: Galeria now lands on
+		// the gallery section of /o-nas (05-UI-SPEC Contract 1). The locked footer
+		// contract enumerates this column by LABEL rather than by href, so the repoint
+		// is compatible with it and the label is unchanged.
 		const shortcuts: Array<[string, string]> = [
 			['Aktualności', '/aktualnosci'],
 			['Rekrutacja', '/rekrutacja'],
 			['Dokumenty', '/dokumenty'],
 			['Cennik', '/cennik'],
-			['Galeria', '/galeria'],
+			['Galeria', '/o-nas#galeria'],
 			['Dojazd', '/kontakt#dojazd']
 		];
 		for (const [name, href] of shortcuts) {
@@ -111,8 +112,8 @@ test.describe('Navigation shell: Phase 1 acceptance', () => {
 		await page.goto('/');
 
 		// Read the hrefs off what the footer actually renders, never off a retyped
-		// list. That is what makes plan 05-07's Galeria repoint covered the moment it
-		// lands, without anybody remembering to extend this test.
+		// list. That is what covered plan 05-07's Galeria repoint the moment it
+		// landed, with no edit to this loop at all.
 		const kolumna = page
 			.getByRole('contentinfo')
 			.locator('.col')

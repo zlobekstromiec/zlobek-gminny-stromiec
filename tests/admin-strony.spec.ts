@@ -6,14 +6,12 @@ import {
 	KOPIA_EKRAN_PLANU,
 	KOPIA_WALIDACJA,
 	KOPIA_ZAPIS,
-	KOPIA_ZDJECIA,
 	POLA_O_NAS,
 	POLA_PLAN_DNIA,
 	bladWElemencie,
 	dodanoWiersz,
 	legendaWartosci,
 	legendaWiersza,
-	legendaZdjecia,
 	nazwaPrzeniesieniaWDol,
 	nazwaPrzeniesieniaWGore,
 	przeniesionoWiersz,
@@ -36,7 +34,6 @@ const oNas = wczytaj<{
 	lead: string;
 	wartosci: { tytul: string; opis: string }[];
 	kadra_opiekunki: number;
-	obiekt_zdjecia: { plik: string; alt: string }[];
 }>('../src/lib/content/o-nas.json');
 
 /**
@@ -56,9 +53,15 @@ const oNas = wczytaj<{
  *    (D-17, P-26);
  *  • a removal from the MIDDLE of a list, which is where an index-keyed re-render either
  *    keeps every remaining value with its own row or quietly shifts them by one;
- *  • the D-15 alt refusal on a facility photo, repeated with scripting off;
  *  • axe with a repeated group actually populated, because an empty form is not the state
  *    the accessibility risk is in.
+ *
+ * WHAT LEFT THIS FILE IN PLAN 05-07, and where it went. The O nas screen no longer owns any
+ * photograph: the whole photo half moved to /admin/galeria in plan 05-06 and its coverage,
+ * including the D-15 alt refusal with scripting off, the prepared-picture hidden field, the
+ * 4:3 mount and the reorder contract, lives in tests/admin-galeria.spec.ts. The removal is
+ * ASSERTED here rather than merely untested: the shape case below demands that this screen
+ * render no file control and no picture at all.
  *
  * WHAT IT CANNOT PROVE, and does not pretend to: that a save becomes one real commit. Under
  * PANEL_DRY_RUN no commit exists to inspect, and a spec that mocked it would assert its own
@@ -71,11 +74,6 @@ const PLAN = '/admin/plan-dnia';
 const O_NAS = '/admin/o-nas';
 
 const ZNACZNIKI = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
-
-/** A real, small JPEG that already lives in the repository, used as the file an editor
- *  chooses. Deliberately not a new fixture: an image committed for a test is one more
- *  picture in a public repository that nobody has a consent record for. */
-const PLIK_ZDJECIA = `src/lib/assets/uploads/${oNas.obiekt_zdjecia[0].plik}`;
 
 type Strona = import('@playwright/test').Page;
 
@@ -123,23 +121,13 @@ function przyciskWDol(page: Strona, legenda: string) {
 	return page.getByRole('button', { name: nazwaPrzeniesieniaWDol(legenda) });
 }
 
-/** The order of the photo list, read from the hidden basename each item carries. An item
- *  added on this visit has an empty one, which is precisely what makes it distinguishable
- *  from the two committed pictures without giving it a file first.
+/** The order of the day-plan rows, read from the control the editor actually types into.
  *
  *  ALWAYS READ THROUGH `expect.poll`. This is a plain read and not a web-first assertion,
  *  so it does not retry: called straight after a click it answers with the order the page
  *  had BEFORE the enhanced round trip came back and the case passes or fails on timing.
  *  The no-scripting cases hide the problem, because there the click is a real navigation
  *  that Playwright waits for on its own. */
-function nazwyZdjec(page: Strona) {
-	return page
-		.locator('main input[name$=".plik"]')
-		.evaluateAll((pola) => pola.map((pole) => (pole as HTMLInputElement).value));
-}
-
-/** The order of the day-plan rows, read from the control the editor actually types into.
- *  Read through `expect.poll` for the same reason as the one above. */
 function kolejnoscGodzin(page: Strona) {
 	return poleGodzin(page).evaluateAll((pola) =>
 		pola.map((pole) => (pole as HTMLInputElement).value)
@@ -221,7 +209,7 @@ test.describe('Ekrany pojedynczych stron maja ksztalt z kontraktu 5', () => {
 		await expect(page.getByText(KOPIA_EKRAN_PLANU.uwagaWspolna)).toBeVisible();
 	});
 
-	test('ekran O nas otwiera sie na tym, co jest na stronie, ze zdjeciami i liczbami kadry', async ({
+	test('ekran O nas otwiera sie na tym, co jest na stronie, z tekstem i liczbami kadry', async ({
 		page,
 		zalogowany
 	}) => {
@@ -232,25 +220,26 @@ test.describe('Ekrany pojedynczych stron maja ksztalt z kontraktu 5', () => {
 		await expect(page.getByLabel(POLA_O_NAS.kadraOpiekunkiEtykieta, { exact: false })).toHaveValue(
 			String(oNas.kadra_opiekunki)
 		);
-		// Both committed pictures render as real previews, from the same by-name map the
-		// public page uses, so the island really did mount at the second call site.
-		await expect(page.locator('main img')).toHaveCount(oNas.obiekt_zdjecia.length);
-		await expect(
-			page.getByLabel(POLA_O_NAS.zdjecieAltEtykieta, { exact: false }).first()
-		).toHaveValue(oNas.obiekt_zdjecia[0].alt);
 	});
 
-	test('wyspa zdjecia jest zamontowana w proporcji 4:3, a nie 16:9', async ({
+	// The removal ASSERTED, not merely untested (plan 05-07). One panel screen owns the
+	// żłobek's photographs and it is /admin/galeria; two screens claiming the same pictures
+	// is the state this plan exists to end. A file control or a preview reappearing here
+	// would be exactly that state coming back.
+	test('ekran O nas nie ma juz zadnej polowy zdjeciowej: ani pliku, ani podgladu, ani przycisku', async ({
 		page,
 		zalogowany
 	}) => {
 		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
 		await page.goto(O_NAS);
-		const podglad = page.locator('main img').first();
-		await expect(podglad).toBeVisible();
-		const pudelko = await podglad.boundingBox();
-		expect(pudelko).not.toBeNull();
-		if (pudelko) expect(pudelko.width / pudelko.height).toBeCloseTo(4 / 3, 1);
+		await expect(page.getByLabel(POLA_O_NAS.leadEtykieta, { exact: false })).toBeVisible();
+
+		await expect(page.locator('main input[type="file"]')).toHaveCount(0);
+		await expect(page.locator('main img')).toHaveCount(0);
+		await expect(page.getByRole('button', { name: KOPIA_ZAPIS.dodajZdjecie })).toHaveCount(0);
+		await expect(page.getByRole('button', { name: KOPIA_ZAPIS.usunZdjecie })).toHaveCount(0);
+		// And with it went the honest no-scripting notice the photo island renders.
+		await expect(page.locator('main noscript')).toHaveCount(0);
 	});
 });
 
@@ -349,14 +338,10 @@ test.describe('Powtarzalna grupa: dodawanie wiersza (kontrakt 7, P-26)', () => {
 		}
 	});
 
-	test('dodanie wartosci na ekranie O nas zachowuje sie tak samo i nie rusza listy zdjec', async ({
-		page,
-		zalogowany
-	}) => {
+	test('dodanie wartosci na ekranie O nas zachowuje sie tak samo', async ({ page, zalogowany }) => {
 		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
 		await page.goto(O_NAS);
 		const przed = await poleTytuluWartosci(page).count();
-		const zdjecPrzed = await page.locator('main img').count();
 
 		await poleTytuluWartosci(page).first().fill('Zmieniona pierwsza wartość');
 		await page.getByRole('button', { name: KOPIA_ZAPIS.dodajWartosc }).click();
@@ -367,12 +352,6 @@ test.describe('Powtarzalna grupa: dodawanie wiersza (kontrakt 7, P-26)', () => {
 		await expect(grupa(page, POLA_O_NAS.wartosciLegenda).locator('[role="status"]')).toHaveText(
 			dodanoWiersz(przed + 1)
 		);
-		// The other list is untouched, and so is its own status line: two groups, two
-		// independent announcements.
-		await expect(page.locator('main img')).toHaveCount(zdjecPrzed);
-		await expect(
-			grupa(page, POLA_O_NAS.zdjeciaLegenda).locator('[role="status"]').first()
-		).toHaveText('');
 	});
 });
 
@@ -460,103 +439,19 @@ test.describe('Powtarzalna grupa: usuwanie wiersza (kontrakt 7, T-04.1-34)', () 
 // =========================================================================================
 // 05-UI-SPEC Contract 9: changing the ORDER of a repeated group (05 D-22)
 //
-// The two screens below are the two that mount PowtarzalnaGrupa, and between them they
-// cover BOTH branches of its `wlasnaRamka` split: the O nas photo group is the
-// `<div class="element">` branch (the one the gallery of plan 05-06 will use) and the
-// plan-dnia rows are the `<fieldset class="element">` branch. The O nas wartości group is
-// the live OPT-OUT subject and has a case of its own.
+// The plan-dnia rows below are the `<fieldset class="element">` branch of the component's
+// `wlasnaRamka` split. The other branch, `<div class="element">`, is exercised by the gallery
+// screen in tests/admin-galeria.spec.ts: it was the O nas photo group until plan 05-07 moved
+// that list out of this screen entirely. The O nas wartości group is the live OPT-OUT subject
+// and keeps a case of its own here.
 // =========================================================================================
 
-test.describe('Zmiana kolejnosci zdjec na ekranie O nas (kontrakt 9, D-22)', () => {
-	const BAZOWE = oNas.obiekt_zdjecia.map((zdjecie) => zdjecie.plik);
-
-	test('kazda pozycja ma wlasny przycisk w gore i w dol, a nazwa kazdego z nich wskazuje ta pozycje', async ({
-		page,
-		zalogowany
-	}) => {
-		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
-		await page.goto(O_NAS);
-
-		for (let numer = 1; numer <= BAZOWE.length; numer++) {
-			await expect(przyciskWGore(page, legendaZdjecia(numer))).toHaveCount(1);
-			await expect(przyciskWDol(page, legendaZdjecia(numer))).toHaveCount(1);
-		}
-		// WCAG 2.4.4: not one of them is called only „Przenieś wyżej". A list of identical
-		// names is one name repeated, which is the whole reason the suffix exists.
-		await expect(
-			page.getByRole('button', { name: KOPIA_ZAPIS.przeniesWGore, exact: true })
-		).toHaveCount(0);
-		await expect(
-			page.getByRole('button', { name: KOPIA_ZAPIS.przeniesWDol, exact: true })
-		).toHaveCount(0);
-	});
-
-	test('pierwsza pozycja ma wylaczone przeniesienie w gore, ostatnia w dol, i oba sa wyrenderowane', async ({
-		page,
-		zalogowany
-	}) => {
-		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
-		await page.goto(O_NAS);
-		const ostatnia = BAZOWE.length;
-
-		// RENDERED and disabled, never omitted, so the button row keeps a stable geometry and
-		// a stable focus order as an editor works down the list.
-		await expect(przyciskWGore(page, legendaZdjecia(1))).toBeDisabled();
-		await expect(przyciskWDol(page, legendaZdjecia(ostatnia))).toBeDisabled();
-		await expect(przyciskWDol(page, legendaZdjecia(1))).toBeEnabled();
-		await expect(przyciskWGore(page, legendaZdjecia(ostatnia))).toBeEnabled();
-	});
-
-	test('przeniesienie zamienia pozycje miejscami, oglasza zmiane i niczego nie zapisuje', async ({
-		page,
-		zalogowany
-	}) => {
-		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
-		await page.goto(O_NAS);
-		await expect.poll(() => nazwyZdjec(page)).toEqual(BAZOWE);
-
-		await przyciskWGore(page, legendaZdjecia(2)).click();
-
-		await expect.poll(() => nazwyZdjec(page)).toEqual([BAZOWE[1], BAZOWE[0]]);
-		await expect(statusGrupy(page, POLA_O_NAS.zdjeciaLegenda)).toHaveText(przeniesionoWiersz(2, 1));
-		// AND NOTHING WAS SAVED, which is the property the note above the add button promises
-		// permanently and which this action shares with the add and the remove.
-		await expect(page.locator('[data-panel="sukces"]')).toHaveCount(0);
-		await expect(page.getByText(KOPIA_ZAPIS.notaGrupyZKolejnoscia).first()).toBeVisible();
-	});
-
-	// THE CASE A WRONG FOCUS TARGET ACTUALLY FAILS. One move followed by a second one on the
-	// SAME item, with the second one pressed on whatever has focus rather than located again:
-	// if focus went to the caption field, or to the button at the OLD position, the second
-	// press moves something else or nothing at all.
-	test('dwa przeniesienia pod rzad dzialaja, bo fokus idzie na przycisk w NOWEJ pozycji', async ({
-		page,
-		zalogowany
-	}) => {
-		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
-		await page.goto(O_NAS);
-		await page.getByRole('button', { name: KOPIA_ZAPIS.dodajZdjecie }).click();
-		await expect(przyciskWGore(page, legendaZdjecia(3))).toHaveCount(1);
-		await expect.poll(() => nazwyZdjec(page)).toEqual([...BAZOWE, '']);
-
-		await przyciskWGore(page, legendaZdjecia(3)).click();
-
-		await expect.poll(() => nazwyZdjec(page)).toEqual([BAZOWE[0], '', BAZOWE[1]]);
-		await expect(przyciskWGore(page, legendaZdjecia(2))).toBeFocused();
-
-		await page.keyboard.press('Enter');
-
-		await expect.poll(() => nazwyZdjec(page)).toEqual(['', BAZOWE[0], BAZOWE[1]]);
-		// The item reached the top, so the button that performed the move is now disabled.
-		// Focus goes to the opposite-direction button of the SAME item and is never lost.
-		await expect(przyciskWGore(page, legendaZdjecia(1))).toBeDisabled();
-		await expect(przyciskWDol(page, legendaZdjecia(1))).toBeFocused();
-	});
-
+test.describe('Grupa wartosci na ekranie O nas zostala poza kontraktem 9 (REG-1)', () => {
 	// REG-1 of 05-VALIDATION.md, with a LIVE subject rather than a claim: the wartości group
-	// deliberately passes none of the new props, so it must render exactly what it rendered
-	// before. Every prop this plan adds is opt-in precisely so this stays true.
-	test('grupa wartosci nie ma zadnego przycisku przenoszenia, bo nie wlaczyla tych propsow (REG-1)', async ({
+	// deliberately passes none of the reordering props, so it must render exactly what it
+	// rendered before plan 05-04 added them. Every prop that plan and plan 05-06 added is
+	// opt-in precisely so this stays true.
+	test('grupa wartosci nie ma zadnego przycisku przenoszenia, bo nie wlaczyla tych propsow', async ({
 		page,
 		zalogowany
 	}) => {
@@ -571,32 +466,6 @@ test.describe('Zmiana kolejnosci zdjec na ekranie O nas (kontrakt 9, D-22)', () 
 			oNas.wartosci.length
 		);
 		await expect(wartosci.getByRole('button', { name: KOPIA_ZAPIS.dodajWartosc })).toHaveCount(1);
-	});
-
-	// THE CASE THAT PROVES WHERE THE REORDER LIVES. With scripting off there is no client code
-	// at all, so the only thing that can change the order is the server. The assertion here is
-	// the re-rendered ORDER and not the focus: focus after a full page load is a different
-	// contract, served by the attribute rather than by the effect.
-	test('zmiana kolejnosci dziala przy WYLACZONYM JavaScripcie, wiec przenosi serwer', async ({
-		browser
-	}) => {
-		const kontekst = await zalogujBezSkryptow(browser);
-		try {
-			const page = await kontekst.newPage();
-			const odpowiedz = await page.goto(O_NAS);
-			expect(odpowiedz?.status()).toBe(200);
-			await expect.poll(() => nazwyZdjec(page)).toEqual(BAZOWE);
-
-			await przyciskWDol(page, legendaZdjecia(1)).click();
-
-			await expect.poll(() => nazwyZdjec(page)).toEqual([BAZOWE[1], BAZOWE[0]]);
-			await expect(statusGrupy(page, POLA_O_NAS.zdjeciaLegenda)).toHaveText(
-				przeniesionoWiersz(1, 2)
-			);
-			await expect(page.locator('[data-panel="sukces"]')).toHaveCount(0);
-		} finally {
-			await kontekst.close();
-		}
 	});
 });
 
@@ -815,71 +684,6 @@ test.describe('Zapis strony O nas i jego odmowy', () => {
 		).toHaveAttribute('href', '#wartosc-1-tytul');
 	});
 
-	// THE D-15 CASE. With scripting off the island does nothing at all, so the only thing
-	// that can refuse this save is the server.
-	test('zdjecie obiektu z pustym opisem odmawia zapisu przy WYLACZONYM JavaScripcie (D-15)', async ({
-		browser
-	}) => {
-		const kontekst = await zalogujBezSkryptow(browser);
-		try {
-			const page = await kontekst.newPage();
-			const odpowiedz = await page.goto(O_NAS);
-			expect(odpowiedz?.status()).toBe(200);
-
-			// The honest notice is served to this browser and says what still works.
-			const notka = page.locator('main noscript').first();
-			expect(await notka.textContent()).toContain(KOPIA_ZDJECIA.bezSkryptow);
-
-			const alt = page.getByLabel(POLA_O_NAS.zdjecieAltEtykieta, { exact: false }).first();
-			await expect(alt).toHaveValue(oNas.obiekt_zdjecia[0].alt);
-			await alt.fill('');
-			await page.getByRole('button', { name: KOPIA_ZAPIS.zapisz }).click();
-
-			const panel = page.locator('[data-panel="blad"]');
-			await expect(panel).toBeVisible();
-			await expect(panel).toContainText(KOPIA_WALIDACJA.altBrak);
-			await expect(page.locator('[data-panel="sukces"]')).toHaveCount(0);
-		} finally {
-			await kontekst.close();
-		}
-	});
-
-	test('nowe zdjecie przygotowane w przegladarce trafia do ukrytego pola tej pozycji', async ({
-		page,
-		zalogowany
-	}) => {
-		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
-		await page.goto(O_NAS);
-		await page.getByRole('button', { name: KOPIA_ZAPIS.dodajZdjecie }).click();
-
-		const nowe = page.locator('main input[type="file"]').last();
-		// The new item's own control has focus, which is what the server's attribute asked
-		// for and what an editor who just pressed „Dodaj zdjęcie" expects.
-		await expect(nowe).toBeFocused();
-		await nowe.setInputFiles(PLIK_ZDJECIA);
-
-		const ukryte = page.locator('main input[name="zdjecie[2].dane"]');
-		await expect(ukryte).not.toHaveValue('');
-		expect((await ukryte.inputValue()).startsWith('data:image/jpeg;base64,')).toBe(true);
-		// The ready sentence names the 4:3 ratio, which is the o nas one and not the
-		// aktualność one.
-		await expect(page.getByText(KOPIA_ZDJECIA.gotowe43)).toBeVisible();
-	});
-
-	test('pozycja zdjecia bez zdjecia jest odmowiona instrukcja nazywajaca oba wyjscia', async ({
-		page,
-		zalogowany
-	}) => {
-		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
-		await page.goto(O_NAS);
-		await page.getByRole('button', { name: KOPIA_ZAPIS.dodajZdjecie }).click();
-
-		await przyciskZapisz(page).click();
-
-		await expect(page.locator('[data-panel="blad"]')).toContainText(KOPIA_WALIDACJA.zdjecieBrak);
-		await expect(page.locator('[data-panel="sukces"]')).toHaveCount(0);
-	});
-
 	test('poprawny zapis strony O nas renderuje panel Zapisano z odnosnikiem do strony publicznej', async ({
 		page,
 		zalogowany
@@ -937,19 +741,6 @@ test.describe('Dostepnosc obu ekranow (WCAG 2.1 AA)', () => {
 		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
 		await page.goto(O_NAS);
 		await expect(poleTytuluWartosci(page).first()).toBeVisible();
-		const wynik = await new AxeBuilder({ page }).withTags(ZNACZNIKI).analyze();
-		expect(wynik.violations).toEqual([]);
-	});
-
-	test('O nas ze swiezo wczytanym podgladem zdjecia nie narusza WCAG 2.1 AA', async ({
-		page,
-		zalogowany
-	}) => {
-		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
-		await page.goto(O_NAS);
-		await page.getByRole('button', { name: KOPIA_ZAPIS.dodajZdjecie }).click();
-		await page.locator('main input[type="file"]').last().setInputFiles(PLIK_ZDJECIA);
-		await expect(page.getByText(KOPIA_ZDJECIA.gotowe43)).toBeVisible();
 		const wynik = await new AxeBuilder({ page }).withTags(ZNACZNIKI).analyze();
 		expect(wynik.violations).toEqual([]);
 	});
