@@ -125,14 +125,21 @@ function przyciskWDol(page: Strona, legenda: string) {
 
 /** The order of the photo list, read from the hidden basename each item carries. An item
  *  added on this visit has an empty one, which is precisely what makes it distinguishable
- *  from the two committed pictures without giving it a file first. */
+ *  from the two committed pictures without giving it a file first.
+ *
+ *  ALWAYS READ THROUGH `expect.poll`. This is a plain read and not a web-first assertion,
+ *  so it does not retry: called straight after a click it answers with the order the page
+ *  had BEFORE the enhanced round trip came back and the case passes or fails on timing.
+ *  The no-scripting cases hide the problem, because there the click is a real navigation
+ *  that Playwright waits for on its own. */
 function nazwyZdjec(page: Strona) {
 	return page
 		.locator('main input[name$=".plik"]')
 		.evaluateAll((pola) => pola.map((pole) => (pole as HTMLInputElement).value));
 }
 
-/** The order of the day-plan rows, read from the control the editor actually types into. */
+/** The order of the day-plan rows, read from the control the editor actually types into.
+ *  Read through `expect.poll` for the same reason as the one above. */
 function kolejnoscGodzin(page: Strona) {
 	return poleGodzin(page).evaluateAll((pola) =>
 		pola.map((pole) => (pole as HTMLInputElement).value)
@@ -503,11 +510,11 @@ test.describe('Zmiana kolejnosci zdjec na ekranie O nas (kontrakt 9, D-22)', () 
 	}) => {
 		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
 		await page.goto(O_NAS);
-		expect(await nazwyZdjec(page)).toEqual(BAZOWE);
+		await expect.poll(() => nazwyZdjec(page)).toEqual(BAZOWE);
 
 		await przyciskWGore(page, legendaZdjecia(2)).click();
 
-		expect(await nazwyZdjec(page)).toEqual([BAZOWE[1], BAZOWE[0]]);
+		await expect.poll(() => nazwyZdjec(page)).toEqual([BAZOWE[1], BAZOWE[0]]);
 		await expect(statusGrupy(page, POLA_O_NAS.zdjeciaLegenda)).toHaveText(przeniesionoWiersz(2, 1));
 		// AND NOTHING WAS SAVED, which is the property the note above the add button promises
 		// permanently and which this action shares with the add and the remove.
@@ -527,16 +534,16 @@ test.describe('Zmiana kolejnosci zdjec na ekranie O nas (kontrakt 9, D-22)', () 
 		await page.goto(O_NAS);
 		await page.getByRole('button', { name: KOPIA_ZAPIS.dodajZdjecie }).click();
 		await expect(przyciskWGore(page, legendaZdjecia(3))).toHaveCount(1);
-		expect(await nazwyZdjec(page)).toEqual([...BAZOWE, '']);
+		await expect.poll(() => nazwyZdjec(page)).toEqual([...BAZOWE, '']);
 
 		await przyciskWGore(page, legendaZdjecia(3)).click();
 
-		expect(await nazwyZdjec(page)).toEqual([BAZOWE[0], '', BAZOWE[1]]);
+		await expect.poll(() => nazwyZdjec(page)).toEqual([BAZOWE[0], '', BAZOWE[1]]);
 		await expect(przyciskWGore(page, legendaZdjecia(2))).toBeFocused();
 
 		await page.keyboard.press('Enter');
 
-		expect(await nazwyZdjec(page)).toEqual(['', BAZOWE[0], BAZOWE[1]]);
+		await expect.poll(() => nazwyZdjec(page)).toEqual(['', BAZOWE[0], BAZOWE[1]]);
 		// The item reached the top, so the button that performed the move is now disabled.
 		// Focus goes to the opposite-direction button of the SAME item and is never lost.
 		await expect(przyciskWGore(page, legendaZdjecia(1))).toBeDisabled();
@@ -575,11 +582,11 @@ test.describe('Zmiana kolejnosci zdjec na ekranie O nas (kontrakt 9, D-22)', () 
 			const page = await kontekst.newPage();
 			const odpowiedz = await page.goto(O_NAS);
 			expect(odpowiedz?.status()).toBe(200);
-			expect(await nazwyZdjec(page)).toEqual(BAZOWE);
+			await expect.poll(() => nazwyZdjec(page)).toEqual(BAZOWE);
 
 			await przyciskWDol(page, legendaZdjecia(1)).click();
 
-			expect(await nazwyZdjec(page)).toEqual([BAZOWE[1], BAZOWE[0]]);
+			await expect.poll(() => nazwyZdjec(page)).toEqual([BAZOWE[1], BAZOWE[0]]);
 			await expect(statusGrupy(page, POLA_O_NAS.zdjeciaLegenda)).toHaveText(
 				przeniesionoWiersz(1, 2)
 			);
@@ -637,7 +644,7 @@ test.describe('Zmiana kolejnosci wierszy na ekranie planu dnia (kontrakt 9, D-22
 		const oczekiwane = [...BAZOWE];
 		const [przeniesiony] = oczekiwane.splice(2, 1);
 		oczekiwane.splice(3, 0, przeniesiony);
-		expect(await kolejnoscGodzin(page)).toEqual(oczekiwane);
+		await expect.poll(() => kolejnoscGodzin(page)).toEqual(oczekiwane);
 		// The description travelled WITH its row rather than staying at the old position.
 		await expect(poleOpisu(page).nth(3)).toHaveValue('Opis, ktory ma pojechac razem z wierszem');
 		await expect(statusGrupy(page, POLA_PLAN_DNIA.grupaLegenda)).toHaveText(
@@ -656,17 +663,14 @@ test.describe('Zmiana kolejnosci wierszy na ekranie planu dnia (kontrakt 9, D-22
 		await przyciskWGore(page, legendaWiersza(3)).click();
 
 		const poPierwszym = [BAZOWE[0], BAZOWE[2], BAZOWE[1], ...BAZOWE.slice(3)];
-		expect(await kolejnoscGodzin(page)).toEqual(poPierwszym);
+		await expect.poll(() => kolejnoscGodzin(page)).toEqual(poPierwszym);
 		await expect(przyciskWGore(page, legendaWiersza(2))).toBeFocused();
 
 		await page.keyboard.press('Enter');
 
-		expect(await kolejnoscGodzin(page)).toEqual([
-			BAZOWE[2],
-			BAZOWE[0],
-			BAZOWE[1],
-			...BAZOWE.slice(3)
-		]);
+		await expect
+			.poll(() => kolejnoscGodzin(page))
+			.toEqual([BAZOWE[2], BAZOWE[0], BAZOWE[1], ...BAZOWE.slice(3)]);
 		await expect(przyciskWGore(page, legendaWiersza(1))).toBeDisabled();
 		await expect(przyciskWDol(page, legendaWiersza(1))).toBeFocused();
 	});
@@ -677,11 +681,13 @@ test.describe('Zmiana kolejnosci wierszy na ekranie planu dnia (kontrakt 9, D-22
 			const page = await kontekst.newPage();
 			const odpowiedz = await page.goto(PLAN);
 			expect(odpowiedz?.status()).toBe(200);
-			expect(await kolejnoscGodzin(page)).toEqual(BAZOWE);
+			await expect.poll(() => kolejnoscGodzin(page)).toEqual(BAZOWE);
 
 			await przyciskWDol(page, legendaWiersza(1)).click();
 
-			expect(await kolejnoscGodzin(page)).toEqual([BAZOWE[1], BAZOWE[0], ...BAZOWE.slice(2)]);
+			await expect
+				.poll(() => kolejnoscGodzin(page))
+				.toEqual([BAZOWE[1], BAZOWE[0], ...BAZOWE.slice(2)]);
 			await expect(statusGrupy(page, POLA_PLAN_DNIA.grupaLegenda)).toHaveText(
 				przeniesionoWiersz(1, 2)
 			);

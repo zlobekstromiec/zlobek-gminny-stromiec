@@ -3,11 +3,12 @@
 // two narrative fields, two repeated lists, two numbers and a photo group, and exactly ONE
 // commit for all of it.
 //
-// FOUR OF THE FIVE ACTIONS BELOW NEVER TOUCH GIT. The two add and the two remove actions
-// read what was typed, change the LENGTH of one list and render the form again. They mint
-// no token, they call no orchestrator, they write no blob and they produce no Cloudflare
-// build (P-26). Only `zapisz` writes, and it calls the orchestrator exactly once, which is
-// what makes D-11's „one page, one save, one commit" true however long the session was.
+// SIX OF THE SEVEN ACTIONS BELOW NEVER TOUCH GIT. The two add, the two remove and the two
+// move actions read what was typed, change the LENGTH or the ORDER of one list and render
+// the form again. They mint no token, they call no orchestrator, they write no blob and
+// they produce no Cloudflare build (P-26). Only `zapisz` writes, and it calls the
+// orchestrator exactly once, which is what makes D-11's „one page, one save, one commit"
+// true however long the session was.
 //
 // THE JSON AND EVERY PENDING PICTURE TRAVEL IN ONE TREE (D-07). Two commits would be two
 // builds, roughly four minutes, and a window in which the page lists a photograph nobody
@@ -39,6 +40,7 @@ import {
 	KOPIA_WALIDACJA,
 	KOPIA_ZAPIS,
 	dodanoWiersz,
+	przeniesionoWiersz,
 	usunietoWiersz
 } from '$lib/content/panel';
 import {
@@ -47,6 +49,7 @@ import {
 	ZNACZNIK_ZAPISANO,
 	indeksZadania,
 	wartosciONas,
+	type KierunekPrzeniesienia,
 	type WartosciONas,
 	type ZadanieFokusu
 } from '$lib/pola-strony';
@@ -128,6 +131,36 @@ function shaZFormularza(dane: FormData): string | undefined {
 	return typeof surowy === 'string' && surowy.length > 0 ? surowy : undefined;
 }
 
+/** Move the photo at the submitted POSITION one place in `kierunek`. Commits nothing and
+ *  writes no file: this is the add and remove pair with the list's ORDER changing instead
+ *  of its length (05 D-22).
+ *
+ *  Both move actions go through here rather than being written twice, because the two
+ *  differ by one sign and a duplicated off-by-one is the whole failure mode. */
+function przeniesZdjecie(dane: FormData, kierunek: KierunekPrzeniesienia): WynikONasEkranu {
+	const wartosci = wartosciONas(dane);
+	// Bounded against the set that ARRIVED, exactly as the remove action bounds it, so an
+	// index outside this very submission can only ever mean „move nothing" (T-04.1-34).
+	const indeks = indeksZadania(dane.get(POLE_INDEKSU), wartosci.zdjecia.length);
+	const docelowy = indeks === null ? -1 : kierunek === 'gora' ? indeks - 1 : indeks + 1;
+	if (indeks === null || docelowy < 0 || docelowy >= wartosci.zdjecia.length) {
+		// Already at the requested end, or an index nobody rendered. Answer with the form as
+		// it arrived, and say nothing: no move happened, so there is nothing to announce.
+		return { wartosci, pola: {}, sha: shaZFormularza(dane) };
+	}
+	const [przenoszone] = wartosci.zdjecia.splice(indeks, 1);
+	wartosci.zdjecia.splice(docelowy, 0, przenoszone);
+	return {
+		wartosci,
+		pola: {},
+		statusZdjec: przeniesionoWiersz(indeks + 1, docelowy + 1),
+		// A FRESH object naming the NEW position and the direction, which is what lets the
+		// group component put focus back on the button that was just pressed.
+		zadanieZdjec: { cel: 'przenies', indeks: docelowy, kierunek } satisfies ZadanieFokusu,
+		sha: shaZFormularza(dane)
+	};
+}
+
 export const actions: Actions = {
 	/** Append one empty wartość. Commits nothing. */
 	dodajWartosc: async ({ request }) => {
@@ -198,6 +231,13 @@ export const actions: Actions = {
 			sha: shaZFormularza(dane)
 		} satisfies WynikONasEkranu;
 	},
+
+	/** Move a photo one place up. Commits nothing; only the ORDER of the echoed list changes,
+	 *  and the head SHA travels back in the form so a round trip cannot move the conflict
+	 *  baseline forward (D-10). */
+	przeniesWGore: async ({ request }) => przeniesZdjecie(await request.formData(), 'gora'),
+
+	przeniesWDol: async ({ request }) => przeniesZdjecie(await request.formData(), 'dol'),
 
 	/** The ONE action that writes, and it writes once. */
 	zapisz: async ({ request, locals, platform }) => {
