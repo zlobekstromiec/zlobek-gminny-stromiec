@@ -54,5 +54,10 @@ export const TRASY: readonly { nazwa: string; sciezka: string }[] = [
 	{ nazwa: 'plan dnia', sciezka: '/admin/plan-dnia' },
 	{ nazwa: 'cennik', sciezka: '/admin/cennik' },
 	{ nazwa: 'nabor', sciezka: '/admin/nabor' },
+	// 05-UI-SPEC Contract 11 and 05 D-34. „W skrócie" is reached from a pulpit tile and is
+	// deliberately absent from the panel navigation, so it is absent from SCIEZKI_PANELU too.
+	// That makes THIS list the only place it can be swept for Polish, which is exactly the
+	// silent gap tests/admin-enumeracja.spec.ts exists to make loud.
+	{ nazwa: 'w skrocie', sciezka: '/admin/w-skrocie' },
 	{ nazwa: 'pomoc', sciezka: '/admin/pomoc' }
 ];
