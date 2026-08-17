@@ -270,7 +270,7 @@ Plans:
   2. A visitor can read the fees page (opłaty, stawki).
   3. Staff can add and remove gallery photos and edit the fees page via the CMS, with changes publishing after a Cloudflare rebuild.
 
-**Plans**: 3/9 plans executed
+**Plans**: 5/9 plans executed
 
 **Wave 1**
 
@@ -280,8 +280,8 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 05-03-PLAN.md — Public nav v3: six items at a 1024px tier, footer repoints, the #dojazd anchor, /cennik and /dojazd leave KNOWN_FUTURE_ROUTES
-- [ ] 05-05-PLAN.md — The panel route-enumeration gate, then /admin/cennik end to end
+- [x] 05-03-PLAN.md — Public nav v3: six items at a 1024px tier, footer repoints, the #dojazd anchor, /cennik and /dojazd leave KNOWN_FUTURE_ROUTES
+- [x] 05-05-PLAN.md — The panel route-enumeration gate, then /admin/cennik end to end
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -356,5 +356,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 5 → 6
 | 3. News (Aktualności) | 7/7 | Complete    | 2026-08-13 |
 | 4. Enrollment, Contact & Email Pipeline | 9/9 | Complete    | 2026-08-15 |
 | 04.1 Replace Sveltia with custom Polish CMS (INSERTED) | 11/11 | Awaiting UAT | - |
-| 5. Gallery & Fees | 3/9 | In Progress|  |
+| 5. Gallery & Fees | 5/9 | In Progress|  |
 | 6. Accessibility, Legal Compliance & Launch | 0/TBD | Not started | - |
