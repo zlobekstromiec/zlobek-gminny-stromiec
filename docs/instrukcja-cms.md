@@ -44,7 +44,7 @@ literówkę było widać.
 
 Ekran po wysłaniu kodu wygląda tak samo dla każdego adresu. Jeśli kod nie przychodzi i
 masz pewność, że adres jest wpisany poprawnie, to znaczy, że ten adres nie ma jeszcze
-dostępu do panelu. Zgłoś to osobie, która przekazała Ci dostęp (patrz sekcja 13).
+dostępu do panelu. Zgłoś to osobie, która przekazała Ci dostęp (patrz sekcja 14).
 
 Zalogowanie pamięta się przez 30 dni na tym samym urządzeniu i w tej samej przeglądarce.
 
@@ -60,7 +60,7 @@ zalogowania: następna osoba, która otworzy ten adres, trafi prosto do panelu.
 
 ## 2. Pulpit
 
-Pulpit to pierwszy ekran po zalogowaniu. Jest na nim siedem kafelków i każdy prowadzi do
+Pulpit to pierwszy ekran po zalogowaniu. Jest na nim osiem kafelków i każdy prowadzi do
 jednego miejsca, które można zmienić. Te same sekcje są w menu, widocznym na każdym
 ekranie.
 
@@ -68,6 +68,8 @@ ekranie.
   Kafelek pokazuje, ile wpisów jest teraz na stronie.
 - **O nas**: wprowadzenie, misja, wartości, opis kadry i opis budynku wraz ze zdjęciami
   obiektu.
+- **Galeria**: zdjęcia sal, placu zabaw i budynku, pokazywane na stronie O nas. Kafelek
+  pokazuje, ile zdjęć jest teraz w galerii.
 - **Plan dnia**: godziny i zajęcia w ciągu dnia.
 - **Cennik**: kwoty i opis opłat za pobyt oraz wyżywienie.
 - **Dokumenty**: pliki do pobrania, czyli wnioski, statut i uchwały. Kafelek pokazuje,
@@ -266,12 +268,67 @@ Ekran **O nas** zbiera całą treść podstrony O nas w jednym formularzu:
 - **Treść zastępcza (do potwierdzenia)**: tak samo jak przy wpisie.
 
 Cały ten ekran ma jeden przycisk **Zapisz** na dole. Możesz zmienić kilka rzeczy naraz i
-zapisać je jednym kliknięciem. Kolejności wartości i zdjęć nie da się w tej chwili
-przestawiać: żeby zmienić kolejność, trzeba przepisać treść wierszy.
+zapisać je jednym kliknięciem.
+
+Kolejność zdjęć obiektu zmieniasz przyciskami **Przenieś wyżej** i **Przenieś niżej** przy
+każdym zdjęciu. Kolejności wartości nie da się przestawiać: żeby ją zmienić, trzeba
+przepisać treść wierszy.
 
 ---
 
-## 8. Plan dnia
+## 8. Galeria
+
+Ekran **Galeria** to zdjęcia sal, placu zabaw i budynku. Rodzic ogląda je na stronie
+**O nas**, pod opisem budynku. Jest to jedna lista i jeden przycisk **Zapisz** na dole:
+możesz dodać kilka zdjęć naraz, poprzestawiać je i zapisać wszystko jednym kliknięciem.
+
+Grupa nazywa się **Zdjęcia galerii**, a każda pozycja ma trzy części.
+
+- **Wybierz zdjęcie**: plik z telefonu albo z komputera. Zdjęcie jest przycinane
+  automatycznie do proporcji 4:3 i zmniejszane, żeby strona działała szybko, dokładnie
+  tak, jak opisuje sekcja 5. Nie trzeba niczego przygotowywać wcześniej.
+- **Podpis zdjęcia**: krótka nazwa miejsca, na przykład `Sala zabaw`. Pojawia się pod
+  zdjęciem na stronie, więc czyta ją rodzic.
+- **Opis alternatywny (alt)**: jedno zdanie mówiące, co widać na zdjęciu. Czytają je osoby
+  korzystające z czytników ekranu. To nie jest to samo co podpis: podpis nazywa miejsce,
+  a opis alternatywny opisuje to, co na zdjęciu widać.
+
+**Oba pola są obowiązkowe.** Jeśli zostawisz podpis pusty, panel odmówi zapisu i napisze:
+„Podaj podpis zdjęcia, na przykład: Sala zabaw.". Jeśli zostawisz pusty opis
+alternatywny, odmówi tak samo, zdaniem opisanym w sekcji 5. Jeśli pozycja nie ma
+wybranego zdjęcia, panel napisze „Wybierz zdjęcie albo usuń całą pozycję.".
+
+### Kolejność zdjęć
+
+Zdjęcia pokazują się na stronie w tej kolejności, w której stoją na tej liście. Przy
+każdym zdjęciu są przyciski **Przenieś wyżej** i **Przenieś niżej**. Pierwsze zdjęcie nie
+da się przenieść wyżej, a ostatnie niżej, więc te przyciski są wtedy nieaktywne.
+
+**Przeniesienie, dodanie ani usunięcie zdjęcia niczego nie zapisuje.** Jest to napisane
+nad przyciskiem dodawania. Po poprzestawianiu listy trzeba jeszcze zjechać na dół i
+kliknąć **Zapisz**.
+
+### Limit dwunastu zdjęć
+
+W galerii mieści się najwyżej 12 zdjęć. Gdy lista jest pełna, przycisk **Dodaj zdjęcie**
+znika, a w jego miejscu pojawia się zdanie „Osiągnięto limit 12 zdjęć. Aby dodać nowe,
+usuń najpierw jedno z istniejących.". Nie jest to usterka: żeby dodać nowe zdjęcie, usuń
+najpierw jedno z tych, które już są, przyciskiem **Usuń to zdjęcie**.
+
+Limit jest celowy. Kilkanaście dobrych zdjęć pokazuje żłobek lepiej niż kilkadziesiąt
+przypadkowych, a rodzic ogląda galerię najczęściej na telefonie.
+
+### Usunięcie zdjęcia z galerii
+
+Przycisk **Usuń to zdjęcie** usuwa całą pozycję z listy, razem z podpisem i opisem
+alternatywnym. Po zapisaniu zdjęcie znika ze strony O nas.
+
+Zdjęcia dzieci obowiązuje ta sama zasada co w sekcji 5: na stronie pokazujemy budynek,
+sale i plac zabaw, bez osób.
+
+---
+
+## 9. Plan dnia
 
 Ekran **Plan dnia** to lista wierszy. Każdy wiersz ma dwa pola:
 
@@ -289,12 +346,13 @@ wpisałaś lub wpisałeś w innych wierszach, zostaje na miejscu.
 Panel przypomina o tym nad listą i warto to zapamiętać: Plan dnia pokazujemy w dwóch
 miejscach: na stronie głównej i na stronie O nas. Jeden zapis zmienia oba.
 
-Kolejności wierszy nie da się w tej chwili przestawiać. Żeby przesunąć punkt, przepisz
-treść wierszy.
+Kolejność punktów zmieniasz przyciskami **Przenieś wyżej** i **Przenieś niżej** na końcu
+każdego wiersza. Przeniesienie, tak samo jak dodanie i usunięcie, niczego nie zapisuje:
+na końcu trzeba kliknąć **Zapisz**.
 
 ---
 
-## 9. Cennik
+## 10. Cennik
 
 Ekran **Cennik** to jedno miejsce, w którym zmieniają się wszystkie opłaty. To, co tu
 zapiszesz, rodzic zobaczy na stronie Cennik oraz w ramce z opłatami na stronie Rekrutacja.
@@ -351,7 +409,7 @@ płaci nic, napisz w tym samym polu, dzięki czemu tak jest.
 
 ---
 
-## 10. Nabór
+## 11. Nabór
 
 Ekran **Nabór** ma jedno pytanie i dwie odpowiedzi do wyboru. To jest jedyne miejsce,
 które decyduje o tym, co rodzic widzi na stronie Rekrutacja.
@@ -370,7 +428,7 @@ stronie.
 
 ---
 
-## 11. Co zrobić, gdy zmiany nie widać
+## 12. Co zrobić, gdy zmiany nie widać
 
 Po kliknięciu **Zapisz** strona żłobka przebudowuje się w tle. **Trwa to około 2 minut.**
 Panel nie oszukuje: zmiana jest już zapisana, ale odwiedzający zobaczą ją dopiero po
@@ -397,7 +455,7 @@ Co jeszcze warto wiedzieć:
 
 ---
 
-## 12. Co zrobić, gdy panel odmówi zapisania
+## 13. Co zrobić, gdy panel odmówi zapisania
 
 Panel woli odmówić zapisu, niż skasować czyjąś pracę. W każdym z poniższych przypadków
 **wpisane dane zostają w formularzu**.
@@ -436,7 +494,7 @@ listy i sprawdź.
 
 ---
 
-## 13. Dla osoby administrującej stroną: dodanie i usunięcie redaktora
+## 14. Dla osoby administrującej stroną: dodanie i usunięcie redaktora
 
 Ta sekcja nie jest potrzebna do codziennej pracy. Jest przeznaczona dla osoby, która
 opiekuje się stroną od strony technicznej.
