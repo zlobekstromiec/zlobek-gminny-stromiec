@@ -125,7 +125,8 @@
 
 		// Bounded focus trap over the dialog's OWN focusable elements. The dialog holds a single
 		// control, so the cycle closes onto that one control; the property being enforced is
-		// that Tab and Shift+Tab never reach the tile links on either side of it.
+		// that Tab and Shift+Tab never reach the tile links on either side of it, FROM EVERY
+		// focus position inside the dialog and not only from the two wrap points.
 		const fokusowalne = Array.from(
 			dialogEl.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')
 		).filter((element) => element.tabIndex !== -1);
@@ -134,6 +135,22 @@
 		const pierwszy = fokusowalne[0];
 		const ostatni = fokusowalne[fokusowalne.length - 1];
 		const aktywny = document.activeElement;
+		// Where the focused element sits in the cycle. -1 means „inside the dialog, but not one
+		// of its own controls", and that state is REACHABLE rather than theoretical: the dialog
+		// element carries tabindex="-1", which makes it CLICK focusable, so a visitor who clicks
+		// the enlarged photograph is standing on the container itself. This handler only ever
+		// runs for a key pressed inside the dialog, so -1 can mean nothing else.
+		const pozycja = aktywny instanceof HTMLElement ? fokusowalne.indexOf(aktywny) : -1;
+
+		// Focus that is not on a member of the cycle enters the cycle at the end the key is
+		// heading for. Handling only the two wrap points would leave the container state to the
+		// browser default, and Shift+Tab from there walks out of the dialog onto the tile links
+		// this trap exists to bound.
+		if (pozycja === -1) {
+			zdarzenie.preventDefault();
+			(zdarzenie.shiftKey ? ostatni : pierwszy).focus();
+			return;
+		}
 
 		if (zdarzenie.shiftKey && aktywny === pierwszy) {
 			zdarzenie.preventDefault();

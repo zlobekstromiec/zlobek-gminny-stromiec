@@ -512,6 +512,42 @@ test.describe('Podglad zdjecia na /o-nas: kontrakt dialogu (GAL-3 otwarty, GAL-4
 		).toBe(true);
 	});
 
+	// GAL-4, the case the two above cannot see. The dialog CONTAINER carries tabindex="-1", so
+	// it is click focusable: a visitor who clicks the enlarged photograph moves focus onto it,
+	// and from there focus is on neither the first nor the last element of the cycle. A trap
+	// written as „first element, backwards" plus „last element, forwards" does nothing at all in
+	// that state, and the browser default takes focus out of the dialog and behind the scrim.
+	test('fokus jest domkniety takze wtedy, gdy trzyma go SAM dialog, a nie zaden z formantow (GAL-4)', async ({
+		page
+	}) => {
+		await page.goto('/o-nas');
+		await kafelek(page).click();
+		await expect(podglad(page).getByRole('button', { name: PRZYCISK_ZAMKNIJ })).toBeFocused();
+
+		// Positive control: clicking the photograph really does move focus onto the container.
+		// Without this the case could pass on a browser that left focus on the close button.
+		await podglad(page).locator('img').first().click();
+		expect(
+			await podglad(page).evaluate((element) => element === document.activeElement),
+			'klikniecie w powiekszone zdjecie nie przenioslo fokusu na kontener dialogu'
+		).toBe(true);
+
+		// BACKWARDS from the container. Without the fix this lands on the tile link, which is a
+		// sibling of the dialog and outside it, so this is not a tautology.
+		await page.keyboard.press('Shift+Tab');
+		expect(
+			await fokusWPodgladzie(page),
+			'Shift+Tab z kontenera dialogu wypuscil fokus poza dialog'
+		).toBe(true);
+
+		// FORWARDS from the container, for the same reason in the other direction.
+		await podglad(page).evaluate((element) => (element as HTMLElement).focus());
+		await page.keyboard.press('Tab');
+		expect(await fokusWPodgladzie(page), 'Tab z kontenera dialogu wypuscil fokus poza dialog').toBe(
+			true
+		);
+	});
+
 	// GAL-3, the open state. The project's FIRST axe scan of an open overlay, at the same four
 	// tag values every other scan in this repository uses.
 	test('otwarty podglad nie narusza WCAG 2.1 AA (GAL-3, stan otwarty)', async ({ page }) => {
