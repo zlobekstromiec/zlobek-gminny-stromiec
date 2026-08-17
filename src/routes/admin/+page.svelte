@@ -3,14 +3,18 @@
 	//
 	// ITS JOB IS ONE QUESTION, answered for somebody who opens this twice a month and is
 	// afraid of breaking the website: what can I change here, and what state is it in
-	// right now? Hence six cards, one per editable area, each with a plain sentence, and a
-	// count or a current state on the three where one exists.
+	// right now? Hence one card per editable area, each with a plain sentence, and a count
+	// or a current state on the three where one exists.
 	//
-	// THE SIX CARDS ARE WRITTEN OUT, not looped over a list. A loop would need a list of
-	// six objects pairing a label with a path with an optional value, and the three cards
-	// that carry a value each carry a DIFFERENT KIND of value: two counts and one state
+	// THE CARDS ARE WRITTEN OUT, not looped over a list. A loop would need a list of
+	// objects pairing a label with a path with an optional value, and the three cards that
+	// carry a value each carry a DIFFERENT KIND of value: two counts and one state
 	// sentence. Written out, each card names its own destination beside its own words and
-	// a reader can check any single one of them without holding the other five in mind.
+	// a reader can check any single one of them without holding the others in mind.
+	//
+	// CENNIK DELIBERATELY CARRIES NO STATE LINE (05-UI-SPEC Contract 12). A fee amount
+	// rendered here would be a third place the same number has to stay correct, and this
+	// is the one screen nobody would think to check after changing it.
 	//
 	// Every visible string comes from src/lib/content/panel.ts. Not one is typed here, and
 	// the two counts and the state sentence are built by that module's own functions, so
@@ -39,6 +43,11 @@
 		cel="/admin/plan-dnia"
 		tytul={KOPIA_PULPIT.planDniaTytul}
 		opis={KOPIA_PULPIT.planDniaOpis}
+	/>
+	<KafelPulpitu
+		cel="/admin/cennik"
+		tytul={KOPIA_PULPIT.cennikTytul}
+		opis={KOPIA_PULPIT.cennikOpis}
 	/>
 	<KafelPulpitu
 		cel="/admin/dokumenty"
@@ -88,9 +97,9 @@
 	}
 
 	/* One column, two at the medium breakpoint, three at the large one, 24px gap. A list
-	   rather than a bare grid of anchors: six navigation choices are a set, and a screen
-	   reader announcing „lista, 6 pozycji" tells the editor how much there is to choose
-	   between before they start listening to it. */
+	   rather than a bare grid of anchors: these navigation choices are a set, and a screen
+	   reader announcing how many items the list holds tells the editor how much there is to
+	   choose between before they start listening to it. */
 	.kafle {
 		display: grid;
 		grid-template-columns: 1fr;

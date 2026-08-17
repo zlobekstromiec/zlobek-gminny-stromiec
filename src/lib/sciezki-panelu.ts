@@ -28,6 +28,7 @@ export const SCIEZKI_PANELU: readonly string[] = Object.freeze([
 	'/admin/aktualnosci',
 	'/admin/o-nas',
 	'/admin/plan-dnia',
+	'/admin/cennik',
 	'/admin/dokumenty',
 	'/admin/nabor',
 	'/admin/pomoc'

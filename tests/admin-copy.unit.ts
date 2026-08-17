@@ -16,6 +16,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import * as panel from '../src/lib/content/panel.ts';
 import {
+	KOPIA_CENNIK,
 	KOPIA_FORMATOWANIE,
 	KOPIA_EKRAN_DOKUMENTU,
 	KOPIA_EKRAN_O_NAS,
@@ -35,6 +36,7 @@ import {
 	KOPIA_ZDJECIA,
 	NAWIGACJA,
 	SEKCJE_PANELU,
+	POLA_CENNIK,
 	POLA_DATA,
 	POLA_DOKUMENT,
 	POLA_O_NAS,
@@ -50,6 +52,7 @@ import {
 	metaDokumentu,
 	nazwaPrzeniesieniaWDol,
 	nazwaPrzeniesieniaWGore,
+	obecnieNaStronie,
 	obecnieNabor,
 	obecnyPlik,
 	opisDodaniaDokumentu,
@@ -115,11 +118,13 @@ const EKSPORTY: unknown[] = [
 	KOPIA_EKRAN_DOKUMENTU,
 	KOPIA_EKRAN_O_NAS,
 	KOPIA_EKRAN_PLANU,
+	KOPIA_CENNIK,
 	POLA_DATA,
 	POLA_WPIS,
 	POLA_O_NAS,
 	POLA_PLAN_DNIA,
 	POLA_DOKUMENT,
+	POLA_CENNIK,
 	KOPIA_NABOR,
 	KOPIA_FORMATOWANIE,
 	KOPIA_WALIDACJA,
@@ -137,6 +142,10 @@ const EKSPORTY: unknown[] = [
 	ukryteDokument('Statut żłobka'),
 	tekstZaDlugi(2000),
 	zobaczStrone('Aktualności'),
+	// The sample is the PROSE form src/lib/cennik.ts composes, not a bare amount: the
+	// period word is welded to the computed figure there and this function must never
+	// re-append it. See its declaration in the copy module.
+	obecnieNaStronie('1 500 zł miesięcznie'),
 	dodanoWiersz(4),
 	usunietoWiersz(2),
 	przeniesionoWiersz(3, 2),
@@ -222,10 +231,15 @@ test('lista zamiatanych eksportow obejmuje wszystkie eksporty modulu', () => {
 	assert.equal(EKSPORTY.length, Object.keys(panel).length);
 });
 
-test('nawigacja wymienia siedem sekcji panelu w ustalonej kolejnosci', () => {
+// 05-UI-SPEC Contract 12: Cennik sits after Plan dnia and before Dokumenty, and Nabór and
+// Pomoc keep their tail position. The order is asserted rather than the count alone,
+// because a chip inserted in the wrong place still gives the right number of chips while
+// pairing every label after it with somebody else's path (src/lib/sciezki-panelu.ts pairs
+// the two lists BY POSITION).
+test('nawigacja wymienia osiem sekcji panelu w ustalonej kolejnosci', () => {
 	assert.deepEqual(
 		[...NAWIGACJA],
-		['Pulpit', 'Aktualności', 'O nas', 'Plan dnia', 'Dokumenty', 'Nabór', 'Pomoc']
+		['Pulpit', 'Aktualności', 'O nas', 'Plan dnia', 'Cennik', 'Dokumenty', 'Nabór', 'Pomoc']
 	);
 });
 
