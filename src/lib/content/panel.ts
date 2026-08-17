@@ -45,6 +45,10 @@ export const NAWIGACJA: readonly string[] = Object.freeze([
 	'Pulpit',
 	'Aktualności',
 	'O nas',
+	// 05-UI-SPEC Contract 12: Galeria sits directly after O nas, because that is the page it
+	// renders on, so an editor looking for the O nas photographs finds it adjacent to the
+	// screen they just left.
+	'Galeria',
 	'Plan dnia',
 	'Cennik',
 	'Dokumenty',
@@ -71,6 +75,7 @@ export const SEKCJE_PANELU: Readonly<Record<string, string>> = Object.freeze({
 	logowanie: 'Logowanie',
 	aktualnosci: 'Aktualności',
 	'o-nas': 'O nas',
+	galeria: 'Galeria',
 	'plan-dnia': 'Plan dnia',
 	cennik: 'Cennik',
 	dokumenty: 'Dokumenty',
@@ -143,6 +148,11 @@ export const KOPIA_PULPIT = {
 	aktualnosciOpis: 'Wpisy z życia żłobka: dodawaj, poprawiaj i usuwaj ogłoszenia.',
 	oNasTytul: 'O nas',
 	oNasOpis: 'Misja, wartości, kadra i opis budynku.',
+	/** THE ONLY CARD THAT GAINS A COUNTER IN THIS PHASE (05-UI-SPEC Contract 12). The number
+	 *  comes from the reader that feeds the Galeria screen itself, never from a count of its
+	 *  own, which is the rule 04.1-10 established for the two counters already here. */
+	galeriaTytul: 'Galeria',
+	galeriaOpis: 'Zdjęcia sal, placu zabaw i budynku, pokazywane na stronie O nas.',
 	planDniaTytul: 'Plan dnia',
 	planDniaOpis: 'Godziny i zajęcia w ciągu dnia w żłobku.',
 	dokumentyTytul: 'Dokumenty',
@@ -224,6 +234,29 @@ export const KOPIA_EKRAN_O_NAS = {
 	 *  It names the PAGE rather than a field, because D-11 makes one page one commit and a
 	 *  session here can touch nine groups of content at once. */
 	opisZapisu: 'zaktualizowano stronę O nas'
+} as const;
+
+/** The Galeria editor (05-UI-SPEC Contract 8, GALLERY-02, 05 D-21 to D-26). One screen holding
+ *  the WHOLE photo list and one „Zapisz": twelve photographs in one sitting is one commit and
+ *  one Cloudflare build, where a screen per photograph would be twelve of each. */
+export const KOPIA_EKRAN_GALERII = {
+	naglowek: 'Galeria',
+	/** Name of the public page the „Zapisano" panel links to. The gallery is a SECTION of the
+	 *  O nas page (05 D-19), so the editor lands on the page their photographs appear on and
+	 *  not on a page of their own that does not exist. */
+	stronaNazwa: 'O nas',
+	/** What replaces the add button once the list is full (05 D-23). The button disappearing on
+	 *  its own would look like a fault; this sentence says what happened and what to do about
+	 *  it. The number here is the one src/lib/pola-strony.ts enforces, and
+	 *  tests/admin-walidacja-galeria.unit.ts asserts the two cannot drift apart. */
+	limitOsiagniety: 'Osiągnięto limit 12 zdjęć. Aby dodać nowe, usuń najpierw jedno z istniejących.',
+	/** The empty state of the list. A repeated group with nothing in it and no explanation reads
+	 *  as a screen that failed to load. */
+	pustaLista: 'Nie ma jeszcze żadnych zdjęć. Kliknij Dodaj zdjęcie, aby dodać pierwsze.',
+	/** The commit description. Copy like any other: written in Polish by this project and
+	 *  landing in the history of a PUBLIC repository, so it is swept with the labels. It names
+	 *  the PAGE rather than one photograph, because one save carries the whole list (D-11). */
+	opisZapisu: 'zaktualizowano galerię'
 } as const;
 
 /** The Plan dnia editor (Component Contract 5). */
@@ -348,6 +381,30 @@ export const POLA_O_NAS = {
 	zastepczaPodpowiedz: 'Zaznacz, dopóki treść nie została potwierdzona.'
 } as const;
 
+/** Galeria form labels and hints (05-UI-SPEC Contract 8, 05 D-25).
+ *
+ *  THE FILE CONTROL'S OWN VISIBLE LABEL IS NOT HERE, deliberately, and neither is the item's
+ *  numbered legend. Both already exist and are shared with the O nas photo list:
+ *  `KOPIA_ZDJECIA.wybierzEtykieta` labels the native control (its declaration records why it is
+ *  authored there rather than borrowed) and `legendaZdjecia` numbers the item. Adding a third
+ *  „Zdjęcie" label beside them would announce the same word twice to a screen-reader user,
+ *  which is the very thing that declaration exists to prevent. */
+export const POLA_GALERIA = {
+	zdjeciaLegenda: 'Zdjęcia galerii',
+	zdjeciaPodpowiedz:
+		'Zdjęcia bez osób. Przytniemy je do proporcji 4:3 i zmniejszymy. Możesz dodać najwyżej 12 zdjęć.',
+	zdjeciePodpowiedz:
+		'Wybierz zdjęcie z telefonu lub komputera. Przytniemy je automatycznie do proporcji 4:3 i zmniejszymy, żeby strona działała szybko.',
+	podpisEtykieta: 'Podpis zdjęcia *',
+	podpisPodpowiedz:
+		'Krótka nazwa miejsca, na przykład: Sala zabaw. Pojawi się pod zdjęciem na stronie.',
+	altEtykieta: 'Opis alternatywny (alt) *',
+	altPodpowiedz:
+		'Napisz, co widać na zdjęciu, na przykład: Sala zabaw z kolorowymi zabawkami. Nie pisz samego słowa zdjęcie. Ten opis czytają osoby korzystające z czytników ekranu.',
+	zastepczaEtykieta: 'Treść zastępcza (do potwierdzenia)',
+	zastepczaPodpowiedz: 'Zaznacz, dopóki treść nie została potwierdzona.'
+} as const;
+
 /** Plan dnia form labels and hints. */
 export const POLA_PLAN_DNIA = {
 	grupaLegenda: 'Godziny i zajęcia',
@@ -461,6 +518,19 @@ export const KOPIA_WALIDACJA = {
 	 *  itself. An item with no picture has nothing to publish and nothing to describe, so
 	 *  the refusal names BOTH ways out rather than only one. */
 	zdjecieBrak: 'Wybierz zdjęcie albo usuń tę pozycję.',
+	/** The same situation on the GALERIA screen, and it needs its own words (05-UI-SPEC
+	 *  Contract 8's validation table spells it out rather than marking it „existing string").
+	 *  A gallery item is three controls, not one: the picture, its caption and its description.
+	 *  „Usuń tę pozycję" would leave an editor wondering whether it means the picture they
+	 *  just cleared; „usuń całą pozycję" says that the caption and the description go with it. */
+	zdjecieGaleriiBrak: 'Wybierz zdjęcie albo usuń całą pozycję.',
+	/** The visible caption of a gallery photo (05 D-25). It quotes its own hint's example, so a
+	 *  refusal reads as the same instruction the editor was already given (WCAG 3.3.3). */
+	podpisBrak: 'Podaj podpis zdjęcia, na przykład: Sala zabaw.',
+	/** The twelve-photo cap (05 D-23), refused ON THE SERVER. The screen stops rendering the add
+	 *  button at the limit, but that is an affordance: this message is what answers a submission
+	 *  that carries thirteen anyway, whatever the page it came from rendered. */
+	limitZdjecPrzekroczony: 'Możesz dodać najwyżej 12 zdjęć. Usuń nadmiarowe i zapisz jeszcze raz.',
 	/** The recruitment switch has two states and no third one, so „nothing chosen" and
 	 *  „something unexpected arrived" are the same thing to the person in front of the
 	 *  screen and get the same instruction (WCAG 3.3.3: say what to do). */
@@ -546,6 +616,13 @@ export const KOPIA_ZAPIS = {
 	 *  own, so the gallery-specific variant lands beside this one in plan 05-06. */
 	notaGrupyZKolejnoscia:
 		'Dodanie, usunięcie lub przeniesienie wiersza nie zapisuje zmian. Na końcu kliknij Zapisz.',
+	/** The gallery's variant, in the PHOTO noun register that 05-UI-SPEC's /admin/galeria copy
+	 *  table spells out. This is the string plan 05-04 said would land here: the note is a PROP
+	 *  of the repeatable group and every mount supplies its own, so the two lists that already
+	 *  existed keep the generic „wiersz" wording above and are untouched. The gallery is a list
+	 *  of nothing but photographs, so the specific noun is both correct and shorter to read. */
+	notaGrupyZdjecZKolejnoscia:
+		'Dodanie, usunięcie lub przeniesienie zdjęcia nie zapisuje zmian. Na końcu kliknij Zapisz.',
 	dodajWartosc: 'Dodaj wartość',
 	dodajWiersz: 'Dodaj wiersz',
 	dodajZdjecie: 'Dodaj zdjęcie',
@@ -640,6 +717,11 @@ export function liczbaDokumentow(ile: number): string {
 	return `Liczba dokumentów: ${ile}`;
 }
 
+/** The Galeria card's counter, and the only one 05-UI-SPEC Contract 12 adds in this phase. */
+export function liczbaZdjec(ile: number): string {
+	return `Liczba zdjęć: ${ile}`;
+}
+
 /** Current recruitment state on the Pulpit card. Neutral information, never phrased or
  *  coloured as a failure. */
 export function obecnieNabor(otwarty: boolean): string {
@@ -700,6 +782,16 @@ export function usunietoWiersz(numer: number): string {
  *  forced onto the two lists that exist today. */
 export function przeniesionoWiersz(numer: number, pozycja: number): string {
 	return `Przeniesiono wiersz ${numer} na pozycję ${pozycja}.`;
+}
+
+/** The same announcement in the PHOTO noun register, for /admin/galeria. This is the variant
+ *  plan 05-04 said would land here rather than being forced onto the two lists that already
+ *  existed: the status line is a prop of the repeatable group and every mount supplies its
+ *  own. It names both the number the photograph carried and the position it now holds, because
+ *  „Przeniesiono zdjęcie 3" alone does not tell a screen-reader user whether anything happened
+ *  or in which direction. */
+export function przeniesionoZdjecie(numer: number, pozycja: number): string {
+	return `Przeniesiono zdjęcie ${numer} na pozycję ${pozycja}.`;
 }
 
 /** Numbered legends of the repeatable groups. */

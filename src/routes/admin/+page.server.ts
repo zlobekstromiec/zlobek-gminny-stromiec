@@ -26,7 +26,9 @@
 // promises out loud (D-18).
 //
 // Nothing here logs. No secret is read: this route needs none.
+import galeriaStore from '$lib/content/galeria.json';
 import { recruitmentOpen } from '$lib/content/site';
+import { czytajGalerie } from '$lib/galeria';
 import { readAktualnosci } from '$lib/server/aktualnosci';
 import { readDokumentyPanelu } from '$lib/server/admin/dokumenty';
 import type { PageServerLoad } from './$types';
@@ -37,6 +39,10 @@ export const load: PageServerLoad = () => {
 		liczbaWpisow: readAktualnosci().length,
 		/** Number of documents the dokumenty list will show, across all categories. */
 		liczbaDokumentow: readDokumentyPanelu().length,
+		/** Number of photographs the Galeria screen will show. Read through `czytajGalerie`,
+		 *  which is the SAME reader that builds that screen's form and the public section, so
+		 *  the card and the screen it describes can only agree by actually agreeing. */
+		liczbaZdjec: czytajGalerie(galeriaStore).length,
 		/** Committed recruitment state, rendered as a neutral sentence and never as a
 		 *  colour (UI-SPEC Color hard rule 1). */
 		naborOtwarty: recruitmentOpen

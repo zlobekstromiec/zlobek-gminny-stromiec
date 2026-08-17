@@ -33,8 +33,26 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import {
+	KOPIA_EKRAN_GALERII,
+	KOPIA_WALIDACJA,
+	POLA_GALERIA,
+	tekstZaDlugi
+} from '../src/lib/content/panel.ts';
+import {
+	MAKS_ZDJEC_GALERII,
+	POLE_ALTU,
+	POLE_DANYCH,
+	POLE_PLIKU,
+	POLE_PODPISU,
+	POLE_USUNIECIA,
+	POLE_ZASTEPCZA,
+	PREFIKS_ZDJECIA_GALERII,
+	nazwaPola
+} from '../src/lib/pola-strony.ts';
 import { bazowaNazwa } from '../src/lib/zdjecia-nazwy.ts';
 import { czytajGalerie, galeriaZObrazami, zdjecieGalerii } from '../src/lib/galeria.ts';
+import { serializujJson } from '../src/lib/server/admin/serializuj.ts';
 import {
 	MAKS_RDZENIA_GALERII,
 	PREFIKS_GALERII,
@@ -42,14 +60,16 @@ import {
 	nazwaZdjeciaGalerii,
 	zdjecieGaleriiDoUsuniecia
 } from '../src/lib/server/admin/uploads.ts';
+import {
+	MAKS_ALT,
+	MAKS_PODPISU,
+	SCIEZKA_GALERIA,
+	walidujGaleria
+} from '../src/lib/server/admin/walidacja/galeria.ts';
 
 const KORZEN = path.resolve(import.meta.dirname, '..');
 
-/** Repository path of the store, spelled here so this half of the suite can run before the
- *  validator that exports it exists. */
-const SCIEZKA_STORE = 'src/lib/content/galeria.json';
-
-const NA_DYSKU = readFileSync(path.join(KORZEN, SCIEZKA_STORE), 'utf8');
+const NA_DYSKU = readFileSync(path.join(KORZEN, SCIEZKA_GALERIA), 'utf8');
 
 const GALERIA_ZLOZONA = JSON.parse(NA_DYSKU) as {
 	placeholder: boolean;
@@ -269,4 +289,374 @@ test('lista do renderu szuka obrazu po BAZOWEJ nazwie, takze gdy zapisano sciezk
 	});
 	const doRenderu = galeriaZObrazami(zdjecia, { 'jest.jpg': { img: { src: '/jest.jpg' } } });
 	assert.equal(doRenderu.length, 1);
+});
+
+// =========================================================================================
+// The validator: the committed store round-trips, key for key, byte for byte
+// =========================================================================================
+
+/** A submitted form, in the shape the action hands the validator. `null` is what an absent key
+ *  really looks like coming out of FormData, so absence is expressed that way rather than by
+ *  leaving the key out of the object. */
+function zrodlo(pola: Record<string, string | undefined>) {
+	return {
+		get(nazwa: string): unknown {
+			const wartosc = pola[nazwa];
+			return wartosc === undefined ? null : wartosc;
+		}
+	};
+}
+
+/** One item of the submitted form, at position `indeks`. */
+function pozycja(
+	indeks: number,
+	zdjecie: { plik?: string; podpis?: string; alt?: string; dane?: string; usun?: string }
+): Record<string, string> {
+	const pola: Record<string, string> = {};
+	const wpisz = (klucz: string, wartosc: string | undefined) => {
+		if (wartosc !== undefined) {
+			pola[nazwaPola(PREFIKS_ZDJECIA_GALERII, indeks, klucz)] = wartosc;
+		}
+	};
+	wpisz(POLE_PLIKU, zdjecie.plik ?? '');
+	wpisz(POLE_PODPISU, zdjecie.podpis ?? '');
+	wpisz(POLE_ALTU, zdjecie.alt ?? '');
+	wpisz(POLE_DANYCH, zdjecie.dane ?? '');
+	wpisz(POLE_USUNIECIA, zdjecie.usun ?? '');
+	return pola;
+}
+
+/** The committed gallery, as the form that would have produced it. This is exactly what a fresh
+ *  load of /admin/galeria posts back when the editor changes nothing at all. */
+function polaZPliku(): Record<string, string> {
+	const pola: Record<string, string> = {};
+	GALERIA_ZLOZONA.zdjecia.forEach((zdjecie, indeks) => {
+		Object.assign(pola, pozycja(indeks, zdjecie));
+	});
+	if (GALERIA_ZLOZONA.placeholder) pola[POLE_ZASTEPCZA] = 'on';
+	return pola;
+}
+
+/** A tiny but REAL data URL of the type the allowlist accepts, so the „new picture" branch is
+ *  driven by the same shape the island produces rather than by a string that merely looks like
+ *  one. Deliberately not a photograph: nothing in this plan's evidence may require one (D-37). */
+const DANE_JPEG = 'data:image/jpeg;base64,/9j/4AAQSkZJRg==';
+
+test('walidator przyjmuje wartosci, ktore leza dzis w repozytorium', () => {
+	const wynik = walidujGaleria(zrodlo(polaZPliku()), new Set());
+	assert.equal(wynik.ok, true);
+	if (!wynik.ok) return;
+	assert.deepEqual(wynik.dane, GALERIA_ZLOZONA);
+	// Nothing new arrived, so nothing has to be written beside the JSON.
+	assert.deepEqual(wynik.zdjecia, []);
+});
+
+test('galeria wychodzi z walidatora z dokladnie tymi kluczami i w tej kolejnosci, co plik', () => {
+	const wynik = walidujGaleria(zrodlo(polaZPliku()), new Set());
+	assert.equal(wynik.ok, true);
+	if (!wynik.ok) return;
+	// Ordered, never sorted: the serializer emits keys in insertion order, so a reordering
+	// changes the bytes of the file and therefore the diff of every future save.
+	assert.deepEqual(Object.keys(wynik.dane), Object.keys(GALERIA_ZLOZONA));
+	assert.deepEqual(Object.keys(wynik.dane.zdjecia[0]), Object.keys(GALERIA_ZLOZONA.zdjecia[0]));
+});
+
+test('zserializowany wynik walidatora jest bajt w bajt tym, co lezy w repozytorium', () => {
+	// Read from disk rather than imported, because an import would compare parsed values and
+	// would not see an indent, a key order or a missing trailing newline: precisely the
+	// differences that break `prettier --check .` and block every local commit (04.1 D-09).
+	const wynik = walidujGaleria(zrodlo(polaZPliku()), new Set());
+	assert.equal(wynik.ok, true);
+	if (!wynik.ok) return;
+	assert.equal(serializujJson(wynik.dane), NA_DYSKU);
+});
+
+test('sciezka, ktora panel zapisuje, wskazuje na istniejacy plik galerii', () => {
+	// A save that wrote a path nothing reads would report success to the editor, produce a real
+	// commit and a real Cloudflare build, and change nothing a parent can see.
+	assert.equal(SCIEZKA_GALERIA, 'src/lib/content/galeria.json');
+	assert.doesNotThrow(() => readFileSync(path.join(KORZEN, SCIEZKA_GALERIA), 'utf8'));
+});
+
+// =========================================================================================
+// The validator: the six refusals of 05-UI-SPEC Contract 8
+// =========================================================================================
+
+test('pusty podpis jest odmawiany zdaniem, ktore cytuje wlasna podpowiedz pola', () => {
+	for (const puste of [undefined, '', '   ']) {
+		const wynik = walidujGaleria(
+			zrodlo({ ...polaZPliku(), ...pozycja(0, { ...GALERIA_ZLOZONA.zdjecia[0], podpis: puste }) }),
+			new Set()
+		);
+		assert.equal(wynik.ok, false, `„${String(puste)}" przeszlo jako podpis`);
+		if (wynik.ok) return;
+		assert.equal(
+			wynik.pola[nazwaPola(PREFIKS_ZDJECIA_GALERII, 0, POLE_PODPISU)],
+			KOPIA_WALIDACJA.podpisBrak
+		);
+	}
+});
+
+test('za dlugi podpis cytuje limit, ktory serwer naprawde wymusil', () => {
+	const wynik = walidujGaleria(
+		zrodlo({
+			...polaZPliku(),
+			...pozycja(0, { ...GALERIA_ZLOZONA.zdjecia[0], podpis: 'a'.repeat(MAKS_PODPISU + 1) })
+		}),
+		new Set()
+	);
+	assert.equal(wynik.ok, false);
+	if (wynik.ok) return;
+	assert.equal(
+		wynik.pola[nazwaPola(PREFIKS_ZDJECIA_GALERII, 0, POLE_PODPISU)],
+		tekstZaDlugi(MAKS_PODPISU)
+	);
+});
+
+test('pusty opis alternatywny przy obecnym zdjeciu jest odmawiany (D-15)', () => {
+	const wynik = walidujGaleria(
+		zrodlo({ ...polaZPliku(), ...pozycja(0, { ...GALERIA_ZLOZONA.zdjecia[0], alt: '' }) }),
+		new Set()
+	);
+	assert.equal(wynik.ok, false);
+	if (wynik.ok) return;
+	assert.equal(
+		wynik.pola[nazwaPola(PREFIKS_ZDJECIA_GALERII, 0, POLE_ALTU)],
+		KOPIA_WALIDACJA.altBrak
+	);
+});
+
+test('za dlugi opis alternatywny cytuje swoj wlasny limit', () => {
+	const wynik = walidujGaleria(
+		zrodlo({
+			...polaZPliku(),
+			...pozycja(0, { ...GALERIA_ZLOZONA.zdjecia[0], alt: 'a'.repeat(MAKS_ALT + 1) })
+		}),
+		new Set()
+	);
+	assert.equal(wynik.ok, false);
+	if (wynik.ok) return;
+	assert.equal(
+		wynik.pola[nazwaPola(PREFIKS_ZDJECIA_GALERII, 0, POLE_ALTU)],
+		tekstZaDlugi(MAKS_ALT)
+	);
+});
+
+test('pozycja bez zadnego zdjecia jest odmawiana instrukcja nazywajaca oba wyjscia', () => {
+	const wynik = walidujGaleria(
+		zrodlo({ ...polaZPliku(), ...pozycja(2, { podpis: 'Nowa sala', alt: 'Opis nowej sali' }) }),
+		new Set()
+	);
+	assert.equal(wynik.ok, false);
+	if (wynik.ok) return;
+	assert.equal(
+		wynik.pola[nazwaPola(PREFIKS_ZDJECIA_GALERII, 2, POLE_DANYCH)],
+		KOPIA_WALIDACJA.zdjecieGaleriiBrak
+	);
+});
+
+test('zdjecie, ktore nie jest zdjeciem, jest odmawiane wlasnym zdaniem', () => {
+	const wynik = walidujGaleria(
+		zrodlo({
+			...polaZPliku(),
+			...pozycja(2, {
+				podpis: 'Nowa sala',
+				alt: 'Opis nowej sali',
+				dane: 'data:application/pdf;base64,JVBERi0='
+			})
+		}),
+		new Set()
+	);
+	assert.equal(wynik.ok, false);
+	if (wynik.ok) return;
+	assert.equal(
+		wynik.pola[nazwaPola(PREFIKS_ZDJECIA_GALERII, 2, POLE_DANYCH)],
+		KOPIA_WALIDACJA.zdjecieZlyTyp
+	);
+});
+
+// =========================================================================================
+// The twelve cap (05 D-23, GAL-8): the SERVER is the gate, the button is the affordance
+// =========================================================================================
+
+/** `ile` complete, valid, already-stored-looking items. Every one of them keeps a picture the
+ *  build carries, so nothing but the cap can refuse the submission. */
+function pelnaLista(ile: number): Record<string, string> {
+	const pola: Record<string, string> = {};
+	for (let i = 0; i < ile; i++) {
+		Object.assign(
+			pola,
+			pozycja(i, {
+				plik: GALERIA_ZLOZONA.zdjecia[i % GALERIA_ZLOZONA.zdjecia.length].plik,
+				podpis: `Sala ${i + 1}`,
+				alt: `Opis sali numer ${i + 1}`
+			})
+		);
+	}
+	return pola;
+}
+
+test('dokladnie dwanascie zdjec jeszcze przechodzi', () => {
+	const wynik = walidujGaleria(zrodlo(pelnaLista(MAKS_ZDJEC_GALERII)), new Set());
+	assert.equal(wynik.ok, true);
+	if (!wynik.ok) return;
+	assert.equal(wynik.dane.zdjecia.length, MAKS_ZDJEC_GALERII);
+});
+
+test('trzynascie zdjec jest odmawiane po stronie serwera, cokolwiek wyrenderowala strona', () => {
+	// GAL-8. The screen stops rendering the add button at twelve, but that is an affordance: a
+	// hand-built request, or a page from before the limit existed, still has to be refused here.
+	const wynik = walidujGaleria(zrodlo(pelnaLista(MAKS_ZDJEC_GALERII + 1)), new Set());
+	assert.equal(wynik.ok, false);
+	if (wynik.ok) return;
+	assert.equal(
+		wynik.pola[nazwaPola(PREFIKS_ZDJECIA_GALERII, MAKS_ZDJEC_GALERII, POLE_DANYCH)],
+		KOPIA_WALIDACJA.limitZdjecPrzekroczony
+	);
+});
+
+test('limit z odmowy, z podpowiedzi grupy i z komunikatu przy przycisku to ta sama liczba', () => {
+	// T-04.1-26: a number living in three sentences and one constant is a message that will
+	// eventually lie. All three quote the bound the server enforces.
+	const liczba = String(MAKS_ZDJEC_GALERII);
+	for (const zdanie of [
+		KOPIA_WALIDACJA.limitZdjecPrzekroczony,
+		KOPIA_EKRAN_GALERII.limitOsiagniety,
+		POLA_GALERIA.zdjeciaPodpowiedz
+	]) {
+		assert.ok(zdanie.includes(liczba), `zdanie nie cytuje limitu ${liczba}: ${zdanie}`);
+	}
+});
+
+// =========================================================================================
+// The two-pass name reservation (T-05-06-01)
+// =========================================================================================
+
+test('dwa nowe zdjecia z tym samym podpisem dostaja rozne nazwy w jednym zapisie', () => {
+	const wynik = walidujGaleria(
+		zrodlo({
+			...pozycja(0, { podpis: 'Sala zabaw', alt: 'Pierwsza sala', dane: DANE_JPEG }),
+			...pozycja(1, { podpis: 'Sala zabaw', alt: 'Druga sala', dane: DANE_JPEG })
+		}),
+		new Set()
+	);
+	assert.equal(wynik.ok, true);
+	if (!wynik.ok) return;
+	const nazwy = wynik.zdjecia.map((zdjecie) => zdjecie.nazwa);
+	assert.equal(new Set(nazwy).size, 2, `obie pozycje dostaly te sama nazwe: ${nazwy.join(', ')}`);
+	assert.deepEqual(
+		wynik.dane.zdjecia.map((zdjecie) => zdjecie.plik),
+		nazwy
+	);
+});
+
+test('nowe zdjecie nie dostaje nazwy, ktora ta kompilacja juz niesie', () => {
+	const zajeta = `${PREFIKS_GALERII}sala-zabaw${ROZSZERZENIE}`;
+	const wynik = walidujGaleria(
+		zrodlo(pozycja(0, { podpis: 'Sala zabaw', alt: 'Opis sali', dane: DANE_JPEG })),
+		new Set([zajeta])
+	);
+	assert.equal(wynik.ok, true);
+	if (!wynik.ok) return;
+	assert.notEqual(wynik.zdjecia[0].nazwa, zajeta);
+});
+
+test('nowe zdjecie nie dostaje nazwy, na ktora inna pozycja tego zapisu jeszcze wskazuje', () => {
+	// The whole point of the FIRST pass: a name the submission keeps must be off limits before
+	// the second pass hands names to new pictures.
+	const trzymana = `${PREFIKS_GALERII}sala-zabaw${ROZSZERZENIE}`;
+	const wynik = walidujGaleria(
+		zrodlo({
+			...pozycja(0, { podpis: 'Nowa sala', alt: 'Opis nowej sali', dane: DANE_JPEG }),
+			...pozycja(1, { plik: trzymana, podpis: 'Sala zabaw', alt: 'Opis sali' })
+		}),
+		new Set([trzymana])
+	);
+	assert.equal(wynik.ok, true);
+	if (!wynik.ok) return;
+	assert.notEqual(wynik.zdjecia[0].nazwa, trzymana);
+});
+
+test('zdjecie nazwane przez panel jest podmieniane W MIEJSCU, bez nowej nazwy (P-21)', () => {
+	const wlasna = `${PREFIKS_GALERII}sala-zabaw${ROZSZERZENIE}`;
+	const wynik = walidujGaleria(
+		zrodlo(
+			pozycja(0, { plik: wlasna, podpis: 'Zupełnie inny podpis', alt: 'Opis', dane: DANE_JPEG })
+		),
+		new Set([wlasna])
+	);
+	assert.equal(wynik.ok, true);
+	if (!wynik.ok) return;
+	assert.equal(wynik.zdjecia[0].nazwa, wlasna);
+	assert.equal(wynik.dane.zdjecia[0].plik, wlasna);
+});
+
+test('recznie wgrane zdjecie NIE jest nadpisywane: nowe bajty dostaja wlasna nazwe', () => {
+	// The other half of the ownership rule. A hand-placed file may be shared with another page,
+	// so replacing an item that carries one writes a NEW file and leaves the old one alone.
+	const seed = SEEDY[0];
+	const wynik = walidujGaleria(
+		zrodlo(pozycja(0, { plik: seed, podpis: 'Sala zabaw', alt: 'Opis', dane: DANE_JPEG })),
+		new Set([seed])
+	);
+	assert.equal(wynik.ok, true);
+	if (!wynik.ok) return;
+	assert.notEqual(wynik.zdjecia[0].nazwa, seed);
+	assert.ok(wynik.zdjecia[0].nazwa.startsWith(PREFIKS_GALERII));
+});
+
+// =========================================================================================
+// Nothing is defaulted and nothing is spread
+// =========================================================================================
+
+test('walidator czyta wszystkie pozycje, zanim cokolwiek odmowi', () => {
+	// Contract 10a: one summary panel with every offending control linked from it.
+	const wynik = walidujGaleria(
+		zrodlo({
+			...pozycja(0, { ...GALERIA_ZLOZONA.zdjecia[0], podpis: '' }),
+			...pozycja(1, { ...GALERIA_ZLOZONA.zdjecia[1], alt: '' })
+		}),
+		new Set()
+	);
+	assert.equal(wynik.ok, false);
+	if (wynik.ok) return;
+	assert.equal(
+		wynik.pola[nazwaPola(PREFIKS_ZDJECIA_GALERII, 0, POLE_PODPISU)],
+		KOPIA_WALIDACJA.podpisBrak
+	);
+	assert.equal(
+		wynik.pola[nazwaPola(PREFIKS_ZDJECIA_GALERII, 1, POLE_ALTU)],
+		KOPIA_WALIDACJA.altBrak
+	);
+});
+
+test('odmowa nigdy nie wraca z pusta mapa pol, bo podsumowanie nie mialoby do czego linkowac', () => {
+	const wynik = walidujGaleria(zrodlo(pozycja(0, {})), new Set());
+	assert.equal(wynik.ok, false);
+	if (wynik.ok) return;
+	assert.ok(Object.keys(wynik.pola).length > 0);
+	for (const komunikat of Object.values(wynik.pola)) {
+		assert.ok(komunikat.trim().length > 0);
+	}
+});
+
+test('pusta galeria jest legalna, bo redaktor moze usunac wszystkie zdjecia', () => {
+	const wynik = walidujGaleria(zrodlo({}), new Set());
+	assert.equal(wynik.ok, true);
+	if (!wynik.ok) return;
+	assert.deepEqual(wynik.dane.zdjecia, []);
+	assert.equal(wynik.dane.placeholder, false);
+});
+
+test('zadne dodatkowe pole z zadania nie trafia do zapisanego pliku', () => {
+	const wynik = walidujGaleria(
+		zrodlo({ ...polaZPliku(), __proto__: 'x', dopisek: 'x', placeholder: 'x' }),
+		new Set()
+	);
+	assert.equal(wynik.ok, true);
+	if (!wynik.ok) return;
+	assert.deepEqual(Object.keys(wynik.dane), Object.keys(GALERIA_ZLOZONA));
+	for (const zdjecie of wynik.dane.zdjecia) {
+		assert.deepEqual(Object.keys(zdjecie), ['plik', 'podpis', 'alt']);
+	}
 });
