@@ -283,6 +283,30 @@ test('lista do renderu gubi wpis, ktorego pliku nie ma wsrod przetworzonych zdje
 	assert.equal(doRenderu[0].podpis, 'Jest');
 });
 
+test('lista do renderu odrzuca nazwe pliku, ktora trafia w lancuch prototypow', () => {
+	// T-05-07-02. The picture map is a plain object literal, so it answers `constructor`,
+	// `__proto__`, `toString`, `valueOf` and `hasOwnProperty` off `Object.prototype`. A lookup
+	// that admits on `!== undefined` therefore lets those names through with `obraz` bound to
+	// a function rather than a picture, and the first `zdjecie.obraz.img.src` on /o-nas throws
+	// a TypeError in the middle of the whole-site prerender. The store is hand-editable, which
+	// is what puts these names in reach: `zdjecieGalerii` constrains `plik` no further than
+	// „it is a string".
+	const zdjecia = czytajGalerie({
+		zdjecia: [
+			{ plik: 'constructor', podpis: 'Podpis', alt: 'Opis' },
+			{ plik: '__proto__', podpis: 'Podpis', alt: 'Opis' },
+			{ plik: 'toString', podpis: 'Podpis', alt: 'Opis' },
+			{ plik: 'valueOf', podpis: 'Podpis', alt: 'Opis' },
+			{ plik: 'hasOwnProperty', podpis: 'Podpis', alt: 'Opis' },
+			{ plik: 'jest.jpg', podpis: 'Jest', alt: 'Opis' }
+		]
+	});
+	assert.equal(zdjecia.length, 6, 'czytnik ma przepuscic te nazwy, bramka jest nizej');
+	const doRenderu = galeriaZObrazami(zdjecia, { 'jest.jpg': { img: { src: '/jest.jpg' } } });
+	assert.equal(doRenderu.length, 1);
+	assert.equal(doRenderu[0].plik, 'jest.jpg');
+});
+
 test('lista do renderu szuka obrazu po BAZOWEJ nazwie, takze gdy zapisano sciezke', () => {
 	const zdjecia = czytajGalerie({
 		zdjecia: [{ plik: 'src/lib/assets/uploads/jest.jpg', podpis: 'Jest', alt: 'Opis' }]

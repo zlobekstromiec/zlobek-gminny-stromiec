@@ -100,6 +100,17 @@ export function czytajGalerie(dane: unknown): ZdjecieGalerii[] {
  *
  * Separate from `czytajGalerie` on purpose: the panel's pulpit counter has no picture map and
  * must count what the EDITING SCREEN will show, which is the stored list.
+ *
+ * THE MEMBERSHIP TEST IS `Object.hasOwn`, NEVER `!== undefined` (T-05-07-02). The map arrives
+ * from `wedlugBazowejNazwy`, which builds a plain object, and a plain object answers
+ * `constructor`, `__proto__`, `toString`, `valueOf` and `hasOwnProperty` off its prototype.
+ * Asking only whether the lookup came back defined therefore ADMITS those five names with
+ * `obraz` bound to a function instead of a picture, and the first `obraz.img.src` on /o-nas
+ * throws a TypeError in the middle of the whole-site prerender — which is exactly the
+ * „one bad entry can never abort the prerender" property this filter exists to hold. The
+ * store is hand-editable and `zdjecieGalerii` constrains `plik` no further than „it is a
+ * string", so those names are genuinely in reach; the panel's own upload path is narrower
+ * only because `WZORZEC_NAZWY` forces an image extension on it.
  */
 export function galeriaZObrazami<T>(
 	zdjecia: readonly ZdjecieGalerii[],
@@ -107,7 +118,9 @@ export function galeriaZObrazami<T>(
 ): ZdjecieGaleriiZObrazem<T>[] {
 	const doRenderu: ZdjecieGaleriiZObrazem<T>[] = [];
 	for (const zdjecie of zdjecia) {
-		const obraz = wedlugNazwy[bazowaNazwa(zdjecie.plik)];
+		const nazwa = bazowaNazwa(zdjecie.plik);
+		if (!Object.hasOwn(wedlugNazwy, nazwa)) continue;
+		const obraz = wedlugNazwy[nazwa];
 		if (obraz === undefined) continue;
 		doRenderu.push({ plik: zdjecie.plik, podpis: zdjecie.podpis, alt: zdjecie.alt, obraz });
 	}
