@@ -51,6 +51,31 @@ export const NAWIGACJA: readonly string[] = Object.freeze([
 	'Pomoc'
 ]);
 
+/** Polish section names keyed by the FIRST path segment under /admin, with the empty
+ *  string standing for the landing screen, in the UI-SPEC nav order.
+ *
+ *  This is the source of the „{Sekcja}, panel redakcyjny" page title that the shell
+ *  builds through `tytulStrony` below, so every value here is a visible string: it
+ *  reaches the browser tab, the window switcher and a screen reader's page announcement.
+ *  That is why it lives in this module and is swept, and it is why it could not stay
+ *  where it was written: SvelteKit restricts the names a `+layout.server.ts` may export,
+ *  so the map sitting beside its one consumer was unreachable by any test.
+ *
+ *  An unknown segment is NOT listed here on purpose. The layout falls back to the
+ *  neutral wordmark rather than leaking a raw path segment into a title, and
+ *  tests/admin-enumeracja.spec.ts asserts that no route the panel actually serves ever
+ *  reaches that fallback. */
+export const SEKCJE_PANELU: Readonly<Record<string, string>> = Object.freeze({
+	'': 'Pulpit',
+	logowanie: 'Logowanie',
+	aktualnosci: 'Aktualności',
+	'o-nas': 'O nas',
+	'plan-dnia': 'Plan dnia',
+	dokumenty: 'Dokumenty',
+	nabor: 'Nabór',
+	pomoc: 'Pomoc'
+});
+
 /** Logowanie, both steps and the whole login state matrix (Component Contract 2).
  *
  *  D-02: the step 2 heading and body are byte-identical whether or not the address is

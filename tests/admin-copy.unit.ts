@@ -34,6 +34,7 @@ import {
 	KOPIA_ZAPIS,
 	KOPIA_ZDJECIA,
 	NAWIGACJA,
+	SEKCJE_PANELU,
 	POLA_DATA,
 	POLA_DOKUMENT,
 	POLA_O_NAS,
@@ -104,6 +105,7 @@ function zbierz(wartosc: unknown, zebrane: string[] = []): string[] {
 const EKSPORTY: unknown[] = [
 	KOPIA_POWLOKA,
 	NAWIGACJA,
+	SEKCJE_PANELU,
 	KOPIA_LOGOWANIE,
 	KOPIA_MAIL_KOD,
 	KOPIA_PULPIT,
@@ -225,6 +227,19 @@ test('nawigacja wymienia siedem sekcji panelu w ustalonej kolejnosci', () => {
 		[...NAWIGACJA],
 		['Pulpit', 'Aktualności', 'O nas', 'Plan dnia', 'Dokumenty', 'Nabór', 'Pomoc']
 	);
+});
+
+// The section-title map is the source of the browser tab on every panel screen, so an
+// entry it lacks degrades a title to the neutral wordmark without a single test noticing.
+// tests/admin-enumeracja.spec.ts asserts that no ROUTE is missing from it; here the
+// weaker but independent property is pinned: every navigation label is also a section
+// name, so the tab and the chip can never call the same screen two different things.
+test('mapa nazw sekcji nazywa kazda sekcje z nawigacji, a pulpit ma klucz pusty', () => {
+	assert.equal(SEKCJE_PANELU[''], 'Pulpit');
+	const nazwy = Object.values(SEKCJE_PANELU);
+	for (const etykieta of NAWIGACJA) {
+		assert.ok(nazwy.includes(etykieta), `sekcja „${etykieta}" nie ma nazwy w mapie tytulow`);
+	}
 });
 
 // D-02. The step 2 screen must read the same whether or not the address has access,

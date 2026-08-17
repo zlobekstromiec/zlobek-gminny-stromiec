@@ -17,34 +17,29 @@
 	// pass, and the screen that forgets shows no current section at all.
 	//
 	// The LABELS come from src/lib/content/panel.ts and the ORDER is the UI-SPEC order.
-	// The paths below are wiring rather than copy, which is why they live here and not
-	// in the copy module, and they are index-aligned with NAWIGACJA: the two lists are
-	// the same seven sections and must stay the same length.
+	// The PATHS are wiring rather than copy, so they live in their own module under
+	// $lib (imported below) rather than in the copy module, and they are index-aligned
+	// with NAWIGACJA: the two lists are the same sections and must stay the same length.
+	// They were moved OUT of this file by plan 05-05 for one reason: while they sat
+	// here nothing could import them, so nothing could assert that alignment, and a
+	// missing entry silently produced an `undefined` href. That assertion now lives in
+	// tests/admin-enumeracja.spec.ts.
 	//
 	// The `aria-label` is written as a literal on purpose. It is the one string in this
 	// phase whose exact bytes are an acceptance gate of 04.1-03-PLAN.md, and reading it
 	// through a module would make that gate unverifiable.
 	import { page } from '$app/state';
 	import { NAWIGACJA } from '$lib/content/panel';
+	import { SCIEZKA_STARTOWA, SCIEZKI_PANELU } from '$lib/sciezki-panelu';
 
-	const SCIEZKI: readonly string[] = [
-		'/admin',
-		'/admin/aktualnosci',
-		'/admin/o-nas',
-		'/admin/plan-dnia',
-		'/admin/dokumenty',
-		'/admin/nabor',
-		'/admin/pomoc'
-	];
-
-	const pozycje = NAWIGACJA.map((etykieta, i) => ({ etykieta, href: SCIEZKI[i] }));
+	const pozycje = NAWIGACJA.map((etykieta, i) => ({ etykieta, href: SCIEZKI_PANELU[i] }));
 
 	const sciezka = $derived(page.url.pathname);
 
 	/** The pulpit is matched exactly, because every other panel path starts with
 	 *  `/admin` and a prefix match would light up Pulpit on every screen. */
 	function biezaca(href: string): boolean {
-		if (href === '/admin') return sciezka === '/admin';
+		if (href === SCIEZKA_STARTOWA) return sciezka === SCIEZKA_STARTOWA;
 		return sciezka === href || sciezka.startsWith(`${href}/`);
 	}
 </script>
