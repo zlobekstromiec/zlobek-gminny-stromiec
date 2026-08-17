@@ -95,16 +95,25 @@ export const MAKS_KWOTY = 9999;
 /**
  * A ZERO AMOUNT, anchored so that a larger amount ENDING in zero cannot match.
  *
- * The digit run has to be exactly „0": a digit may neither precede nor follow it. That is
- * what separates „0 zł" (an amount of nothing, which needs its condition beside it) from
- * „1 500 zł", „20 zł" and „1 000 zł", every one of which contains the same characters and
- * every one of which is a perfectly ordinary fee.
+ * The digit run has to be exactly „0", optionally carrying grosze that are themselves zero:
+ * a digit may neither precede the run nor follow it. That is what separates „0 zł" and
+ * „0,00 zł" (an amount of nothing, which needs its condition beside it) from „1 500 zł",
+ * „20 zł" and „1 000 zł", every one of which contains the same characters and every one of
+ * which is a perfectly ordinary fee.
+ *
+ * THE GROSZE BRANCH IS NOT DECORATION (T-05-05-01). `kwoty.ts` records that the uchwała
+ * writes amounts with grosze, and the render-time gate in `tests/cennik.spec.ts` has carried
+ * an explicit `(,00)?` branch since it was written. Without the branch here the two halves
+ * disagreed: the save-time rule accepted „płacisz 0,00 zł" with no condition beside it and
+ * published it to a page a parent reads. The branch requires BOTH grosze digits to be zero,
+ * so „0,50 zł" is still an ordinary amount, and the trailing lookahead still refuses
+ * „10,00 zł", whose own digits contain the same characters.
  *
  * Exported so the unit suite drives THIS pattern rather than a copy of it. A twin would
  * agree with it on the day it was written and diverge the first time either was tightened,
  * and the divergence would be invisible: the suite would keep passing.
  */
-export const WZORZEC_ZERA = /(?<!\d)0(?!\d)\s*zł/u;
+export const WZORZEC_ZERA = /(?<!\d)0(?:,00)?(?!\d)\s*zł/u;
 
 /**
  * The marker that makes a zero amount lawful: the name of the benefit that pays it.

@@ -293,6 +293,11 @@ test('wzorzec zera nie lapie kwoty czterocyfrowej ani zadnej innej konczacej sie
 		'20 zł za każdy dzień',
 		'10 zł',
 		'100 zł',
+		// The two that catch a careless widening of the pattern towards the grosze spelling:
+		// „10,00 zł" is a real amount whose own digits contain „0,00", and „0,50 zł" opens
+		// with a zero that is not a zero amount.
+		'10,00 zł',
+		'0,50 zł',
 		'Wyżywienie: maksymalnie 20 zł za każdy dzień obecności dziecka.'
 	]) {
 		assert.equal(WZORZEC_ZERA.test(uczciwa), false, `wzorzec zlapal uczciwa kwote: ${uczciwa}`);
@@ -301,7 +306,20 @@ test('wzorzec zera nie lapie kwoty czterocyfrowej ani zadnej innej konczacej sie
 });
 
 test('wzorzec zera lapie kwote zerowa, takze zapisana bez spacji', () => {
-	for (const zerowa of ['0 zł', '0zł', 'Płacisz 0 zł miesięcznie.', 'Opłata: 0  zł.']) {
+	for (const zerowa of [
+		'0 zł',
+		'0zł',
+		'Płacisz 0 zł miesięcznie.',
+		'Opłata: 0  zł.',
+		// THE GROSZE SPELLING (T-05-05-01). `kwoty.ts` records that the uchwała writes amounts
+		// with grosze, and the render-time gate at `tests/cennik.spec.ts` carries an explicit
+		// `(,00)?` branch, so the repository already knows this form exists. The save-time half
+		// used to be the only one blind to it, which let an editor publish an unconditioned
+		// zero to a page a parent reads.
+		'0,00 zł',
+		'0,00zł',
+		'Za nieobecność płacisz 0,00 zł.'
+	]) {
 		assert.equal(WZORZEC_ZERA.test(zerowa), true, `wzorzec przepuscil kwote zerowa: ${zerowa}`);
 		assert.equal(zeroBezWarunku(zerowa), true, `przyjeto kwote zerowa bez warunku: ${zerowa}`);
 	}
