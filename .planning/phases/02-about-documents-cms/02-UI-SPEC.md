@@ -367,3 +367,36 @@ belongs with it, rather than pinning a literal that a routine CMS edit would bre
 The panel's own field labels (`Liczba opiekunek`, `Personel pomocniczy (liczba)`)
 are unchanged: no numeral ever attaches to them, and they are quoted verbatim in
 `docs/instrukcja-cms.md`.
+
+---
+
+## Superseded by 05-UI-SPEC (Amendment v1.7, 2026-08-17)
+
+> Phase 5 rewrites part of the locked `/o-nas` contract above. The project's amendment
+> procedure appends the pointer to `01-UI-SPEC.md`, but `05-RESEARCH.md` §C-3 shows a
+> pointer only works where the reader actually lands, and a reader following the `/o-nas`
+> contract lands **here**. This section is therefore a second, physical pointer. The full
+> replacement contracts live in `.planning/phases/05-gallery-fees/05-UI-SPEC.md`; nothing
+> is restated here. **Everything not listed in the table below is unchanged**, including
+> the seven-section ORDER, the surface alternation, every other section's contract, the
+> `/dokumenty` page in full, the Copywriting Contract apart from the one named row, the
+> Inheritance Ledger and every WCAG invariant.
+
+| Line | What it said | What replaces it |
+|---|---|---|
+| `:103` | the `/o-nas` heading's „prerendered, zero-JS" claim | The page keeps `prerender = true` and gains **exactly ONE hydrated island**, the lightbox (05 D-13). It is the site's fourth island and the first on a content route, and it must meet the `MobileNav` bar: bounded focus trap, Escape to close, `prefers-reduced-motion`, keyboard operable, its own axe AA pass closed and open. **The header comment at `src/routes/o-nas/+page.svelte:2-5` states the zero-JS guarantee this phase breaks and is rewritten in the same commit as the island**, never left to be discovered. `05-UI-SPEC.md` Contract 2 |
+| `:107` | „Nasze miejsce" is the page's primary visual anchor | **The gallery section is the anchor**, under the heading „Galeria: nasze miejsce" at the anchor `#galeria` (05 D-19, 05 D-20). `05-UI-SPEC.md` Contract 1 |
+| `:109-115`, `:212` | Section 6 „Nasze miejsce (facility story)" and its facility image grid | Section 6 **becomes the gallery section**: `obiekt_opis` prose above a gallery grid of 1 / 2 / 3 columns at base / 768px / 1024px, gap 24px, `--radius-lg` on images (05 D-12). The three-column tier is NEW, not inherited: the contract above stops at two columns and has no tier at 1024px and above. The seven-section order and every other section are unchanged. `05-UI-SPEC.md` Contract 1 |
+| `:272` | `obiekt_zdjecia` label row of the CMS copy contract | **The photos leave `o-nas.json`** for their own content store and their own panel screen, `/admin/galeria` (05 D-26). `obiekt_opis` stays where it is. `05-UI-SPEC.md` Contract 8 |
+| `:115` D-04 | „stock/AI, environment-only images, **zero identifiable people**, placeholder-flagged" | **NOT superseded. It STANDS**, see below |
+| `:120` D-09 | a `placeholder: true` boolean renders no visitor-facing badge | **NOT superseded.** It governs every placeholder this phase ships (05 D-14): the page looks final and the flag lives in the JSON or in a `// PLACEHOLDER:` line comment |
+
+**D-04 at `:115` stands, and it overrides the weaker rule in `DESIGN-BANK.md:37`.** The two
+disagree: the bank permits an identifiable child with documented *wizerunek* consent and
+merely prefers childless interiors, while D-04 admits zero identifiable people at all. **The
+UI-SPEC wins**, because it is the locked contract for the surface the gallery now renders on
+(05 D-15). Phase 5 does not soften it: no child's face ships, alt text never identifies a
+person, and the gallery ships with placeholder or environment-only imagery carrying the
+greppable `PLACEHOLDER` token. **Loosening D-04 is a future amendment made in the open, at
+the Phase 6 gate, when the documented consents actually exist. It is not a decision an
+executor may take while placing a photo.**

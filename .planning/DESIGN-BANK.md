@@ -28,13 +28,13 @@ Six documents: Karta zgłoszenia dziecka, Regulamin rekrutacji, Statut żłobka,
 
 ## Cennik (Phase 5)
 
-Three cards: Opłata za pobyt 400 zł / miesięcznie ("Opłata stała za miejsce w żłobku, niezależna od frekwencji.") · Wyżywienie 14 zł / za dzień ("Śniadanie, dwudaniowy obiad i podwieczorek z własnej kuchni.") · Wpisowe 0 zł / jednorazowo ("Nie pobieramy opłaty wpisowej ani za wyprawkę."). Obowiązują od 1 września 2026 (PLACEHOLDER).
-Dofinansowanie box: "Rodzice mogą skorzystać z dofinansowania ZUS do pobytu dziecka w żłobku: do 400 zł miesięcznie (przekazywane bezpośrednio do placówki, obniża opłatę za pobyt). Alternatywnie: Rodzinny Kapitał Opiekuńczy dla drugiego i kolejnego dziecka. Wniosek składa się elektronicznie przez PUE ZUS. Chętnie pomożemy w formalnościach!"
-Odpisy note: "Odpisy za nieobecność dziecka dotyczą stawki żywieniowej (za każdy zgłoszony dzień nieobecności). Szczegóły w Regulaminie żłobka."
+STRUCK (05 D-02): Three cards: Opłata za pobyt 400 zł / miesięcznie ("Opłata stała za miejsce w żłobku, niezależna od frekwencji.") · Wyżywienie 14 zł / za dzień ("Śniadanie, dwudaniowy obiad i podwieczorek z własnej kuchni.") · Wpisowe 0 zł / jednorazowo ("Nie pobieramy opłaty wpisowej ani za wyprawkę."). Obowiązują od 1 września 2026 (PLACEHOLDER).
+STRUCK (05 D-02): Dofinansowanie box: "Rodzice mogą skorzystać z dofinansowania ZUS do pobytu dziecka w żłobku: do 400 zł miesięcznie (przekazywane bezpośrednio do placówki, obniża opłatę za pobyt). Alternatywnie: Rodzinny Kapitał Opiekuńczy dla drugiego i kolejnego dziecka. Wniosek składa się elektronicznie przez PUE ZUS. Chętnie pomożemy w formalnościach!"
+Odpisy note: "Odpisy za nieobecność dziecka dotyczą stawki żywieniowej (za każdy zgłoszony dzień nieobecności). Szczegóły w Regulaminie żłobka." The two struck sentences above stay readable as a record of what was drafted and are unusable as a source: the live fee copy is defined by `05-UI-SPEC.md` Contracts 3 and 4, and the ZUS explainer's own złoty amount is deliberately absent because no confirmed source replaces it, so `/cennik` says "w maksymalnej wysokości" and states that the benefit is paid directly to the żłobek.
 
 ## Galeria (Phase 5)
 
-Nine slots: Sala zabaw (maluchy), Sypialnia, Plac zabaw, Kącik plastyczny, Jadalnia, Szatnia, Zajęcia muzyczne, Budynek żłobka, Ogród. All photos need documented wizerunek consent if any child is identifiable; prefer interiors without children.
+Nine slots: Sala zabaw (maluchy), Sypialnia, Plac zabaw, Kącik plastyczny, Jadalnia, Szatnia, Zajęcia muzyczne, Budynek żłobka, Ogród. All photos need documented wizerunek consent if any child is identifiable; prefer interiors without children. NOT STRUCK: the nine slots stay usable as a shot list (05 D-15), but that consent rule is OVERRIDDEN for the surface the gallery now renders on by `02-UI-SPEC.md:115` D-04, which is harder and admits zero identifiable people at all; loosening it is a future amendment made in the open at the Phase 6 gate, never an executor's call while placing a photo.
 
 ## Dojazd (Phase 4, likely inside Kontakt)
 
