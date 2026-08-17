@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 04.1
-current_phase_name: replace-sveltia-with-custom-polish-cms
-status: awaiting-human
-stopped_at: "Faza 5: kontrakt UI (05-UI-SPEC.md) zatwierdzony przez checkera 6/6, gotowy do planowania"
-last_updated: "2026-08-17T13:52:59.077Z"
-last_activity: 2026-08-16
-last_activity_desc: 04.1-11 (komentarze zrodlowe i dokumentacja przepisane na nowy panel, D-21 w REQUIREMENTS.md, scenariusz zywego UAT)
+current_phase: "05"
+current_phase_name: gallery-fees
+status: ready-to-execute
+stopped_at: "Faza 5 zaplanowana: 9 planow w 5 falach, plan-checker zdal bez blokerow. Faza 04.1 pozostaje OTWARTA (zywy UAT), faza 5 rusza mimo to na mocy D-37"
+last_updated: "2026-08-17T15:16:53.000Z"
+last_activity: 2026-08-17
+last_activity_desc: Faza 5 zaplanowana (badania, strategia walidacji Nyquist, mapa wzorcow, 9 planow, weryfikacja zdana)
 progress:
   total_phases: 8
   completed_phases: 5
-  total_plans: 38
+  total_plans: 47
   completed_plans: 38
   percent: 63
 ---
@@ -24,9 +24,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-14)
 
 **Core value:** A parent lands on the site and, within seconds, both feels the żłobek's warmth and finds the exact information they need (enrollment, documents, contact) — on any device.
-**Current focus:** Phase 04.1 — replace-sveltia-with-custom-polish-cms
+**Current focus:** Phase 05 — gallery-fees (zaplanowana, gotowa do wykonania)
 
 ## Current Position
+
+Phase: 05 (gallery-fees) — READY TO EXECUTE
+Plans: 9 planow w 5 falach, zero wykonanych
+Status: **Zaplanowana 2026-08-17. Nastepny krok: `/gsd-execute-phase 5`.**
+Last activity: 2026-08-17 — planowanie fazy 5 (badania, strategia walidacji, mapa wzorcow, 9 planow, weryfikacja zdana bez blokerow)
+
+Artefakty fazy 5, wszystkie zatwierdzone i zacommitowane: `05-CONTEXT.md` (37 decyzji D-01..D-37), `05-UI-SPEC.md` (LOCKED, checker 6/6), `05-RESEARCH.md`, `05-VALIDATION.md`, `05-PATTERNS.md`, `05-01..05-09-PLAN.md`.
+
+**Faza 5 rusza mimo formalnie OTWARTEJ zaleznosci od 04.1** — to jawna decyzja uzytkownika (D-37), nie przeoczenie. Powod jest brakiem wejscia, nie apetytem na ryzyko: **nie ma jeszcze zadnej prawdziwej fotografii ze zlobka**, wiec wiersza B2 UAT 04.1 (zdjecie z telefonu, a z nim zalozenie o HEIC) nie da sie uczciwie zamknac placeholderem. Konsekwencje zapisane w planach: zaden dowod akceptacyjny fazy 5 nie moze wymagac prawdziwych zdjec, a HEIC (B2) i panel konfliktu zapisu (B4) sa PRZENIESIONE do bramy startowej fazy 6, gdzie i tak lada zestaw zdjec za zgoda.
+
+**Faza 04.1 nadal czeka na zywy UAT** (`.planning/phases/04.1-replace-sveltia-with-custom-polish-cms/04.1-UAT.md`, 7 z 27 wierszy zdanych). To ona, nie faza 5, zamyka CMS-01, CMS-02 i CMS-03 (D-36). Faza 5 ich NIE odhacza.
+
+### Poprzednia pozycja (faza 04.1, nadal otwarta)
 
 Phase: 04.1 (replace-sveltia-with-custom-polish-cms) — AWAITING HUMAN
 Plan: 11 of 11, wykonany w calosci poza tym, czego nie da sie zrobic bez czlowieka
@@ -53,7 +66,7 @@ Progress: 04.1 wszystkie 11 planow ma SUMMARY; 27/27 planow w fazach 1-4 ukonczo
 
 **CMS-01 and CMS-03 stay UNMARKED after 04.1-02**, deliberately, following the Plan 01 precedent. Both are shared across the whole phase, both are currently worded around Sveltia and GitHub OAuth, and D-21 rewords them in Plan 11. Ticking them from a plan that ships a code module and a copy module, with no login screen yet, would put a false claim in the traceability table.
 
-**Phase 5 (Gallery & Fees) is deferred behind 04.1.** Its `05-CONTEXT.md` was gathered on 2026-08-15 assuming Sveltia is the CMS; re-read and refresh it after 04.1 lands, because gallery photo management and the fees editor are now authored in the replacement panel.
+~~**Phase 5 (Gallery & Fees) is deferred behind 04.1.** Its `05-CONTEXT.md` was gathered on 2026-08-15 assuming Sveltia is the CMS; re-read and refresh it after 04.1 lands.~~ — **WYKONANE 2026-08-17.** `05-CONTEXT.md` przepisany w calosci wobec nowego panelu i zweryfikowany wobec drzewa roboczego; trzy twierdzenia starej wersji o kodzie byly falszywe i zostaly poprawione. Faza 5 zostala nastepnie zaplanowana (D-37: budujemy mimo otwartej zaleznosci).
 
 ## Performance Metrics
 
@@ -248,6 +261,8 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 - [Phase 04.1 / 04.1-03] Five panel nav destinations are 404s for a logged-in editor until plans 05 to 09 land: /admin/aktualnosci, /admin/o-nas, /admin/plan-dnia, /admin/dokumenty, /admin/nabor and /admin/pomoc. The nav is required by UI-SPEC Component Contract 1 in full and the paths are the contract's, so this is expected rather than a defect, but nobody should be shown the panel before Plan 09.
 - 04.1-04 human-action checkpoint OPEN: the five Cloudflare Pages admin secrets (ADMIN_EMAILS, ADMIN_SESSION_SECRET, GITHUB_APP_CLIENT_ID, GITHUB_APP_INSTALLATION_ID, GITHUB_APP_PRIVATE_KEY) are not set and no deployment carries them. Exact commands are in 04.1-04-SUMMARY.md under CHECKPOINT: human-action. Plans 05 to 10 can be built and unit-tested without them, but no live save works until they are set and a NEW deployment is created.
 - 04.1-05: pierwszy PRAWDZIWY zapis z panelu na zywym wdrozeniu nie zostal wykonany (zakaz wypychania i wdrazania w tej sesji). CMS-02 udowodnione tylko lokalnie. Kroki w 04.1-05-SUMMARY.md, sekcja CHECKPOINT
+- [Phase 05 / planowanie] **Dwie bramy GSD nie zadzialaly na tym repozytorium i zostaly obsluzone recznie. To nie sa usterki fazy 5, tylko wlasnosci narzedzi, ktore wroca przy kazdej nastepnej fazie.** (a) `query check.decision-coverage-plan` zwraca `passed: false, reason: "could-not-parse", covered: 0, uncovered: []` — parser oczekuje formatu `- **D-NN: tekst**`, a `05-CONTEXT.md` pisze `- **D-01 STANDS.** ...`. Pokrycie sprawdzone niezaleznie gripem: **37/37 decyzji cytowanych w planach**, z zachowaniem rozroznienia przestrzeni nazw (plany pisza „04.1 D-06 to D-08, which closed 05 D-11"), wiec brama padla na czytaniu, nie na pokryciu. Nie przeformatowywac `05-CONTEXT.md` pod parser: to plik autorytatywny. (b) `query state.planned-phase` zwrocilo `updated: []` i nie ruszylo `STATE.md`; sekcje pozycji i frontmatter zaktualizowano recznie.
+- [Phase 05 / planowanie] `query commit` z gsd-tools **przekracza limit czasu** na tym repozytorium, bo `npm run lint` to `prettier --check .` plus `eslint .` po calym drzewie. Objaw: `{"committed": false, "reason": "commit_failed"}` z bledem urwanym w polowie linii hooka, bez werdyktu po kropkach. Powtorka nie pomaga (to inna awaria niz znane jednorazowe ostrzezenie o stashu). Commitowac przez zwykly `git commit`; oba hooki wtedy przechodza.
 - [Phase 04.1 / 04.1-11] OTWARTY checkpoint human-action: zywy UAT calej fazy nie zostal wykonany i jest jedyna rzecza dzielaca faze od zamkniecia. Scenariusz w .planning/phases/04.1-replace-sveltia-with-custom-polish-cms/04.1-UAT.md zbiera dlugi planow 05 do 10 w jedna sesje. Wymaga najpierw WYPCHNIECIA zmian, bo wdrozenie 72941a1e jest sprzed planow 05 do 10 i nie ma na nim ekranow edycyjnych. Obejmuje tez usuniecie dwoch osieroconych uslug (OAuth App i Worker sveltia-cms-auth), obu tylko z paneli dostawcow.
 
 ### Quick Tasks Completed
@@ -271,6 +286,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-17T13:52:59.070Z
-Stopped at: Faza 5: kontrakt UI (05-UI-SPEC.md) zatwierdzony przez checkera 6/6, gotowy do planowania
-Resume file: .planning/phases/05-gallery-fees/05-UI-SPEC.md
+Last session: 2026-08-17T15:16:53.000Z
+Stopped at: Faza 5 zaplanowana, 9 planow w 5 falach, plan-checker zdal bez blokerow
+Resume file: .planning/phases/05-gallery-fees/05-01-PLAN.md
+Next command: `/gsd-execute-phase 5`
