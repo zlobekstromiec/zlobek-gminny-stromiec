@@ -83,3 +83,47 @@ w zakresie fazy 05. Prawdziwe warianty do rozwazenia w osobnym planie:
 
 Do czasu takiej decyzji: pojedyncza porazka w tej suicie, ktora nie powtarza sie przy
 ponownym przebiegu i nie jest naruszeniem axe, jest artefaktem obciazenia, nie regresja.
+
+---
+
+## 3. `MobileNav.svelte` ma te sama ucieczke z pulapki fokusu, ktora naprawiono w podgladzie zdjecia
+
+**Found by:** naprawa WR-05 w fazie 05; potwierdzone odczytem kodu przez orkiestratora.
+**Scope:** `src/lib/components/MobileNav.svelte`, komponent obecny na KAZDEJ stronie.
+Wada jest starsza niz faza 05: `Lightbox.svelte` zostal z tego komponentu przepisany, wiec
+plan 05-08 ja odziedziczyl, a nie wymyslil.
+
+`src/lib/components/MobileNav.svelte:73-79` obsluguje dokladnie dwa stany:
+
+```js
+if (event.shiftKey && active === first) { ... }
+else if (!event.shiftKey && active === last) { ... }
+```
+
+Kontener szuflady (`:104-113`) ma `role="dialog"`, `aria-modal="true"` i `tabindex="-1"`, wiec
+klikniecie w samą szufladę (jej wypelnienie, pasek naglowka obok przycisku zamkniecia, odstepy
+miedzy odnosnikami) ustawia na nim fokus. W tym stanie `active` nie jest ani `first`, ani `last`,
+zaden warunek nie zachodzi, `preventDefault()` nie pada i Shift+Tab wychodzi poza dialog na
+strone pod spodem. Do przodu Tab trafia na przycisk zamkniecia, wiec przecieka tylko wstecz.
+
+**Naprawa jest juz znana i sprawdzona.** `Lightbox.svelte` po poprawce WR-05 liczy pozycje
+aktywnego elementu w cyklu i traktuje `-1` (w dialogu, ale nie na jego kontrolce) jako wejscie
+do cyklu od tej strony, w ktora zmierza klawisz. Ten sam ksztalt przenosi sie tu wprost.
+
+**Nie naprawione w fazie 05, swiadomie.** Zakres poprawek po przegladzie kodu byl ustalony na
+cztery ustalenia (CR-01, WR-05, WR-01, WR-04), a ta wada lezy w komponencie, ktorego faza 05
+nie dotykala. Wymaga wlasnego planu z wlasnym testem: `tests/nav.spec.ts` dowodzi dzis roli
+dialogu, pierwszego fokusu, Escape i przywrocenia fokusu, ale ani razu nie naciska Tab, wiec
+nie ma testu, ktory ta poprawke przyjmie. WCAG 2.1 AA jest tu wymogiem prawnym.
+
+## 4. `tests/admin-galeria.spec.ts:141` powtarza nieprawdziwe zdanie usuniete przez WR-04
+
+**Found by:** naprawa WR-04 w fazie 05.
+**Scope:** jeden komentarz w tescie.
+
+Komentarz nadal mowi „By layout inheritance and with no auth code in the route itself
+(T-05-06-07)". WR-04 usunelo dokladnie to twierdzenie z trzech plikow serwerowych, bo jest
+falszywe w obu polowach: `src/routes/admin/+layout.server.ts` nie uwierzytelnia niczego, a brama
+to `src/hooks.server.ts` dopasowujace `pathname` przed routerem. Poprawka WR-04 byla celowo
+ograniczona do trzech plikow zrodlowych, wiec ten komentarz zostal. Do wymiany razem z pozycja 3
+albo przy najblizszej pracy w tym pliku.
