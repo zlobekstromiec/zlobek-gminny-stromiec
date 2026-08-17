@@ -270,7 +270,32 @@ Plans:
   2. A visitor can read the fees page (opłaty, stawki).
   3. Staff can add and remove gallery photos and edit the fees page via the CMS, with changes publishing after a Cloudflare rebuild.
 
-**Plans**: TBD
+**Plans**: 9 plans
+
+**Wave 1**
+
+- [ ] 05-01-PLAN.md — Contract amendments: 01-UI-SPEC v1.7, the 02-UI-SPEC supersession pointer, the DESIGN-BANK strike
+- [ ] 05-02-PLAN.md — /cennik: the amount formatter, the fee store, its reader and the public page; OPLATY becomes a typed read
+- [ ] 05-04-PLAN.md — PowtarzalnaGrupa gains move-up and move-down, proven on the two existing screens across both branches
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 05-03-PLAN.md — Public nav v3: six items at a 1024px tier, footer repoints, the #dojazd anchor, /cennik and /dojazd leave KNOWN_FUTURE_ROUTES
+- [ ] 05-05-PLAN.md — The panel route-enumeration gate, then /admin/cennik end to end
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 05-06-PLAN.md — The gallery store, the galeria- naming and ownership rule, and /admin/galeria with the twelve cap
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 05-07-PLAN.md — The #galeria section on /o-nas, obiekt_zdjecia leaves o-nas.json with every reader, KNOWN_FUTURE_ROUTES emptied
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 05-08-PLAN.md — The lightbox island, with the project's first open-overlay axe scan and first focus-trap assertion
+- [ ] 05-09-PLAN.md — W skrócie: the fact-tile store, the unified opening hours, /admin/w-skrocie and the phase ledger
+
 **UI hint**: yes
 
 ### Phase 6: Accessibility, Legal Compliance & Launch
