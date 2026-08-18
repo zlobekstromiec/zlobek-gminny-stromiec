@@ -54,7 +54,7 @@ Blocked and FORM-02 Pending. This is the same shape, not a new one.
   (04.1 D-17, D-22) genuinely cannot be honoured, and the plan must say so rather than imply the
   rule was overlooked.
 - **D-05:** Public site only. The widget does not appear in `/admin`. The panel is a tool for a
-  handful of named staff with its own shell and no TopBar, and adding a fifth island across 18 panel
+  handful of named staff with its own shell and no TopBar, and adding a fifth island across 17 panel
   routes would extend both the Polish sweep and the axe expectations for no public benefit.
 - **D-06:** The widget is the site's FIFTH hydrated island (after MobileNav, the two form islands and
   the Phase 5 lightbox) and it inherits the island bar from 05 D-13 unchanged: bounded focus trap,
@@ -89,10 +89,16 @@ Blocked and FORM-02 Pending. This is the same shape, not a new one.
   prywatnosci must disclose the session storage regardless.
 - **D-12:** The CSP is NOT widened. `svelte.config.js:57-69` sets `csp: {mode: 'auto'}` with
   `'script-src': ['self', 'https://challenges.cloudflare.com']` and no `unsafe-inline`, and 05 D-13
-  states "the CSP needs no change for a same-origin island". Research must establish whether
-  SvelteKit's `auto` mode will hash a hand-authored inline script in `app.html`. If it will, the
-  pre-hydration guard is free and there is no flash. If it will not, we SHIP THE FLASH and record
-  why. Widening the policy or dropping prerender are both refused.
+  states "the CSP needs no change for a same-origin island". Widening the policy or dropping
+  prerender are both refused.
+
+  **ANSWERED 2026-08-18 by the UI researcher, against the SvelteKit source: NO.** `csp.add_script()`
+  runs only over SvelteKit's own generated bootstrap
+  (`packages/kit/src/runtime/server/page/csp.js`, `render.js`), so `mode: 'auto'` cannot hash a
+  hand-authored inline script in `app.html`. The pre-hydration guard is therefore not available,
+  and per this decision **we ship the flash.** The same-origin external-script alternative was
+  weighed and rejected on SITE-05 grounds (an extra blocking request on every page to avoid a
+  one-frame flash). Planning does not need to re-open this; `06-UI-SPEC.md` carries the reasoning.
 - **D-13:** All of the above requires a formal amendment to the locked design contract BEFORE the
   change, per 05 D-16 and D-20: append to `01-UI-SPEC.md` a section headed
   `## Amendment v1.8 (date): <title>` with a blockquote naming what is superseded and what is
@@ -146,12 +152,18 @@ Blocked and FORM-02 Pending. This is the same shape, not a new one.
   report a permanent false positive. This closes T-05-09-05, whose whole content is that a token
   grep cannot see a JSON boolean. **05 D-18 is the trap to avoid:** a naive grep gets permanent false
   positives on this repo because comments name paths in quoted form.
-- **D-20:** The gate covers the WHOLE go-live checklist, not only placeholders: the noindex guard
-  (`Seo.svelte:19` plus the two hand-rolled tags on the legal pages), `static/robots.txt`, the
+- **D-20:** The gate covers the WHOLE go-live checklist, not only placeholders: the noindex guard,
+  `static/robots.txt`, the
   sitemap host and URL set, the OG share card, and the three stub documents under `static/dokumenty/`
-  (623 B, 630 B and 96 B). One command answers "are we allowed to launch". The noindex flip alone
-  touches five test assertions across four files and the sitemap host currently disagrees with the
-  documented live URL, which is exactly the kind of thing a human checklist loses.
+  (623 B, 630 B and 96 B). One command answers "are we allowed to launch". The noindex flip touches
+  five test assertions across four files and the sitemap host currently disagrees with the documented
+  live URL, which is exactly the kind of thing a human checklist loses.
+
+  **Corrected 2026-08-18:** this decision originally said the flip has three sites (`Seo.svelte:19`
+  plus a hand-rolled tag on each legal page). It has **one**. D-14 rebuilds both legal pages as real
+  routes that import `Seo.svelte`, which deletes both hand-rolled tags inside Phase 6, so by the time
+  Phase 7 runs, `Seo.svelte:19` is the only site left. `src/routes/admin/+layout.svelte:62` keeps
+  `noindex` forever and is not part of the flip. ROADMAP Phase 7 SC5 was corrected to match.
 - **D-21:** `npm run test:unit` is appended to the Cloudflare Pages build command, making it
   `wrangler types --check && npm run test:unit && vite build`. This pays the AG-3 debt raised three
   times (03-REVIEW.md:99-105, 04-REVIEW WR-01, T-05-09-05) at zero cost and independently of repo
@@ -324,7 +336,10 @@ The user chose to have these recorded rather than discussed. They are decisions,
   DELETED, not emptied (plan 05-07). Every internal link is crawler-enforced and a broken one fails
   `vite build`. There is no escape hatch left, so any new nav or footer link must land in the same
   commit as its page.
-- `tests/fixtures/trasy-panelu.ts` - `TRASY` currently holds 18 routes. A new panel screen (D-14)
+- `tests/fixtures/trasy-panelu.ts` - `TRASY` currently holds **17** routes, and D-14's two new panel
+  screens take it to 19. (Counted wrong as 18 in several places, including `.claude/CLAUDE.md:10` and
+  `REQUIREMENTS.md:67`, because a naive `grep -c "sciezka:"` also matches the type declaration on
+  line 41. Both corrected 2026-08-18.) A new panel screen (D-14)
   must be added here or it gets ZERO Polish coverage, and `tests/admin-enumeracja.spec.ts` is what
   turns that silent gap into a red one.
 - `tests/responsive.spec.ts:32` - its `ROUTES` list is a second enumeration surface. New public

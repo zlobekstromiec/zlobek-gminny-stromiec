@@ -308,7 +308,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
 
   1. The site passes a WCAG 2.1 AA audit (semantic structure, AA contrast, keyboard navigation, visible focus, prefers-reduced-motion), with axe covering every public route and every modal state, and provides an accessibility widget (font-size + high-contrast toggles).
-  2. Both mandatory legal pages are authored in full and published: a Deklaracja dostępności following the official government template (conformance status, procedura wnioskowo-skargowa, dostępność architektoniczna), and a Polityka prywatności / RODO page. The koordynator dostępności and IOD name-and-contact fields are the only content left as marked placeholders; A11Y-03 and LEGAL-02 tick when Phase 7 supplies them.
+  2. Both mandatory legal pages are authored in full and published: a Deklaracja dostępności following the official government template (conformance status, procedura wnioskowo-skargowa, dostępność architektoniczna), and a Polityka prywatności / RODO page. Four content classes remain as marked placeholders, because no source for them exists in the project: the koordynator dostępności contact, the IOD contact, the dostępność architektoniczna facts and the dodatkowe informacje section (`dane-bip-zlobek-stromiec.md:196` scores this page ~10% and names the architectural facts as the gap). A11Y-03 and LEGAL-02 tick when Phase 7 supplies all four.
   3. The site links prominently and correctly to the existing BIP (https://ugstromiec.naszbip.pl/zlobek).
   4. Pages load fast on mobile: images are optimized and Core Web Vitals pass (green) measured on a throttled mobile profile, not desktop broadband.
   5. The combined launch gate exists and runs in an automated tier. It reads both placeholder mechanisms (the `PLACEHOLDER` token in source and the `placeholder` booleans under `src/lib/content/`), and it is RED on purpose at the end of this phase. Turning it green is Phase 7's job.
@@ -326,9 +326,9 @@ Plans:
 
   1. All placeholder content is replaced with client-provided real content, and any children's photos have documented wizerunek consent on file.
   2. A live end-to-end test email confirms delivery to the confirmed recipient address `zlobek@ugstromiec.pl` (sent from our domain `zlobekstromiec.pl`), which also closes FORM-01. The BCC backup mailbox and the klauzula paragraph that discloses it are removed in the same commit.
-  3. The koordynator dostępności and the IOD are named with contact details, closing A11Y-03 and LEGAL-02.
+  3. The four outstanding Deklaracja/RODO content classes are supplied by the Gmina and published: the koordynator dostępności contact, the IOD contact, the dostępność architektoniczna facts and the dodatkowe informacje section. This closes A11Y-03 and LEGAL-02.
   4. The launch gate built in Phase 6 runs green: no `PLACEHOLDER` token remains outside convention headers, and every `placeholder` boolean under `src/lib/content/` is false.
-  5. The site is indexable: the `Seo` noindex default is lifted, both hand-rolled noindex tags on the legal pages are removed, robots.txt allows crawling and points at a sitemap whose host and URL set are correct, and the OG share card carries current branding.
+  5. The site is indexable: the `Seo` noindex default is lifted (one site, `Seo.svelte:19` — Phase 6 rebuilds both legal pages onto `Seo.svelte`, which deletes their hand-rolled tags, and `src/routes/admin/+layout.svelte:62` keeps noindex forever), robots.txt allows crawling and points at a sitemap whose host and URL set are correct, and the OG share card carries current branding.
 
 **Plans**: TBD
 **UI hint**: no

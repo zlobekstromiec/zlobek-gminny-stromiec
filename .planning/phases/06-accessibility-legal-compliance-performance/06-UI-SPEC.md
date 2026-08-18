@@ -1,7 +1,9 @@
 ---
 phase: 6
 slug: accessibility-legal-compliance-performance
-status: draft
+status: verified
+verified: 2026-08-18
+checker: 6/6 dimensions PASS, 8/8 project-specific checks PASS, contrast arithmetic independently reproduced on 4 pairings
 shadcn_initialized: false
 preset: none
 created: 2026-08-18
@@ -227,6 +229,25 @@ decorative surfaces only.
 
 Accent is **never** applied to the widget trigger, any widget control, either legal page, or
 the EU strip. The widget is a utility, not a call to action.
+
+### The high-contrast tier's own split
+
+The default split above describes the default theme only. The high-contrast tier deliberately
+collapses to three values, so it has its own ratio and it is stated here rather than left implied
+by the flip tables:
+
+| Role | Value | Share | Carries |
+|------|-------|-------|---------|
+| Dominant | `#000000` | ~85% | Every surface without exception: page, header, footer, cards, the widget panel, both legal pages, the EU strip plate, panel screens |
+| Secondary | `#FFFF00` | ~10% | All body text, all headings, all icon strokes, every border that replaces a shadow, the focus ring |
+| Accent | `#FFFFFF` | ~5% | Interactive-state differentiation only: the hovered or checked control, the active nav marker, and the photo border. Never a large fill |
+| Semantic | `--hc-uwaga` | rare | Validation errors only, on the two panel screens. `#B91C1C` on black computes to 3.25:1 and FAILS body text, which is precisely why this fourth value exists |
+
+**The ratio inverts on purpose.** In the default theme the dominant value is a near-white surface
+and colour is the scarce resource; in the high-contrast tier the dominant value is black and
+*legibility* is the scarce resource, so yellow is spent freely on every glyph and stroke while
+white is rationed to the few places a state change must be visible. Reading the default theme's
+60/30/10 into this tier would produce a mode that is merely dark, not high-contrast.
 
 ### Contrast pairings used by this phase, default theme
 
@@ -568,7 +589,7 @@ regress. That is a property of the mechanism, not of the executor's care.**
 | :194 | `.logo-slot color: var(--color-muted)` | muted flips to yellow, 1.07:1 on the white plate: `var(--hc-tlo)` |
 | :217 | `.col-heading color: var(--color-tint-yellow)` | tint flips to black: `var(--color-ink)` |
 | :238 | `.footer-link color: var(--color-band)` | `var(--color-ink)` |
-| :243 | `.footer-link:hover color: #ffffff` | `var(--color-brand-blue-hover)` (white) — the one literal that keeps its rendered value, and it must still be routed through the token so the file carries no bare white |
+| :243 | `.footer-link:hover color: #ffffff` | `var(--color-brand-blue-hover)` (white). The one literal that keeps its rendered value, and it must still be routed through the token so the file carries no bare white |
 | :251 | `.hours-line color: var(--color-band)` | `var(--color-ink)` |
 | :259 | `.hours-big color: #ffffff` | `var(--color-ink)` |
 | :264 | `border-top: 1px solid rgb(255 255 255 / 0.2)` | **20% alpha white vanishes on any non-blue surface:** `2px solid var(--color-ink)` |
@@ -1053,7 +1074,7 @@ one is silent in at least two cases:
 | Page titles | `src/lib/content/panel.ts` `SEKCJE_PANELU` | **an unlisted route degrades silently to the generic wordmark** |
 | Pulpit cards | `src/routes/admin/+page.svelte` | written out rather than looped, on purpose |
 | Polish sweep | `tests/fixtures/trasy-panelu.ts` `TRASY` (17 → 19) | **zero Polish coverage and nothing signals it**, except that `tests/admin-enumeracja.spec.ts` walks the routes on disk and turns it red (D-14) |
-| Copy sweep | `tests/admin-copy.unit.ts` `EKSPORTY` | length assertion goes red (loud) — every new export in `panel.ts` must join it |
+| Copy sweep | `tests/admin-copy.unit.ts` `EKSPORTY` | length assertion goes red (loud): every new export in `panel.ts` must join it |
 | Staff manual | `docs/instrukcja-cms.md` + `tests/instrukcja.unit.ts` | manual gate goes red (loud) |
 | Nav labels / nav paths | `panel.ts` `NAWIGACJA`, `sciezki-panelu.ts` `SCIEZKI_PANELU` | **deliberately NOT touched.** Both new screens are pulpit-only |
 

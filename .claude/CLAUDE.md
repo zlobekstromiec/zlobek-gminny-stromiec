@@ -7,7 +7,7 @@ A joyful, mobile-first public website for **Publiczny Żłobek w Stromcu**, the 
 **Core value:** a parent instantly feels the żłobek's warmth AND finds what they need (enrol, documents, contact) on any device.
 
 ## Non-negotiable constraints
-- **Polish only** — all visitor-facing text AND the whole editorial panel: navigation, labels, hints, validation, confirmations, empty states, errors and the login code e-mail. No English shipped. (SITE-06, CMS-03). Enforced, not merely intended: `tests/admin-polski.spec.ts` scans 18 panel URLs inside `npm run test`, and a new panel screen that is not added to its route list has no coverage at all.
+- **Polish only** — all visitor-facing text AND the whole editorial panel: navigation, labels, hints, validation, confirmations, empty states, errors and the login code e-mail. No English shipped. (SITE-06, CMS-03). Enforced, not merely intended: `tests/admin-polski.spec.ts` scans every panel URL in `TRASY` (`tests/fixtures/trasy-panelu.ts`, **17** today) inside `npm run test`, and a new panel screen that is not added to that route list has no coverage at all. Count the entries, not `grep -c "sciezka:"` — that also matches the type declaration and returns 18.
 - **WCAG 2.1 AA** + published **Deklaracja dostępności** — legally required for a public body. AA contrast, keyboard operable, visible focus, `prefers-reduced-motion`.
 - **RODO** — forms carry a child's data: unticked consent checkbox + *klauzula informacyjna*; **no database, no storage, no logging** of submissions (email-only).
 - **BIP** — link prominently to the existing BIP `https://ugstromiec.naszbip.pl/zlobek` (do not rebuild it).
