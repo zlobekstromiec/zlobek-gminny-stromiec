@@ -1,20 +1,30 @@
 {
-	"placeholder": true,
+	"placeholder": false,
 	"zdjecia": [
 		{
-			"plik": "sala-zabaw.jpg",
+			"plik": "szatnia.jpg",
+			"podpis": "Szatnia",
+			"alt": "Szatnia z rzędem kolorowych szafek i ławeczką, na ścianie tablica z napisem Witaj w żłobku"
+		},
+		{
+			"plik": "sala-glowna.jpg",
 			"podpis": "Sala zabaw",
-			"alt": "Sala zabaw z kolorowymi zabawkami"
+			"alt": "Przestronna sala z żółtymi ścianami, stolikami dla dzieci i przeszklonym wyjściem na plac zabaw"
 		},
 		{
-			"plik": "plac-zabaw.jpg",
+			"plik": "sala-kacik-kuchenny.jpg",
+			"podpis": "Kącik kuchenny",
+			"alt": "Kącik z drewnianą kuchnią do zabawy, regałem z pojemnikami na zabawki i oknem"
+		},
+		{
+			"plik": "sala-zabawki.jpg",
+			"podpis": "Zabawki edukacyjne",
+			"alt": "Drewniane piramidki, układanka i inne zabawki edukacyjne ustawione na blacie"
+		},
+		{
+			"plik": "plac-zabaw-hustawki.jpg",
 			"podpis": "Plac zabaw",
-			"alt": "Plac zabaw przed budynkiem żłobka"
-		},
-		{
-			"plik": "galeria-zlobek.jpg",
-			"podpis": "żłobek",
-			"alt": "zlobek"
+			"alt": "Plac zabaw z miękką niebieską nawierzchnią, huśtawkami, piaskownicą i karuzelą"
 		}
 	]
 }

@@ -423,11 +423,18 @@ test.describe('Galeria na /o-nas: kontrakt publiczny (GALLERY-01)', () => {
 		await expect(page.getByRole('heading', { level: 1 })).toHaveText('O nas');
 		// Section 6 changed its heading and nothing else moved (05-UI-SPEC Contract 1). Scoped
 		// to the page body: the footer owns three h2 column headings of its own.
+		//
+		// „Nasze miejsce i codzienność" joined the list on 2026-08-18, between kadra and the
+		// gallery. It carries the five facility descriptions the żłobek sent, and it sits
+		// there because it describes what the photographs below it are OF. This assertion is
+		// about ORDER, so it is exactly the assertion that should notice a new section: the
+		// gallery still comes last, which is what Contract 1 pins.
 		await expect(page.locator('main').getByRole('heading', { level: 2 })).toHaveText([
 			'Nasza misja',
 			'Nasze wartości',
 			'Nasz dzień w żłobku',
 			'Nasza kadra',
+			'Nasze miejsce i codzienność',
 			NAGLOWEK
 		]);
 	});

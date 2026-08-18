@@ -205,16 +205,29 @@ test('nie usuwamy niczego, co nie jest dopuszczalna nazwa pliku', () => {
 });
 
 // THE CASE 05-UI-SPEC CONTRACT 8 NAMES OUT LOUD, and the one this whole prefix exists for.
-test('oba recznie wgrane zdjecia sa nieusuwalne przy KAZDEJ kombinacji pozostalych wejsc', () => {
-	assert.ok(SEEDY.length >= 2, 'store galerii nie zawiera obu zdjec zalozycielskich');
-	// Obie znane nazwy sa wymienione WPROST. Sam licznik powyzej przeszedlby takze wtedy,
-	// gdyby ktos podmienil zdjecia zalozycielskie na dwa inne pliki bez prefiksu, a to jest
-	// dokladnie ten sposob, w ktory ta sprawa moglaby zniknac po cichu. Asercja o braku
-	// prefiksu, ktora tu kiedys stala, jest teraz spelniona przez sam filtr SEEDY, wiec nie
-	// niosla juz zadnej informacji i zostala usunieta zamiast udawac pokrycie.
-	for (const wymagane of ['sala-zabaw.jpg', 'plac-zabaw.jpg']) {
-		assert.ok(SEEDY.includes(wymagane), `brak zdjecia zalozycielskiego: ${wymagane}`);
-	}
+//
+// THE TWO HARD-CODED FILENAMES CAME OUT ON 2026-08-18, and the reason is worth writing
+// down because it is a mistake this repository has now made several times. This case used
+// to name `sala-zabaw.jpg` and `plac-zabaw.jpg` outright, on the argument that a bare
+// count would still pass if somebody swapped the seeds for two other unprefixed files. The
+// argument was sound about the seeds and wrong about the RULE. The rule is „a photograph
+// the panel did not create cannot be deleted through the panel", which is a property of
+// every unprefixed entry in the store, not of two particular filenames. So the day the
+// żłobek's own photographs replaced the generated placeholders (five of them, all placed
+// by hand, none carrying the prefix), a case guarding an unchanged and now MORE valuable
+// rule went red and pointed at files that were meant to be gone.
+//
+// What replaces the names is the floor plus the sweep: at least two hand-placed photos
+// must be in the store, and EVERY one of them must survive every combination below. That
+// still fails on the swap the old comment was worried about, because a swap to
+// panel-prefixed files empties SEEDY and trips the floor; and it keeps holding while the
+// store's contents change, which is the whole point of content the żłobek owns.
+test('kazde recznie wgrane zdjecie jest nieusuwalne przy KAZDEJ kombinacji pozostalych wejsc', () => {
+	assert.ok(
+		SEEDY.length >= 2,
+		`store galerii nie zawiera juz recznie wgranych zdjec (znaleziono ${SEEDY.length}); ` +
+			'jesli kazde zdjecie pochodzi teraz z panelu, ta regula nie jest juz niczym pokryta'
+	);
 	for (const seed of SEEDY) {
 		for (const nadalUzywane of [[], [seed], ['cokolwiek.jpg']]) {
 			for (const istniejace of [new Set<string>(), new Set([seed])]) {

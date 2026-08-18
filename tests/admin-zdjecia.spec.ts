@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, tokenSesji, NAZWA_CIASTKA } from './fixtures/admin';
 import {
@@ -40,14 +41,31 @@ import { PROPORCJA_WPISU } from '../src/lib/zdjecia';
 const LISTA = '/admin/aktualnosci';
 const NOWY = '/admin/aktualnosci/nowy';
 
-/** The seed entry that carries a cover. Its picture is one of the two generated brand-tint
- *  placeholders in the uploads directory: an environment image with no people in it, which
- *  is the only kind of image this repository may hold before the wizerunek consents are
- *  documented. */
+/** The seed entry that carries a cover.
+ *
+ *  ITS FILENAME AND ITS ALT ARE READ OFF THE SEED, not retyped, since 2026-08-18. They
+ *  were three literals here until the żłobek's own photographs replaced the generated
+ *  placeholders, and thirteen cases in this file went red at once: eight because the
+ *  fixture image they upload is the seed's own file and it no longer existed, and one
+ *  because it compared a hard-coded alt with the alt the store holds. Not one of those
+ *  thirteen is ABOUT the cover of one particular post. They are about the island, and an
+ *  island test that has an opinion on the żłobek's photo library is a test that fails
+ *  every time the żłobek sends new pictures. The slug stays a literal: which post is
+ *  being opened is genuinely this file's choice. */
+const ZIARNO = JSON.parse(
+	readFileSync(
+		new URL(
+			'../src/lib/content/aktualnosci/2026-08-01-wielkie-otwarcie-zlobka.json',
+			import.meta.url
+		),
+		'utf8'
+	)
+) as { obraz: string; obraz_alt: string };
+
 const Z_OKLADKA = {
 	slug: '2026-08-01-wielkie-otwarcie-zlobka',
-	obraz: 'sala-zabaw.jpg',
-	alt: 'Sala zabaw z kolorowymi zabawkami'
+	obraz: ZIARNO.obraz,
+	alt: ZIARNO.obraz_alt
 };
 
 /** A real, small JPEG that already lives in the repository, used as the file an editor
