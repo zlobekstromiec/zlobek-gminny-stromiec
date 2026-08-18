@@ -8,7 +8,7 @@ status: executing
 stopped_at: Faza 6 przeskalowana i omowiona; 06-CONTEXT.md gotowy, nastepny krok /gsd-ui-phase 6
 last_updated: "2026-08-18T02:34:14.283Z"
 last_activity: 2026-08-18
-last_activity_desc: Quick 260818-i5t: pierwsza partia treści i zdjęć od żłobka wdrożona
+last_activity_desc: Quick 260818-jic: sekcja planu dnia przebudowana na pełną szerokość
 progress:
   total_phases: 9
   completed_phases: 6
@@ -319,6 +319,7 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 | 260814-6n1 | Implement new brand logo across header, footer and favicons | 2026-08-14 | f09af5d | [260814-6n1-implement-new-brand-logo-across-header-f](./quick/260814-6n1-implement-new-brand-logo-across-header-f/) |
 | 260814-hwf | Rename to official Publiczny Żłobek w Stromcu + corrected logo artwork | 2026-08-14 | 8f8cd8a | [260814-hwf-rename-to-official-publiczny-zlobek-w-st](./quick/260814-hwf-rename-to-official-publiczny-zlobek-w-st/) |
 | 260818-i5t | Wdrożenie treści i zdjęć przesłanych przez żłobek: plan dnia, usunięcie telefonu, kadra, nabór, opisy obiektu, siedem fotografii | 2026-08-18 | 855f394 | [260818-i5t-wdrozenie-tresci-i-zdjec-przeslanych-prz](./quick/260818-i5t-wdrozenie-tresci-i-zdjec-przeslanych-prz/) |
+| 260818-jic | Przebudowa sekcji planu dnia na pełną szerokość z dwukolumnowym harmonogramem | 2026-08-18 | 8d2b3fc | [260818-jic-przebudowa-sekcji-planu-dnia-na-pelna-sz](./quick/260818-jic-przebudowa-sekcji-planu-dnia-na-pelna-sz/) |
 
 ### Roadmap Evolution
 
