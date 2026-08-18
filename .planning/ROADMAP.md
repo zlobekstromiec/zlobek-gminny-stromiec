@@ -313,7 +313,24 @@ Plans:
   4. Pages load fast on mobile: images are optimized and Core Web Vitals pass (green) measured on a throttled mobile profile, not desktop broadband.
   5. The combined launch gate exists and runs in an automated tier. It reads both placeholder mechanisms (the `PLACEHOLDER` token in source and the `placeholder` booleans under `src/lib/content/`), and it is RED on purpose at the end of this phase. Turning it green is Phase 7's job.
 
-**Plans**: TBD
+**Plans**: 14 plans
+
+Plans:
+- [ ] 06-01-PLAN.md — Wave 0: the two irrecoverable baselines, `npm run test:unit` into the Pages build (D-21), the shared placeholder walker, Amendment v1.8
+- [ ] 06-02-PLAN.md — the combined launch gate, built RED on purpose, reading both comment syntaxes plus the JSON booleans (D-18 to D-22)
+- [ ] 06-03-PLAN.md — the text-scale mechanism: fourteen type tokens, one multiplier, 167 declarations converted (D-03)
+- [ ] 06-04-PLAN.md — high contrast Layer 1 (the token flip) plus the site-chrome override register (D-08, D-09)
+- [ ] 06-05-PLAN.md — high contrast Layer 2: cards, photographs, both forms and the remaining content components (D-09, D-10)
+- [ ] 06-06-PLAN.md — high contrast at route level, plus the two-instrument sweep that proves the mode
+- [ ] 06-07-PLAN.md — the accessibility widget: the fifth island, the session restore, TopBar v2, the D-07 comment rewrites
+- [ ] 06-08-PLAN.md — the EU-funding marking strip with placeholder logotypes and the byte-exempt klauzula (D-17)
+- [ ] 06-09-PLAN.md — `/deklaracja-dostepnosci` rebuilt in full: eight statutory headings, fourteen `a11y-*` identifiers (D-16)
+- [ ] 06-10-PLAN.md — `/admin/deklaracja-dostepnosci`: validator, screen, five enumeration surfaces, staff manual (D-14)
+- [ ] 06-11-PLAN.md — `/polityka-prywatnosci` rebuilt in full, reusing the twelve klauzula blocks (D-15)
+- [ ] 06-12-PLAN.md — `/admin/polityka-prywatnosci`: validator, screen, panel route list to nineteen
+- [ ] 06-13-PLAN.md — audit tier 1 completion, the MobileNav focus-trap escape (D-23), BIP link verification (D-26)
+- [ ] 06-14-PLAN.md — closeout: performance record, gate reconciliation, stale-count sweep, the 12-row acceptance sheet
+
 **UI hint**: yes
 
 ### Phase 7: Launch
@@ -375,5 +392,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 5 → 6 → 7
 | 4. Enrollment, Contact & Email Pipeline | 9/9 | Complete    | 2026-08-15 |
 | 04.1 Replace Sveltia with custom Polish CMS (INSERTED) | 11/11 | Awaiting UAT | - |
 | 5. Gallery & Fees | 9/9 | Complete    | 2026-08-17 |
-| 6. Accessibility, Legal Compliance & Performance | 0/TBD | Not started | - |
+| 6. Accessibility, Legal Compliance & Performance | 0/14 | Planned | - |
 | 7. Launch | 0/TBD | Not started | - |
