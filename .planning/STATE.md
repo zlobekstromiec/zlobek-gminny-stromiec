@@ -8,7 +8,7 @@ status: executing
 stopped_at: Faza 6 przeskalowana i omowiona; 06-CONTEXT.md gotowy, nastepny krok /gsd-ui-phase 6
 last_updated: "2026-08-18T02:34:14.283Z"
 last_activity: 2026-08-18
-last_activity_desc: Phase 6 split, Phase 7 (Launch) created
+last_activity_desc: Quick 260818-i5t: pierwsza partia treści i zdjęć od żłobka wdrożona
 progress:
   total_phases: 9
   completed_phases: 6
@@ -318,6 +318,7 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 |---|-------------|------|--------|-----------|
 | 260814-6n1 | Implement new brand logo across header, footer and favicons | 2026-08-14 | f09af5d | [260814-6n1-implement-new-brand-logo-across-header-f](./quick/260814-6n1-implement-new-brand-logo-across-header-f/) |
 | 260814-hwf | Rename to official Publiczny Żłobek w Stromcu + corrected logo artwork | 2026-08-14 | 8f8cd8a | [260814-hwf-rename-to-official-publiczny-zlobek-w-st](./quick/260814-hwf-rename-to-official-publiczny-zlobek-w-st/) |
+| 260818-i5t | Wdrożenie treści i zdjęć przesłanych przez żłobek: plan dnia, usunięcie telefonu, kadra, nabór, opisy obiektu, siedem fotografii | 2026-08-18 | 855f394 | [260818-i5t-wdrozenie-tresci-i-zdjec-przeslanych-prz](./quick/260818-i5t-wdrozenie-tresci-i-zdjec-przeslanych-prz/) |
 
 ### Roadmap Evolution
 
@@ -338,26 +339,33 @@ Items acknowledged and carried forward from previous milestone close:
 Last session: 2026-08-18T02:34:14.276Z
 Stopped at: Faza 6 ZAPLANOWANA. Czternascie planow w jedenastu falach, komplet artefaktow (CONTEXT, UI-SPEC zweryfikowany 6/6, RESEARCH z dodatkiem orkiestratora, VALIDATION, PATTERNS). Pokrycie wymagan 6/6, pokrycie decyzji 24/24, model zagrozen w 14 z 14 planow.
 Resume file: .planning/phases/06-accessibility-legal-compliance-performance/06-01-PLAN.md
-Next command: **NIE** `/gsd-execute-phase 6` dopoki szybkie zadanie `260818-i5t` nie zostanie zamkniete albo odrzucone. Patrz blokada ponizej.
+Next command: `/gsd-execute-phase 6`. Blokada z 13:37 ZDJETA o 13:44.
 
-**BLOKADA WYKONANIA: w drzewie roboczym lezy niezacommitowane wdrozenie tresci.**
-`.planning/quick/260818-i5t-wdrozenie-tresci-i-zdjec-przeslanych-prz/` (status `planned`,
-utworzone 2026-08-18 13:07) wprowadza PIERWSZA partie prawdziwej tresci i siedem fotografii
-od dyrektor placowki. Drzewo ma 34 zmodyfikowane pliki, trzy usuniete zdjecia zastepcze,
-`src/lib/assets/foto/` oraz nowy modul `src/lib/content/miejsce.ts`. Zadna z tych zmian nie
-nalezy do fazy 6 i zadna nie zostala przez nia zacommitowana.
+**BLOKADA ZDJETA: wdrozenie tresci jest zacommitowane.** Szybkie zadanie
+`260818-i5t` zamkniete w szesciu commitach (`b055ddd` do `855f394`), status
+`complete`. Drzewo robocze czyste poza plikami spoza repozytorium. Bramki:
+`npm run check` 0 bledow, `npm run lint` czysty, `npm run test:unit` 593/593,
+`npm run test` 422/422.
 
-Dwa powody, dla ktorych faza 6 nie moze ruszyc przed rozstrzygnieciem:
+**Faza 6 rusza na przesunietym drzewie i to jest zamierzone.** Plan 06-01 zbiera
+nieodwracalne linie bazowe (wizualna dla dziewieciu tras publicznych i pomiar
+SITE-05), wiec musial poczekac, az strona przestanie byc w polowie wdrozona.
+Teraz jest zamknieta i linie bazowe zlapia stan prawdziwy, a nie zastepczy.
 
-1. **Plan 06-01 zbiera nieodwracalne linie bazowe** (wizualna dla dziewieciu tras publicznych
-   i pomiar SITE-05 przed zmiana polecenia budowania). Uruchomione teraz utrwalilyby stan
-   w polowie wdrozony.
-2. **Liczby zweryfikowane 2026-08-18 juz sie przesunely**: deklaracji font-size jest 171 zamiast
-   167, literalow `#ffffff` 15 zamiast 16, linii z tokenem PLACEHOLDER 21 zamiast 31. Planer
-   zalatal plany 02 do 05, zeby przeliczyly zamiatania samodzielnie i uzgodnily je z mapa
-   wzorcow plik po pliku, wiec KLASYFIKACJA z mapy zostaje wazna, a jej ARYTMETYKA nie.
+**Liczby z mapy wzorcow sa nieaktualne, klasyfikacja zostaje.** Zamiatania
+trzeba przeliczyc: przybylo tresci na /o-nas, ubylo dziewieciu powierzchni
+telefonu, a znacznikow `placeholder` jest o trzy mniej (`day-plan.json`,
+`galeria.json`, `o-nas.json` i `w-skrocie.json.godziny` na `false`; zostaja
+`cennik.json` i trzy pliki dokumentow). Plany 02 do 05 sa juz zalatane tak, zeby
+przeliczaly zamiatania samodzielnie, wiec ta rozbieznosc jest obsluzona.
 
-**Skutek dla D-28, wymaga decyzji uzytkownika.** D-28 skierowalo wiersz B2 UAT fazy 04.1
-(zdjecie z telefonu, zalozenie o HEIC) do fazy 7, uzasadniajac to tym, ze w repozytorium nie ma
-ANI JEDNEJ prawdziwej fotografii. Po tym wdrozeniu jest ich siedem, wiec przeslanka zniknela.
-To samo dotyczy zdania w STATE.md o zerowej ekspozycji na zgode na wizerunek.
+**Skutek dla D-28, wymaga decyzji uzytkownika.** D-28 skierowalo wiersz B2 UAT
+fazy 04.1 (zdjecie z telefonu, zalozenie o HEIC) do fazy 7, uzasadniajac to tym,
+ze w repozytorium nie ma ANI JEDNEJ prawdziwej fotografii. Jest ich teraz siedem,
+wiec przeslanka zniknela i wiersz B2 mozna wykonac w fazie 6.
+
+**Ekspozycja na zgode na wizerunek nadal zerowa, ale juz nie z braku zdjec.** Na
+zadnej z siedmiu fotografii nie ma dziecka: sa to budynek, sale, szatnia i pusty
+plac zabaw. Zdanie o zerowej ekspozycji zostaje prawdziwe, zmienil sie jego
+powod, a to jest rozroznienie, ktore faza 7 musi znac, zanim placowka przysle
+zdjecia z dziecmi.
