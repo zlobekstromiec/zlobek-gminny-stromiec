@@ -144,9 +144,19 @@ Blocked and FORM-02 Pending. This is the same shape, not a new one.
   zero. It is documented in `docs/dev-env.md` so it does not become folklore. Rejected: a test
   skipped until Phase 7, because a skipped test is invisible in a green run, which is precisely the
   failure mode T-05-09-05 was opened for.
-- **D-19:** What makes the gate red, exactly: (a) any line comment of the STRICT form
-  `// PLACEHOLDER:` anywhere in `src/`, `static/` or `docs/`, and (b) any `placeholder` boolean under
-  `src/lib/content/` that is not `false`. Every convention header that merely EXPLAINS the mechanism
+- **D-19:** What makes the gate red, exactly: (a) any marker comment in the STRICT form
+  `// PLACEHOLDER:` **or `<!-- PLACEHOLDER:`** anywhere in `src/`, `static/` or `docs/`, matched as
+  `/(?:\/\/|<!--)\s*PLACEHOLDER:/`, and (b) any `placeholder` boolean under
+  `src/lib/content/` that is not `false`.
+
+  **Clarified 2026-08-18, after research.** This decision originally named only the `//` line-comment
+  form. That form matches NONE of the fifteen `<!-- PLACEHOLDER:` markers living in public `.svelte`
+  markup, thirteen of which survive this phase, so a gate built to the original letter would have
+  gone green in Phase 7 with the phone number, opening hours, address, hero headline and next-nabór
+  date all still unconfirmed. This is recorded as a clarification rather than a new decision because
+  D-19 exists to close T-05-09-05, whose entire content is that a marker grep could not see a second
+  marking mechanism; shipping it blind to a THIRD mechanism would reproduce the very defect it was
+  written to fix. Reading both syntaxes serves the decision's stated purpose rather than changing it. Every convention header that merely EXPLAINS the mechanism
   gets reworded to a synonym so it cannot self-trigger; the repository already established this
   pattern at 04-02, where a comment explaining a ban was reworded so the enforcing grep could not
   report a permanent false positive. This closes T-05-09-05, whose whole content is that a token

@@ -14,6 +14,15 @@ Everything else resolves cleanly. The text-scale refactor is a mechanical substi
 
 **Primary recommendation:** Sequence the phase as: (0) the D-21 build-chain wiring and the shared placeholder-inventory extraction, so everything after it is gated; (1) the launch gate, built against BOTH comment syntaxes, with the reword sweep in the same commit; (2) the two legal pages with the full `a11y-*` identifier set and the missing komunikacyjno-informacyjna section; (3) the widget plus the two-layer theme in one plan, per the UI-SPEC's own ordering note; (4) the text scale as a mechanical substitution; (5) the audit tiers and the measurement. Configure the `chrome-devtools` MCP server before the phase starts, or D-25 has no execution path.
 
+> **READ THE ORCHESTRATOR ADDENDUM AT THE END OF THIS DOCUMENT BEFORE PLANNING.** Three findings
+> above were re-verified after this research returned. The statutory identifier list is now
+> VERIFIED and upgraded MEDIUM to HIGH (the full eighteen-row `a11y-*` table is in the addendum, so
+> it does not need re-fetching). The `chrome-devtools` MCP finding is **OVERTURNED**: the server is
+> available under a plugin-namespaced tool prefix, so no configuration change, no supply-chain
+> concern and no human-verify checkpoint is owed, and the sentence immediately above is superseded.
+> The two-syntax gate correction stands and is now recorded as a clarification of D-19 in CONTEXT.md.
+> Where the addendum and the body disagree, the addendum governs.
+
 ---
 
 <user_constraints>
@@ -1176,3 +1185,104 @@ These are the properties this phase's correctness actually rests on, that no uni
 
 **Research date:** 2026-08-18
 **Valid until:** 2026-09-17 for the framework and tooling findings (30 days, stable). **The Warunki techniczne finding does not expire on a clock but on a version:** re-check for a v2.1 before any future declaration work.
+
+---
+
+## Orchestrator Addendum (2026-08-18, post-research verification)
+
+Three findings above were re-verified by the orchestrator after the researcher returned. Two are
+upgraded, one is **overturned**. This section supersedes the corresponding text above; where they
+disagree, this section governs.
+
+### A1 RESOLVED: the `a11y-*` identifier table, verified from the validator
+
+Confidence on the statutory field list moves **MEDIUM to HIGH**. The primary Ministerstwo Cyfryzacji
+host was unreachable during research, but the independent validator the researcher itself nominated
+as the held-out check publishes the table it validates against, and it confirms both the version and
+the binding date. `[CITED: deklaracja-dostepnosci.info/walidator, fetched 2026-08-18]`
+
+**Warunki techniczne publikacji oraz struktura dokumentu elektronicznego Deklaracji Dostępności,
+wersja 2.0. Binding from 31 lipca 2024.**
+
+Eighteen identifiers, in document order. Four are optional and marked as such; the remaining
+fourteen are mandatory.
+
+| `id` | Marks | Required |
+|---|---|---|
+| `a11y-wstep` | the whole introductory statement | yes |
+| `a11y-podmiot` | the public entity's name | yes |
+| `a11y-zakres` | the kind of solution (website or mobile app) | yes |
+| `a11y-url` | the site address, or the app's download page | yes |
+| `a11y-data-publikacja` | publication date of the site | yes |
+| `a11y-data-aktualizacja` | last update that affected accessibility | yes |
+| `a11y-status` | the conformance-status paragraph | yes |
+| `a11y-ocena` | excessive-cost assessment | optional |
+| `a11y-kontakt` | the accessibility contact person or unit | yes |
+| `a11y-email` | that contact's e-mail | yes |
+| `a11y-telefon` | that contact's telephone | yes |
+| `a11y-procedura` | the complaints procedure | yes |
+| `a11y-data-sporzadzenie` | the date the declaration was drawn up | yes |
+| `a11y-data-przeglad` | the date of the last periodic review | optional at first publication, mandatory thereafter |
+| `a11y-aplikacje` | the mobile-applications heading | optional (we have none) |
+| `a11y-architektura` | architectural accessibility | yes |
+| `a11y-architektura-url` | a page carrying architectural detail | optional |
+| `a11y-komunikacja` | communication and information accessibility | yes |
+
+**The eight mandatory headings, in order, in Polish:** Deklaracja dostępności · Stan dostępności
+cyfrowej · Przygotowanie deklaracji dostępności · Informacje zwrotne i dane kontaktowe · Obsługa
+wniosków i skarg związanych z dostępnością · Pozostałe informacje · Dostępność architektoniczna ·
+Dostępność komunikacyjno-informacyjna.
+
+This confirms the researcher's finding that `06-UI-SPEC.md`'s ten-section list omits **Dostępność
+komunikacyjno-informacyjna**. It is mandatory and it is a section, not a sentence.
+
+**Consequence for the placeholder count.** ROADMAP Phase 6 SC2 named four content classes left as
+placeholders. It is **five**: the komunikacyjno-informacyjna facts (does the żłobek provide a sign
+language interpreter, a hearing loop, assistance on request) are client facts that no source in this
+repository carries. The researcher suggested absorbing the sign-language sentence to keep the count
+at four; that is rejected. This phase has already undercounted placeholders once, and a mandatory
+statutory section is not a sentence to be absorbed into another one. ROADMAP SC2 and Phase 7 SC3
+updated to five.
+
+### D-25 OVERTURNED: the chrome-devtools MCP server IS available
+
+The researcher reported the server absent, and recommended configuring it or falling back to the
+`npx lighthouse` CLI. **That finding is wrong for this project.** The server is present and
+namespaced under the plugin that provides it:
+
+```
+mcp__plugin_chrome-devtools-mcp_chrome-devtools__lighthouse_audit
+mcp__plugin_chrome-devtools-mcp_chrome-devtools__performance_start_trace
+mcp__plugin_chrome-devtools-mcp_chrome-devtools__performance_stop_trace
+mcp__plugin_chrome-devtools-mcp_chrome-devtools__emulate
+```
+
+A search for `mcp__chrome-devtools__*`, or a read of the `mcpServers` key alone, does not see it,
+which is why it read as missing. `[VERIFIED: tool schemas loaded 2026-08-18]`
+
+**Therefore:** no MCP configuration change is needed, the `chrome-devtools-mcp@latest` supply-chain
+concern in §Package Legitimacy Audit does not arise (nothing is being installed), and the
+`checkpoint:human-verify` the researcher recommended before that config change is **not owed**. D-25
+executes as written. The `npx lighthouse` cross-check remains a good idea on its own merits, because
+its fixed mobile profile is a lower-variance instrument, but it is now a cross-check rather than a
+fallback. The §Environment Availability row saying `NO` is superseded.
+
+### D-19 CLARIFIED: the gate reads both comment syntaxes
+
+The researcher's second finding stands and is important: D-19's strict `// PLACEHOLDER:` form matches
+none of the fifteen `<!-- PLACEHOLDER:` markers in public `.svelte` markup, thirteen of which survive
+this phase. A gate built to the letter of D-19 would go green in Phase 7 with the phone number,
+opening hours, address, hero headline and next-nabór date still unconfirmed.
+
+**This is recorded as a clarification of D-19, not a new decision.** D-19 exists to close T-05-09-05,
+whose entire content is that a marker grep could not see a second marking mechanism. Shipping it
+blind to a third mechanism would reproduce the exact defect it was written to fix, so reading both
+syntaxes serves the decision's stated purpose rather than changing it. The matcher is
+`/(?:\/\/|<!--)\s*PLACEHOLDER:/`. `06-CONTEXT.md` D-19 has been amended in place with this note.
+
+### Minor correction
+
+`06-UI-SPEC.md` states that `/polityka-prywatnosci` has no axe coverage. It does
+(`tests/polityka-prywatnosci.spec.ts:28`). `/deklaracja-dostepnosci` is the one public route with
+genuinely zero axe coverage, alongside the `+error.svelte` page. The audit-tier work in D-27 is
+unchanged; only the justification text is wrong.
