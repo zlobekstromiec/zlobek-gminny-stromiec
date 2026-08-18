@@ -19,9 +19,23 @@ public page renders them in the gallery section of `/o-nas`. The facility
 description on that same page is prose and still lives in
 `src/lib/content/o-nas.json`, which no longer holds a photo of any kind.
 
-<!-- PLACEHOLDER: sala-zabaw.jpg and plac-zabaw.jpg are generated brand-tint
-     placeholders (D-04): environment-only, zero identifiable people, zero EXIF.
-     They were placed by hand, so neither carries a panel prefix and neither can be
-     deleted through the panel; sala-zabaw.jpg is also the cover of a seeded
-     aktualność. Replace with real, wizerunek-consent-cleared facility photos before
-     launch (Phase 6). Their alt text describes the environment only, never people. -->
+The generated brand-tint placeholders that used to sit here (D-04) are GONE. On
+2026-08-18 the żłobek sent seven photographs of its own and the five that belong in the
+gallery replaced them: `szatnia.jpg`, `sala-glowna.jpg`, `sala-kacik-kuchenny.jpg`,
+`sala-zabawki.jpg` and `plac-zabaw-hustawki.jpg`. `szatnia.jpg` is also the cover of the
+seeded aktualność, which is why the photo-island spec reads that entry's filename off the
+seed instead of naming one.
+
+NO CHILD APPEARS IN ANY OF THEM, so the wizerunek consent obligation the placeholders were
+standing in for never arises for this set. That is a property of these seven files and not
+a rule about the directory: a photograph with a child in it still needs a documented
+consent before it is committed, and its alt text still describes the environment.
+
+All five were placed by hand, so none carries the `galeria-` prefix and none can be deleted
+through the panel. That is the ownership rule above doing its job, and it matters more now
+than it did for generated placeholders: these are the żłobek's own pictures.
+
+The two photographs used inside page layouts, the hero and the O nas teaser, deliberately
+live in `src/lib/assets/foto/` instead. This directory is the panel's, and the gallery globs
+it, so a page-level photograph kept here would surface in an editor's picker as though it
+were a gallery tile.
