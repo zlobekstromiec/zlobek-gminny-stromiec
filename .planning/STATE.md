@@ -336,6 +336,28 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-08-18T02:34:14.276Z
-Stopped at: Faza 6 przeskalowana i omowiona; 06-CONTEXT.md gotowy, nastepny krok /gsd-ui-phase 6
-Resume file: .planning/phases/06-accessibility-legal-compliance-performance/06-CONTEXT.md
-Next command: `/gsd-execute-phase 5`
+Stopped at: Faza 6 ZAPLANOWANA. Czternascie planow w jedenastu falach, komplet artefaktow (CONTEXT, UI-SPEC zweryfikowany 6/6, RESEARCH z dodatkiem orkiestratora, VALIDATION, PATTERNS). Pokrycie wymagan 6/6, pokrycie decyzji 24/24, model zagrozen w 14 z 14 planow.
+Resume file: .planning/phases/06-accessibility-legal-compliance-performance/06-01-PLAN.md
+Next command: **NIE** `/gsd-execute-phase 6` dopoki szybkie zadanie `260818-i5t` nie zostanie zamkniete albo odrzucone. Patrz blokada ponizej.
+
+**BLOKADA WYKONANIA: w drzewie roboczym lezy niezacommitowane wdrozenie tresci.**
+`.planning/quick/260818-i5t-wdrozenie-tresci-i-zdjec-przeslanych-prz/` (status `planned`,
+utworzone 2026-08-18 13:07) wprowadza PIERWSZA partie prawdziwej tresci i siedem fotografii
+od dyrektor placowki. Drzewo ma 34 zmodyfikowane pliki, trzy usuniete zdjecia zastepcze,
+`src/lib/assets/foto/` oraz nowy modul `src/lib/content/miejsce.ts`. Zadna z tych zmian nie
+nalezy do fazy 6 i zadna nie zostala przez nia zacommitowana.
+
+Dwa powody, dla ktorych faza 6 nie moze ruszyc przed rozstrzygnieciem:
+
+1. **Plan 06-01 zbiera nieodwracalne linie bazowe** (wizualna dla dziewieciu tras publicznych
+   i pomiar SITE-05 przed zmiana polecenia budowania). Uruchomione teraz utrwalilyby stan
+   w polowie wdrozony.
+2. **Liczby zweryfikowane 2026-08-18 juz sie przesunely**: deklaracji font-size jest 171 zamiast
+   167, literalow `#ffffff` 15 zamiast 16, linii z tokenem PLACEHOLDER 21 zamiast 31. Planer
+   zalatal plany 02 do 05, zeby przeliczyly zamiatania samodzielnie i uzgodnily je z mapa
+   wzorcow plik po pliku, wiec KLASYFIKACJA z mapy zostaje wazna, a jej ARYTMETYKA nie.
+
+**Skutek dla D-28, wymaga decyzji uzytkownika.** D-28 skierowalo wiersz B2 UAT fazy 04.1
+(zdjecie z telefonu, zalozenie o HEIC) do fazy 7, uzasadniajac to tym, ze w repozytorium nie ma
+ANI JEDNEJ prawdziwej fotografii. Po tym wdrozeniu jest ich siedem, wiec przeslanka zniknela.
+To samo dotyczy zdania w STATE.md o zerowej ekspozycji na zgode na wizerunek.
