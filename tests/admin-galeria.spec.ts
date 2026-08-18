@@ -212,6 +212,19 @@ test.describe('Ekran galerii: ksztalt z kontraktu 5 i 8', () => {
 test.describe('Ekran galerii: dodawanie, usuwanie i kolejnosc (kontrakt 7 i 9)', () => {
 	const BAZOWE = galeria.zdjecia.map((zdjecie) => zdjecie.plik);
 
+	/** Lista po zamianie dwoch sasiednich pozycji miejscami, liczona zamiast wypisanej.
+	 *
+	 *  BAZOWE zawsze bylo czytane ze store'u, ale OCZEKIWANE WYNIKI ponizej byly wypisywane
+	 *  recznie dla listy dwuelementowej (`[BAZOWE[1], BAZOWE[0]]`). Pierwsze zdjecie dodane
+	 *  przez redaktora przez panel czerwienilo przez to cztery testy naraz, chociaz panel
+	 *  dzialal poprawnie. Gate, ktory karze zwykla prace redakcyjna, uczy ludzi go ignorowac,
+	 *  a faza 6 podmienia caly zestaw zdjec na prawdziwe. */
+	const zamien = (lista: readonly string[], i: number, j: number) => {
+		const kopia = [...lista];
+		[kopia[i], kopia[j]] = [kopia[j], kopia[i]];
+		return kopia;
+	};
+
 	test('dodanie pozycji wydluza liste o jeden, zachowuje wpisane wartosci i oglasza zmiane', async ({
 		page,
 		zalogowany
@@ -278,7 +291,7 @@ test.describe('Ekran galerii: dodawanie, usuwanie i kolejnosc (kontrakt 7 i 9)',
 
 		await przyciskWGore(page, 2).click();
 
-		await expect.poll(() => nazwyZdjec(page)).toEqual([BAZOWE[1], BAZOWE[0]]);
+		await expect.poll(() => nazwyZdjec(page)).toEqual(zamien(BAZOWE, 0, 1));
 		// The PHOTO noun, not the generic „wiersz" the two older screens use.
 		await expect(page.getByText(przeniesionoZdjecie(2, 1))).toBeVisible();
 		await expect(page.locator('[data-panel="sukces"]')).toHaveCount(0);
@@ -295,14 +308,23 @@ test.describe('Ekran galerii: dodawanie, usuwanie i kolejnosc (kontrakt 7 i 9)',
 		await przyciskDodaj(page).click();
 		await expect.poll(() => nazwyZdjec(page)).toEqual([...BAZOWE, '']);
 
-		await przyciskWGore(page, 3).click();
+		// Nowa pozycja stoi na koncu i wedruje na sam poczatek. PIERWSZY ruch jest klikniety,
+		// KAZDY NASTEPNY wyslany Enterem w to miejsce, gdzie fokus sam wylądowal, i to jest
+		// cala teza tego testu: fokus idzie za pozycja, wiec kolejny ruch trafia w ten sam
+		// element bez szukania go na stronie na nowo. Liczba krokow wynika z dlugosci listy,
+		// bo „dwa ruchy wystarcza, zeby dojsc na gore" bylo prawda tylko dla dwoch zdjec.
+		await przyciskWGore(page, BAZOWE.length + 1).click();
 
-		await expect.poll(() => nazwyZdjec(page)).toEqual([BAZOWE[0], '', BAZOWE[1]]);
-		await expect(przyciskWGore(page, 2)).toBeFocused();
+		for (let pozycja = BAZOWE.length; pozycja >= 1; pozycja--) {
+			const oczekiwana = [...BAZOWE];
+			oczekiwana.splice(pozycja - 1, 0, '');
+			await expect.poll(() => nazwyZdjec(page)).toEqual(oczekiwana);
+			if (pozycja > 1) {
+				await expect(przyciskWGore(page, pozycja)).toBeFocused();
+				await page.keyboard.press('Enter');
+			}
+		}
 
-		await page.keyboard.press('Enter');
-
-		await expect.poll(() => nazwyZdjec(page)).toEqual(['', BAZOWE[0], BAZOWE[1]]);
 		// The item reached the top, so the button that performed the move is now disabled and
 		// focus goes to the opposite-direction button of the SAME item rather than being lost.
 		await expect(przyciskWGore(page, 1)).toBeDisabled();
@@ -325,15 +347,17 @@ test.describe('Ekran galerii: dodawanie, usuwanie i kolejnosc (kontrakt 7 i 9)',
 			const notka = page.locator('main noscript').first();
 			expect(await notka.textContent()).toContain(KOPIA_ZDJECIA.bezSkryptow);
 
+			const poPrzeniesieniu = zamien(BAZOWE, 0, 1);
 			await przyciskWDol(page, 1).click();
-			await expect.poll(() => nazwyZdjec(page)).toEqual([BAZOWE[1], BAZOWE[0]]);
+			await expect.poll(() => nazwyZdjec(page)).toEqual(poPrzeniesieniu);
 			await expect(page.getByText(przeniesionoZdjecie(1, 2))).toBeVisible();
 
 			await przyciskDodaj(page).click();
-			await expect.poll(() => nazwyZdjec(page)).toEqual([BAZOWE[1], BAZOWE[0], '']);
+			await expect.poll(() => nazwyZdjec(page)).toEqual([...poPrzeniesieniu, '']);
 
+			// Usuwany jest PIERWSZY wiersz, wiec znika pierwsza nazwa listy po przeniesieniu.
 			await page.getByRole('button', { name: KOPIA_ZAPIS.usunZdjecie }).first().click();
-			await expect.poll(() => nazwyZdjec(page)).toEqual([BAZOWE[0], '']);
+			await expect.poll(() => nazwyZdjec(page)).toEqual([...poPrzeniesieniu.slice(1), '']);
 
 			await expect(page.locator('[data-panel="sukces"]')).toHaveCount(0);
 		} finally {

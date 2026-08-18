@@ -22,6 +22,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { grupujTysiace, zlote } from '../src/lib/kwoty.ts';
 import { OPLATY } from '../src/lib/content/rekrutacja.ts';
+import { CENNIK } from '../src/lib/cennik.ts';
 
 test('grupowanie wlacza sie dopiero od czterech cyfr', () => {
 	assert.equal(grupujTysiace(0), '0');
@@ -46,8 +47,16 @@ test('separator to spacja ASCII, nigdy spacja nierozdzielajaca', () => {
 	assert.notEqual(zlote(1500).codePointAt(1), 0x00a0);
 });
 
-test('kwota w OPLATY jest bajt w bajt taka sama jak wysylana dzis na strone', () => {
-	assert.equal(OPLATY.kwota, '1 500 zł miesięcznie');
-	assert.equal(OPLATY.kwota.codePointAt(1), 0x20);
-	assert.ok(OPLATY.kwota.startsWith(zlote(1500)), OPLATY.kwota);
+test('kwota w OPLATY niesie separator ASCII, jakakolwiek stawke ustawi redaktor', () => {
+	// KWOTA JEST LICZONA ZE STORE'U, NIGDY PRZEPISANA. Wersja z wpisanym na sztywno
+	// „1 500 zł miesięcznie" czerwienila suite przy pierwszej zwyklej zmianie stawki w
+	// panelu, czyli karala prace redakcyjna zamiast lapac regresje. Pinem jest to, co ginie
+	// po cichu: separator i zgodnosc z `zlote`. Sama kwota jest tresc, a nie kontrakt.
+	const oczekiwana = zlote(CENNIK.placi);
+	assert.equal(OPLATY.kwota, `${oczekiwana} miesięcznie`);
+	assert.ok(OPLATY.kwota.startsWith(oczekiwana), OPLATY.kwota);
+	// Napisane jako „nigdzie nie ma U+00A0", a nie jako kodpunkt pod stalym indeksem:
+	// indeks 1 jest separatorem tylko dla kwot czterocyfrowych, wiec asercja pozycyjna
+	// zmienialaby znaczenie razem z trescia. Ta trzyma sie przy kazdej kwocie.
+	assert.equal(OPLATY.kwota.includes('\u00a0'), false, OPLATY.kwota);
 });

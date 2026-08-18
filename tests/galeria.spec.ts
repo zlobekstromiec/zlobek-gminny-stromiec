@@ -18,8 +18,13 @@ import AxeBuilder from '@axe-core/playwright';
  *
  * THE GRID TIERS ARE READ OFF THE RENDERED PAGE, not off a class name, so a CSS refactor that
  * keeps the layout does not turn them red. The column count comes from the resolved track
- * list and the one-versus-two step is confirmed independently from tile geometry: with two
- * photographs in the store, geometry alone cannot tell two columns from three.
+ * list and the one-versus-two step is confirmed independently from tile geometry: with only a
+ * handful of photographs in the store, geometry alone cannot tell two columns from three.
+ *
+ * THE STORE'S LENGTH IS NOT A CONTRACT. Assertions here are written against whatever the store
+ * holds, because an editor adding a photograph through the panel is ordinary work. The row
+ * assertion below names the FIRST PAIR for that reason: an earlier version counted distinct
+ * `top` values across the whole list and passed only while the store held exactly two photos.
  *
  * Do NOT weaken these assertions to make the suite pass.
  *
@@ -308,7 +313,12 @@ test.describe('Galeria na /o-nas: kontrakt publiczny (GALLERY-01)', () => {
 		const naTablecie = await kafelki(page).evaluateAll((elementy) =>
 			elementy.map((element) => Math.round(element.getBoundingClientRect().top))
 		);
-		expect(new Set(naTablecie).size, 'od 768px pierwsze dwa kafelki maja stac w rzedzie').toBe(1);
+		// PIERWSZE DWA, nie wszystkie. Wersja liczaca rozne wartosci `top` w calej liscie
+		// twierdzila „jeden rzad" i przechodzila tylko dopoki store mial dokladnie dwa
+		// zdjecia; trzecie, dodane przez redaktora, zawija sie do drugiego rzedu i jest to
+		// poprawny uklad, a nie regresja. Teza brzmi „od 768px kafelki stoja obok siebie",
+		// wiec sprawdzamy ja na pierwszej parze.
+		expect(naTablecie[0], 'od 768px pierwsze dwa kafelki maja stac w rzedzie').toBe(naTablecie[1]);
 	});
 
 	test('od 1024px lista zajmuje oba tory ukladu redakcyjnego, a wstep zostaje w prawym', async ({

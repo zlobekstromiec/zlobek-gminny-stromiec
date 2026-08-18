@@ -76,10 +76,18 @@ const GALERIA_ZLOZONA = JSON.parse(NA_DYSKU) as {
 	zdjecia: { plik: string; podpis: string; alt: string }[];
 };
 
-/** The two pictures that were placed in this repository BY HAND. Read out of the committed
- *  store rather than retyped: a renamed seed file must rename this list with it, or the whole
- *  undeletability case below would be asserting something about a file nobody ships. */
-const SEEDY = GALERIA_ZLOZONA.zdjecia.map((zdjecie) => zdjecie.plik);
+/** The pictures that were placed in this repository BY HAND. Read out of the committed store
+ *  rather than retyped: a renamed seed file must rename this list with it, or the whole
+ *  undeletability case below would be asserting something about a file nobody ships.
+ *
+ *  THE PREFIX FILTER IS THE DEFINITION OF „seed", not a convenience. Reading the whole store
+ *  was only correct while no editor had ever added a photo, so the FIRST legitimate upload
+ *  through the panel turned this suite red: the added file carries `PREFIKS_GALERII` by
+ *  design, and the case below then asserted that a panel-prefixed file is not panel-prefixed.
+ *  A gate that a normal editorial save can redden teaches people to ignore it. */
+const SEEDY = GALERIA_ZLOZONA.zdjecia
+	.map((zdjecie) => zdjecie.plik)
+	.filter((plik) => !plik.startsWith(PREFIKS_GALERII));
 
 // =========================================================================================
 // bazowaNazwa: the extracted basename idiom
@@ -199,12 +207,15 @@ test('nie usuwamy niczego, co nie jest dopuszczalna nazwa pliku', () => {
 // THE CASE 05-UI-SPEC CONTRACT 8 NAMES OUT LOUD, and the one this whole prefix exists for.
 test('oba recznie wgrane zdjecia sa nieusuwalne przy KAZDEJ kombinacji pozostalych wejsc', () => {
 	assert.ok(SEEDY.length >= 2, 'store galerii nie zawiera obu zdjec zalozycielskich');
+	// Obie znane nazwy sa wymienione WPROST. Sam licznik powyzej przeszedlby takze wtedy,
+	// gdyby ktos podmienil zdjecia zalozycielskie na dwa inne pliki bez prefiksu, a to jest
+	// dokladnie ten sposob, w ktory ta sprawa moglaby zniknac po cichu. Asercja o braku
+	// prefiksu, ktora tu kiedys stala, jest teraz spelniona przez sam filtr SEEDY, wiec nie
+	// niosla juz zadnej informacji i zostala usunieta zamiast udawac pokrycie.
+	for (const wymagane of ['sala-zabaw.jpg', 'plac-zabaw.jpg']) {
+		assert.ok(SEEDY.includes(wymagane), `brak zdjecia zalozycielskiego: ${wymagane}`);
+	}
 	for (const seed of SEEDY) {
-		assert.equal(
-			seed.startsWith(PREFIKS_GALERII),
-			false,
-			`zdjecie zalozycielskie nosi prefiks panelu: ${seed}`
-		);
 		for (const nadalUzywane of [[], [seed], ['cokolwiek.jpg']]) {
 			for (const istniejace of [new Set<string>(), new Set([seed])]) {
 				assert.equal(
