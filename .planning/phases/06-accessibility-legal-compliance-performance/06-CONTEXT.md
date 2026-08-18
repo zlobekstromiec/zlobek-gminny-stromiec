@@ -233,11 +233,23 @@ The user chose to have these recorded rather than discussed. They are decisions,
   widget, which axe cannot see into. (3) Human UAT: one screen-reader session recorded as a UAT row.
   No automation substitutes for it.
 - **D-28 (routing the two carried 04.1 UAT rows):** 05 D-37 sent both to "the Phase 6 launch gate",
-  which the split has since moved to Phase 7, so they must be routed individually. **B2 (HEIC photo
-  from a phone) moves to Phase 7**, because it needs a real photograph from the zlobek and none
-  exists. **B4 (stale-save conflict panel) STAYS in Phase 6** as a UAT row, because it needs only a
-  second editor in a second browser tab and no client input whatsoever. Separating them is precisely
-  what the phase split is for.
+  which the split has since moved to Phase 7, so they must be routed individually. **B4 (stale-save
+  conflict panel) STAYS in Phase 6** as a UAT row, because it needs only a second editor in a second
+  browser tab and no client input whatsoever.
+
+  **B2 REVISED 2026-08-18, same day: it stays in Phase 6 too.** As first written, B2 (HEIC photo from
+  a phone) went to Phase 7 on the explicit ground that "it needs a real photograph from the zlobek and
+  none exists". That premise died within hours: quick task `260818-i5t` deployed the director's first
+  batch of seven real photographs, uploaded through the panel's own pipeline. The blocking input has
+  arrived, so the row comes back. It joins the phase's other two human-session UAT rows (D-24's
+  FORM-02 parts B and C, and B4), and testing HEIC now closes an assumption open since 04.1 rather
+  than carrying it into launch. **Verify provenance when running it:** if the director's files are
+  processed exports rather than iPhone camera originals, the HEIC assumption is still untested and the
+  row must say so instead of being ticked.
+
+  This is the second time in this phase that a decision's stated reason evaporated after it was
+  written. Both times the decision was re-read rather than inherited. That is the intended behaviour,
+  not a planning defect.
 - **D-29 (DOC to PDF policy):** 04-CONTEXT deferred "DOC/DOCX to PDF conversion of the wnioski" here
   as an accessibility item. Phase 6 establishes the POLICY (downloadable forms are published as PDF,
   because a `.doc` is an accessibility problem and the current
