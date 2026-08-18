@@ -6,6 +6,16 @@
 	// right. Times render at 19px Baloo 700 accent-active on tint-blue (3.97:1
 	// large-text pass; never smaller). pokazLink adds the /o-nas link on the
 	// homepage instance only (a self-link on /o-nas would be noise).
+	//
+	// THE CLOSING NOTE BELOW THE PANEL IS HARD-CODED HERE, NOT STORED, and that is a
+	// constraint rather than a shortcut. `walidujPlanDnia` rebuilds day-plan.json key by
+	// key from guarded locals (`placeholder`, `rows`) and never spreads the submitted
+	// object, so a `note` key added to that store would be silently DELETED the first
+	// time an editor saved the screen. The intro paragraph above it already lives here
+	// for exactly that reason; the note joins it rather than inventing a second, fragile
+	// home. Making it editable means teaching the panel about it: a field in
+	// pola-strony.ts, a branch in the validator, a control on /admin/plan-dnia, Polish
+	// copy in panel.ts and the four suites that pin all of those.
 	import dayPlan from '$lib/content/day-plan.json';
 
 	let { pokazLink = false }: { pokazLink?: boolean } = $props();
@@ -40,6 +50,14 @@
 					</li>
 				{/each}
 			</ul>
+			<!-- The żłobek's own closing sentence about the schedule (2026-08-18). It sits
+			     INSIDE the panel because it qualifies the rows above it: a parent reading
+			     „11:00–13:00 sen" needs to know in the same breath that their own child is
+			     not held to it. Placed outside, it would read as a separate claim. -->
+			<p class="uwaga">
+				Dla każdego dziecka przewidujemy indywidualny plan i harmonogram zajęć, dopasowany do jego
+				potrzeb i własnego rytmu dnia. Chodzi o poczucie bezpieczeństwa i prawidłowy rozwój.
+			</p>
 		</div>
 	</div>
 </section>
@@ -155,6 +173,21 @@
 		font-size: 15px;
 		font-weight: 700;
 		line-height: 1.5;
+		color: var(--color-ink);
+	}
+
+	/* Footnote weight: regular, one step down, and separated by the same dashed rule the
+	   rows use, so it reads as a qualifier on the list rather than a fifteenth row. Ink
+	   rather than muted, because muted on tint-blue is the one pairing the v1.2 contrast
+	   table does not clear at this size. */
+	.uwaga {
+		margin: 16px 0 0;
+		padding-top: 16px;
+		border-top: 1px dashed rgb(3 105 161 / 0.35);
+		font-family: var(--font-body);
+		font-size: 15px;
+		font-weight: 400;
+		line-height: 1.55;
 		color: var(--color-ink);
 	}
 </style>

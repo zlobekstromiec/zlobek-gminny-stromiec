@@ -1,12 +1,46 @@
 {
-	"placeholder": true,
+	"placeholder": false,
 	"rows": [
-		{ "time": "6:30–8:30", "what": "Przyjmowanie dzieci, swobodna zabawa" },
-		{ "time": "8:30–9:00", "what": "Śniadanie" },
-		{ "time": "9:00–11:00", "what": "Zajęcia i zabawy, spacer lub plac zabaw" },
-		{ "time": "11:00–11:30", "what": "Obiad: zupa" },
-		{ "time": "11:30–13:30", "what": "Leżakowanie, odpoczynek" },
-		{ "time": "13:30–14:00", "what": "Obiad: drugie danie" },
-		{ "time": "14:00–16:30", "what": "Podwieczorek, zabawy, odbiór dzieci" }
+		{
+			"time": "6:30–8:00",
+			"what": "Schodzenie się dzieci, zabawy swobodne w kącikach zainteresowań, zabawy indywidualne i grupowe, kontakty z rodzicami"
+		},
+		{
+			"time": "8:00–8:30",
+			"what": "Przygotowanie do śniadania, kształtowanie nawyków samoobsługowych"
+		},
+		{
+			"time": "8:30–9:00",
+			"what": "Śniadanie, wdrażanie dzieci do samodzielnego spożywania posiłków, pomoc przy karmieniu"
+		},
+		{
+			"time": "9:00–9:15",
+			"what": "Czynności higieniczno-sanitarne po posiłku, nauka korzystania z nocnika i sedesu"
+		},
+		{
+			"time": "9:15–10:00",
+			"what": "Zajęcia wychowawczo-edukacyjne: aktywność poznawcza, plastyczna, muzyczno-rytmiczna i ruchowa. Przy dobrej pogodzie spacer i zabawy na placu zabaw przy żłobku, w razie niepogody w sali"
+		},
+		{
+			"time": "10:00–10:15",
+			"what": "Przygotowanie do obiadu, kształtowanie nawyków samoobsługowych"
+		},
+		{
+			"time": "10:15–10:45",
+			"what": "Obiad: zupa. Wdrażanie do samodzielnego jedzenia i posługiwania się sztućcami"
+		},
+		{
+			"time": "10:45–11:00",
+			"what": "Przygotowanie do odpoczynku, czynności higieniczno-sanitarne po posiłku"
+		},
+		{ "time": "11:00–13:00", "what": "Sen lub leżakowanie, odpoczynek poobiedni" },
+		{ "time": "13:00–13:15", "what": "Czynności higieniczne" },
+		{ "time": "13:15–13:45", "what": "Obiad: drugie danie" },
+		{
+			"time": "13:45–15:00",
+			"what": "Zabawy popołudniowe i zajęcia z elementami edukacji, wspierające rozwój mowy, pamięci i spostrzegawczości. Przy dobrej pogodzie spacer i zabawy na placu zabaw"
+		},
+		{ "time": "15:00–15:30", "what": "Podwieczorek" },
+		{ "time": "15:30–16:30", "what": "Zabawy swobodne, czytanie książek, odbiór dzieci" }
 	]
 }
