@@ -79,16 +79,52 @@ test('rekrutacja: kolumna formularza stoi na prawo od kolumny informacji (v1.6 �
 	expect(formularz!.x).toBeGreaterThan(info!.x + info!.width - 1);
 });
 
-test('strona główna: panel planu dnia stoi na prawo od nagłówka sekcji (v1.6 §4)', async ({
+// ZASTEPUJE asercje poprawki v1.6 §4 („panel stoi na prawo od naglowka"), ktora od
+// 2026-08-18 jest falszywa Z ZALOZENIA. Tamten uklad byl skrojony pod siedem wierszy
+// zastepczych; prawdziwy harmonogram ma czternascie i zostawial 979 px martwej
+// przestrzeni po lewej przy kazdej szerokosci desktopowej.
+//
+// Asercja nie zostala ZLUZOWANA, tylko zamieniona na kontrakt nowego ukladu. Luzniejsza
+// wersja („panel gdziekolwiek jest") przechodzilaby takze na starym ukladzie, a wtedy
+// brama przestaje cokolwiek chronic. Kazdy z czterech warunkow ponizej jest falszywy na
+// ukladzie sprzed tej zmiany:
+//  1. panel stal OBOK naglowka, nie pod nim;
+//  2. panel byl ograniczony do 44rem, wiec nie mial szerokosci wiersza naglowkowego;
+//  3. harmonogram mial jedna kolumne, nie dwie;
+//  4. akapit wprowadzajacy stal POD naglowkiem w lewej szynie, nie obok niego.
+test('strona główna: plan dnia to pełna szerokość i dwie kolumny (2026-08-18)', async ({
 	page
 }) => {
 	await page.setViewportSize(VIEWPORTS.desktop);
 	await page.goto('/');
-	const heading = await page.getByRole('heading', { name: 'Nasz dzień w żłobku' }).boundingBox();
+
+	const opis = await page.locator('.dayplan .opis').boundingBox();
 	const panel = await page.locator('.dayplan .panel').boundingBox();
-	expect(heading).not.toBeNull();
+	expect(opis).not.toBeNull();
 	expect(panel).not.toBeNull();
-	expect(panel!.x).toBeGreaterThan(heading!.x + heading!.width - 1);
+
+	// 1 + 2. Panel i wiersz naglowkowy sa rodzenstwem w jednokolumnowej siatce, wiec maja
+	// tę samą krawędź i tę samą szerokość, a panel stoi PONIŻEJ. Porownanie z `.opis`, a
+	// nie z liczba pikseli, zeby zmiana paddingu kontenera nie psula tej asercji.
+	expect(Math.abs(panel!.x - opis!.x)).toBeLessThanOrEqual(1);
+	expect(Math.abs(panel!.width - opis!.width)).toBeLessThanOrEqual(1);
+	expect(panel!.y).toBeGreaterThan(opis!.y + opis!.height - 1);
+
+	// 3. Dokladnie dwie kolumny. Kazdy wiersz wypelnia swoja kolumne, wiec liczba
+	// roznych odsuniec poziomych JEST liczba kolumn.
+	const odsuniecia = await page
+		.locator('.dayplan .panel li')
+		.evaluateAll((wiersze) => [
+			...new Set(wiersze.map((w) => Math.round(w.getBoundingClientRect().x)))
+		]);
+	expect(odsuniecia).toHaveLength(2);
+
+	// 4. Podzial redakcyjny naglowka: akapit stoi na prawo od h2.
+	const h2 = await page.getByRole('heading', { name: 'Nasz dzień w żłobku' }).boundingBox();
+	const intro = await page.locator('.dayplan .intro').boundingBox();
+	expect(h2).not.toBeNull();
+	expect(intro).not.toBeNull();
+	expect(intro!.x).toBeGreaterThan(h2!.x + h2!.width - 1);
 });
 
 test('phone width shows the hamburger, hides the inline nav links (SITE-02)', async ({ page }) => {
