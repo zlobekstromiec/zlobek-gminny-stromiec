@@ -6,9 +6,9 @@ current_phase: 6
 current_phase_name: Accessibility, Legal Compliance & Performance
 status: executing
 stopped_at: Faza 6 przeskalowana i omowiona; 06-CONTEXT.md gotowy, nastepny krok /gsd-ui-phase 6
-last_updated: "2026-08-18T02:34:14.283Z"
+last_updated: "2026-08-18T14:32:00.000Z"
 last_activity: 2026-08-18
-last_activity_desc: Quick 260818-kkg: panel przejął listę kadry, kafelek z liczbą usunięty
+last_activity_desc: "Quick 260818-l83: wiersze harmonogramu w stałej siatce, opisy na jednej krawędzi"
 progress:
   total_phases: 9
   completed_phases: 6
@@ -321,6 +321,7 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 | 260818-i5t | Wdrożenie treści i zdjęć przesłanych przez żłobek: plan dnia, usunięcie telefonu, kadra, nabór, opisy obiektu, siedem fotografii | 2026-08-18 | 855f394 | [260818-i5t-wdrozenie-tresci-i-zdjec-przeslanych-prz](./quick/260818-i5t-wdrozenie-tresci-i-zdjec-przeslanych-prz/) |
 | 260818-jic | Przebudowa sekcji planu dnia na pełną szerokość z dwukolumnowym harmonogramem | 2026-08-18 | 8d2b3fc | [260818-jic-przebudowa-sekcji-planu-dnia-na-pelna-sz](./quick/260818-jic-przebudowa-sekcji-planu-dnia-na-pelna-sz/) |
 | 260818-kkg | Panel przejmuje listę kadry: kafelek z liczbą opiekunek znika, dwa martwe pola zastąpione grupą powtarzalną | 2026-08-18 | 557386d | [260818-kkg-panel-przejmuje-liste-kadry-kafelek-z-li](./quick/260818-kkg-panel-przejmuje-liste-kadry-kafelek-z-li/) |
+| 260818-l83 | Wiersze harmonogramu w stałej dwukolumnowej siatce: koniec z opisem raz obok godziny, raz pod nią | 2026-08-18 | ed17ead | [260818-l83-harmonogram-wiersze-planu-dnia-w-stalej-](./quick/260818-l83-harmonogram-wiersze-planu-dnia-w-stalej-/) |
 
 ### Roadmap Evolution
 
