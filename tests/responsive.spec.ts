@@ -125,6 +125,56 @@ test('strona główna: plan dnia to pełna szerokość i dwie kolumny (2026-08-1
 	expect(h2).not.toBeNull();
 	expect(intro).not.toBeNull();
 	expect(intro!.x).toBeGreaterThan(h2!.x + h2!.width - 1);
+
+	// 5. Kazdy opis zaczyna sie na krawedzi swojej kolumny, a nie raz obok godziny i raz
+	// pod nia (2026-08-18). Liczba roznych odsuniec poziomych `.what` ma byc ROWNA
+	// liczbie kolumn. Uruchomione na ukladzie sprzed tej zmiany daja TRZY odsuniecia,
+	// [128, 668, 786]: w lewej kolumnie kazdy opis zawinal sie pod godzine, w prawej
+	// czesc zawinela sie, a czesc zmiescila obok, 118 px dalej.
+	const odsunieciaOpisow = await page
+		.locator('.dayplan .panel .what')
+		.evaluateAll((opisy) => [
+			...new Set(opisy.map((o) => Math.round(o.getBoundingClientRect().x)))
+		]);
+	expect(odsunieciaOpisow).toHaveLength(2);
+
+	// Kazdy opis stoi OBOK swojej godziny, nie pod nia. Sam licznik odsuniec przeszedlby
+	// takze na ukladzie, w ktorym wszystkie czternascie wierszy zawija sie pod godzine,
+	// bo wtedy odsuniec tez sa dwa.
+	const wszystkieObok = await page.locator('.dayplan .panel li').evaluateAll((wiersze) =>
+		wiersze.every((w) => {
+			const godzina = w.querySelector('.time')!.getBoundingClientRect();
+			const opis = w.querySelector('.what')!.getBoundingClientRect();
+			return opis.x > godzina.x + godzina.width - 1 && Math.abs(opis.top - godzina.top) < 12;
+		})
+	);
+	expect(wszystkieObok).toBe(true);
+});
+
+// Ta sama usterka na telefonie, tylko odwrocona: trzy z czternastu wierszy mieszcily opis
+// obok godziny, a jedenascie zawijalo go pod nia. Kontrakt telefonu jest odwrotnoscia
+// kontraktu desktopu: KAZDY wiersz stoi w kolumnie, bo lista ma przy 375 px tylko 264 px,
+// a szyna 104 px zostawilaby na tekst okolo 19 znakow.
+test('telefon: każdy wiersz planu dnia stoi w kolumnie, godzina nad opisem (2026-08-18)', async ({
+	page
+}) => {
+	await page.setViewportSize(VIEWPORTS.phone);
+	await page.goto('/');
+
+	// Licznik osobno, bo `every` na pustej liscie zwraca `true`: bez tego test przeszedlby
+	// takze wtedy, gdyby sekcja w ogole sie nie wyrenderowala. Sprawdzamy NIEPUSTOSC, nie
+	// konkretna liczbe wierszy: harmonogram jest edytowalny z /admin/plan-dnia, wiec
+	// przypiecie czternastki zamienilo by dzisiejsza tresc w kontrakt.
+	expect(await page.locator('.dayplan .panel li').count()).toBeGreaterThan(0);
+
+	const wszystkiePodSpodem = await page.locator('.dayplan .panel li').evaluateAll((wiersze) => {
+		return wiersze.every((w) => {
+			const godzina = w.querySelector('.time')!.getBoundingClientRect();
+			const opis = w.querySelector('.what')!.getBoundingClientRect();
+			return opis.top >= godzina.top + godzina.height - 1;
+		});
+	});
+	expect(wszystkiePodSpodem).toBe(true);
 });
 
 test('phone width shows the hamburger, hides the inline nav links (SITE-02)', async ({ page }) => {

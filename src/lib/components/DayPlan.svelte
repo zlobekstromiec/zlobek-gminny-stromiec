@@ -234,26 +234,62 @@
 		}
 	}
 
+	/* GRID, NOT FLEX, SINCE 2026-08-18. The row was `display: flex; flex-wrap: wrap`
+	   with a 104px `min-width` on the time, and that produced the ragged reading this
+	   replaces: in flexbox a flex item is an ATOMIC wrap unit, so `.what` either fit
+	   beside the hours in full or moved below them as a whole block. Flex cannot wrap
+	   prose around a label. The 104px reservation then put the threshold in the middle
+	   of the żłobek's own content, measured live at 9 of 14 rows below the hours at
+	   1280px and, inverted, 3 of 14 beside them on a phone. Nothing about that split was
+	   meaningful, which is exactly why it read as accidental.
+
+	   Grid separates the two questions flex conflates: the track is fixed, and the text
+	   line-breaks INSIDE it. Every description now starts on one edge.
+
+	   Counter-intuitively the section got SHORTER, 1070px to 924px: a wrapped row was
+	   spending a whole line on the hours alone, and reclaiming those lines beats what
+	   the narrower measure costs. The description track is 366px inside a multicol
+	   column (about 48 characters), down from 484px, still inside the 45 to 75 the rest
+	   of the site sets to. */
 	.panel li {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 4px 14px;
-		align-items: baseline;
+		display: grid;
+		gap: 2px;
 		padding: 8px 0;
 		border-bottom: 1px dashed rgb(3 105 161 / 0.35);
+	}
+
+	/* Below 768px the row STAYS stacked, hours above description, because the list is
+	   264px wide on a 375px phone: a 104px rail would leave 146px, about 19 characters,
+	   for text. Consistency within a breakpoint is what a parent actually sees, and
+	   buying consistency across breakpoints at that measure would be a bad trade.
+
+	   `minmax(0, 1fr)`, NEVER a bare `1fr`. `1fr` resolves to `minmax(auto, 1fr)` and
+	   `auto` floors at the item's min-content width, so one long unbreakable Polish
+	   word would push the track past its multicol column instead of hyphenating inside
+	   it. 104px is unchanged from the old `min-width` and is not a new number: the
+	   widest rendered value, „15:00–15:30", measures 98.0px, so the rail clears every
+	   entry with 6px to spare. */
+	@media (min-width: 768px) {
+		.panel li {
+			grid-template-columns: 104px minmax(0, 1fr);
+			column-gap: 14px;
+			row-gap: 0;
+			align-items: baseline;
+		}
 	}
 
 	.panel li:last-child {
 		border-bottom: none;
 	}
 
-	/* 19px Baloo 700 accent-active on tint-blue: large-text 3.97:1 (v1.2 table). */
+	/* 19px Baloo 700 accent-active on tint-blue: large-text 3.97:1 (v1.2 table).
+	   No `min-width` any more: the grid track above owns the rail width, and leaving a
+	   second source for it would let the two disagree. */
 	.time {
 		font-family: var(--font-display);
 		font-weight: 700;
 		font-size: 19px;
 		color: var(--color-accent-active);
-		min-width: 104px;
 	}
 
 	.what {
