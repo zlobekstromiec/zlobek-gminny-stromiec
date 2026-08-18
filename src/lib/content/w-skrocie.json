@@ -1,6 +1,6 @@
 {
 	"godziny": {
-		"placeholder": true,
+		"placeholder": false,
 		"godziny": "6:30–16:30",
 		"dniPelne": "poniedziałek-piątek",
 		"dniSkrot": "pon.-pt.",

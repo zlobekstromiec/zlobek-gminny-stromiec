@@ -113,12 +113,21 @@ function przyciskZapisz(page: Strona) {
 /** The two move buttons of ONE item, located by their ACCESSIBLE NAME. Deliberately not by
  *  a class: what is under test is the WCAG 2.4.4 contract that each button says which item
  *  it moves, and a class selector would pass on twelve buttons all called „Przenieś wyżej". */
+// `exact: true` ON BOTH, since 2026-08-18. getByRole matches an accessible name by
+// SUBSTRING by default, and the row legends are „Wiersz 1", „Wiersz 2" and so on. That was
+// unambiguous for exactly as long as the day plan had fewer than ten rows: the real
+// harmonogram the żłobek sent has fourteen, so „Przenieś wyżej: Wiersz 1" started matching
+// rows 1 and 10 through 14 at once and four cases died on strict mode. The name is fully
+// known at every call site here, so an exact match is what was meant all along; the
+// substring default was doing unrequested work. The count assertion further down already
+// passed `exact: true` for the same reason, which is the hint that these two were the
+// oversight rather than the policy.
 function przyciskWGore(page: Strona, legenda: string) {
-	return page.getByRole('button', { name: nazwaPrzeniesieniaWGore(legenda) });
+	return page.getByRole('button', { name: nazwaPrzeniesieniaWGore(legenda), exact: true });
 }
 
 function przyciskWDol(page: Strona, legenda: string) {
-	return page.getByRole('button', { name: nazwaPrzeniesieniaWDol(legenda) });
+	return page.getByRole('button', { name: nazwaPrzeniesieniaWDol(legenda), exact: true });
 }
 
 /** The order of the day-plan rows, read from the control the editor actually types into.
