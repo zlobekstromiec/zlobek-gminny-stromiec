@@ -1,8 +1,9 @@
 <script lang="ts">
 	// Site footer v2 (SITE-03, UI-SPEC v1.2 §6): wave into a brand-blue block with
 	// four columns. Contact lines are PLAIN TEXT by design (the homepage carries
-	// exactly one mailto and its tel-link count is asserted; the linked versions
-	// live in TopBar/Hero/ContactAndMap). BIP stays an external municipal system:
+	// exactly one mailto, and tests/home.spec.ts now asserts that it carries NO tel:
+	// link at all; the linked e-mail lives in ContactAndMap). BIP stays an external
+	// municipal system:
 	// do NOT rebuild it (RESEARCH Pitfall 14).
 	import Wave from './Wave.svelte';
 	import { contact } from '$lib/content/site';
@@ -22,9 +23,11 @@
 			<p class="footer-wordmark">Publiczny Żłobek w Stromcu</p>
 			<p class="org">
 				Publiczny Żłobek w Stromcu, jednostka organizacyjna Gminy Stromiec<br />
-				<!-- PLACEHOLDER: address + phone pending written client confirmation (site.ts). -->
+				<!-- Address [BIP]-confirmed; the tel. line came out with the number itself on
+				     2026-08-18 (site.ts). What is left is the address and the one inbox, both
+				     still PLAIN TEXT by design: the linked versions live in ContactAndMap and
+				     on /kontakt, and the homepage's single-mailto rule depends on it. -->
 				{contact.addressLines[0]}, {contact.addressLines[1]}<br />
-				tel. {contact.phoneDisplay}<br />
 				{contact.email}
 			</p>
 			<div class="logo-slots" aria-hidden="true">

@@ -28,7 +28,6 @@
 	import Info from '@lucide/svelte/icons/info';
 	import Mail from '@lucide/svelte/icons/mail';
 	import MapPin from '@lucide/svelte/icons/map-pin';
-	import Phone from '@lucide/svelte/icons/phone';
 	import FallbackPanel from '$lib/components/FallbackPanel.svelte';
 	import KontaktForm from '$lib/components/KontaktForm.svelte';
 	import MapPanel from '$lib/components/MapPanel.svelte';
@@ -38,7 +37,7 @@
 
 <Seo
 	title="Kontakt: Publiczny Żłobek w Stromcu"
-	description="Adres, telefon, e-mail i godziny otwarcia Publicznego Żłobka w Stromcu. Napisz do nas przez formularz kontaktowy albo zadzwoń w dni robocze."
+	description="Adres, e-mail i godziny otwarcia Publicznego Żłobka w Stromcu. Napisz do nas przez formularz kontaktowy, odpowiadamy w dni robocze."
 	canonical="/kontakt"
 />
 
@@ -47,7 +46,9 @@
 <header class="page-head">
 	<div class="inner">
 		<h1>Kontakt</h1>
-		<p class="lead">Napisz do nas lub zadzwoń. Odpowiadamy w dni robocze.</p>
+		<p class="lead">
+			Napisz do nas przez formularz albo na nasz adres e-mail. Odpowiadamy w dni robocze.
+		</p>
 	</div>
 </header>
 
@@ -69,13 +70,8 @@
 					</div>
 				</li>
 
-				<li class="item">
-					<Phone class="item-icon" size={22} aria-hidden="true" focusable="false" />
-					<div class="item-text">
-						<span class="item-label">Telefon</span>
-						<a class="item-link" href={contact.phoneHref}>{contact.phoneDisplay}</a>
-					</div>
-				</li>
+				<!-- No Telefon row: the number came off the site on 2026-08-18 (site.ts), and a
+				     row saying so would be a quarter of this card spent on an absence. -->
 
 				<li class="item">
 					<Mail class="item-icon" size={22} aria-hidden="true" focusable="false" />

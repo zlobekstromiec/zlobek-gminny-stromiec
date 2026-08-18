@@ -4,13 +4,24 @@
 	// AboutTeaser further down the same homepage (Amendment v1.1 decision); the
 	// lead below quotes sentence 2 of it verbatim.
 	//
-	// D-03: the image slot is a non-identifiable warm placeholder (no child faces),
-	// shipped as AVIF/WebP with explicit width/height (no CLS) and fetchpriority="high"
-	// (PITFALLS #9). aria-hidden while purely decorative; a real Polish alt lands with
-	// consented photography in Phase 6.
+	// THE IMAGE IS NOW THE REAL BUILDING (2026-08-18), which retires the D-03 placeholder
+	// and the „decorative, aria-hidden until Phase 6" treatment that came with it. The
+	// photograph shows the żłobek from the street with its own sign on the wall, and no
+	// child appears in it, so the wizerunek consent obligation never arises. Being real
+	// content and not decoration, it carries a real Polish alt and is NOT aria-hidden: a
+	// screen-reader user is told what the building looks like, which is exactly the
+	// information a sighted visitor gets from it.
+	//
+	// It is served through enhanced-img rather than the two hand-built files it replaces
+	// in static/. That yields the AVIF/WebP srcset and the intrinsic width/height (no CLS)
+	// the old markup wrote out by hand, and keeps `fetchpriority="high"` on the LCP element
+	// (PITFALLS #9). It is imported from $lib/assets/foto, NOT from $lib/assets/uploads:
+	// uploads is the panel's directory and the gallery globs it, so a hero photograph
+	// living there would show up in an editor's photo picker as if it were a gallery tile.
 	import Cta from './Cta.svelte';
 	import IconSun from '$lib/icons/IconSun.svelte';
-	import { contact, recruitment } from '$lib/content/site';
+	import { recruitment } from '$lib/content/site';
+	import budynek from '$lib/assets/foto/budynek-front.jpg?enhanced';
 </script>
 
 <section class="hero">
@@ -40,35 +51,31 @@
 
 			<div class="cta-row">
 				<Cta href="/rekrutacja" variant="primary" icon>Zapisz dziecko</Cta>
-				<Cta href="/kontakt" variant="secondary">Zadzwoń do nas</Cta>
+				<!-- „Napisz", not „Zadzwoń", since 2026-08-18: there is no phone on the site
+				     to honour that invitation with (site.ts). -->
+				<Cta href="/kontakt" variant="secondary">Napisz do nas</Cta>
 			</div>
 
-			<!-- PLACEHOLDER: phone number pending written client confirmation (site.ts). -->
-			<p class="phone-line">
-				Masz pytanie? Zadzwoń:
-				<a href={contact.phoneHref}>{contact.phoneDisplay}</a>
-			</p>
+			<!-- The phone line that stood here is GONE with the number itself (site.ts).
+			     Nothing replaces it: both buttons above already reach the contact page, and
+			     a third line repeating that would be noise. -->
 		</div>
 
 		<div class="hero-media">
-			<!-- PLACEHOLDER decorative image (no child faces, consent-safe, D-03).
-			     Explicit width/height keep the 4:3 box reserved (no CLS); fetchpriority
-			     high because it is the LCP element. Swapped for consented photography in
-			     Phase 6, when it also gains a real Polish alt. -->
-			<picture>
-				<source srcset="/hero-placeholder.avif" type="image/avif" />
-				<source srcset="/hero-placeholder.webp" type="image/webp" />
-				<img
-					class="hero-img"
-					src="/hero-placeholder.webp"
-					width="1200"
-					height="900"
-					fetchpriority="high"
-					decoding="async"
-					alt=""
-					aria-hidden="true"
-				/>
-			</picture>
+			<!-- The LCP element. fetchpriority high and eager, because enhanced-img would
+			     otherwise leave loading to the browser's default on the one image whose
+			     arrival the Largest Contentful Paint is measured by. `sizes` describes the
+			     real layout: a full-width column below 1024px, and just under half the
+			     72rem container above it. -->
+			<enhanced:img
+				class="hero-img"
+				src={budynek}
+				alt="Budynek Publicznego Żłobka w Stromcu od strony ulicy, z kolorowym szyldem i placem zabaw obok wejścia"
+				sizes="(min-width:1024px) 33rem, 100vw"
+				fetchpriority="high"
+				loading="eager"
+				decoding="async"
+			/>
 		</div>
 	</div>
 </section>
@@ -158,31 +165,12 @@
 		margin: 0 0 28px;
 	}
 
+	/* No bottom margin any more: the phone line this row used to be separated from is
+	   gone with the number (site.ts), so the buttons are the last thing in the column. */
 	.cta-row {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 16px;
-		margin-bottom: 24px;
-	}
-
-	.phone-line {
-		font-family: var(--font-body);
-		font-size: 15px;
-		color: var(--color-muted);
-		margin: 0;
-	}
-
-	.phone-line a {
-		display: inline-flex;
-		align-items: center;
-		min-height: 44px;
-		color: var(--color-brand-blue);
-		font-weight: 700;
-		text-decoration: underline;
-	}
-
-	.phone-line a:hover {
-		color: var(--color-brand-blue-hover);
 	}
 
 	.hero-media {
@@ -190,11 +178,21 @@
 		width: 100%;
 	}
 
+	/* 3:2, WIDENED FROM 4:3 the day the real photograph arrived. The placeholder was
+	   authored at 4:3; the żłobek's camera shoots 16:9, and `cover` in a 4:3 box throws
+	   away a quarter of a 16:9 frame from the two ends, which on this particular picture
+	   is the forest on one side and the bench on the other. 3:2 costs about 16% instead,
+	   and keeps enough height that the box still reads as a portrait-friendly card rather
+	   than a letterbox strip. The box is reserved before the image paints either way, so
+	   this is a framing decision and not a CLS one.
+
+	   `height: auto` is deliberately NOT set here: enhanced-img emits its own intrinsic
+	   width and height attributes, and a rule saying `height: auto` would beat the
+	   aspect-ratio box and let the natural 16:9 through. */
 	.hero-img {
 		display: block;
 		width: 100%;
-		height: auto;
-		aspect-ratio: 4 / 3;
+		aspect-ratio: 3 / 2;
 		object-fit: cover;
 		border: 6px solid var(--color-surface);
 		border-radius: var(--radius-lg);

@@ -26,10 +26,14 @@ export const coreMessage =
  *  (a deadline that silently flips at midnight without staff knowing is worse
  *  than a stale one). CMS-editable in a later phase.
  *
- *  Set to `false` per D-06: the nabór for 2026/2027 is finished (Regulamin
- *  rekrutacji, Zarządzenie 29.2026: its stages ran in the spring of 2026 and are
- *  archival), and the lista rezerwowa is the open channel. Flip back to `true`
- *  only when the Urząd Gminy announces the next nabór.
+ *  Set to `true` on 2026-08-18, on the żłobek's written confirmation: „Co do statusu
+ *  rekrutacji, jest ona stale otwarta ponieważ nie mamy zapełnionych wszystkich miejsc."
+ *  It stood at `false` under D-06, when the 2026/2027 nabór had run its stages in the
+ *  spring of 2026 and the lista rezerwowa was the only open channel. Free places make
+ *  the open state the truthful one, and the strings it selects were rewritten with it:
+ *  they no longer name a school year, because what they now describe is a standing state
+ *  rather than a window (see `openStrings`). Flip back to `false` only when the żłobek
+ *  says the places are full.
  *
  *  The exact archival stage dates are deliberately NOT repeated here. They live in
  *  the committed source document, whose section 10.3 forbids presenting them as
@@ -50,11 +54,21 @@ export const contact = {
 	/** FINAL: [BIP]-confirmed by both the statut (uchwała XXIII.133.2026) and the
 	 *  fee uchwała XXIII.134.2026 (.planning/dane-bip-zlobek-stromiec.md §1). */
 	addressLines: ['ul. Radomska 72', '26-804 Stromiec'],
-	// PLACEHOLDER: published by explicit user decision (D-08), overriding the
-	// source document's `[?]` marker. LAUNCH GATE: confirm this is a służbowy
-	// line and not Kamila Dobosz's private number before go-live (Phase 6).
-	phoneDisplay: '510 094 051',
-	phoneHref: 'tel:+48510094051',
+	// THERE IS NO PHONE FIELD HERE, and its absence is the content decision of
+	// 2026-08-18, not an oversight. The number this object used to carry
+	// (`phoneDisplay` / `phoneHref`, published under D-08 with a Phase 6 launch
+	// gate asking whether it was a służbowy line) turned out to be the director's
+	// PRIVATE mobile. She asked in writing for it to come off the site until the
+	// żłobek has its own line: „Proszę narazie nie dodawać nr telefonu ponieważ to
+	// mój nr prywatny". The launch gate therefore did its job and the answer was no.
+	//
+	// So the site now offers exactly ONE contact route, the e-mail below, and every
+	// surface that used to phrase an invitation as „zadzwoń" phrases it as „napisz".
+	// Restoring a phone is deliberately a one-place edit: add the two fields back
+	// here and the TopBar, hero, contact card, footer, /kontakt and both form
+	// fallbacks pick them up, because not one of them ever held a literal.
+	// tests/kontakt.spec.ts asserts the ABSENCE of any tel: link, so a number
+	// reintroduced by hand in markup fails the suite instead of shipping.
 	/** FINAL: confirmed public institutional inbox; do NOT mark placeholder. */
 	email: 'zlobek@ugstromiec.pl',
 	// DERIVED, not a literal, since plan 05-09: the opening hours have ONE source, the
@@ -152,14 +166,37 @@ type RecruitmentStrings = {
 	heading: string;
 	deadline: string;
 	body: string;
+	/** The banner's closing line on /rekrutacja.
+	 *
+	 *  IT BELONGS TO THE STATE, which is what 2026-08-18 established. It used to be a
+	 *  single string on the derived object below, saying that the Urząd Gminy would
+	 *  announce the date of the next nabór, and /rekrutacja renders it unconditionally.
+	 *  That was harmless only while the nabór was closed. Under a standing open nabór the
+	 *  same sentence tells a parent, three lines under „Nabór trwa przez cały rok", to wait
+	 *  for an announcement, which is the opposite of what we want them to do. A line whose
+	 *  meaning flips with the flag has to live on the two sides of the flag. */
+	nastepnyNabor: string;
 };
 
+/** CONFIRMED IN WRITING by the żłobek on 2026-08-18: „Co do statusu rekrutacji, jest
+ *  ona stale otwarta ponieważ nie mamy zapełnionych wszystkich miejsc." That sentence
+ *  changed the KIND of statement these four strings make, not merely their tense.
+ *
+ *  They used to name a school year, because the state they described was a WINDOW: a
+ *  nabór that opened, ran its stages and closed. What the żłobek describes is a
+ *  standing state with a cause: places are free, so applications are taken. A year
+ *  label on a standing state is a promise to edit these strings every August, and the
+ *  August nobody does it is the August the site starts lying. The year is therefore
+ *  gone from all four, and the one thing a parent has to know instead, that the door is
+ *  open only while places last, is said out loud in `deadline` and `body`.
+ *
+ *  The former `// PLACEHOLDER:` marker on `deadline` retired with the same sentence. */
 const openStrings: RecruitmentStrings = {
-	pill: 'Nabór 2026/2027 trwa: wolne miejsca',
-	heading: 'Nabór na rok 2026/2027 trwa',
-	// PLACEHOLDER: recruitment window wording, pending written client confirmation.
-	deadline: 'Rekrutacja uzupełniająca: zapisy przez cały rok',
-	body: 'Wystarczą cztery kroki, a jeśli coś jest niejasne, po prostu zadzwoń.'
+	pill: 'Nabór trwa: mamy wolne miejsca',
+	heading: 'Nabór trwa przez cały rok',
+	deadline: 'Zapisy przyjmujemy przez cały rok, dopóki mamy wolne miejsca',
+	body: 'Nie czekasz na termin: wystarczą cztery kroki. Jeśli coś jest niejasne, napisz do nas.',
+	nastepnyNabor: `Wnioski przyjmuje ${urzad.name}. Liczba miejsc jest ograniczona, więc o przyjęciu decyduje kolejność i punktacja wniosków.`
 };
 
 /** Live copy since D-06. Verified string by string against 04-UI-SPEC.md
@@ -170,7 +207,11 @@ const closedStrings: RecruitmentStrings = {
 	pill: 'Nabór zakończony: lista rezerwowa otwarta',
 	heading: 'Nabór na rok 2026/2027 zakończony',
 	deadline: 'Zapisy na listę rezerwową przez cały rok',
-	body: 'Rekrutacja podstawowa została zakończona, ale w ciągu roku zwalniają się miejsca. Zgłoszenie na listę rezerwową możesz złożyć w dowolnym momencie.'
+	body: 'Rekrutacja podstawowa została zakończona, ale w ciągu roku zwalniają się miejsca. Zgłoszenie na listę rezerwową możesz złożyć w dowolnym momencie.',
+	// PLACEHOLDER: the date of the next nabór is unconfirmed. The archival 2026/2027
+	// harmonogram may NEVER be presented as current (dane-bip §10.3), so this line
+	// points at the announcing authority instead of a date.
+	nastepnyNabor: 'Termin kolejnego naboru ogłosi Urząd Gminy w Stromcu.'
 };
 
 /** Both status-banner headlines, side by side, for the panel's „Tak zobaczy to
@@ -188,10 +229,6 @@ export const recruitmentHeadings = {
 /** Derived once here; components import `recruitment`, never plumb the boolean. */
 export const recruitment = {
 	...(recruitmentOpen ? openStrings : closedStrings),
-	// PLACEHOLDER: the date of the next nabór is unconfirmed. The archival
-	// 2026/2027 harmonogram may NEVER be presented as current (dane-bip §10.3),
-	// so this line points at the announcing authority instead of a date.
-	nastepnyNabor: 'Termin kolejnego naboru ogłosi Urząd Gminy w Stromcu.',
 	/** [BIP] Regulamin rekrutacji (Zarządzenie 29.2026) + statut age range.
 	 *  Eligibility here is ZAMIESZKANIE only: the statut's employment-based
 	 *  criterion contradicts the regulamin and is an unresolved discrepancy

@@ -88,14 +88,20 @@ test.describe('Homepage: Phase 1 + 01.1 acceptance', () => {
 		expect(cardCount).toBeLessThanOrEqual(3);
 	});
 
-	test('TopBar surfaces phone and opening hours on every viewport', async ({ page }) => {
+	test('TopBar surfaces opening hours on every viewport', async ({ page }) => {
 		await page.goto('/');
 		await expect(page.getByText('Czynne:', { exact: false })).toBeVisible();
 	});
 
-	test('exactly three tel links: TopBar, hero phone line, contact card', async ({ page }) => {
+	// THREE tel links until 2026-08-18, ZERO after. The count was a real contract while
+	// the site published a number: it pinned exactly which three surfaces were allowed to
+	// linkify it, so a fourth appearing anywhere turned the suite red. The żłobek asked
+	// for the number to come off until it has its own line (site.ts), and the contract
+	// that replaces it is the strictest version of the same idea. When a number returns,
+	// this goes back to a count and names the surfaces again.
+	test('nie ma ani jednego odnosnika tel: na stronie glownej (2026-08-18)', async ({ page }) => {
 		await page.goto('/');
-		await expect(page.locator('a[href^="tel:"]')).toHaveCount(3);
+		await expect(page.locator('a[href^="tel:"]')).toHaveCount(0);
 	});
 
 	// LOCKSTEP CHANGE (D-05, D-09): the placeholder facts are replaced by the

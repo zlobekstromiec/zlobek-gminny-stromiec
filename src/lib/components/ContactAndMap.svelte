@@ -1,12 +1,13 @@
 <script lang="ts">
-	// Contact + map section (HOME-02, UI-SPEC v1.2 §6). Values come from site.ts
-	// (PLACEHOLDER markers there; e-mail FINAL). This section owns the homepage's
-	// ONLY mailto. The map is the real static OpenStreetMap snapshot, rendered by
-	// the shared MapPanel component so this section and /kontakt can never drift;
-	// NEVER an embedded third-party map frame (RODO, D-17). Directions open
-	// externally with the same new-tab safety pattern as the BIP link.
+	// Contact + map section (HOME-02, UI-SPEC v1.2 §6). Values come from site.ts,
+	// where address, e-mail and hours are all now confirmed. This section owns the
+	// homepage's ONLY mailto, and since 2026-08-18 the e-mail is also the site's only
+	// contact route at all: the Telefon row is gone with the number. The map is the
+	// real static OpenStreetMap snapshot, rendered by the shared MapPanel component so
+	// this section and /kontakt can never drift; NEVER an embedded third-party map
+	// frame (RODO, D-17). Directions open externally with the same new-tab safety
+	// pattern as the BIP link.
 	import MapPin from '@lucide/svelte/icons/map-pin';
-	import Phone from '@lucide/svelte/icons/phone';
 	import Mail from '@lucide/svelte/icons/mail';
 	import Clock from '@lucide/svelte/icons/clock';
 	import MapPanel from './MapPanel.svelte';
@@ -28,16 +29,11 @@
 					</div>
 				</li>
 
-				<!-- PLACEHOLDER: phone published by user decision (D-08), launch gate in
-				     site.ts. The invented żłobek secretariat-hours line is deliberately
-				     gone: the source document has no such fact. -->
-				<li class="item">
-					<Phone class="item-icon" size={22} aria-hidden="true" focusable="false" />
-					<div class="item-text">
-						<span class="item-label">Telefon</span>
-						<a class="item-link" href={contact.phoneHref}>{contact.phoneDisplay}</a>
-					</div>
-				</li>
+				<!-- THE TELEFON ROW IS GONE, not blanked (2026-08-18, site.ts). A row reading
+				     „Telefon: w przygotowaniu" would occupy a quarter of this card to tell a
+				     parent that one of the four things they came here for does not exist,
+				     which is worse than a three-item card that answers everything it shows.
+				     It comes back with the number. -->
 
 				<!-- FINAL: confirmed public institutional inbox (do NOT mark placeholder). -->
 				<li class="item">
@@ -48,7 +44,9 @@
 					</div>
 				</li>
 
-				<!-- PLACEHOLDER: opening hours pending written client confirmation. -->
+				<!-- Hours CONFIRMED 2026-08-18: the żłobek's ramowy harmonogram opens at 6:30 with
+				     schodzenie się dzieci and closes at 16:30 with odbiór, which is the range the
+				     w-skrocie store holds. No longer a placeholder. -->
 				<li class="item">
 					<Clock class="item-icon" size={22} aria-hidden="true" focusable="false" />
 					<div class="item-text">

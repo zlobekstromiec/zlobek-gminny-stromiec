@@ -1,5 +1,5 @@
 <script lang="ts">
-	// The "Wolisz zadzwonić?" panel, extracted from the two form islands
+	// The "wolisz napisać wprost?" panel, extracted from the two form islands
 	// (Amendment v1.6 §9) so the form routes can place it in their desktop grid
 	// areas. Rendered by the ROUTE, exactly once per page. The <noscript> twins
 	// stay inside the form islands, which is why those keep their own .fallback
@@ -18,8 +18,7 @@
 	<div>
 		<p class="fallback-tytul">{KOPIA_FALLBACK.naglowek}</p>
 		<p class="fallback-tresc">
-			Telefon: <a href={contact.phoneHref}>{contact.phoneDisplay}</a>. E-mail:
-			<a href={`mailto:${contact.email}`}>{contact.email}</a>. Czynne {contact.hours}.
+			E-mail: <a href={`mailto:${contact.email}`}>{contact.email}</a>. Czynne {contact.hours}.
 		</p>
 	</div>
 </div>

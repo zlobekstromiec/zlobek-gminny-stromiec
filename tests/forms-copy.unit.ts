@@ -104,12 +104,23 @@ test('the wysylka emphasis is a strong fragment, never capitals (UI-SPEC 7c)', (
 	assert.equal((mocne[0] as { mocne: string }).mocne, 'nie została wysłana');
 });
 
-test('every phone number in the exported copy is the value from site.ts', () => {
+// THIS TEST INVERTED ON 2026-08-18 and is stronger for it. It used to prove that every
+// phone-shaped literal in the copy equalled `contact.phoneDisplay`, which is the right
+// assertion while a phone exists. The żłobek asked for the number to come off the site
+// until it has a line of its own, so `contact` no longer has the field, and the property
+// worth defending changed with it: not „the number here is the right number" but „there
+// is no number here at all". The same sweep answers both questions, and this direction
+// is the one that catches somebody pasting a number straight into a copy string.
+test('no phone number survives anywhere in the exported copy (2026-08-18)', () => {
 	const telefony = new Set<string>();
 	for (const s of WSZYSTKIE_STRINGI) {
 		for (const trafienie of s.matchAll(/\d[\d\s-]{7,}\d/g)) telefony.add(trafienie[0]);
 	}
-	assert.deepEqual([...telefony].sort(), [contact.phoneDisplay]);
+	assert.deepEqual(
+		[...telefony].sort(),
+		[],
+		'numer telefonu wrocil do kopii formularzy; jesli zlobek ma juz wlasna linie, dodaj ja do contact w site.ts zamiast wpisywac w tekst'
+	);
 });
 
 test('every e-mail address in the exported copy is the value from site.ts', () => {
@@ -202,10 +213,11 @@ test('komunikatPola returns undefined for a field the copy does not know', () =>
 	assert.equal(komunikatPola('nieznane-pole', 'brak'), undefined);
 });
 
-test('the static fallback and noscript copy carry the phone and the e-mail', () => {
-	assert.match(KOPIA_FALLBACK.tresc, new RegExp(contact.phoneDisplay));
+// Both panels exist to give a visitor a route that works when the form does not, so the
+// assertion is that each one still names a reachable route. Since 2026-08-18 there is
+// exactly one, and the phone half of this test went with the number (site.ts).
+test('the static fallback and noscript copy carry the e-mail', () => {
 	assert.match(KOPIA_FALLBACK.tresc, new RegExp(contact.email));
-	assert.match(KOPIA_NOSCRIPT, new RegExp(contact.phoneDisplay));
 	assert.match(KOPIA_NOSCRIPT, new RegExp(contact.email));
 });
 
@@ -225,7 +237,7 @@ test('the zgłoszenie copy carries every string the enrollment island needs', ()
 	}
 	assert.equal(KOPIA_ZGLOSZENIE.wyslij, 'Wyślij zgłoszenie');
 	assert.equal(KOPIA_ZGLOSZENIE.wysylanie, 'Wysyłanie...');
-	assert.equal(KOPIA_ZGLOSZENIE.naglowek, 'Zgłoszenie na listę rezerwową');
+	assert.equal(KOPIA_ZGLOSZENIE.naglowek, 'Zgłoszenie zainteresowania');
 });
 
 // D-01. The form is a waiting-list enquiry, and the copy has to say so: recruitment

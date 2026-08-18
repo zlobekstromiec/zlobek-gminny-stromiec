@@ -214,7 +214,7 @@
 	}
 </script>
 
-<!-- The visible "Wolisz zadzwonić?" panel is rendered by the ROUTE (shared
+<!-- The visible "Wolisz napisać wprost?" panel is rendered by the ROUTE (shared
      FallbackPanel, Amendment v1.6 §9). Only the noscript twin stays in the island:
      it must sit directly above the card it explains. -->
 <noscript>
@@ -268,8 +268,10 @@
 						{/each}
 					</ul>
 				{:else if !podsumowaniePol}
+					<!-- One route now, not two: the phone came off the site on 2026-08-18
+					     (site.ts). This is the send-failure escape hatch, so it has to lead
+					     somewhere real, and the inbox is what is left. -->
 					<p class="awaria-kontakt">
-						<a href={contact.phoneHref}>{contact.phoneDisplay}</a>
 						<a href={`mailto:${contact.email}`}>{contact.email}</a>
 					</p>
 				{/if}

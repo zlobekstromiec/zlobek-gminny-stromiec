@@ -97,7 +97,7 @@ test.describe('Rekrutacja: RECRUIT-01 / RECRUIT-02 / RECRUIT-03 acceptance', () 
 		await expect(page.getByRole('heading', { level: 1 })).toHaveText('Rekrutacja do żłobka');
 	});
 
-	test('banner statusu podaje zakończony nabór i otwartą listę rezerwową (D-06, D-14)', async ({
+	test('banner statusu podaje trzy linie stanu naboru prosto z site.ts (D-06, D-14)', async ({
 		page
 	}) => {
 		await page.goto('/rekrutacja');
@@ -110,7 +110,7 @@ test.describe('Rekrutacja: RECRUIT-01 / RECRUIT-02 / RECRUIT-03 acceptance', () 
 		await expect(banner).toContainText(recruitment.nastepnyNabor);
 	});
 
-	test('zamknięty nabór nie jest komunikatem błędu: brak tokenów danger (UI-SPEC reguła 2)', async ({
+	test('stan naboru nie jest komunikatem błędu: brak tokenów danger (UI-SPEC reguła 2)', async ({
 		page
 	}) => {
 		await page.goto('/rekrutacja');

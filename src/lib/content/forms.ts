@@ -99,13 +99,13 @@ export const KOPIA_BLEDOW: Readonly<Record<FormCode, KopiaBledu>> = Object.freez
 	turnstile: {
 		naglowek: 'Nie udało się potwierdzić, że nie jesteś robotem',
 		tresc: [
-			`Odśwież stronę i spróbuj ponownie. Jeśli problem się powtarza, zadzwoń pod numer ${contact.phoneDisplay} lub napisz na ${contact.email}.`
+			`Odśwież stronę i spróbuj ponownie. Jeśli problem się powtarza, napisz do nas na ${contact.email}.`
 		]
 	},
 	limit: {
 		naglowek: 'Za dużo prób wysyłki',
 		tresc: [
-			`Z tego urządzenia wysłano już kilka wiadomości. Spróbuj ponownie za godzinę albo zadzwoń pod numer ${contact.phoneDisplay}.`
+			`Z tego urządzenia wysłano już kilka wiadomości. Spróbuj ponownie za godzinę albo napisz wprost na ${contact.email}.`
 		]
 	},
 	wysylka: {
@@ -113,7 +113,7 @@ export const KOPIA_BLEDOW: Readonly<Record<FormCode, KopiaBledu>> = Object.freez
 		tresc: [
 			'Twoja wiadomość ',
 			{ mocne: 'nie została wysłana' },
-			`. Wpisane dane zostały w formularzu, możesz spróbować ponownie za chwilę. Jeśli sprawa jest pilna, zadzwoń pod numer ${contact.phoneDisplay} lub napisz na ${contact.email}.`
+			`. Wpisane dane zostały w formularzu, możesz spróbować ponownie za chwilę. Jeśli sprawa jest pilna, napisz wprost na ${contact.email}.`
 		]
 	}
 });
@@ -231,8 +231,20 @@ export const KOPIA_KONTAKT = {
  *  rather than a preposition that would need the locative, which is the same
  *  constraint the /kontakt info box works under. */
 export const KOPIA_ZGLOSZENIE = {
-	naglowek: 'Zgłoszenie na listę rezerwową',
-	intro: `Zostaw kontakt, a odezwiemy się, gdy zwolni się miejsce. To zgłoszenie zainteresowania, a nie formalny wniosek: wniosek o przyjęcie dziecka trzeba złożyć osobiście, przyjmuje go ${urzad.name}, ${urzad.addressLines[0]}, ${urzad.room}, w godzinach ${urzad.wnioskiHours}.`,
+	// „Zgłoszenie na listę rezerwową" until 2026-08-18. The lista rezerwowa is what this
+	// form means while the nabór is CLOSED, and on that day the żłobek confirmed the
+	// opposite: „jest ona stale otwarta ponieważ nie mamy zapełnionych wszystkich miejsc".
+	// Left alone, the heading would have sat directly under a banner reading „Nabór trwa
+	// przez cały rok" and told the same parent, on the same screen, that they were joining
+	// a queue for a place that is not taken.
+	//
+	// THE FIX IS NEUTRAL COPY, NOT A SECOND BRANCH ON THE FLAG. What this form does is the
+	// same in both states: it sends the żłobek a parent's contact details and a child's
+	// age, and it is never the formal wniosek, which is filed in person at the Urząd
+	// Gminy. Wording that states that is true whichever way the flag sits, and it keeps
+	// the number of places that have to be edited when the flag flips at one.
+	naglowek: 'Zgłoszenie zainteresowania',
+	intro: `Zostaw kontakt, a odezwiemy się i pomożemy przejść przez formalności. To zgłoszenie zainteresowania, a nie formalny wniosek: wniosek o przyjęcie dziecka trzeba złożyć osobiście, przyjmuje go ${urzad.name}, ${urzad.addressLines[0]}, ${urzad.room}, w godzinach ${urzad.wnioskiHours}.`,
 	wymaganeNota: 'Pola oznaczone gwiazdką (*) są wymagane.',
 	imieEtykieta: 'Imię i nazwisko rodzica',
 	emailEtykieta: 'Adres e-mail',
@@ -263,12 +275,15 @@ export const KOPIA_ZGLOSZENIE = {
  *  it serves the no-JavaScript visitor, the failed-widget case and the D-12 send
  *  failure at once (04-RESEARCH Pitfall 7). */
 export const KOPIA_FALLBACK = {
-	naglowek: 'Wolisz zadzwonić?',
-	tresc: `Telefon: ${contact.phoneDisplay}. E-mail: ${contact.email}. Czynne ${contact.hours}.`
+	// „Wolisz zadzwonić?" until 2026-08-18, when the number came off the site (site.ts).
+	// The heading had to move with it: a panel that opens by offering a phone call and
+	// then lists only an inbox reads as a page that lost half its content.
+	naglowek: 'Wolisz napisać wprost?',
+	tresc: `E-mail: ${contact.email}. Czynne ${contact.hours}.`
 } as const;
 
 /** The `<noscript>` sentence rendered directly above the form card. */
-export const KOPIA_NOSCRIPT = `Ten formularz wymaga włączonej obsługi JavaScript. Możesz też zadzwonić pod numer ${contact.phoneDisplay} lub napisać na ${contact.email}.`;
+export const KOPIA_NOSCRIPT = `Ten formularz wymaga włączonej obsługi JavaScript. Możesz też napisać do nas na ${contact.email}.`;
 
 /** One block of the klauzula: an optional sub-heading plus its paragraphs. The
  *  strings carry no markup at all, so the disclosure component owns the whole
@@ -317,7 +332,7 @@ export const KLAUZULA: readonly BlokKlauzuli[] = Object.freeze([
 		naglowek: 'Zakres danych',
 		akapity: [
 			'Przetwarzamy wyłącznie te dane, które sam wpiszesz w formularzu: imię i nazwisko, adres e-mail, opcjonalnie numer telefonu oraz treść wiadomości.',
-			'Formularz zgłoszenia na listę rezerwową celowo pyta tylko o miesiąc i rok urodzenia dziecka. Nie pytamy o imię ani nazwisko dziecka i prosimy, aby nie podawać ich w treści wiadomości.'
+			'Formularz zgłoszenia celowo pyta tylko o miesiąc i rok urodzenia dziecka. Nie pytamy o imię ani nazwisko dziecka i prosimy, aby nie podawać ich w treści wiadomości.'
 		]
 	},
 	{

@@ -75,7 +75,7 @@ export function przykladZus(kwotaProza: string): string {
 
 /** How to apply for the benefit. Names no ZUS amount and no deadline. */
 export const ZUS_WNIOSEK =
-	'Wniosek o świadczenie składasz elektronicznie, w serwisie ZUS. Chętnie pomożemy Ci przejść przez formalności: zadzwoń lub napisz do nas.';
+	'Wniosek o świadczenie składasz elektronicznie, w serwisie ZUS. Chętnie pomożemy Ci przejść przez formalności: napisz do nas.';
 
 // PLACEHOLDER: what the daily wyżywienie rate covers is not stated by any committed
 // source, so this line describes the scope in general terms and names no meal, no
@@ -91,7 +91,7 @@ export const WYZYWIENIE_SZCZEGOL =
 // żłobek before launch (Phase 6 sweep).
 /** „Jak i kiedy płacić". Invents nothing. */
 export const PLATNOSCI =
-	'Zasady płatności, w tym termin i numer konta, przekazujemy rodzicom przy zapisie dziecka do żłobka. Jeśli chcesz poznać je wcześniej, zadzwoń lub napisz do nas.';
+	'Zasady płatności, w tym termin i numer konta, przekazujemy rodzicom przy zapisie dziecka do żłobka. Jeśli chcesz poznać je wcześniej, napisz do nas.';
 
 /** „Podstawa prawna" and its link into the documents section. The uchwała itself is
  *  never restated here: it lives in /dokumenty, which is the surface that owns it. */

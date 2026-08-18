@@ -33,7 +33,9 @@ export const TEMAT_KONTAKT = 'Nowa wiadomość z formularza kontaktowego';
  *  one so staff can filter the two flows into separate folders. Same hard rule: no
  *  submitted value may ever reach a mail header (T-04-27), so this is a constant and
  *  the parent's name goes in the body instead. */
-export const TEMAT_ZGLOSZENIE = 'Nowe zgłoszenie na listę rezerwową';
+// Neutral since 2026-08-18, with the form heading it mirrors: the nabór is open all year,
+// so a subject line announcing a waiting list would mislabel every enquiry in the inbox.
+export const TEMAT_ZGLOSZENIE = 'Nowe zgłoszenie z formularza rekrutacji';
 
 const RESEND = 'https://api.resend.com/emails';
 

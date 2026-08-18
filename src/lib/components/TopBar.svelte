@@ -1,18 +1,21 @@
 <script lang="ts">
-	// Utility top bar (UI-SPEC v1.2 §2): phone + opening hours on every route,
-	// above the sticky header. Static, zero runtime logic. Deliberately NO e-mail
-	// here: the homepage carries exactly one mailto (in ContactAndMap).
+	// Utility top bar (UI-SPEC v1.2 §2): opening hours on every route, above the
+	// sticky header. Static, zero runtime logic. Deliberately NO e-mail here: the
+	// homepage carries exactly one mailto (in ContactAndMap).
+	//
+	// IT USED TO CARRY THE PHONE TOO, and the pairing is what the two-column layout
+	// below was built for. The number came off the site on 2026-08-18 (site.ts), so
+	// the bar is down to one item. It keeps `justify-content: space-between`, which
+	// with a single child simply left-aligns it, and the rule stays because this bar
+	// gets its second item back the moment the żłobek has its own line.
+	//
+	// The hours are no longer marked placeholder: the żłobek's own ramowy harmonogram
+	// runs 6:30 to 16:30, which is the range src/lib/content/w-skrocie.json holds.
 	import { contact } from '$lib/content/site';
 </script>
 
 <div class="topbar">
 	<div class="inner">
-		<!-- PLACEHOLDER: phone number pending written client confirmation (site.ts). -->
-		<span class="phone">
-			tel.
-			<a href={contact.phoneHref}>{contact.phoneDisplay}</a>
-		</span>
-		<!-- PLACEHOLDER: opening hours pending written client confirmation (site.ts). -->
 		<span class="hours">Czynne: {contact.hours}</span>
 	</div>
 </div>
@@ -50,25 +53,10 @@
 		}
 	}
 
-	.phone,
 	.hours {
 		display: inline-flex;
 		align-items: center;
 		gap: 6px;
 		min-height: 36px;
-	}
-
-	/* White on brand-blue: 5.93:1 (v1.2 pairing table). Underline keeps the
-	   link affordance beyond colour alone. */
-	.phone a {
-		display: inline-flex;
-		align-items: center;
-		min-height: 36px;
-		color: #ffffff;
-		text-decoration: underline;
-	}
-
-	.phone a:hover {
-		color: var(--color-band);
 	}
 </style>

@@ -27,8 +27,11 @@
 	//     switches the homepage and this page together with no component change.
 	//  2. No date on this page is presented as a current stage or an opening date. The
 	//     2026/2027 stage-by-stage timetable in the committed source document is
-	//     archival and its section 10.3 forbids that, so the banner points at the
-	//     authority that will announce the next nabór instead of at a calendar.
+	//     archival and its section 10.3 forbids that, so the banner names a standing
+	//     state and an authority instead of a calendar. Since 2026-08-18 the nabór is
+	//     open all year (the żłobek confirmed free places), and the open strings say so
+	//     without naming a school year at all: a year label on a standing state is a
+	//     promise to edit it every August.
 	//
 	// Every fact is interpolated from the content modules: no address, room, office
 	// hours, telephone number, e-mail, amount or point value is written as a literal
@@ -49,7 +52,7 @@
 
 <Seo
 	title="Rekrutacja: Publiczny Żłobek w Stromcu"
-	description="Status naboru, kryteria przyjęcia i punktacja, przebieg procedury, opłaty w skrócie oraz wnioski do pobrania. Zostaw zgłoszenie na listę rezerwową."
+	description="Status naboru, kryteria przyjęcia i punktacja, przebieg procedury, opłaty w skrócie oraz wnioski do pobrania. Zostaw zgłoszenie, a odezwiemy się."
 	canonical="/rekrutacja"
 />
 
@@ -74,8 +77,12 @@
 					<h2 id="status-heading">{recruitment.heading}</h2>
 					<p class="status-tresc">{recruitment.body}</p>
 					<p class="status-termin">{recruitment.deadline}</p>
-					<!-- PLACEHOLDER: the date of the next nabór is unconfirmed, so this line
-					     names the announcing authority rather than a date (site.ts). -->
+					<!-- The banner's closing line. It belongs to the recruitment STATE and is
+					     chosen with it in site.ts, because its meaning inverts with the flag:
+					     under a closed nabór it points at the authority that will announce the
+					     next one, under a standing open nabór it says who takes wnioski and
+					     that places are limited. This route renders whichever one the flag
+					     selected and knows nothing about the flag itself. -->
 					<p class="status-tresc">{recruitment.nastepnyNabor}</p>
 				</div>
 			</div>
