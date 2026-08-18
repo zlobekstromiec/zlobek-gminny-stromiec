@@ -1,7 +1,16 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { readFileSync } from 'node:fs';
 import { odmienRzeczownik } from '../src/lib/liczebniki';
-import { FORMY_OPIEKUNKI, FORMY_PERSONELU } from '../src/lib/content/kadra';
+import { FORMY_OPIEKUNKI, FORMY_PERSONELU, KADRA } from '../src/lib/content/kadra';
+import { MIEJSCE } from '../src/lib/content/miejsce';
+
+/** The o-nas store, read off disk rather than imported, so the two headcount assertions
+ *  below compare against the BYTES that ship. Same reason tests/zastepcze.unit.ts reads
+ *  rather than imports. */
+const oNas = JSON.parse(
+	readFileSync(new URL('../src/lib/content/o-nas.json', import.meta.url), 'utf8')
+) as { kadra_opiekunki: number; kadra_personel: number };
 
 /**
  * O nas acceptance test: encodes ABOUT-01 (a parent can open /o-nas and read
@@ -55,24 +64,75 @@ test.describe('O nas: Phase 2 acceptance', () => {
 		await expect(page.getByRole('heading', { name: 'Galeria: nasze miejsce' })).toBeVisible();
 	});
 
-	test('kadra shows a collective headcount by role, no individual profiles (D-02)', async ({
+	// D-02 AMENDED 2026-08-18. The żłobek sent the names of its four staff in a message
+	// about website content, and they are published as a plain list. What D-02 actually
+	// protects is unchanged and is now asserted DIRECTLY rather than implied by the
+	// absence of names: no staff photographs, and no per-person page to click through to.
+	// The old assertion („exactly two stat tiles") was neither of those things; it was a
+	// count of what the section happened to contain in August 2026.
+	test('kadra lists the team without photographs or per-person profiles (D-02)', async ({
 		page
 	}) => {
 		await page.goto('/o-nas');
 		const kadra = page.locator('section[aria-labelledby="kadra-heading"]');
-		const staty = kadra.locator('.stat');
-		await expect(staty).toHaveCount(2);
 
-		// The labels are DERIVED from the counts (02-UI-SPEC amendment 2026-08-16),
-		// so this reads the number the page actually rendered and demands the form
-		// Polish requires for it. Pinning a literal here would make an ordinary CMS
-		// edit („6" to „2") turn the suite red while the page stayed correct, and
-		// would equally have accepted the „6 opiekunki" the amendment fixes.
-		for (const [i, formy] of [FORMY_OPIEKUNKI, FORMY_PERSONELU].entries()) {
+		// The four names the żłobek asked us to publish, read from the module the page
+		// renders rather than retyped, so a fifth hire is a one-line change in one file.
+		const pozycje = kadra.locator('.kadra li');
+		await expect(pozycje).toHaveCount(KADRA.length);
+		for (const [i, osoba] of KADRA.entries()) {
+			await expect(pozycje.nth(i).locator('.osoba-imie')).toHaveText(osoba.imie);
+		}
+
+		// THE TWO PROPERTIES D-02 IS ABOUT. A staff photograph would need a wizerunek
+		// consent record that does not exist, and a link out of this section is how a
+		// „profile page" would first appear.
+		await expect(kadra.locator('img')).toHaveCount(0);
+		await expect(kadra.locator('a')).toHaveCount(0);
+	});
+
+	test('each kadra headcount that renders declines its label correctly (02-UI-SPEC 2026-08-16)', async ({
+		page
+	}) => {
+		await page.goto('/o-nas');
+		const staty = page.locator('section[aria-labelledby="kadra-heading"] .stat');
+
+		// A TILE PER NON-ZERO COUNT, never a fixed number of tiles. Both counts are CMS
+		// values and the page hides a zero one, because „0 osób personelu pomocniczego"
+		// publishes an absence as though it were a fact. So the expected tiles are derived
+		// from the store, which also means an editor filling the second number in on
+		// /admin/o-nas does not turn this red.
+		const oczekiwane = [
+			{ liczba: oNas.kadra_opiekunki, formy: FORMY_OPIEKUNKI },
+			{ liczba: oNas.kadra_personel, formy: FORMY_PERSONELU }
+		].filter((wpis) => wpis.liczba > 0);
+		await expect(staty).toHaveCount(oczekiwane.length);
+
+		// The labels are DERIVED from the counts (02-UI-SPEC amendment 2026-08-16), so this
+		// reads the number the page actually rendered and demands the form Polish requires
+		// for it. Pinning a literal here would make an ordinary CMS edit („6" to „2") turn
+		// the suite red while the page stayed correct, and would equally have accepted the
+		// „6 opiekunki" the amendment fixes.
+		for (const [i, wpis] of oczekiwane.entries()) {
 			const stat = staty.nth(i);
 			const liczba = Number((await stat.locator('.stat-value').innerText()).trim());
 			expect(Number.isInteger(liczba), 'headcount must render a whole number').toBe(true);
-			await expect(stat.locator('.stat-label')).toHaveText(odmienRzeczownik(liczba, formy));
+			expect(liczba).toBe(wpis.liczba);
+			await expect(stat.locator('.stat-label')).toHaveText(odmienRzeczownik(liczba, wpis.formy));
+		}
+	});
+
+	// The five facility descriptions the żłobek sent on 2026-08-18. Read from the module,
+	// so this case proves that every block reaches the page and none is silently dropped,
+	// without becoming a second copy of the copy.
+	test('nasze miejsce renders every block the żłobek sent (2026-08-18)', async ({ page }) => {
+		await page.goto('/o-nas');
+		const sekcja = page.locator('section[aria-labelledby="miejsce-heading"]');
+		const karty = sekcja.locator('.miejsce-card');
+		await expect(karty).toHaveCount(MIEJSCE.length);
+		for (const [i, blok] of MIEJSCE.entries()) {
+			await expect(karty.nth(i).locator('h3')).toHaveText(blok.tytul);
+			await expect(karty.nth(i).locator('p')).toHaveText(blok.opis);
 		}
 	});
 

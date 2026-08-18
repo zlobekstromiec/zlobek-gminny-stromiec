@@ -34,7 +34,8 @@
 	import Lightbox from '$lib/components/Lightbox.svelte';
 	import { renderInline } from '$lib/markdown';
 	import { odmienRzeczownik } from '$lib/liczebniki';
-	import { FORMY_OPIEKUNKI, FORMY_PERSONELU } from '$lib/content/kadra';
+	import { FORMY_OPIEKUNKI, FORMY_PERSONELU, KADRA } from '$lib/content/kadra';
+	import { MIEJSCE } from '$lib/content/miejsce';
 	import onas from '$lib/content/o-nas.json';
 	import galeriaStore from '$lib/content/galeria.json';
 	import { czytajGalerie, galeriaZObrazami } from '$lib/galeria';
@@ -114,21 +115,70 @@
 		<h2 id="kadra-heading">Nasza kadra</h2>
 		<!-- eslint-disable-next-line svelte/no-at-html-tags -- D-08: renderInline sanitizes (raw HTML escaped, link protocols filtered); CSP script-src 'self' is the second layer (T-0201-01) -->
 		<p class="prose">{@html kadraHtml}</p>
+		<!-- The named team (2026-08-18). A plain list: no photographs, no biographies and
+		     no per-person pages, which is the part of D-02 that was ever about dignity.
+		     The role is rendered only where it differs from the one the heading already
+		     states, so three lines are not made to carry the word „opiekunka" each. -->
+		<ul class="kadra">
+			<!-- Keyed by POSITION, for the reason written above the wartości list. Two
+			     people can share a surname, and this list is small enough that it will one
+			     day be pasted into rather than appended to. -->
+			{#each KADRA as osoba, i (i)}
+				<li>
+					<span class="osoba-imie">{osoba.imie}</span>
+					{#if osoba.rola}<span class="osoba-rola">{osoba.rola}</span>{/if}
+				</li>
+			{/each}
+		</ul>
 		<!-- The labels DECLINE with the counts (02-UI-SPEC amendment 2026-08-16). Both
 		     numbers are CMS values, so a fixed word is wrong Polish for most of them:
 		     6 takes „opiekunek", not „opiekunki". The number stays in the <dd> and only
 		     the declined noun goes in the <dt>, because axe's definition-list rules
-		     run on this page. -->
-		<dl class="headcount">
-			<div class="stat">
-				<dd class="stat-value">{onas.kadra_opiekunki}</dd>
-				<dt class="stat-label">{odmienRzeczownik(onas.kadra_opiekunki, FORMY_OPIEKUNKI)}</dt>
-			</div>
-			<div class="stat">
-				<dd class="stat-value">{onas.kadra_personel}</dd>
-				<dt class="stat-label">{odmienRzeczownik(onas.kadra_personel, FORMY_PERSONELU)}</dt>
-			</div>
-		</dl>
+		     run on this page.
+
+		     EACH STAT RENDERS ONLY WHEN ITS COUNT IS ABOVE ZERO, and the whole <dl> only
+		     when at least one of them is. The żłobek named four people on 2026-08-18 and
+		     said nothing whatever about personel pomocniczy, so that count is 0: a tile
+		     reading „0 osób personelu pomocniczego" would publish an absence as a fact,
+		     and an empty <dl> is an axe failure on top of it. An editor who fills the
+		     number in on /admin/o-nas gets the tile back with no code change. -->
+		{#if onas.kadra_opiekunki > 0 || onas.kadra_personel > 0}
+			<dl class="headcount">
+				{#if onas.kadra_opiekunki > 0}
+					<div class="stat">
+						<dd class="stat-value">{onas.kadra_opiekunki}</dd>
+						<dt class="stat-label">{odmienRzeczownik(onas.kadra_opiekunki, FORMY_OPIEKUNKI)}</dt>
+					</div>
+				{/if}
+				{#if onas.kadra_personel > 0}
+					<div class="stat">
+						<dd class="stat-value">{onas.kadra_personel}</dd>
+						<dt class="stat-label">{odmienRzeczownik(onas.kadra_personel, FORMY_PERSONELU)}</dt>
+					</div>
+				{/if}
+			</dl>
+		{/if}
+	</div>
+</section>
+
+<!-- 5b. Nasze miejsce i codzienność (żłobek's own five descriptions, 2026-08-18).
+
+     IT SITS BETWEEN KADRA AND THE GALLERY ON PURPOSE. These five paragraphs are what
+     the photographs below are OF: sale, plac zabaw, szatnia. Read first, they tell a
+     parent what to look for; read after, they would be a caption arriving too late.
+     The section order the 02-UI-SPEC locks is otherwise untouched, and the gallery
+     keeps its own id and its footer shortcut. -->
+<section class="band" aria-labelledby="miejsce-heading">
+	<div class="inner">
+		<h2 id="miejsce-heading">Nasze miejsce i codzienność</h2>
+		<ul class="miejsce">
+			{#each MIEJSCE as blok, i (i)}
+				<li class="miejsce-card">
+					<h3>{blok.tytul}</h3>
+					<p>{blok.opis}</p>
+				</li>
+			{/each}
+		</ul>
 	</div>
 </section>
 
@@ -395,6 +445,109 @@
 	}
 
 	.value-card p {
+		font-family: var(--font-body);
+		font-size: 16px;
+		line-height: 1.5;
+		color: var(--color-muted);
+		margin: 0;
+	}
+
+	/* The named team. A quiet list, not a card grid: four names given card treatment
+	   would out-shout the misja above them, and there is nothing to click. The rule
+	   between rows carries the structure instead of a border box. */
+	.kadra {
+		list-style: none;
+		margin: 20px 0 0;
+		padding: 0;
+		max-width: 34rem;
+	}
+
+	.kadra li {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 4px 12px;
+		padding: 10px 0;
+		border-bottom: 1px solid var(--color-border-subtle);
+	}
+
+	.kadra li:last-child {
+		border-bottom: none;
+	}
+
+	.osoba-imie {
+		font-family: var(--font-body);
+		font-size: 16px;
+		font-weight: 700;
+		line-height: 1.5;
+		color: var(--color-ink);
+	}
+
+	/* The role reads as a quiet qualifier on the name, so it is one step down and muted
+	   rather than a pill or a chip: only one of the four entries carries one, and a
+	   decorated single instance would read as a rank rather than a job. */
+	.osoba-rola {
+		font-family: var(--font-body);
+		font-size: 14px;
+		font-weight: 400;
+		line-height: 1.5;
+		color: var(--color-muted);
+	}
+
+	@media (min-width: 1024px) {
+		.kadra {
+			grid-column: 2;
+		}
+	}
+
+	/* Nasze miejsce: the same responsive card rhythm as .values, stopping at THREE
+	   columns rather than four. There are five blocks: at four columns they break 4+1
+	   and the orphan reads as an afterthought, at three they break 3+2 and both rows
+	   look intentional. */
+	.miejsce {
+		list-style: none;
+		margin: 24px 0 0;
+		padding: 0;
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 24px;
+	}
+
+	@media (min-width: 768px) {
+		.miejsce {
+			grid-template-columns: repeat(2, 1fr);
+		}
+	}
+
+	@media (min-width: 1024px) {
+		.miejsce {
+			grid-template-columns: repeat(3, 1fr);
+		}
+	}
+
+	.miejsce-card {
+		background: var(--color-surface-warm);
+		border: 1px solid var(--color-border-subtle);
+		border-radius: var(--radius-md);
+		padding: 16px;
+	}
+
+	@media (min-width: 1024px) {
+		.miejsce-card {
+			padding: 24px;
+		}
+	}
+
+	.miejsce-card h3 {
+		font-family: var(--font-display);
+		font-weight: 700;
+		font-size: 20px;
+		line-height: 1.2;
+		color: var(--color-ink);
+		margin: 0 0 8px;
+	}
+
+	.miejsce-card p {
 		font-family: var(--font-body);
 		font-size: 16px;
 		line-height: 1.5;
