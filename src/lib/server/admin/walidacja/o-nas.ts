@@ -16,10 +16,19 @@
 // here, for the reason written at the head of src/lib/server/admin/uploads.ts. What stays
 // here is the facility DESCRIPTION, which is prose and is still edited on this screen.
 //
-// THE STAFF COUNTS ARE NUMBERS, and that is not a detail. The page renders them as numbers
-// beside a Polish label; a string „6" would render identically today and would be a
-// different JSON value in a diff, in a future reader and in anything that ever adds them
-// up. `liczbaWZakresie` refuses „12abc" and „12.0" before either could reach the file.
+// THE STAFF COUNTS ARE GONE (2026-08-18) and a LIST OF PEOPLE stands where they stood.
+// They were two numbers, `kadra_opiekunki` and `kadra_personel`, rendered on the public page
+// as tiles beside a list of the same four people, so a reader met „four names" and „3" on one
+// screen and had to work out that the dyrektor is not an opiekunka. Removing only the tiles
+// would have left two controls here that an editor can change and save with no visible
+// effect, so the fields went and the list itself replaced them. The żłobek can now add a hire
+// from the panel instead of asking for a pull request.
+//
+// THE ROLE FIELD IS OPTIONAL AND THAT IS THE WHOLE POINT OF ITS READER. Three states have to
+// stay distinguishable: nothing typed (fine, stored as an empty string), something too long
+// (a refusal the editor must see) and a real value. `tekstOpcjonalny` is exactly that
+// three-way answer; `tekstWymagany` would turn „nothing typed" into a refusal and force every
+// opiekunka to carry a redundant „opiekunka" label.
 //
 // EVERY READER REJECTS, NONE REPAIRS, and the result is built KEY BY KEY from guarded
 // locals, never by spreading the submitted data.
@@ -28,34 +37,36 @@
 // Nothing here logs.
 import { KOPIA_WALIDACJA, tekstZaDlugi } from '../../../content/panel.ts';
 import {
-	POLE_KADRY_OPIEKUNKI,
+	POLE_IMIENIA,
 	POLE_KADRY_OPIS,
-	POLE_KADRY_PERSONEL,
 	POLE_LEAD,
 	POLE_MISJI,
 	POLE_OBIEKTU_OPIS,
 	POLE_OPISU,
+	POLE_ROLI,
 	POLE_TYTULU,
 	POLE_ZASTEPCZA,
+	PREFIKS_KADRY,
 	PREFIKS_WARTOSCI,
 	nazwaPola,
 	zbierzIndeksowane,
 	type ZrodloPol
 } from '../../../pola-strony.ts';
-import { BLAD_ZBYT_DLUGI, flaga, kodBledu, liczbaWZakresie, tekstWymagany } from './pola.ts';
+import { BLAD_ZBYT_DLUGI, flaga, kodBledu, tekstOpcjonalny, tekstWymagany } from './pola.ts';
 
 // Re-exported so a server caller keeps importing the whole vocabulary from the validator
 // beside it while exactly one declaration exists.
 export {
-	POLE_KADRY_OPIEKUNKI,
+	POLE_IMIENIA,
 	POLE_KADRY_OPIS,
-	POLE_KADRY_PERSONEL,
 	POLE_LEAD,
 	POLE_MISJI,
 	POLE_OBIEKTU_OPIS,
 	POLE_OPISU,
+	POLE_ROLI,
 	POLE_TYTULU,
 	POLE_ZASTEPCZA,
+	PREFIKS_KADRY,
 	PREFIKS_WARTOSCI
 };
 
@@ -72,15 +83,26 @@ export const MAKS_AKAPITU = 2000;
 export const MAKS_TYTULU_WARTOSCI = 80;
 /** The body of one wartość card. */
 export const MAKS_OPISU_WARTOSCI = 400;
-/** Nobody has a hundred opiekunki, and a typed 600 is a defect nobody would ever notice
- *  being wrong. The bound is what the UI-SPEC puts on the control itself. */
-export const MIN_LICZBY_KADRY = 0;
-export const MAKS_LICZBY_KADRY = 99;
+/** One person's name. Generous: Polish double-barrelled surnames with a title in front
+ *  run long, and refusing a real name is a worse failure than storing a slightly long one. */
+export const MAKS_IMIENIA = 80;
+/** One person's role. Short by design: this field holds „Dyrektor", not a job description. */
+export const MAKS_ROLI = 40;
 
 /** Exactly the shape src/lib/content/o-nas.json holds. */
 export interface WartoscONas {
 	tytul: string;
 	opis: string;
+}
+
+/** One entry of the staff list.
+ *
+ *  `rola` IS OPTIONAL CONTENT BUT NEVER AN OPTIONAL KEY. Every entry carries it, empty when
+ *  the editor typed nothing, so the stored file has one shape rather than two and the public
+ *  page's `{#if osoba.rola}` decides on a value rather than on a key's existence. */
+export interface OsobaKadry {
+	imie: string;
+	rola: string;
 }
 
 export interface ONasDane {
@@ -89,8 +111,7 @@ export interface ONasDane {
 	misja: string;
 	wartosci: WartoscONas[];
 	kadra_opis: string;
-	kadra_opiekunki: number;
-	kadra_personel: number;
+	kadra: OsobaKadry[];
 	obiekt_opis: string;
 }
 
@@ -172,19 +193,39 @@ export function walidujONas(zrodlo: ZrodloPol): WynikONas {
 	);
 	if (kadraOpis.blad !== undefined) pola[POLE_KADRY_OPIS] = kadraOpis.blad;
 
-	const opiekunki = liczbaWZakresie(
-		zrodlo.get(POLE_KADRY_OPIEKUNKI),
-		MIN_LICZBY_KADRY,
-		MAKS_LICZBY_KADRY
-	);
-	if (opiekunki === null) pola[POLE_KADRY_OPIEKUNKI] = KOPIA_WALIDACJA.liczbaNiepoprawna;
+	// ---------------------------------------------------------------------------
+	// Kadra: the second repeated group (2026-08-18). ONE required field per row, the name,
+	// so unlike the wartości loop above there is no „first error wins" branch to write:
+	// there is only one error a row can carry.
+	//
+	// The role is OPTIONAL and is read through the plain length guard rather than the
+	// required-text one, because empty is a legitimate answer here and must not become a
+	// refusal. It is still capped: an unbounded field on a screen that commits to a public
+	// repository is a field somebody will eventually paste an essay into.
+	// ---------------------------------------------------------------------------
+	const suroweOsoby = zbierzIndeksowane(zrodlo, PREFIKS_KADRY, [POLE_IMIENIA, POLE_ROLI]);
+	const kadra: OsobaKadry[] = [];
+	for (let i = 0; i < suroweOsoby.length; i++) {
+		const imie = czytajWymagany(
+			suroweOsoby[i][POLE_IMIENIA],
+			MAKS_IMIENIA,
+			KOPIA_WALIDACJA.osobaBezImienia
+		);
+		if (imie.blad !== undefined) pola[nazwaPola(PREFIKS_KADRY, i, POLE_IMIENIA)] = imie.blad;
 
-	const personel = liczbaWZakresie(
-		zrodlo.get(POLE_KADRY_PERSONEL),
-		MIN_LICZBY_KADRY,
-		MAKS_LICZBY_KADRY
-	);
-	if (personel === null) pola[POLE_KADRY_PERSONEL] = KOPIA_WALIDACJA.liczbaNiepoprawna;
+		// THREE STATES, NOT TWO: undefined is „left empty" and is accepted, null is „too long"
+		// and is refused. Collapsing them would let an over-long role vanish silently on save.
+		const rola = tekstOpcjonalny(suroweOsoby[i][POLE_ROLI], MAKS_ROLI);
+		if (rola === null) pola[nazwaPola(PREFIKS_KADRY, i, POLE_ROLI)] = tekstZaDlugi(MAKS_ROLI);
+
+		if (imie.wartosc === null || rola === null) continue;
+		// KEY BY KEY, in the order the committed file uses. An empty role is stored as an
+		// empty STRING rather than omitted, so every entry in the file has one shape.
+		const osoba: Partial<OsobaKadry> = {};
+		osoba.imie = imie.wartosc;
+		osoba.rola = rola ?? '';
+		kadra.push(osoba as OsobaKadry);
+	}
 
 	const obiektOpis = czytajWymagany(
 		zrodlo.get(POLE_OBIEKTU_OPIS),
@@ -199,24 +240,21 @@ export function walidujONas(zrodlo: ZrodloPol): WynikONas {
 		lead.wartosc === null ||
 		misja.wartosc === null ||
 		kadraOpis.wartosc === null ||
-		obiektOpis.wartosc === null ||
-		opiekunki === null ||
-		personel === null
+		obiektOpis.wartosc === null
 	) {
 		return { ok: false, pola };
 	}
 	if (Object.keys(pola).length > 0) return { ok: false, pola };
 
 	// KEY BY KEY, in the order src/lib/content/o-nas.json uses: placeholder, lead, misja,
-	// wartosci, kadra_opis, kadra_opiekunki, kadra_personel, obiekt_opis.
+	// wartosci, kadra_opis, kadra, obiekt_opis.
 	const dane: Partial<ONasDane> = {};
 	dane.placeholder = flaga(zrodlo.get(POLE_ZASTEPCZA));
 	dane.lead = lead.wartosc;
 	dane.misja = misja.wartosc;
 	dane.wartosci = wartosci;
 	dane.kadra_opis = kadraOpis.wartosc;
-	dane.kadra_opiekunki = opiekunki;
-	dane.kadra_personel = personel;
+	dane.kadra = kadra;
 	dane.obiekt_opis = obiektOpis.wartosc;
 
 	return { ok: true, dane: dane as ONasDane };

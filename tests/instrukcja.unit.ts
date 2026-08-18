@@ -214,6 +214,8 @@ test('kazda nazwa ekranu i etykieta przycisku jest cytatem z modulu kopii', () =
 		KOPIA_ZAPIS.usunWiersz,
 		KOPIA_ZAPIS.dodajWartosc,
 		KOPIA_ZAPIS.usunWartosc,
+		KOPIA_ZAPIS.dodajOsobe,
+		KOPIA_ZAPIS.usunOsobe,
 		KOPIA_ZAPIS.dodajZdjecie,
 		KOPIA_ZAPIS.usunZdjecie,
 		KOPIA_ZAPIS.przeniesWGore,
@@ -248,8 +250,12 @@ test('kazda nazwa ekranu i etykieta przycisku jest cytatem z modulu kopii', () =
 		POLA_O_NAS.misjaEtykieta,
 		POLA_O_NAS.wartosciLegenda,
 		POLA_O_NAS.kadraOpisEtykieta,
-		POLA_O_NAS.kadraOpiekunkiEtykieta,
-		POLA_O_NAS.kadraPersonelEtykieta,
+		// The two headcount labels were here until 2026-08-18. They named two number fields
+		// that the staff list replaced, and the manual gained that list's own three labels
+		// in the same edit: a lockstep change, not a weakening.
+		POLA_O_NAS.kadraLegenda,
+		POLA_O_NAS.osobaImieEtykieta,
+		POLA_O_NAS.osobaRolaEtykieta,
 		POLA_O_NAS.obiektOpisEtykieta,
 		// The O nas photo group legend was here until plan 05-07 removed that group. Its
 		// replacement is the gallery's own legend, two entries down: a lockstep edit, not a

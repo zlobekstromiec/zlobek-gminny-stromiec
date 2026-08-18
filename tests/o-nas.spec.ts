@@ -1,16 +1,18 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readFileSync } from 'node:fs';
-import { odmienRzeczownik } from '../src/lib/liczebniki';
-import { FORMY_OPIEKUNKI, FORMY_PERSONELU, KADRA } from '../src/lib/content/kadra';
 import { MIEJSCE } from '../src/lib/content/miejsce';
 
-/** The o-nas store, read off disk rather than imported, so the two headcount assertions
- *  below compare against the BYTES that ship. Same reason tests/zastepcze.unit.ts reads
- *  rather than imports. */
+/** The o-nas store, read off disk rather than imported, so the kadra assertions below
+ *  compare against the BYTES that ship. Same reason tests/zastepcze.unit.ts reads rather
+ *  than imports.
+ *
+ *  IT IS ALSO THE SOURCE OF THE NAMES since 2026-08-18: the list moved out of a code module
+ *  and into this store when /admin/o-nas took ownership of it, so a new hire is an editor's
+ *  save rather than a pull request. */
 const oNas = JSON.parse(
 	readFileSync(new URL('../src/lib/content/o-nas.json', import.meta.url), 'utf8')
-) as { kadra_opiekunki: number; kadra_personel: number };
+) as { kadra: { imie: string; rola: string }[] };
 
 /**
  * O nas acceptance test: encodes ABOUT-01 (a parent can open /o-nas and read
@@ -79,8 +81,8 @@ test.describe('O nas: Phase 2 acceptance', () => {
 		// The four names the żłobek asked us to publish, read from the module the page
 		// renders rather than retyped, so a fifth hire is a one-line change in one file.
 		const pozycje = kadra.locator('.kadra li');
-		await expect(pozycje).toHaveCount(KADRA.length);
-		for (const [i, osoba] of KADRA.entries()) {
+		await expect(pozycje).toHaveCount(oNas.kadra.length);
+		for (const [i, osoba] of oNas.kadra.entries()) {
 			await expect(pozycje.nth(i).locator('.osoba-imie')).toHaveText(osoba.imie);
 		}
 
@@ -91,40 +93,22 @@ test.describe('O nas: Phase 2 acceptance', () => {
 		await expect(kadra.locator('a')).toHaveCount(0);
 	});
 
-	test('each kadra headcount that renders declines its label correctly (02-UI-SPEC 2026-08-16)', async ({
-		page
-	}) => {
+	// REPLACES „each kadra headcount that renders declines its label correctly" (2026-08-18).
+	// That case guarded two number tiles beside this list. They stated the size of the team a
+	// second time and disagreed with it by one, because the dyrektor is not an opiekunka, so
+	// they were removed rather than corrected. What is worth pinning now is their ABSENCE:
+	// a count reintroduced beside the list would be the same contradiction returning.
+	test('kadra nie pokazuje juz zadnego kafelka z liczba (2026-08-18)', async ({ page }) => {
 		await page.goto('/o-nas');
-		const staty = page.locator('section[aria-labelledby="kadra-heading"] .stat');
-
-		// A TILE PER NON-ZERO COUNT, never a fixed number of tiles. Both counts are CMS
-		// values and the page hides a zero one, because „0 osób personelu pomocniczego"
-		// publishes an absence as though it were a fact. So the expected tiles are derived
-		// from the store, which also means an editor filling the second number in on
-		// /admin/o-nas does not turn this red.
-		const oczekiwane = [
-			{ liczba: oNas.kadra_opiekunki, formy: FORMY_OPIEKUNKI },
-			{ liczba: oNas.kadra_personel, formy: FORMY_PERSONELU }
-		].filter((wpis) => wpis.liczba > 0);
-		await expect(staty).toHaveCount(oczekiwane.length);
-
-		// The labels are DERIVED from the counts (02-UI-SPEC amendment 2026-08-16), so this
-		// reads the number the page actually rendered and demands the form Polish requires
-		// for it. Pinning a literal here would make an ordinary CMS edit („6" to „2") turn
-		// the suite red while the page stayed correct, and would equally have accepted the
-		// „6 opiekunki" the amendment fixes.
-		for (const [i, wpis] of oczekiwane.entries()) {
-			const stat = staty.nth(i);
-			const liczba = Number((await stat.locator('.stat-value').innerText()).trim());
-			expect(Number.isInteger(liczba), 'headcount must render a whole number').toBe(true);
-			expect(liczba).toBe(wpis.liczba);
-			await expect(stat.locator('.stat-label')).toHaveText(odmienRzeczownik(liczba, wpis.formy));
-		}
+		const kadra = page.locator('section[aria-labelledby="kadra-heading"]');
+		await expect(kadra.locator('.headcount')).toHaveCount(0);
+		await expect(kadra.locator('.stat')).toHaveCount(0);
+		// No bare number anywhere in the section: the tile is gone AND nothing replaced it
+		// with the same claim written out in prose.
+		const tekst = (await kadra.innerText()).replace(/\s+/gu, ' ');
+		expect(tekst).not.toMatch(/\b\d+\b/u);
 	});
 
-	// The five facility descriptions the żłobek sent on 2026-08-18. Read from the module,
-	// so this case proves that every block reaches the page and none is silently dropped,
-	// without becoming a second copy of the copy.
 	test('nasze miejsce renders every block the żłobek sent (2026-08-18)', async ({ page }) => {
 		await page.goto('/o-nas');
 		const sekcja = page.locator('section[aria-labelledby="miejsce-heading"]');

@@ -439,11 +439,16 @@ export const POLA_O_NAS = {
 	wartoscTytulEtykieta: 'Tytuł wartości *',
 	wartoscOpisEtykieta: 'Opis *',
 	kadraOpisEtykieta: 'Kadra: opis *',
-	kadraOpisPodpowiedz: 'Ciepły opis zespołu (kwalifikacje, podejście). Bez nazwisk i zdjęć.',
-	kadraOpiekunkiEtykieta: 'Liczba opiekunek *',
-	kadraOpiekunkiPodpowiedz: 'Wpisz liczbę, na przykład 6.',
-	kadraPersonelEtykieta: 'Personel pomocniczy (liczba) *',
-	kadraPersonelPodpowiedz: 'Wpisz liczbę, na przykład 3.',
+	// „Bez nazwisk i zdjęć" until 2026-08-18, and by then it was false: the żłobek sent
+	// four names and the page lists them. The hint kept telling an editor not to do the
+	// thing the site already does. Photographs are still out, and that half stays.
+	kadraOpisPodpowiedz:
+		'Ciepły opis zespołu (kwalifikacje, podejście). Nazwiska dodajesz niżej, na liście. Bez zdjęć.',
+	kadraLegenda: 'Kadra: osoby',
+	kadraPodpowiedz: 'Imię i nazwisko każdej osoby. Rolę wpisz tylko tam, gdzie jest inna.',
+	osobaImieEtykieta: 'Imię i nazwisko *',
+	osobaRolaEtykieta: 'Rola (opcjonalnie)',
+	osobaRolaPodpowiedz: 'Na przykład Dyrektor. Zostaw puste dla opiekunek.',
 	obiektOpisEtykieta: 'O budynku *',
 	obiektOpisPodpowiedz: 'Opis budynku, sali i placu zabaw. Zdjęcia dodajesz w sekcji Galeria.',
 	zastepczaEtykieta: 'Treść zastępcza (do potwierdzenia)',
@@ -582,6 +587,10 @@ export const KOPIA_WALIDACJA = {
 	 *  to do), exactly as the hours message quotes the hours hint. */
 	opisWierszaBrak: 'Wpisz opis zajęć, na przykład: Śniadanie.',
 	wartoscNiepelna: 'Uzupełnij tytuł i opis tej wartości albo usuń ją.',
+	/** ONE required field on this row, so the sentence names it rather than listing the
+	 *  pair the wartości message has to. The „albo usuń ją" half is the same escape: an
+	 *  editor who added a row by accident must be told how to get rid of it. */
+	osobaBezImienia: 'Wpisz imię i nazwisko tej osoby albo usuń ją.',
 	/** A facility photo item whose picture was cleared and not replaced. „Usuń zdjęcie"
 	 *  inside the photo control empties the item; „Usuń to zdjęcie" removes the item
 	 *  itself. An item with no picture has nothing to publish and nothing to describe, so
@@ -708,9 +717,11 @@ export const KOPIA_ZAPIS = {
 	dodajWartosc: 'Dodaj wartość',
 	dodajWiersz: 'Dodaj wiersz',
 	dodajZdjecie: 'Dodaj zdjęcie',
+	dodajOsobe: 'Dodaj osobę',
 	usunWartosc: 'Usuń tę wartość',
 	usunWiersz: 'Usuń ten wiersz',
 	usunZdjecie: 'Usuń to zdjęcie',
+	usunOsobe: 'Usuń tę osobę',
 	/** The VISIBLE half of the two reorder buttons (05-UI-SPEC Contract 9). Only the verb,
 	 *  because the numbered suffix that makes each button's accessible name unique is
 	 *  visually hidden and is composed by nazwaPrzeniesieniaWGore / ...WDol below. */
@@ -879,6 +890,10 @@ export function przeniesionoZdjecie(numer: number, pozycja: number): string {
 /** Numbered legends of the repeatable groups. */
 export function legendaWartosci(numer: number): string {
 	return `Wartość ${numer}`;
+}
+
+export function legendaOsoby(numer: number): string {
+	return `Osoba ${numer}`;
 }
 
 export function legendaWiersza(numer: number): string {

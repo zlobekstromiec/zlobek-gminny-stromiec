@@ -1,6 +1,7 @@
 // The O nas editor (CMS-02, D-10, D-11, D-13, D-17, P-26; 04.1-UI-SPEC Component
-// Contracts 5, 6, 7 and 10): two narrative fields, one repeated list, two numbers and the
-// facility description, and exactly ONE commit for all of it.
+// Contracts 5, 6, 7 and 10): two narrative fields, TWO repeated lists (wartości and, since
+// 2026-08-18, the staff list that replaced two headcount numbers) and the facility
+// description, and exactly ONE commit for all of it.
 //
 // THE PHOTO HALF LEFT THIS ROUTE IN PLAN 05-07, and where it went matters. The żłobek's
 // photographs, their alt text, their ordering and their file writes are now owned by
@@ -10,11 +11,16 @@
 // actions that remain; the second is now a statement about the GALLERY route and is written
 // out in its own header. THIS route writes exactly ONE file: src/lib/content/o-nas.json.
 //
-// BOTH LIST ACTIONS BELOW NEVER TOUCH GIT. The add and the remove read what was typed,
-// change the LENGTH of the wartości list and render the form again. They mint no token,
-// they call no orchestrator, they write no blob and they produce no Cloudflare build (P-26).
-// Only `zapisz` writes, and it calls the orchestrator exactly once, which is what makes
-// D-11's „one page, one save, one commit" true however long the session was.
+// THE FOUR LIST ACTIONS BELOW NEVER TOUCH GIT. Two belong to the wartości group and two to
+// the kadra list added on 2026-08-18. Each reads what was typed, changes the LENGTH of its
+// own list and renders the form again. They mint no token, they call no orchestrator, they
+// write no blob and they produce no Cloudflare build (P-26). Only `zapisz` writes, and it
+// calls the orchestrator exactly once, which is what makes D-11's „one page, one save, one
+// commit" true however long the session was, and true across BOTH lists.
+//
+// THE TWO GROUPS HAVE SEPARATE ACTIONS RATHER THAN ONE PARAMETERISED BY PREFIX. One endpoint
+// serving both would take the list to modify from the request, so a hand-built post could
+// add a row to the list it did not name.
 //
 // NAMED ACTIONS ONLY, INCLUDING THE SAVE: SvelteKit forbids mixing a default action with
 // named ones, because posting to a named action without a redirect leaves the query
@@ -73,6 +79,11 @@ export interface WynikONasEkranu {
 	/** The wartości group announces and moves focus on its own. */
 	statusWartosci?: string;
 	zadanieWartosci?: ZadanieFokusu;
+	/** The kadra group does the same, through its OWN pair. Sharing one status line between
+	 *  two groups on one screen would announce „Dodano wiersz 3" into whichever group the
+	 *  editor was not using and move focus into it. */
+	statusKadry?: string;
+	zadanieKadry?: ZadanieFokusu;
 	/** The head the form was built from, carried across the round trip. */
 	sha?: string;
 }
@@ -84,8 +95,7 @@ function wartosciZPliku(): WartosciONas {
 		misja: oNas.misja,
 		wartosci: oNas.wartosci.map((wartosc) => ({ tytul: wartosc.tytul, opis: wartosc.opis })),
 		kadraOpis: oNas.kadra_opis,
-		kadraOpiekunki: String(oNas.kadra_opiekunki),
-		kadraPersonel: String(oNas.kadra_personel),
+		kadra: oNas.kadra.map((osoba) => ({ imie: osoba.imie, rola: osoba.rola })),
 		obiektOpis: oNas.obiekt_opis,
 		zastepcza: oNas.placeholder === true
 	};
@@ -140,6 +150,41 @@ export const actions: Actions = {
 			pola: {},
 			statusWartosci: usunietoWiersz(indeks + 1),
 			zadanieWartosci: { cel: 'dodaj' } satisfies ZadanieFokusu,
+			sha: shaZFormularza(dane)
+		} satisfies WynikONasEkranu;
+	},
+
+	/** Append one empty person. Commits nothing, exactly like the wartości pair above. */
+	dodajOsobe: async ({ request }) => {
+		const dane = await request.formData();
+		const wartosci = wartosciONas(dane);
+		wartosci.kadra.push({ imie: '', rola: '' });
+		const numer = wartosci.kadra.length;
+		return {
+			wartosci,
+			pola: {},
+			statusKadry: dodanoWiersz(numer),
+			zadanieKadry: { cel: 'element', indeks: numer - 1 } satisfies ZadanieFokusu,
+			sha: shaZFormularza(dane)
+		} satisfies WynikONasEkranu;
+	},
+
+	/** Remove the person at the submitted POSITION. Commits nothing. */
+	usunOsobe: async ({ request }) => {
+		const dane = await request.formData();
+		const wartosci = wartosciONas(dane);
+		// Bounded against the set that ARRIVED, so the index can only ever name an item of
+		// this very submission (T-04.1-34).
+		const indeks = indeksZadania(dane.get(POLE_INDEKSU), wartosci.kadra.length);
+		if (indeks === null) {
+			return { wartosci, pola: {}, sha: shaZFormularza(dane) } satisfies WynikONasEkranu;
+		}
+		wartosci.kadra.splice(indeks, 1);
+		return {
+			wartosci,
+			pola: {},
+			statusKadry: usunietoWiersz(indeks + 1),
+			zadanieKadry: { cel: 'dodaj' } satisfies ZadanieFokusu,
 			sha: shaZFormularza(dane)
 		} satisfies WynikONasEkranu;
 	},

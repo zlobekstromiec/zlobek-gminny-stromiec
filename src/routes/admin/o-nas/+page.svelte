@@ -51,19 +51,20 @@
 		KOPIA_ZAPIS,
 		POLA_O_NAS,
 		bladWElemencie,
+		legendaOsoby,
 		legendaWartosci,
 		zobaczStrone
 	} from '$lib/content/panel';
 	// NOT from the validator beside the action: SvelteKit refuses to bundle $lib/server into
 	// client code, and that refusal is correct.
 	import {
+		AKCJA_DODANIA_OSOBY,
 		AKCJA_DODANIA_WARTOSCI,
+		AKCJA_USUNIECIA_OSOBY,
 		AKCJA_USUNIECIA_WARTOSCI,
 		AKCJA_ZAPISU,
 		POLE_INDEKSU,
-		POLE_KADRY_OPIEKUNKI,
 		POLE_KADRY_OPIS,
-		POLE_KADRY_PERSONEL,
 		POLE_LEAD,
 		POLE_MISJI,
 		POLE_OBIEKTU_OPIS,
@@ -71,6 +72,9 @@
 		POLE_SHA,
 		POLE_TYTULU,
 		POLE_ZASTEPCZA,
+		POLE_IMIENIA,
+		POLE_ROLI,
+		PREFIKS_KADRY,
 		PREFIKS_WARTOSCI,
 		idPola,
 		nazwaPola
@@ -90,11 +94,6 @@
 	const sha = $derived(form?.sha ?? data.sha);
 
 	let zapisywanie = $state(false);
-
-	/** Bounds of the two staff counts. Semantics and a sane spinner range only: the form
-	 *  carries `novalidate` and the server is the validation. */
-	const MIN_KADRY = 0;
-	const MAKS_KADRY = 99;
 
 	interface WpisPodsumowania {
 		cel: string;
@@ -125,8 +124,20 @@
 		});
 
 		prosto(POLE_KADRY_OPIS, 'o-nas-kadra-opis');
-		prosto(POLE_KADRY_OPIEKUNKI, 'o-nas-kadra-opiekunki');
-		prosto(POLE_KADRY_PERSONEL, 'o-nas-kadra-personel');
+
+		// The staff list, walked exactly like the wartości group above, so a refusal on
+		// „Osoba 3" links to the control on Osoba 3 rather than to the top of the form.
+		wartosci.kadra.forEach((_, indeks) => {
+			for (const pole of [POLE_IMIENIA, POLE_ROLI]) {
+				const komunikat = pola[nazwaPola(PREFIKS_KADRY, indeks, pole)];
+				if (komunikat === undefined) continue;
+				wpisy.push({
+					cel: idPola(PREFIKS_KADRY, indeks, pole),
+					tekst: bladWElemencie(legendaOsoby(indeks + 1), komunikat)
+				});
+			}
+		});
+
 		prosto(POLE_OBIEKTU_OPIS, 'o-nas-obiekt-opis');
 
 		return wpisy;
@@ -279,32 +290,51 @@
 			/>
 			<PomocFormatowania />
 		</div>
+	</div>
 
-		<FormField
-			id="o-nas-kadra-opiekunki"
-			nazwa={POLE_KADRY_OPIEKUNKI}
-			typ="number"
-			min={MIN_KADRY}
-			maks={MAKS_KADRY}
-			etykieta={POLA_O_NAS.kadraOpiekunkiEtykieta}
-			podpowiedz={POLA_O_NAS.kadraOpiekunkiPodpowiedz}
-			wartosc={wartosci.kadraOpiekunki}
-			blad={pola[POLE_KADRY_OPIEKUNKI]}
-			wymagane
-		/>
-
-		<FormField
-			id="o-nas-kadra-personel"
-			nazwa={POLE_KADRY_PERSONEL}
-			typ="number"
-			min={MIN_KADRY}
-			maks={MAKS_KADRY}
-			etykieta={POLA_O_NAS.kadraPersonelEtykieta}
-			podpowiedz={POLA_O_NAS.kadraPersonelPodpowiedz}
-			wartosc={wartosci.kadraPersonel}
-			blad={pola[POLE_KADRY_PERSONEL]}
-			wymagane
-		/>
+	<!-- 6c-bis. Kadra: the staff list, the screen's SECOND repeated group (2026-08-18). It
+	     replaces two number fields that counted the team; the public page rendered those as
+	     tiles beside a list of the same people, so the count and the list said the same thing
+	     twice and disagreed by one. Its own group, its own actions and its own status line:
+	     sharing any of those with the wartości group would announce into the wrong list. -->
+	<div class="grupa">
+		<PowtarzalnaGrupa
+			id={PREFIKS_KADRY}
+			legenda={POLA_O_NAS.kadraLegenda}
+			podpowiedz={POLA_O_NAS.kadraPodpowiedz}
+			ile={wartosci.kadra.length}
+			etykietaElementu={legendaOsoby}
+			akcjaDodania={AKCJA_DODANIA_OSOBY}
+			akcjaUsuniecia={AKCJA_USUNIECIA_OSOBY}
+			etykietaDodania={KOPIA_ZAPIS.dodajOsobe}
+			etykietaUsuniecia={KOPIA_ZAPIS.usunOsobe}
+			nazwaIndeksu={POLE_INDEKSU}
+			nota={KOPIA_ZAPIS.notaGrupy}
+			status={form?.statusKadry ?? ''}
+			zadanie={form?.zadanieKadry}
+		>
+			{#snippet element(indeks)}
+				<FormField
+					id={idPola(PREFIKS_KADRY, indeks, POLE_IMIENIA)}
+					nazwa={nazwaPola(PREFIKS_KADRY, indeks, POLE_IMIENIA)}
+					etykieta={POLA_O_NAS.osobaImieEtykieta}
+					wartosc={wartosci.kadra[indeks].imie}
+					blad={pola[nazwaPola(PREFIKS_KADRY, indeks, POLE_IMIENIA)]}
+					autofokus={form?.zadanieKadry?.cel === 'element' && form.zadanieKadry.indeks === indeks}
+					wymagane
+				/>
+				<!-- NOT `wymagane`: most of the team share the role the section heading already
+				     states, and forcing „opiekunka" onto three consecutive rows is noise. -->
+				<FormField
+					id={idPola(PREFIKS_KADRY, indeks, POLE_ROLI)}
+					nazwa={nazwaPola(PREFIKS_KADRY, indeks, POLE_ROLI)}
+					etykieta={POLA_O_NAS.osobaRolaEtykieta}
+					podpowiedz={POLA_O_NAS.osobaRolaPodpowiedz}
+					wartosc={wartosci.kadra[indeks].rola}
+					blad={pola[nazwaPola(PREFIKS_KADRY, indeks, POLE_ROLI)]}
+				/>
+			{/snippet}
+		</PowtarzalnaGrupa>
 	</div>
 
 	<!-- 6d. O budynku: the facility narrative. The photographs of that building are edited on

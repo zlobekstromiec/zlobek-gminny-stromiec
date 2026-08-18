@@ -48,6 +48,7 @@ import {
 	POLA_WPIS,
 	bladWElemencie,
 	dodanoWiersz,
+	legendaOsoby,
 	legendaWartosci,
 	legendaWiersza,
 	legendaZdjecia,
@@ -161,6 +162,7 @@ const EKSPORTY: unknown[] = [
 	usunietoWiersz(2),
 	przeniesionoWiersz(3, 2),
 	przeniesionoZdjecie(3, 2),
+	legendaOsoby(1),
 	legendaWartosci(1),
 	legendaWiersza(3),
 	legendaZdjecia(2),
@@ -536,6 +538,7 @@ test('liczniki na pulpicie sa zdaniami, nie golymi liczbami', () => {
 
 test('legendy grup powtarzalnych numeruja pozycje po polsku', () => {
 	assert.equal(legendaWartosci(1), 'Wartość 1');
+	assert.equal(legendaOsoby(1), 'Osoba 1');
 	assert.equal(legendaWiersza(3), 'Wiersz 3');
 	assert.equal(legendaZdjecia(2), 'Zdjęcie 2');
 	assert.equal(dodanoWiersz(4), 'Dodano wiersz 4.');

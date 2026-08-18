@@ -264,8 +264,19 @@ Ekran **O nas** zbiera całą treść podstrony O nas w jednym formularzu:
 - **Misja**: opis misji żłobka. Można pogrubić tekst i dodać odnośnik.
 - **Wartości**: lista, w której każda pozycja ma tytuł i krótki opis. Wiersze dodaje się
   i usuwa przyciskami **Dodaj wartość** oraz **Usuń tę wartość**.
-- **Kadra: opis**, **Liczba opiekunek**, **Personel pomocniczy (liczba)**: opis zespołu i
-  dwie liczby. Opis piszemy bez nazwisk.
+- **Kadra: opis**: ciepły opis zespołu, jego kwalifikacji i podejścia. Nazwiska wpisujesz
+  niżej, na liście, a nie w tym akapicie.
+- **Kadra: osoby**: lista osób. Każdy wiersz ma **Imię i nazwisko**, wymagane, oraz
+  **Rola (opcjonalnie)**. Rolę wpisujemy tylko tam, gdzie jest inna niż u pozostałych:
+  przy dyrektorze wpisujemy `Dyrektor`, przy opiekunkach zostawiamy puste, bo opis wyżej
+  już mówi, kto tworzy zespół. Wiersze dodaje się i usuwa przyciskami **Dodaj osobę** oraz
+  **Usuń tę osobę**.
+
+  Do sierpnia 2026 stały tu zamiast tego dwie liczby, „ile opiekunek" i „ile personelu
+  pomocniczego", a strona pokazywała je obok listy nazwisk. Wychodziło z tego, że to samo
+  było napisane dwa razy i za każdym razem inaczej: cztery nazwiska i kafelek z trójką.
+  Liczby zniknęły, została lista.
+
 - **O budynku**: opis budynku, sali i placu zabaw. Sam tekst: zdjęcia dodajesz w sekcji
   Galeria.
 - **Treść zastępcza (do potwierdzenia)**: tak samo jak przy wpisie.

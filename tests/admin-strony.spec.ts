@@ -33,7 +33,7 @@ const planDnia = wczytaj<{ rows: { time: string; what: string }[] }>(
 const oNas = wczytaj<{
 	lead: string;
 	wartosci: { tytul: string; opis: string }[];
-	kadra_opiekunki: number;
+	kadra: { imie: string; rola: string }[];
 }>('../src/lib/content/o-nas.json');
 
 /**
@@ -218,7 +218,7 @@ test.describe('Ekrany pojedynczych stron maja ksztalt z kontraktu 5', () => {
 		await expect(page.getByText(KOPIA_EKRAN_PLANU.uwagaWspolna)).toBeVisible();
 	});
 
-	test('ekran O nas otwiera sie na tym, co jest na stronie, z tekstem i liczbami kadry', async ({
+	test('ekran O nas otwiera sie na tym, co jest na stronie, z tekstem i lista kadry', async ({
 		page,
 		zalogowany
 	}) => {
@@ -226,9 +226,19 @@ test.describe('Ekrany pojedynczych stron maja ksztalt z kontraktu 5', () => {
 		await page.goto(O_NAS);
 		await expect(page.getByLabel(POLA_O_NAS.leadEtykieta, { exact: false })).toHaveValue(oNas.lead);
 		await expect(poleTytuluWartosci(page)).toHaveCount(oNas.wartosci.length);
-		await expect(page.getByLabel(POLA_O_NAS.kadraOpiekunkiEtykieta, { exact: false })).toHaveValue(
-			String(oNas.kadra_opiekunki)
-		);
+		// The staff list, which replaced the two headcount numbers on 2026-08-18. Every row
+		// opens on the committed value, names AND roles, so the screen really is showing what
+		// the site shows rather than an empty group the editor would retype.
+		const imiona = page.getByLabel(POLA_O_NAS.osobaImieEtykieta, { exact: false });
+		await expect(imiona).toHaveCount(oNas.kadra.length);
+		for (const [i, osoba] of oNas.kadra.entries()) {
+			await expect(imiona.nth(i)).toHaveValue(osoba.imie);
+		}
+		const role = page.getByLabel(POLA_O_NAS.osobaRolaEtykieta, { exact: false });
+		await expect(role).toHaveCount(oNas.kadra.length);
+		for (const [i, osoba] of oNas.kadra.entries()) {
+			await expect(role.nth(i)).toHaveValue(osoba.rola);
+		}
 	});
 
 	// The removal ASSERTED, not merely untested (plan 05-07). One panel screen owns the
@@ -633,44 +643,51 @@ test.describe('Zapis planu dnia i jego odmowy', () => {
 });
 
 test.describe('Zapis strony O nas i jego odmowy', () => {
-	test('liczba kadry przyjmuje liczbe i odmawia wartosci spoza zakresu polskim komunikatem', async ({
+	// REPLACES the two headcount-number cases (2026-08-18). Those proved that a count field
+	// accepted „8", refused „150" and refused „sześć" posted past the control. Both fields
+	// are gone; what stands in their place is a list, and its rule is a different one: the
+	// name is required and the role is not.
+	test('kadra: zapis bez imienia jest odmowiony, a rola moze zostac pusta', async ({
 		page,
 		zalogowany
 	}) => {
 		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
 		await page.goto(O_NAS);
-		const pole = page.getByLabel(POLA_O_NAS.kadraOpiekunkiEtykieta, { exact: false });
+		const imiona = page.getByLabel(POLA_O_NAS.osobaImieEtykieta, { exact: false });
 
-		await pole.fill('8');
-		await przyciskZapisz(page).click();
-		await expect(page.locator('[data-panel="sukces"]')).toBeVisible();
-
-		await page.goto(O_NAS);
-		await pole.fill('150');
+		// Clearing a name is a refusal keyed to that row, and the row keeps what was typed.
+		await imiona.first().fill('');
 		await przyciskZapisz(page).click();
 		const panel = page.locator('[data-panel="blad"]');
 		await expect(panel).toBeVisible();
-		await expect(panel).toContainText(KOPIA_WALIDACJA.liczbaNiepoprawna);
-		await expect(pole).toHaveAttribute('aria-invalid', 'true');
+		await expect(panel).toContainText(KOPIA_WALIDACJA.osobaBezImienia);
+		await expect(imiona.first()).toHaveAttribute('aria-invalid', 'true');
+		await expect(page.locator('[data-panel="sukces"]')).toHaveCount(0);
+
+		// An empty role is the NORMAL case, not a refusal: only the dyrektor carries one.
+		await page.goto(O_NAS);
+		await page.getByLabel(POLA_O_NAS.osobaRolaEtykieta, { exact: false }).last().fill('');
+		await przyciskZapisz(page).click();
+		await expect(page.locator('[data-panel="sukces"]')).toBeVisible();
 	});
 
-	test('serwer odmawia takze wartosci, ktorej sama kontrolka nie potrafi wyprodukowac', async ({
+	test('kadra: dodanie osoby daje pusty wiersz, a usuniecie go zabiera, bez zapisu', async ({
 		page,
 		zalogowany
 	}) => {
 		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
 		await page.goto(O_NAS);
-		const pole = page.getByLabel(POLA_O_NAS.kadraOpiekunkiEtykieta, { exact: false });
-		// A number control refuses to hold „sześć" at all, so the only way to prove the
-		// SERVER refuses it is to post it the way a hand-built request would.
-		await pole.evaluate((element) => ((element as HTMLInputElement).type = 'text'));
-		await pole.fill('sześć');
+		const imiona = page.getByLabel(POLA_O_NAS.osobaImieEtykieta, { exact: false });
+		const ile = await imiona.count();
 
-		await przyciskZapisz(page).click();
+		await page.getByRole('button', { name: KOPIA_ZAPIS.dodajOsobe }).click();
+		await expect(imiona).toHaveCount(ile + 1);
+		await expect(imiona.last()).toHaveValue('');
+		// P-26: neither list action commits anything.
+		await expect(page.locator('[data-panel="sukces"]')).toHaveCount(0);
 
-		await expect(page.locator('[data-panel="blad"]')).toContainText(
-			KOPIA_WALIDACJA.liczbaNiepoprawna
-		);
+		await page.getByRole('button', { name: KOPIA_ZAPIS.usunOsobe }).last().click();
+		await expect(imiona).toHaveCount(ile);
 		await expect(page.locator('[data-panel="sukces"]')).toHaveCount(0);
 	});
 

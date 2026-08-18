@@ -41,15 +41,16 @@ import { KOPIA_WALIDACJA, tekstZaDlugi } from '../src/lib/content/panel.ts';
 import {
 	MAKS_ELEMENTOW,
 	POLE_GODZIN,
-	POLE_KADRY_OPIEKUNKI,
+	POLE_IMIENIA,
 	POLE_KADRY_OPIS,
-	POLE_KADRY_PERSONEL,
+	POLE_ROLI,
 	POLE_LEAD,
 	POLE_MISJI,
 	POLE_OBIEKTU_OPIS,
 	POLE_OPISU,
 	POLE_TYTULU,
 	POLE_ZASTEPCZA,
+	PREFIKS_KADRY,
 	PREFIKS_WARTOSCI,
 	PREFIKS_WIERSZA,
 	idPola,
@@ -105,8 +106,7 @@ const O_NAS_ZLOZONY = wczytaj(SCIEZKA_O_NAS) as {
 	misja: string;
 	wartosci: { tytul: string; opis: string }[];
 	kadra_opis: string;
-	kadra_opiekunki: number;
-	kadra_personel: number;
+	kadra: { imie: string; rola: string }[];
 	obiekt_opis: string;
 };
 
@@ -159,8 +159,7 @@ function polaONasZPliku(): Record<string, string> {
 		[POLE_MISJI]: O_NAS_ZLOZONY.misja,
 		...polaListy(PREFIKS_WARTOSCI, O_NAS_ZLOZONY.wartosci),
 		[POLE_KADRY_OPIS]: O_NAS_ZLOZONY.kadra_opis,
-		[POLE_KADRY_OPIEKUNKI]: String(O_NAS_ZLOZONY.kadra_opiekunki),
-		[POLE_KADRY_PERSONEL]: String(O_NAS_ZLOZONY.kadra_personel),
+		...polaListy(PREFIKS_KADRY, O_NAS_ZLOZONY.kadra),
 		[POLE_OBIEKTU_OPIS]: O_NAS_ZLOZONY.obiekt_opis,
 		...(O_NAS_ZLOZONY.placeholder ? { [POLE_ZASTEPCZA]: 'on' } : {})
 	};
@@ -375,21 +374,67 @@ test('strona O nas wychodzi z walidatora z dokladnie tymi kluczami i w tej kolej
 	assert.deepEqual(wynik.dane, O_NAS_ZLOZONY);
 });
 
-test('liczebnosc kadry jest liczba, a nie napisem, i odmawia wartosci, ktora liczba nie jest', () => {
+// REPLACES „liczebnosc kadry jest liczba, a nie napisem" (2026-08-18). That case guarded two
+// number fields; they are gone and a list of people stands where they stood, so the property
+// worth guarding changed with them. It is no longer „the count parses as a number" but „the
+// name is required, the role is not, and an empty role is stored rather than refused".
+test('kadra: imie jest wymagane, rola nie, a pusta rola zapisuje sie jako pusty napis', () => {
 	const wynik = walidujONas(zrodlo(polaONasZPliku()));
 	assert.equal(wynik.ok, true);
 	if (wynik.ok) {
-		assert.equal(typeof wynik.dane.kadra_opiekunki, 'number');
-		assert.equal(typeof wynik.dane.kadra_personel, 'number');
-		assert.equal(wynik.dane.kadra_opiekunki, O_NAS_ZLOZONY.kadra_opiekunki);
+		assert.deepEqual(wynik.dane.kadra, O_NAS_ZLOZONY.kadra);
+		// The committed file really does exercise both branches, or this case would be
+		// proving the easy half twice.
+		assert.ok(
+			wynik.dane.kadra.some((osoba) => osoba.rola === ''),
+			'store nie zawiera ani jednej osoby bez roli'
+		);
+		assert.ok(
+			wynik.dane.kadra.some((osoba) => osoba.rola !== ''),
+			'store nie zawiera ani jednej osoby z rola'
+		);
 	}
 
-	for (const zle of ['sześć', '6 osób', '6.0', '', '-1', '100', '6abc']) {
-		const odmowa = walidujONas(zrodlo({ ...polaONasZPliku(), [POLE_KADRY_OPIEKUNKI]: zle }));
-		assert.equal(odmowa.ok, false, `„${zle}" nie powinno byc przyjete jako liczba`);
-		if (!odmowa.ok) {
-			assert.equal(odmowa.pola[POLE_KADRY_OPIEKUNKI], KOPIA_WALIDACJA.liczbaNiepoprawna);
-		}
+	// A row with no name is a refusal keyed to that row's own control, never a silently
+	// dropped person.
+	const bezImienia = walidujONas(
+		zrodlo({
+			...polaONasZPliku(),
+			...polaListy(PREFIKS_KADRY, [
+				{ [POLE_IMIENIA]: 'Justyna Kamińska', [POLE_ROLI]: '' },
+				{ [POLE_IMIENIA]: '  ', [POLE_ROLI]: 'Dyrektor' }
+			])
+		})
+	);
+	assert.equal(bezImienia.ok, false);
+	if (!bezImienia.ok) {
+		assert.equal(
+			bezImienia.pola[nazwaPola(PREFIKS_KADRY, 1, POLE_IMIENIA)],
+			KOPIA_WALIDACJA.osobaBezImienia
+		);
+	}
+
+	// An empty role is accepted on every row, which is the normal case: only the dyrektor
+	// carries one.
+	//
+	// THE REPLACEMENT LIST IS DERIVED FROM THE STORE, NOT TYPED AS TWO ROWS, and that is not
+	// tidiness. `polaListy` produces `osoba[0]`, `osoba[1]` and so on, and spreading a
+	// SHORTER list over `polaONasZPliku()` overwrites only the indices it reaches: the base
+	// fixture's remaining rows survive underneath and the validator sees a mixture of both.
+	// Mapping over the committed list covers every index the base wrote, whatever its length.
+	const wszystkieBezRol = O_NAS_ZLOZONY.kadra.map((osoba) => ({
+		[POLE_IMIENIA]: osoba.imie,
+		[POLE_ROLI]: ''
+	}));
+	const bezRol = walidujONas(
+		zrodlo({ ...polaONasZPliku(), ...polaListy(PREFIKS_KADRY, wszystkieBezRol) })
+	);
+	assert.equal(bezRol.ok, true);
+	if (bezRol.ok) {
+		assert.deepEqual(
+			bezRol.dane.kadra,
+			O_NAS_ZLOZONY.kadra.map((osoba) => ({ imie: osoba.imie, rola: '' }))
+		);
 	}
 });
 
@@ -452,12 +497,13 @@ test('echo strony O nas oddaje kazde pole, takze te odmowione', () => {
 	const wartosci = wartosciONas(
 		zrodlo({
 			...polaONasZPliku(),
-			[POLE_KADRY_OPIEKUNKI]: 'sześć'
+			...polaListy(PREFIKS_KADRY, [{ [POLE_IMIENIA]: '  ', [POLE_ROLI]: 'Dyrektor' }])
 		})
 	);
 	// A refused value comes back verbatim: the editor corrects it rather than retyping the
-	// whole form.
-	assert.equal(wartosci.kadraOpiekunki, 'sześć');
+	// whole form. Both halves of the row echo, including the role that was never at fault.
+	assert.equal(wartosci.kadra[0].imie, '  ');
+	assert.equal(wartosci.kadra[0].rola, 'Dyrektor');
 	assert.equal(wartosci.lead, O_NAS_ZLOZONY.lead);
 	assert.equal(wartosci.wartosci.length, O_NAS_ZLOZONY.wartosci.length);
 	assert.equal(wartosci.obiektOpis, O_NAS_ZLOZONY.obiekt_opis);

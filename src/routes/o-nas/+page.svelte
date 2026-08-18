@@ -25,7 +25,9 @@
 	// the bare filename (04.1-07 P-20), and this lookup would keep working unchanged if that
 	// ever became a path.
 	// Plan dnia reuses DayPlan verbatim (D-03: single shared source). Kadra is a collective
-	// narrative + headcount by role, no individual profiles or staff photos (D-02).
+	// narrative plus a plain list of names, edited on /admin/o-nas: no individual profiles,
+	// no per-person pages and no staff photographs, which is the half of D-02 that was ever
+	// about dignity. The two headcount tiles it used to carry were removed on 2026-08-18.
 	import type { Picture } from '@sveltejs/enhanced-img';
 	import Images from '@lucide/svelte/icons/images';
 	import Seo from '$lib/components/Seo.svelte';
@@ -33,8 +35,6 @@
 	import Cta from '$lib/components/Cta.svelte';
 	import Lightbox from '$lib/components/Lightbox.svelte';
 	import { renderInline } from '$lib/markdown';
-	import { odmienRzeczownik } from '$lib/liczebniki';
-	import { FORMY_OPIEKUNKI, FORMY_PERSONELU, KADRA } from '$lib/content/kadra';
 	import { MIEJSCE } from '$lib/content/miejsce';
 	import onas from '$lib/content/o-nas.json';
 	import galeriaStore from '$lib/content/galeria.json';
@@ -109,7 +109,7 @@
 <!-- 4. Plan dnia (reused DayPlan, single shared source, D-03) -->
 <DayPlan />
 
-<!-- 5. Kadra (warm surface; collective narrative + headcount, D-02) -->
+<!-- 5. Kadra (warm surface; narrative + named list, no photos or profiles, D-02) -->
 <section class="band warm" aria-labelledby="kadra-heading">
 	<div class="inner narrow">
 		<h2 id="kadra-heading">Nasza kadra</h2>
@@ -122,42 +122,23 @@
 		<ul class="kadra">
 			<!-- Keyed by POSITION, for the reason written above the wartości list. Two
 			     people can share a surname, and this list is small enough that it will one
-			     day be pasted into rather than appended to. -->
-			{#each KADRA as osoba, i (i)}
+			     day be pasted into rather than appended to.
+
+			     FROM THE STORE, NOT FROM A MODULE, since 2026-08-18: the żłobek edits this
+			     list on /admin/o-nas, so a new hire is a save rather than a pull request. -->
+			{#each onas.kadra as osoba, i (i)}
 				<li>
 					<span class="osoba-imie">{osoba.imie}</span>
 					{#if osoba.rola}<span class="osoba-rola">{osoba.rola}</span>{/if}
 				</li>
 			{/each}
 		</ul>
-		<!-- The labels DECLINE with the counts (02-UI-SPEC amendment 2026-08-16). Both
-		     numbers are CMS values, so a fixed word is wrong Polish for most of them:
-		     6 takes „opiekunek", not „opiekunki". The number stays in the <dd> and only
-		     the declined noun goes in the <dt>, because axe's definition-list rules
-		     run on this page.
-
-		     EACH STAT RENDERS ONLY WHEN ITS COUNT IS ABOVE ZERO, and the whole <dl> only
-		     when at least one of them is. The żłobek named four people on 2026-08-18 and
-		     said nothing whatever about personel pomocniczy, so that count is 0: a tile
-		     reading „0 osób personelu pomocniczego" would publish an absence as a fact,
-		     and an empty <dl> is an axe failure on top of it. An editor who fills the
-		     number in on /admin/o-nas gets the tile back with no code change. -->
-		{#if onas.kadra_opiekunki > 0 || onas.kadra_personel > 0}
-			<dl class="headcount">
-				{#if onas.kadra_opiekunki > 0}
-					<div class="stat">
-						<dd class="stat-value">{onas.kadra_opiekunki}</dd>
-						<dt class="stat-label">{odmienRzeczownik(onas.kadra_opiekunki, FORMY_OPIEKUNKI)}</dt>
-					</div>
-				{/if}
-				{#if onas.kadra_personel > 0}
-					<div class="stat">
-						<dd class="stat-value">{onas.kadra_personel}</dd>
-						<dt class="stat-label">{odmienRzeczownik(onas.kadra_personel, FORMY_PERSONELU)}</dt>
-					</div>
-				{/if}
-			</dl>
-		{/if}
+		<!-- THE TWO HEADCOUNT TILES ARE GONE (2026-08-18). They rendered `kadra_opiekunki`
+		     and `kadra_personel` beside the list above, so the section stated the size of the
+		     team twice and the two statements disagreed: four names, and a tile reading „3",
+		     because the dyrektor is not an opiekunka. The list is the headcount, and it is the
+		     version a parent can actually use. The two stored numbers went with the tiles
+		     rather than being left as panel controls that change nothing. -->
 	</div>
 </section>
 
@@ -328,11 +309,6 @@
 		.inner.narrow h2,
 		.uklad-miejsce h2 {
 			margin-bottom: 0;
-		}
-
-		.headcount {
-			grid-column: 2;
-			margin-top: 0;
 		}
 
 		.uklad-miejsce {
@@ -553,42 +529,6 @@
 		line-height: 1.5;
 		color: var(--color-muted);
 		margin: 0;
-	}
-
-	/* Kadra headcount: plain dl per the v1.2 KeyFacts a11y ruling (no axe-flagged
-	   list wrapping). Value 26px Baloo 700 ink + label 14px Nunito 700 muted,
-	   both AA on tint-blue (v1.6 §6: about 11:1 and 5.9:1). */
-	.headcount {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 24px;
-		margin: 24px 0 0;
-	}
-
-	.stat {
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
-		background: var(--color-tint-blue);
-		border-radius: var(--radius-md);
-		padding: 16px 24px;
-		min-width: 180px;
-	}
-
-	.stat-value {
-		font-family: var(--font-display);
-		font-weight: 700;
-		font-size: 26px;
-		line-height: 1.2;
-		color: var(--color-ink);
-		margin: 0;
-	}
-
-	.stat-label {
-		font-family: var(--font-body);
-		font-weight: 700;
-		font-size: 14px;
-		color: var(--color-muted);
 	}
 
 	/* -------------------------------------------------------------------------------

@@ -101,9 +101,25 @@ export const MAKS_ZDJEC_GALERII = 12;
 export const POLE_LEAD = 'lead';
 export const POLE_MISJI = 'misja';
 export const POLE_KADRY_OPIS = 'kadra_opis';
-export const POLE_KADRY_OPIEKUNKI = 'kadra_opiekunki';
-export const POLE_KADRY_PERSONEL = 'kadra_personel';
 export const POLE_OBIEKTU_OPIS = 'obiekt_opis';
+
+/** O nas, the SECOND repeated group: the staff list (2026-08-18).
+ *
+ *  IT REPLACES TWO NUMBER FIELDS, `kadra_opiekunki` and `kadra_personel`. Those counted
+ *  the team and the public page rendered them as tiles beside a list of the same people,
+ *  so a reader met „4 names" and „3" on one screen and had to reconcile them. Deleting
+ *  only the tiles would have left two controls an editor can change, save and wait two
+ *  minutes for with no visible effect, which is worse than no control at all; so the
+ *  fields are gone and what replaces them is the list itself.
+ *
+ *  The prefix is `osoba`, NOT `kadra`, because `POLE_KADRY_OPIS` above is a singleton
+ *  spelled `kadra_opis` and two vocabularies sharing a stem is how a reader ends up
+ *  matching the wrong control to the wrong key. */
+export const PREFIKS_KADRY = 'osoba';
+/** Named after the JSON keys they are stored as, the rule every field on this screen
+ *  follows, so comparing a control to the committed file needs no translation table. */
+export const POLE_IMIENIA = 'imie';
+export const POLE_ROLI = 'rola';
 
 /** Cennik: the seven controls of 05-UI-SPEC Contract 10, named after the JSON keys of
  *  src/lib/content/cennik.json so a reader comparing a control to the committed file needs
@@ -161,6 +177,12 @@ export const AKCJA_DODANIA_WIERSZA = '?/dodajWiersz';
 export const AKCJA_USUNIECIA_WIERSZA = '?/usunWiersz';
 export const AKCJA_DODANIA_WARTOSCI = '?/dodajWartosc';
 export const AKCJA_USUNIECIA_WARTOSCI = '?/usunWartosc';
+/** The staff list's own pair. Separate actions rather than one parameterised by prefix,
+ *  for the reason `idWyspyGalerii` records about itself: two groups on ONE screen must not
+ *  be reachable through a single endpoint, or a hand-built request could add a row to the
+ *  list it did not name. */
+export const AKCJA_DODANIA_OSOBY = '?/dodajOsobe';
+export const AKCJA_USUNIECIA_OSOBY = '?/usunOsobe';
 export const AKCJA_DODANIA_ZDJECIA = '?/dodajZdjecie';
 export const AKCJA_USUNIECIA_ZDJECIA = '?/usunZdjecie';
 
@@ -297,13 +319,20 @@ export function wartosciPlanuDnia(zrodlo: ZrodloPol): WartosciPlanuDnia {
 
 /** The echo shape of the O nas screen. TEXT ONLY since plan 05-07: the photo list left this
  *  screen for /admin/galeria, and `WartosciGalerii` below is its echo shape. */
+/** One person of the staff list, same all-strings echo contract as `WartoscEcha`. `rola`
+ *  is optional CONTENT but never an optional KEY: an empty string is what „no role typed"
+ *  echoes back into the control. */
+export interface OsobaEcha {
+	imie: string;
+	rola: string;
+}
+
 export interface WartosciONas {
 	lead: string;
 	misja: string;
 	wartosci: WartoscEcha[];
 	kadraOpis: string;
-	kadraOpiekunki: string;
-	kadraPersonel: string;
+	kadra: OsobaEcha[];
 	obiektOpis: string;
 	zastepcza: boolean;
 }
@@ -319,8 +348,10 @@ export function wartosciONas(zrodlo: ZrodloPol): WartosciONas {
 			})
 		),
 		kadraOpis: tekst(zrodlo.get(POLE_KADRY_OPIS)),
-		kadraOpiekunki: tekst(zrodlo.get(POLE_KADRY_OPIEKUNKI)),
-		kadraPersonel: tekst(zrodlo.get(POLE_KADRY_PERSONEL)),
+		kadra: zbierzIndeksowane(zrodlo, PREFIKS_KADRY, [POLE_IMIENIA, POLE_ROLI]).map((osoba) => ({
+			imie: tekst(osoba[POLE_IMIENIA]),
+			rola: tekst(osoba[POLE_ROLI])
+		})),
 		obiektOpis: tekst(zrodlo.get(POLE_OBIEKTU_OPIS)),
 		zastepcza: zaznaczone(zrodlo, POLE_ZASTEPCZA)
 	};
