@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 6
-current_phase_name: Accessibility, Legal Compliance & Launch
+current_phase_name: Accessibility, Legal Compliance & Performance
 status: executing
-stopped_at: "Faza 5 zamknieta: 9/9 planow, UAT 3/3 na zywej stronie, bramka bezpieczenstwa threats_open 0. Faza 04.1 pozostaje OTWARTA (zywy UAT) i to ona zamyka CMS-01..03"
-last_updated: "2026-08-17T23:22:26.069Z"
-last_activity: 2026-08-17
-last_activity_desc: Phase 05 complete, transitioned to Phase 6
+stopped_at: Faza 6 przeskalowana i omowiona; 06-CONTEXT.md gotowy, nastepny krok /gsd-ui-phase 6
+last_updated: "2026-08-18T02:34:14.283Z"
+last_activity: 2026-08-18
+last_activity_desc: Phase 6 split, Phase 7 (Launch) created
 progress:
-  total_phases: 8
+  total_phases: 9
   completed_phases: 6
   total_plans: 47
   completed_plans: 47
-  percent: 75
+  percent: 67
 ---
 
 # Project State
@@ -24,14 +24,46 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-14)
 
 **Core value:** A parent lands on the site and, within seconds, both feels the żłobek's warmth and finds the exact information they need (enrollment, documents, contact) — on any device.
-**Current focus:** Phase 6 — Accessibility, Legal Compliance & Launch
+**Current focus:** Phase 6 — Accessibility, Legal Compliance & Performance
 
 ## Current Position
 
-Phase: 6 — Accessibility, Legal Compliance & Launch
+Phase: 6 — Accessibility, Legal Compliance & Performance
 Plans: Not started
-Status: Ready to plan Phase 6
-Last activity: 2026-08-17 — Phase 05 complete, transitioned to Phase 6
+Status: Roadmap re-scoped; ready for `/gsd-discuss-phase 6`
+Last activity: 2026-08-18 — Phase 6 split, Phase 7 (Launch) created
+
+### Faza 6 przeskalowana, faza 7 (Launch) utworzona (2026-08-18)
+
+Faza 6 nie mogla sie domknac w dotychczasowym ksztalcie: trzy z pieciu jej kryteriow
+sukcesu czekaly na wejscia od Gminy, ktorych nie ma. Skrzynka `zlobek@ugstromiec.pl` nie
+istnieje, wiec noga `to:` kazdej wiadomosci z formularza odbija sie twardo. W repozytorium
+nie ma ANI JEDNEJ prawdziwej fotografii, wiec caly obowiazek zgody na wizerunek jest
+dopiero przyszly. Koordynator dostepnosci i IOD nadal nie sa wskazani z nazwiska
+(`src/lib/content/forms.ts:302-306`), a deklaracja bez koordynatora jest niezgodna i
+osobno karana.
+
+**Linia podzialu to pytanie, kto musi zadzialac.** Faza 6 to wszystko, co zbudujemy i
+udowodnimy sami: audyt WCAG 2.1 AA, widget dostepnosci, wydajnosc mobilna, odnosnik do BIP
+oraz PELNE zredagowanie obu stron prawnych. Faza 7 to brama startowa i kazde jej kryterium
+czeka na Gmine.
+
+**A11Y-03 i LEGAL-02 zostaja w fazie 6 i sa tam redagowane w calosci**, a odhaczone dopiero
+w fazie 7, gdy padna dwa nazwiska. To nie jest nowy wzorzec: faza 4 jest `Complete` z
+FORM-01 zablokowanym i FORM-02 oczekujacym. Do fazy 7 przenosi sie wylacznie LAUNCH-01.
+
+**Szew miedzy fazami jest mierzalny, nie umowny.** Placeholdery sa dzis znakowane dwoma
+niekompatybilnymi mechanizmami: tokenem `PLACEHOLDER` w komentarzach `.ts`/`.svelte` oraz
+wartosciami logicznymi `"placeholder"` w JSON-ach pod `src/lib/content/` (plan 05-09
+przeniosl tam dwa znaczniki, bo JSON nie ma komentarzy). Grep po tokenie nigdy nie zobaczy
+tych drugich, co jest dokladnie trescia niezamknietego zagrozenia T-05-09-05.
+**Faza 6 buduje polaczona brame i zostawia ja CZERWONA. Faza 7 zapala ja na zielono.**
+
+Faza 6 wciaga tez cztery dlugi, ktore wczesniejsze fazy odkladaly: ucieczke z pulapki
+fokusu w `MobileNav.svelte:73-79` (prawdziwa wada WCAG 2.1 AA na KAZDEJ stronie, ksztalt
+poprawki juz sprawdzony w `Lightbox.svelte` przy WR-05), wpiecie `npm run test:unit` w
+jakakolwiek automatyczna brame (podnoszone trzy razy i nigdy nie naprawione), niedopasowanie
+znacznikow T-05-09-05 oraz zywe dosprawdzenie FORM-02 (czesci B i C z 04-VERIFICATION AG-1).
 
 ### Faza 5 zamknieta
 
@@ -290,6 +322,8 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 ### Roadmap Evolution
 
 - Phase 04.1 inserted after Phase 4: Replace Sveltia with custom Polish CMS (URGENT)
+- Phase 6 edited: re-scoped: LAUNCH-01 and success criterion 5 moved out to the new Phase 7
+- Phase 7 added: Launch: the client-input gate split out of Phase 6
 
 ## Deferred Items
 
@@ -301,7 +335,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-17T15:16:53.000Z
-Stopped at: Faza 5 zaplanowana, 9 planow w 5 falach, plan-checker zdal bez blokerow
-Resume file: .planning/phases/05-gallery-fees/05-01-PLAN.md
+Last session: 2026-08-18T02:34:14.276Z
+Stopped at: Faza 6 przeskalowana i omowiona; 06-CONTEXT.md gotowy, nastepny krok /gsd-ui-phase 6
+Resume file: .planning/phases/06-accessibility-legal-compliance-performance/06-CONTEXT.md
 Next command: `/gsd-execute-phase 5`

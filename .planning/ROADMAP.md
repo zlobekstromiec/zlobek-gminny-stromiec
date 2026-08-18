@@ -2,7 +2,7 @@
 
 ## Overview
 
-The site is delivered as six vertical MVP slices, each shipping an end-to-end, deployable piece of user-visible value rather than a horizontal technical layer. We start by putting a real, joyful homepage live on Cloudflare with the accessible-palette design foundation baked in (the defining design risk resolved first). We then bring the git-based CMS online alongside the first staff-editable content (O nas + Dokumenty), add news publishing, ship the legally-sensitive email form pipeline for enrollment and contact, round out gallery and fees, and finish with a compliance-and-launch slice that audits WCAG 2.1 AA, publishes the mandatory legal pages against a real baseline, tunes performance, and swaps placeholders for consented real content. Content is built placeholder-first throughout. (The former multi-day DNS lead-time that gated Phase 4 is dissolved: Resend's SPF/DKIM/DMARC live on our own domain `zlobekstromiec.pl`, whose DNS we control on Cloudflare — there is no dependency on the Gmina's `ugstromiec.pl` DNS, which serves only as the delivery mailbox.)
+The site is delivered as seven vertical MVP slices, each shipping an end-to-end, deployable piece of user-visible value rather than a horizontal technical layer. We start by putting a real, joyful homepage live on Cloudflare with the accessible-palette design foundation baked in (the defining design risk resolved first). We then bring the git-based CMS online alongside the first staff-editable content (O nas + Dokumenty), add news publishing, ship the legally-sensitive email form pipeline for enrollment and contact, and round out gallery and fees. The last two slices are split along the line of who has to act. Phase 6 is the compliance slice we can finish alone: it audits WCAG 2.1 AA, adds the accessibility widget, tunes mobile performance, and authors both mandatory legal pages against a real baseline. Phase 7 is the launch gate, and every one of its criteria waits on the Gmina: consented photography, real content, the two named officials, and a mailbox that receives external mail. Content is built placeholder-first throughout. (The former multi-day DNS lead-time that gated Phase 4 is dissolved: Resend's SPF/DKIM/DMARC live on our own domain `zlobekstromiec.pl`, whose DNS we control on Cloudflare — there is no dependency on the Gmina's `ugstromiec.pl` DNS, which serves only as the delivery mailbox.)
 
 ## Phases
 
@@ -20,7 +20,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Enrollment, Contact & Email Pipeline** - Rekrutacja + Kontakt with the RODO-compliant, Turnstile-gated, email-only form pipeline (Resend) (completed 2026-08-14)
 - [ ] **Phase 04.1: Replace Sveltia with custom Polish CMS (INSERTED)** - Custom Polish-only admin panel with e-mail one-time-code login, replacing Sveltia + GitHub OAuth so non-technical staff need no GitHub account and see no English chrome (all 11 plans executed 2026-08-16, awaiting live UAT: see 04.1-UAT.md)
 - [x] **Phase 5: Gallery & Fees** - CMS-managed photo gallery and editable fees page (completed 2026-08-17)
-- [ ] **Phase 6: Accessibility, Legal Compliance & Launch** - WCAG 2.1 AA audit, accessibility widget, Deklaracja dostępności, BIP link, Polityka prywatności, performance, and the real-content launch gate
+- [ ] **Phase 6: Accessibility, Legal Compliance & Performance** - WCAG 2.1 AA audit, accessibility widget, Deklaracja dostępności, BIP link, Polityka prywatności, and mobile performance. Everything buildable without an input from the Gmina
+- [ ] **Phase 7: Launch** - The real-content gate: consented photography, every placeholder replaced, the two named people supplied, the noindex guard flipped, and a live end-to-end test email delivered
 
 ## Phase Details
 
@@ -298,22 +299,39 @@ Plans:
 
 **UI hint**: yes
 
-### Phase 6: Accessibility, Legal Compliance & Launch
+### Phase 6: Accessibility, Legal Compliance & Performance
 
-**Goal**: The site passes WCAG 2.1 AA, publishes every mandatory legal page against a real baseline, performs well on mobile, and carries consented real content — legally compliant and ready to go live.
+**Goal**: The site passes WCAG 2.1 AA, carries an accessibility widget on every page, performs well on mobile, links correctly to the BIP, and publishes both mandatory legal pages authored in full against a real baseline. Everything this phase delivers is buildable and provable without a single input from the Gmina.
 **Mode:** mvp
 **Depends on**: Phase 1, Phase 2, Phase 3, Phase 4, Phase 5
-**Requirements**: SITE-05, A11Y-01, A11Y-02, A11Y-03, LEGAL-01, LEGAL-02, LAUNCH-01
+**Requirements**: SITE-05, A11Y-01, A11Y-02, A11Y-03, LEGAL-01, LEGAL-02
 **Success Criteria** (what must be TRUE):
 
-  1. The site passes a WCAG 2.1 AA audit — semantic structure, AA contrast, keyboard navigation, visible focus, and prefers-reduced-motion — and provides an accessibility widget (font-size + high-contrast toggles).
-  2. The site publishes a conformant Deklaracja dostępności, written only after the AA baseline is real, including conformance status, procedura wnioskowo-skargowa, koordynator dostępności, and dostępność architektoniczna — plus a Polityka prywatności / RODO information page.
+  1. The site passes a WCAG 2.1 AA audit (semantic structure, AA contrast, keyboard navigation, visible focus, prefers-reduced-motion), with axe covering every public route and every modal state, and provides an accessibility widget (font-size + high-contrast toggles).
+  2. Both mandatory legal pages are authored in full and published: a Deklaracja dostępności following the official government template (conformance status, procedura wnioskowo-skargowa, dostępność architektoniczna), and a Polityka prywatności / RODO page. The koordynator dostępności and IOD name-and-contact fields are the only content left as marked placeholders; A11Y-03 and LEGAL-02 tick when Phase 7 supplies them.
   3. The site links prominently and correctly to the existing BIP (https://ugstromiec.naszbip.pl/zlobek).
-  4. Pages load fast on mobile — images are optimized and Core Web Vitals pass (green).
-  5. All placeholder content is replaced with client-provided real content, any children's photos have documented consent, and a live end-to-end test email confirms delivery to the confirmed recipient address `zlobek@ugstromiec.pl` (sent from our domain `zlobekstromiec.pl`).
+  4. Pages load fast on mobile: images are optimized and Core Web Vitals pass (green) measured on a throttled mobile profile, not desktop broadband.
+  5. The combined launch gate exists and runs in an automated tier. It reads both placeholder mechanisms (the `PLACEHOLDER` token in source and the `placeholder` booleans under `src/lib/content/`), and it is RED on purpose at the end of this phase. Turning it green is Phase 7's job.
 
 **Plans**: TBD
 **UI hint**: yes
+
+### Phase 7: Launch
+
+**Goal**: Every placeholder is replaced with client-provided real content, children's photos carry documented wizerunek consent, the two named officials are published, the noindex guard is lifted, and a real end-to-end form submission is confirmed delivered to the Gmina mailbox.
+**Mode:** mvp
+**Depends on**: Phase 6 (the AA baseline and the legal pages must be real before the declaration can state a conformance status or the site can be indexed), Phase 04.1 (staff need a working panel to enter real content themselves)
+**Requirements**: LAUNCH-01
+**Success Criteria** (what must be TRUE):
+
+  1. All placeholder content is replaced with client-provided real content, and any children's photos have documented wizerunek consent on file.
+  2. A live end-to-end test email confirms delivery to the confirmed recipient address `zlobek@ugstromiec.pl` (sent from our domain `zlobekstromiec.pl`), which also closes FORM-01. The BCC backup mailbox and the klauzula paragraph that discloses it are removed in the same commit.
+  3. The koordynator dostępności and the IOD are named with contact details, closing A11Y-03 and LEGAL-02.
+  4. The launch gate built in Phase 6 runs green: no `PLACEHOLDER` token remains outside convention headers, and every `placeholder` boolean under `src/lib/content/` is false.
+  5. The site is indexable: the `Seo` noindex default is lifted, both hand-rolled noindex tags on the legal pages are removed, robots.txt allows crawling and points at a sitemap whose host and URL set are correct, and the OG share card carries current branding.
+
+**Plans**: TBD
+**UI hint**: no
 
 ## External Dependencies & Open Items
 
@@ -347,7 +365,7 @@ Authoritative spec for the form-email pipeline (verified against current Resend/
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 5 → 6
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -357,4 +375,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 5 → 6
 | 4. Enrollment, Contact & Email Pipeline | 9/9 | Complete    | 2026-08-15 |
 | 04.1 Replace Sveltia with custom Polish CMS (INSERTED) | 11/11 | Awaiting UAT | - |
 | 5. Gallery & Fees | 9/9 | Complete    | 2026-08-17 |
-| 6. Accessibility, Legal Compliance & Launch | 0/TBD | Not started | - |
+| 6. Accessibility, Legal Compliance & Performance | 0/TBD | Not started | - |
+| 7. Launch | 0/TBD | Not started | - |

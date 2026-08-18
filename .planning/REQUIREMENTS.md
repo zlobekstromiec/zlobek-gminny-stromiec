@@ -72,13 +72,13 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [ ] **A11Y-01**: The site meets WCAG 2.1 AA — semantic structure, AA contrast, keyboard navigation, visible focus, and prefers-reduced-motion support
 - [ ] **A11Y-02**: The site provides an accessibility widget (font-size and high-contrast toggles)
-- [ ] **A11Y-03**: The site publishes a conformant Deklaracja dostępności (conformance status, procedura wnioskowo-skargowa, koordynator dostępności, dostępność architektoniczna)
+- [ ] **A11Y-03**: The site publishes a conformant Deklaracja dostępności (conformance status, procedura wnioskowo-skargowa, koordynator dostępności, dostępność architektoniczna) _(Split across two phases: Phase 6 authors the page in full from the official government template, since a declaration may only state a conformance status once the AA baseline is real. It cannot tick there, because a declaration missing its koordynator is non-conformant and separately fineable. Phase 7 supplies the name and closes it.)_
 - [ ] **LEGAL-01**: The site links prominently to the existing BIP (https://ugstromiec.naszbip.pl/zlobek)
-- [ ] **LEGAL-02**: The site publishes a Polityka prywatności / RODO information page
+- [ ] **LEGAL-02**: The site publishes a Polityka prywatności / RODO information page _(Same split as A11Y-03: Phase 6 authors the page, reusing the twelve-block klauzula already in `src/lib/content/forms.ts`; Phase 7 supplies the IOD name and contact and closes it.)_
 
 ### Launch Readiness
 
-- [ ] **LAUNCH-01**: Before go-live, all placeholder content is replaced with client-provided real content, and any children's photos have documented consent
+- [ ] **LAUNCH-01**: Before go-live, all placeholder content is replaced with client-provided real content, and any children's photos have documented consent _(Retargeted from Phase 6 to Phase 7 on 2026-08-18. Roughly 24 client facts are still unconfirmed and there is no real photography in the repository at all, so the entire wizerunek-consent obligation is prospective. Phase 6 builds the gate that measures this and leaves it RED; Phase 7 turns it green.)_
 
 ## v2 Requirements
 
@@ -145,10 +145,10 @@ Which phases cover which requirements. Populated during roadmap creation.
 | SITE-05 | Phase 6 | Pending |
 | A11Y-01 | Phase 6 | Pending |
 | A11Y-02 | Phase 6 | Pending |
-| A11Y-03 | Phase 6 | Pending |
+| A11Y-03 | Phase 6 (authored), Phase 7 (closed) | Pending (koordynator dostępności not named) |
 | LEGAL-01 | Phase 6 | Pending |
-| LEGAL-02 | Phase 6 | Pending |
-| LAUNCH-01 | Phase 6 | Pending |
+| LEGAL-02 | Phase 6 (authored), Phase 7 (closed) | Pending (IOD not named) |
+| LAUNCH-01 | Phase 7 | Pending |
 
 **Coverage:**
 
@@ -159,3 +159,5 @@ Which phases cover which requirements. Populated during roadmap creation.
 ---
 *Requirements defined: 2026-08-12*
 *Last updated: 2026-08-16 (04.1-11): CMS-01 and CMS-03 reworded per D-21 to state the outcome rather than the vendor, and all three CMS rows retargeted from Phase 2 to Phase 04.1. All three were previously ticked complete against an editor that no longer exists in this repository; they are now Pending, and the live UAT that closes them is the open checkpoint on 04.1-11.*
+
+*Last updated: 2026-08-18 (Phase 6/7 split): LAUNCH-01 retargeted from Phase 6 to the new Phase 7. A11Y-03 and LEGAL-02 are now authored in Phase 6 and closed in Phase 7. The split line is who has to act: Phase 6 is everything we can build and prove alone, Phase 7 is everything that waits on the Gmina (consented photography, real content, the koordynator dostępności and IOD names, and a mailbox at `zlobek@ugstromiec.pl` that receives external mail). Requirement count and coverage are unchanged at 37/37.*
