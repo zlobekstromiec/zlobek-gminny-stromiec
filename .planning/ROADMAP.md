@@ -329,7 +329,12 @@ Plans:
 - [ ] 06-11-PLAN.md — `/polityka-prywatnosci` rebuilt in full, reusing the twelve klauzula blocks (D-15)
 - [ ] 06-12-PLAN.md — `/admin/polityka-prywatnosci`: validator, screen, panel route list to nineteen
 - [ ] 06-13-PLAN.md — audit tier 1 completion, the MobileNav focus-trap escape (D-23), BIP link verification (D-26)
-- [ ] 06-14-PLAN.md — closeout: performance record, gate reconciliation, stale-count sweep, the 12-row acceptance sheet
+- [ ] 06-14-PLAN.md — closeout: performance record, gate reconciliation, stale-count sweep, the 13-row acceptance sheet
+
+**Wave order** (eleven waves; the chain is genuinely serial because `src/app.css`, `TopBar.svelte`, `Footer.svelte`, `MobileNav.svelte`, `panel.ts`, `trasy-panelu.ts` and `responsive.spec.ts` are each touched by three or four plans):
+1: 06-01 · 2: 06-02, 06-03 · 3: 06-04 · 4: 06-05 · 5: 06-06 · 6: 06-07 · 7: 06-08 · 8: 06-09, 06-13 · 9: 06-10, 06-11 · 10: 06-12 · 11: 06-14
+
+Plan 06-13 was declared `depends_on: ["06-11"]` and sat in wave 10. The plan-checker traced that to an absence of any file or content conflict with plans 09 to 11; its real constraint is `tests/nav.spec.ts`, which plan 08 modifies. Corrected to `depends_on: ["06-08"]`, wave 8. This does **not** shorten the phase: plan 13 was never on the critical path, which runs 01 → 03 → 04 → 05 → 06 → 07 → 08 → 09 → 10/11 → 12 → 14. It lets plan 13 start two waves earlier and makes the graph state the truth.
 
 **UI hint**: yes
 
