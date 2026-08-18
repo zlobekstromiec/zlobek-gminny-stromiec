@@ -35,7 +35,19 @@ All five were placed by hand, so none carries the `galeria-` prefix and none can
 through the panel. That is the ownership rule above doing its job, and it matters more now
 than it did for generated placeholders: these are the żłobek's own pictures.
 
-The two photographs used inside page layouts, the hero and the O nas teaser, deliberately
-live in `src/lib/assets/foto/` instead. This directory is the panel's, and the gallery globs
-it, so a page-level photograph kept here would surface in an editor's picker as though it
-were a gallery tile.
+`budynek-front.jpg` joined them on 2026-08-18 as the gallery's sixth tile, and it is a COPY
+of `../foto/budynek-front.jpg` rather than a move. The hero on the homepage imports that
+original by path, so the file has to stay there; the gallery globs ONLY this directory and
+`galeriaZObrazami` silently DROPS an entry whose basename is not in that glob, so an entry
+pointing anywhere else would have left the tile blank with no error to notice. One
+photograph is therefore processed twice by the build, which is the accepted cost of keeping
+each directory owned by exactly one thing.
+
+It appearing in an editor's photo picker is CORRECT here and not the leak the paragraph
+below describes: this file is deliberately gallery content now. It carries no `galeria-`
+prefix, so the panel still refuses to delete it, which is what protects the hero.
+
+The other photograph used inside a page layout, the O nas teaser, deliberately lives in
+`src/lib/assets/foto/` alone. This directory is the panel's, and the gallery globs it, so a
+page-level photograph kept here would surface in an editor's picker as though it were a
+gallery tile.

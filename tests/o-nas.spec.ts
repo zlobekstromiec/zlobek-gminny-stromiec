@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readFileSync } from 'node:fs';
-import { MIEJSCE } from '../src/lib/content/miejsce';
+import { BLOKI_MIEJSCA } from '../src/lib/content/miejsce';
 
 /** The o-nas store, read off disk rather than imported, so the kadra assertions below
  *  compare against the BYTES that ship. Same reason tests/zastepcze.unit.ts reads rather
@@ -109,12 +109,19 @@ test.describe('O nas: Phase 2 acceptance', () => {
 		expect(tekst).not.toMatch(/\b\d+\b/u);
 	});
 
-	test('nasze miejsce renders every block the żłobek sent (2026-08-18)', async ({ page }) => {
+	// Counts and reads from BLOKI_MIEJSCA, which is the żłobek's five blocks plus the one we
+	// compose from w-skrocie.json (2026-08-18). Asserting against the source rather than a
+	// literal is what makes the sixth block covered without a rule of its own, and it also
+	// pins the composed block's TEXT: if the store's hours or number of places change, the
+	// expectation moves with the page instead of going stale against it.
+	test('nasze miejsce renders every block, the żłobek’s five and ours (2026-08-18)', async ({
+		page
+	}) => {
 		await page.goto('/o-nas');
 		const sekcja = page.locator('section[aria-labelledby="miejsce-heading"]');
 		const karty = sekcja.locator('.miejsce-card');
-		await expect(karty).toHaveCount(MIEJSCE.length);
-		for (const [i, blok] of MIEJSCE.entries()) {
+		await expect(karty).toHaveCount(BLOKI_MIEJSCA.length);
+		for (const [i, blok] of BLOKI_MIEJSCA.entries()) {
 			await expect(karty.nth(i).locator('h3')).toHaveText(blok.tytul);
 			await expect(karty.nth(i).locator('p')).toHaveText(blok.opis);
 		}

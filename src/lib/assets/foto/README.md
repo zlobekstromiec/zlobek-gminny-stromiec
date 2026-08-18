@@ -12,6 +12,12 @@ gallery tile, and the panel's deletion rule would have to reason about a file th
 layouts depend on. Keeping the two directories apart makes the ownership obvious from the
 path alone.
 
+`budynek-front.jpg` was COPIED into `../uploads/` on 2026-08-18 so it could also be the
+gallery's sixth tile. The original here stays, because the hero imports it from this path
+and because the gallery cannot read a file outside its own directory. Editing the hero
+photograph therefore now means replacing BOTH files, and that is the price of the split
+rather than an argument against it.
+
 The consequence, and it is a real one: these two pictures are NOT editable from the panel.
 Changing either is a pull request. That is the accepted trade for the hero of a public
 institution's homepage, and it is recorded here rather than discovered later.

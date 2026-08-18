@@ -83,3 +83,24 @@ export function godzinyStopkiZakres(atomy: AtomyGodzin): string {
 export function godzinyStopkiWeekend(atomy: AtomyGodzin): string {
 	return atomy.weekend;
 }
+
+/**
+ * The sixth surface (2026-08-18): the „Miejsca i godziny opieki" block of „Nasze miejsce i
+ * codzienność" on /o-nas. A whole sentence rather than a fragment, because that section is
+ * prose blocks and not labelled tiles.
+ *
+ * IT IS A FUNCTION HERE RATHER THAN A TEMPLATE IN THE BLOCK, which is the header's rule
+ * doing its job on the first surface added after it was written. Composing
+ * `${dniPelne} ${godziny}` at the call site is how the seventh surface then invents a
+ * seventh phrasing, and the reason the hours were unified in the first place.
+ *
+ * BOTH ATOMS GO IN VERBATIM. Writing „od poniedziałku do piątku" here would read better
+ * than the stored „poniedziałek-piątek" and would be exactly the rephrasing this module
+ * exists to prevent: the stored value is the żłobek's, and a surface that quietly improves
+ * it has made the store stop describing the page. The weekend atom is deliberately absent,
+ * not forgotten: it is a fragment shaped for a labelled footer line („soboty i niedziele:
+ * nieczynne") and cannot enter a sentence without being reworded.
+ */
+export function godzinyBlokuOpieki(atomy: AtomyGodzin): string {
+	return `Żłobek jest czynny ${atomy.dniPelne} w godzinach ${atomy.godziny}.`;
+}

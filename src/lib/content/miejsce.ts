@@ -22,6 +22,9 @@
 // in time (sale, plac zabaw, toalety, posiłki, adaptacja), which is a better reading order
 // than anything a rearrangement would buy.
 
+import { ATOMY_GODZIN, W_SKROCIE } from '../w-skrocie.ts';
+import { godzinyBlokuOpieki } from '../godziny.ts';
+
 /** One block: a heading and one paragraph. No icon and no image field. The section is
  *  prose, and the photographs of these same rooms are two sections further down in the
  *  gallery, where they are already captioned and already open in a lightbox. Pairing each
@@ -53,3 +56,35 @@ export const MIEJSCE: readonly BlokMiejsca[] = Object.freeze([
 		opis: 'W pierwszych dniach września zapraszamy na spokojny proces adaptacji, który odbywa się wspólnie z rodzicami. Wiemy, jak ważne jest dla dziecka poczucie bezpieczeństwa, dlatego indywidualnie dostosowujemy tempo adaptacji do potrzeb każdego malucha.'
 	}
 ]);
+
+/**
+ * The sixth block (2026-08-18), and THE ONE ABOVE IS STILL EXACTLY FIVE. That separation is
+ * the point of this export existing at all: `MIEJSCE` is what the żłobek wrote and carries
+ * the rule at the head of this file, while this block is ours. Appending a sixth entry to
+ * the frozen array would have made the two indistinguishable to the next reader, and the
+ * rule „these are the placówka's own words" would have quietly become false.
+ *
+ * NOTHING HERE IS AUTHORED PROSE ABOUT THE ŻŁOBEK. Both facts are read live out of
+ * src/lib/content/w-skrocie.json, the store the panel's „W skrócie" screen writes, so an
+ * editor changing the hours or the number of places changes this block in the same save.
+ * A hard-coded „6:30–16:30" would have been a second source for a fact that plan 05-09
+ * spent its whole scope unifying, and it would have gone stale silently.
+ *
+ * WHY THIS SECTION AND NOT ANOTHER. The five blocks describe the place; the number of
+ * places and the hours are facts about that same place, and „codzienność" is in the
+ * section's own heading. The capacity is not stated anywhere else on /o-nas: the fact tiles
+ * that carry it are a homepage component.
+ *
+ * The sentence about the hours is composed by `godzinyBlokuOpieki`, not glued together
+ * here. See that function for why the phrasing lives in src/lib/godziny.ts.
+ */
+const BLOK_OPIEKI: BlokMiejsca = Object.freeze({
+	tytul: 'Miejsca i godziny opieki',
+	opis: `Dysponujemy ${W_SKROCIE.miejsca} miejscami dla dzieci. ${godzinyBlokuOpieki(ATOMY_GODZIN)}`
+});
+
+/** What /o-nas renders: the żłobek's five, then ours. Consumers take this and never
+ *  `MIEJSCE`, so the section cannot acquire a second answer to „how many blocks are there".
+ *  `tests/o-nas.spec.ts` counts from it, which is what makes a block added here covered
+ *  without a new assertion being written for it. */
+export const BLOKI_MIEJSCA: readonly BlokMiejsca[] = Object.freeze([...MIEJSCE, BLOK_OPIEKI]);

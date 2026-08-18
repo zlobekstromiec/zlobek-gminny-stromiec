@@ -35,7 +35,7 @@
 	import Cta from '$lib/components/Cta.svelte';
 	import Lightbox from '$lib/components/Lightbox.svelte';
 	import { renderInline } from '$lib/markdown';
-	import { MIEJSCE } from '$lib/content/miejsce';
+	import { BLOKI_MIEJSCA } from '$lib/content/miejsce';
 	import onas from '$lib/content/o-nas.json';
 	import galeriaStore from '$lib/content/galeria.json';
 	import { czytajGalerie, galeriaZObrazami } from '$lib/galeria';
@@ -153,7 +153,7 @@
 	<div class="inner">
 		<h2 id="miejsce-heading">Nasze miejsce i codzienność</h2>
 		<ul class="miejsce">
-			{#each MIEJSCE as blok, i (i)}
+			{#each BLOKI_MIEJSCA as blok, i (i)}
 				<li class="miejsce-card">
 					<h3>{blok.tytul}</h3>
 					<p>{blok.opis}</p>
