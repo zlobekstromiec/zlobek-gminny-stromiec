@@ -293,9 +293,24 @@
 		gap: 32px;
 	}
 
+	/* 1.4fr SINCE 2026-08-19, RAISED FROM THE 1.2fr Amendment v1.6 §7 SPELLED OUT, and the
+	   spec carries a note in place saying so. The page had two two-column grids of
+	   DIFFERENT proportion stacked on top of each other: this header at 1.2/1 and `.uklad`
+	   below it at 1.4/1. Measured at 1280px, that put the status panel at x=704 and 473px
+	   wide directly above a rail block at x=743 and 433px wide, right edges matching to the
+	   pixel, so the panel overhung the rail by 39px on its left and read as sticking out of
+	   the page's own column.
+
+	   The direction is not arbitrary. 1.4/1 is what the CONTENT grid uses, and /kontakt uses
+	   it too, so the header was the outlier; moving the content instead would have widened
+	   the sticky form rail on the whole page to fix a header. Aligning up rather than down
+	   also lands the h1 and the lead on exactly the same left column as „Kryteria i
+	   punktacja" below them, which the 39px difference had been breaking as well.
+
+	   Below 1024px nothing changes: both grids are single-column there. */
 	@media (min-width: 1024px) {
 		.uklad-naglowka {
-			grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+			grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
 			column-gap: 48px;
 			align-items: start;
 		}

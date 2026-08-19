@@ -79,6 +79,37 @@ test('rekrutacja: kolumna formularza stoi na prawo od kolumny informacji (v1.6 �
 	expect(formularz!.x).toBeGreaterThan(info!.x + info!.width - 1);
 });
 
+// Naglowek rekrutacji stoi na TEJ SAMEJ siatce co tresc pod nim (2026-08-19). Do tej pory
+// byly to dwie siatki dwukolumnowe o roznych proporcjach jedna nad druga, 1.2/1 w naglowku
+// i 1.4/1 w tresci, wiec panel statusu mial przy 1280 px 473 px i zaczynal sie na x=704 nad
+// blokiem szyny o 433 px zaczynajacym sie na x=743. Prawe krawedzie zgadzaly sie co do
+// piksela, wiec panel wystawal o 39 px w lewo i czytal sie jak wychodzacy poza kolumne.
+//
+// Asercja porownuje DWA ELEMENTY ZE SOBA, nigdy z liczba pikseli: szerokosc kontenera,
+// padding i przerwa miedzy kolumnami moga sie zmienic i nie o nich jest ten kontrakt.
+// Obie asercje sa falszywe przed ta zmiana, i to dokladnie o zmierzone 39 px.
+test('rekrutacja: panel statusu ma tę samą szynę co blok awarii (2026-08-19)', async ({ page }) => {
+	await page.setViewportSize(VIEWPORTS.desktop);
+	await page.goto('/rekrutacja');
+
+	const panel = await page.locator('.status-banner').boundingBox();
+	const awaria = await page.locator('.blok-awaria').boundingBox();
+	expect(panel).not.toBeNull();
+	expect(awaria).not.toBeNull();
+	expect(Math.abs(panel!.x - awaria!.x)).toBeLessThanOrEqual(1);
+	expect(Math.abs(panel!.width - awaria!.width)).toBeLessThanOrEqual(1);
+
+	// Ta sama zmiana prostuje lewa kolumne: akapit wprowadzajacy i kolumna tresci zaczynaja
+	// sie i koncza w tym samym miejscu. Bez tego naglowek moglby zgadzac sie po prawej, a
+	// nadal rozjezdzac sie po lewej.
+	const intro = await page.locator('.uklad-naglowka .intro').boundingBox();
+	const info = await page.locator('.kolumna-info').boundingBox();
+	expect(intro).not.toBeNull();
+	expect(info).not.toBeNull();
+	expect(Math.abs(intro!.x - info!.x)).toBeLessThanOrEqual(1);
+	expect(Math.abs(intro!.width - info!.width)).toBeLessThanOrEqual(1);
+});
+
 // ZASTEPUJE asercje poprawki v1.6 §4 („panel stoi na prawo od naglowka"), ktora od
 // 2026-08-18 jest falszywa Z ZALOZENIA. Tamten uklad byl skrojony pod siedem wierszy
 // zastepczych; prawdziwy harmonogram ma czternascie i zostawial 979 px martwej
