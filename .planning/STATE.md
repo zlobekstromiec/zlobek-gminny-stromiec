@@ -6,9 +6,9 @@ current_phase: 6
 current_phase_name: Accessibility, Legal Compliance & Performance
 status: executing
 stopped_at: Faza 6 przeskalowana i omowiona; 06-CONTEXT.md gotowy, nastepny krok /gsd-ui-phase 6
-last_updated: "2026-08-19T13:05:00.000Z"
-last_activity: 2026-08-19
-last_activity_desc: "Quick 260819-jd1: nagłówek rekrutacji na tej samej siatce co treść, panel statusu równy szynie"
+last_updated: "2026-08-20T00:00:00.000Z"
+last_activity: 2026-08-20
+last_activity_desc: "Quick 260820-m35: zakres opłaty, punkty i odnośnik ZUS, odbiorca i podstawa prawna na /cennik; lista na obu torach usuwa pusty pas szyny 300 x 239 px"
 progress:
   total_phases: 9
   completed_phases: 6
@@ -324,6 +324,7 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 | 260818-l83 | Wiersze harmonogramu w stałej dwukolumnowej siatce: koniec z opisem raz obok godziny, raz pod nią | 2026-08-18 | ed17ead | [260818-l83-harmonogram-wiersze-planu-dnia-w-stalej-](./quick/260818-l83-harmonogram-wiersze-planu-dnia-w-stalej-/) |
 | 260818-sb0 | Szósty blok „Nasze miejsce” (miejsca i godziny z w-skrocie.json) oraz szóste zdjęcie galerii, obie siatki bez dziury | 2026-08-18 | e8df8d4 | [260818-sb0-o-nas-szosty-blok-miejsca-i-godziny-oraz](./quick/260818-sb0-o-nas-szosty-blok-miejsca-i-godziny-oraz/) |
 | 260819-jd1 | Nagłówek rekrutacji przechodzi na siatkę treści (1.4/1): panel statusu przestaje wystawać o 39 px poza szynę | 2026-08-19 | 1dbcc73 | [260819-jd1-rekrutacja-naglowek-na-tej-samej-siatce-](./quick/260819-jd1-rekrutacja-naglowek-na-tej-samej-siatce-/) |
+| 260820-m35 | Mail dyrektor z 2026-08-20: zakres opłaty z uchwały jako nowa sekcja, cztery punkty i odnośnik ZUS, odbiorca opłat (Gmina Stromiec), „Aktywny Maluch” i „Aktywny rodzic” w podstawie prawnej; lista na obu torach usuwa pusty pas szyny 300 x 239 px | 2026-08-20 | b7734a9 | [260820-m35-aktualizacja-tresci-o-oplatach-wg-maila-](./quick/260820-m35-aktualizacja-tresci-o-oplatach-wg-maila-/) |
 
 ### Roadmap Evolution
 
