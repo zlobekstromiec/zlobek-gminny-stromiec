@@ -36,14 +36,37 @@ export const NAGLOWEK = {
 	lead: 'Tutaj znajdziesz wszystkie opłaty za żłobek: opłatę za pobyt, wyżywienie oraz zasady odpisów za nieobecność. Wyjaśniamy też, jak świadczenie „Aktywnie w żłobku" z ZUS obniża rachunek rodzica.'
 } as const;
 
-/** The h2 of each of the six content sections, in the order they render. */
+/** The h2 of each of the seven content sections, in the order they render. */
 export const SEKCJE = {
 	oplata: 'Opłata za pobyt',
+	zakres: 'Co obejmuje opłata',
 	zus: 'Świadczenie „Aktywnie w żłobku" (ZUS)',
 	wyzywienie: 'Wyżywienie',
 	nieobecnosc: 'Nieobecność dziecka',
 	platnosci: 'Jak i kiedy płacić',
 	podstawa: 'Podstawa prawna'
+} as const;
+
+/** What the fee covers, transposed from the uchwała paragraf 1 ustep 2 quoted in the
+ *  dyrektor's e-mail of 2026-08-20 into a parent's language without changing its meaning.
+ *
+ *  EVERY POINT IS AT MOST 60 CHARACTERS AND THAT IS A LAYOUT CONTRACT, NOT A STYLE
+ *  PREFERENCE. The list spans both tracks of the editorial split and runs in two columns
+ *  from 1024px, which at 1280px gives each column (1088 − 48) / 2 = 520px, exactly the
+ *  65ch cap for 16px text. A longer point wraps to a second line, the list grows by half
+ *  and the empty left rail this layout exists to remove comes back. tests/responsive.spec.ts
+ *  pins it: no li may exceed 40px tall at 1280px. */
+export const ZAKRES = {
+	wstep: 'Opłata za pobyt obejmuje:',
+	punkty: [
+		'opiekę w warunkach zbliżonych do domowych',
+		'opiekę pielęgnacyjną i zajęcia z elementami edukacji',
+		'zajęcia opiekuńczo-wychowawcze dopasowane do wieku',
+		'wyżywienie zgodne z normami żywieniowymi',
+		'wsparcie rodziny w wychowaniu dziecka',
+		'troskę o zdrowie i bezpieczeństwo dziecka',
+		'obserwację rozwoju dziecka i zajęcia pod jego potrzeby'
+	]
 } as const;
 
 /** The breakdown block: its h3 and the three row labels. The VALUES belong to the
@@ -77,6 +100,36 @@ export function przykladZus(kwotaProza: string): string {
 export const ZUS_WNIOSEK =
 	'Wniosek o świadczenie składasz elektronicznie, w serwisie ZUS. Chętnie pomożemy Ci przejść przez formalności: napisz do nas.';
 
+/** The programme in four points, requested by the dyrektor's e-mail of 2026-08-20.
+ *
+ *  FOUR, not five. The brief carries five verified facts, and the third of them (ZUS pays
+ *  the money straight to the żłobek) is already on this page inside przykladZus, in the
+ *  same sentence as its zero amount. Restating it here would be noise and would put the
+ *  same claim in two blocks that a responsive rule can separate.
+ *
+ *  HARD RULE 2 applies to every line below: not one of them states the benefit's own
+ *  złoty amount. The ZUS limits change yearly and no editor has a panel field to correct
+ *  them, so a published figure would be the first thing on this page to go stale. The
+ *  link to zus.pl carries the current numbers instead.
+ *
+ *  These render as a SIBLING of #zus-blok, never inside it: Contract 4b pins the DOM
+ *  order of that block's three paragraphs and the zero-amount gate measures that node. */
+export const ZUS_PUNKTY = [
+	'„Aktywnie w żłobku" to jedno z trzech świadczeń programu „Aktywny Rodzic".',
+	'Wniosek składa rodzic, wyłącznie elektronicznie: w PUE/eZUS, w aplikacji mZUS, w bankowości elektronicznej albo na portalu Emp@tia.',
+	'Wniosek złożony w ciągu 2 miesięcy od zapisania dziecka daje świadczenie od miesiąca zapisu. Wniosek złożony później obejmuje dopiero miesiąc, w którym go składasz.',
+	'Świadczenie nie przysługuje, jeśli na to samo dziecko w tym samym miesiącu przyznano „aktywni rodzice w pracy" albo „aktywnie w domu".'
+] as const;
+
+/** The external ZUS link the dyrektor asked for. The address was verified with curl
+ *  before planning (HTTP 200, no redirect). The `/en/` variant is a language path and
+ *  must not be used; `/swiadczenia/aktywnyrodzic/...` returns 404. */
+export const ZUS_LINK = {
+	wstep: 'Szczegóły świadczenia i formularz wniosku znajdziesz na stronie ZUS.',
+	etykieta: 'Świadczenie aktywnie w żłobku na zus.pl',
+	url: 'https://www.zus.pl/aktywnyrodzic/wiadczenie-aktywnie-w-zlobku'
+} as const;
+
 // PLACEHOLDER: what the daily wyżywienie rate covers is not stated by any committed
 // source, so this line describes the scope in general terms and names no meal, no
 // count and no amount. Confirm with the żłobek before launch (Phase 6 sweep).
@@ -84,14 +137,19 @@ export const ZUS_WNIOSEK =
 export const WYZYWIENIE_SZCZEGOL =
 	'Stawka obejmuje wszystkie posiłki, które dziecko dostaje w żłobku w danym dniu.';
 
-// PLACEHOLDER: the payment method, the payment deadline and the consequence of paying
-// late are carried by NO source in this repository (05 D-30). This section therefore
-// states an account number, a day of the month, an interest rule and a consequence
-// NOWHERE, and points a parent at the żłobek instead. Confirm all three with the
-// żłobek before launch (Phase 6 sweep).
-/** „Jak i kiedy płacić". Invents nothing. */
+// PLACEHOLDER: THREE facts, not four. The account number, the payment deadline and the
+// consequence of paying late are still carried by NO source in this repository (05 D-30),
+// so this section states an account number, a day of the month, an interest rule and a
+// consequence NOWHERE, and points a parent at the żłobek instead. Confirm all three with
+// the żłobek before launch (Phase 6 sweep).
+//
+// The RECIPIENT left this list on 2026-08-20 and is no longer unconfirmed: the uchwała
+// paragraf 3 ustep 1, quoted in the dyrektor's e-mail of that date, names Gmina Stromiec,
+// and the first sentence below states it. Striking the whole comment instead would have
+// quietly falsified the Phase 6 gate for the three facts that remain open.
+/** „Jak i kiedy płacić". Names the recipient, invents nothing else. */
 export const PLATNOSCI =
-	'Zasady płatności, w tym termin i numer konta, przekazujemy rodzicom przy zapisie dziecka do żłobka. Jeśli chcesz poznać je wcześniej, napisz do nas.';
+	'Opłaty za żłobek wnosisz na rzecz Gminy Stromiec. Zasady płatności, w tym termin i numer konta, przekazujemy rodzicom przy zapisie dziecka do żłobka. Jeśli chcesz poznać je wcześniej, napisz do nas.';
 
 /** „Podstawa prawna" and its link into the documents section. The uchwała itself is
  *  never restated here: it lives in /dokumenty, which is the surface that owns it. */
@@ -99,6 +157,18 @@ export const PODSTAWA = {
 	tresc:
 		'Wysokość opłat ustala Rada Gminy Stromiec w uchwale. Aktualną uchwałę znajdziesz ' +
 		'w zakładce Dokumenty.',
+	/* Both paragraphs below explain the MECHANISM of the reduction whose arithmetic the
+	   breakdown in section 2 already shows. Neither states an amount (HARD RULE 1), and
+	   the only en dash is the year range 2022–2029, which is what the copy rules allow. */
+	obnizka:
+		'Obniżka opłaty obowiązuje w okresie 36 miesięcy trwałości projektu „Budowa Żłobka ' +
+		'w miejscowości Stromiec", zrealizowanego w ramach programu „Aktywny Maluch" ' +
+		'2022–2029, dofinansowanego ze środków KPO i FERS.',
+	aktywnyRodzic:
+		'Jeśli ZUS przyzna dofinansowanie na podstawie ustawy z dnia 15 maja 2024 r. ' +
+		'o wspieraniu rodziców w aktywności zawodowej oraz w wychowaniu dziecka „Aktywny ' +
+		'rodzic" (Dz. U. z 2024 poz. 858 ze zm.), opłata jest obniżana do wysokości ' +
+		'przyznanego dofinansowania.',
 	etykietaLinku: 'Zobacz dokumenty',
 	href: '/dokumenty'
 } as const;

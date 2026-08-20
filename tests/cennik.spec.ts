@@ -7,8 +7,9 @@ import AxeBuilder from '@axe-core/playwright';
  * of 05-VALIDATION.md.
  *
  * Contract highlights (05-UI-SPEC.md Contracts 3 and 4):
- * - eight sections, no <table>: an amount and its condition are one block, and a table
- *   splits them into cells that land on different rows at mobile width;
+ * - nine sections since quick 260820-m35 (Contract 3 annotated in lockstep), no <table>:
+ *   an amount and its condition are one block, and a table splits them into cells that
+ *   land on different rows at mobile width;
  * - the payable amount is COMPUTED from two stored numbers (05 D-28), so this file
  *   pins the ARITHMETIC and never a particular amount. Nothing here retypes a złoty
  *   figure, which is what lets an editor change the fee in the panel without turning
@@ -26,6 +27,15 @@ import AxeBuilder from '@axe-core/playwright';
    carry a digit before the zero, so only a standalone zero amount matches. */
 const ZERO = /(^|[^0-9])0(,00)?\s*zł/;
 
+/* Zakres listy „Co obejmuje opłata" (quick 260820-m35). Sekcja jest wskazywana przez
+   swoj wlasny naglowek, wiec selektor nie zalezy od kolejnosci sekcji na stronie. */
+const LISTA_ZAKRESU = 'section[aria-labelledby="zakres-heading"] ul.lista';
+
+/* Adres zweryfikowany `curl` przed planowaniem (HTTP 200, bez przekierowania). Wariant
+   `/en/` i sciezka `/swiadczenia/aktywnyrodzic/...` sa oba bledne, wiec adres jest
+   przypiety doslownie. */
+const URL_ZUS = 'https://www.zus.pl/aktywnyrodzic/wiadczenie-aktywnie-w-zlobku';
+
 test.describe('Cennik: FEES-01 acceptance', () => {
 	test('strona /cennik odpowiada statusem 200', async ({ page }) => {
 		const response = await page.goto('/cennik');
@@ -42,6 +52,8 @@ test.describe('Cennik: FEES-01 acceptance', () => {
 		await page.goto('/cennik');
 		for (const nazwa of [
 			'Opłata za pobyt',
+			// Siodmy wpis, dodany przez quick 260820-m35: zakres oplaty z uchwaly.
+			'Co obejmuje opłata',
 			'Świadczenie „Aktywnie w żłobku" (ZUS)',
 			'Wyżywienie',
 			'Nieobecność dziecka',
@@ -69,6 +81,29 @@ test.describe('Cennik: FEES-01 acceptance', () => {
 		expect(placi).toBe(stawka - obnizka);
 		expect(obnizka).toBeGreaterThanOrEqual(0);
 		expect(obnizka).toBeLessThan(stawka);
+	});
+
+	/* Siedem punktow, bo tyle wylicza uchwala (par. 1 ust. 2, mail dyrektor 2026-08-20).
+	   Liczba jest przypieta, a nie „wieksza od zera": skrocenie listy do szesciu punktow
+	   przemilczaloby jeden z obowiazkow, ktore oplata pokrywa. */
+	test('sekcja zakresu wylicza siedem punktów z uchwały (260820-m35)', async ({ page }) => {
+		await page.goto('/cennik');
+		const lista = page.locator(LISTA_ZAKRESU);
+		await expect(lista).toHaveCount(1);
+		await expect(lista.locator('li')).toHaveCount(7);
+	});
+
+	/* Odnosnik, o ktory prosi dyrektor. Pinujemy adres, nowa karte i `noopener`, bo
+	   `target="_blank"` bez niego oddaje otwartej stronie uchwyt `window.opener`. */
+	test('odnośnik do ZUS prowadzi pod zweryfikowany adres i otwiera nową kartę (260820-m35)', async ({
+		page
+	}) => {
+		await page.goto('/cennik');
+		const link = page.getByRole('link', { name: /^Świadczenie aktywnie w żłobku/ });
+		await expect(link).toBeVisible();
+		await expect(link).toHaveAttribute('href', URL_ZUS);
+		await expect(link).toHaveAttribute('target', '_blank');
+		await expect(link).toHaveAttribute('rel', /noopener/);
 	});
 
 	test('kwota zero pojawia się wyłącznie razem ze swoim warunkiem (D-31)', async ({ page }) => {

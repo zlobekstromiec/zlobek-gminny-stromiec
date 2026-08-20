@@ -422,6 +422,8 @@ and `<table>` are both rejected.
 
 **Section order and surface alternation:**
 
+> **Correction (2026-08-20, quick 260820-m35): this page has NINE sections, not eight, and the surfaces of sections 4 to 8 are flipped from what the table below says.** The dyrektor's e-mail of 2026-08-20 supplied the seven-point scope of the fee from the uchwała (paragraf 1 ustep 2), which is the answer to „za co płacę" and is asked the moment a parent has read the amount, so it is inserted as a new section 3 **„Co obejmuje opłata"** on `#FFFFFF` directly under the fee block. Alternation is what forces the rest: **ZUS moves white → warm, Wyżywienie warm → white, Nieobecność white → warm, Jak i kiedy płacić warm → white, Podstawa prawna white → warm.** The closing CTA band is unchanged. The alternative, two warm sections in a row, was rejected because it puts a 128px warm seam between the fee block and the list, which is more empty space and this change exists to remove empty space. One side effect is an improvement: the white `#zus-blok` panel now sits on a warm surface and finally reads as a panel. Read the table below with rows 4 to 8 shifted one position down and their surfaces swapped.
+
 | # | Section | Surface | Notes |
 |---|---------|---------|-------|
 | 1 | Page header: `h1` „Cennik" + lead | `#FFFFFF` | Optional single decorative flourish, `aria-hidden` |
@@ -438,6 +440,16 @@ minmax(0, 1fr)`, column-gap 48px, `align-items: start`): the `h2` sits in the le
 the content fills the right track. Below 1024px nothing changes. This is the pattern
 `/o-nas` and `/dokumenty` already use, so `/cennik` needs no new layout idiom and the
 desktop tier is composed rather than left as a narrow column in a wide container.
+
+> **Correction (2026-08-20, quick 260820-m35): „needs no new layout idiom" no longer holds. `/cennik` now carries a `.szeroko` container that spans BOTH tracks of the editorial split, and inside it a two-column text list from 1024px.** The reason is measured, not stylistic. The left rail holds nothing but its `h2`, so a seven-point list confined to the right track leaves the rail white for the whole run below that heading: measured at 1280px the rejected single-column variant gave a **300 x 239px empty rail** and a 402px-tall section. Spanning both tracks (`grid-column: 1 / -1`) puts the list under the rail as well, and two columns of exactly 520px (`(1088 − 48) / 2`, which is the 65ch cap for 16px text) fit every point on one line, so the list is four rows of 24px instead of seven. Measured result: **list 1088 x 120px, section 306px including its 2 x 64px padding, and 23px of rail below the h2, which is the grid row gap itself.**
+>
+> The spanning mechanism is NOT new to this document: Contract 2 already grants it to the `/o-nas` gallery („the gallery `<ul>` spans both tracks"), and this is the same rule applied to a text list. What is new is the **two-column text list**, and it carries three conditions:
+>
+> 1. **Grid, never `column-count`.** `repeat(2, minmax(0, 1fr))` makes item 2's position deterministic; `column-count` leaves balancing to the browser and makes „how many columns" untestable.
+> 2. **60 characters per point is a layout contract, not a style preference.** A longer point wraps to a second line and the list grows by half, which brings the empty rail back. `tests/responsive.spec.ts` pins it: no `li` may exceed 40px tall at 1280px.
+> 3. **Two columns only where the items are short.** The four ZUS points added in the same change are 73 to 163 characters, and in two columns they measured as ragged blocks 120px to 176px tall whose rows never aligned. They stay **single column and keep the 65ch cap**, still inside a both-track `.szeroko` so the rail is filled either way. Dropping the cap the way the two-column tier does would have set them 1088px wide, about 136 characters per line.
+>
+> Below 1024px `.uklad` is not a grid, so the container stacks and the list is single-column at 65ch. That applies at 768px too: two columns there would be about 43ch each and every point would wrap, making the list taller than one column, not shorter.
 
 Section vertical padding 48px → 64px at `lg`, matching `/dokumenty`. Prose caps at 65ch.
 

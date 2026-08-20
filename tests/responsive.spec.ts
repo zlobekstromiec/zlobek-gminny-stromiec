@@ -208,6 +208,66 @@ test('telefon: każdy wiersz planu dnia stoi w kolumnie, godzina nad opisem (202
 	expect(wszystkiePodSpodem).toBe(true);
 });
 
+// Siedmiopunktowa lista „Co obejmuje opłata" (quick 260820-m35). Ta lista NIE siedzi w
+// prawym torze podzialu redakcyjnego: jest rozpieta na oba tory (`grid-column: 1 / -1`,
+// idiom galerii z Kontraktu 2) i od 1024 px jest dwukolumnowa. Bez tego przy 1280 px
+// lewa szyna 300 px stalaby pusta na okolo 230 px pod naglowkiem, czyli dokladnie ten
+// „duzy pusty obszar", ktorego zlecajacy zakazal.
+//
+// Asercja wysokosci `li` jest tu tym, co chroni pomiar: kolumna ma (1088 − 48) / 2 =
+// 520 px, czyli limit 65ch dla tekstu 16 px, wiec kazdy punkt miesci sie w JEDNEJ linii
+// (24 px). Punkt dluzszy niz 60 znakow zlamalby sie na dwie linie i lista urosla by o
+// polowe, a wtedy uklad przestaje rozwiazywac problem, dla ktorego powstal.
+const LISTA_ZAKRESU = 'section[aria-labelledby="zakres-heading"] ul.lista li';
+
+test('cennik: zakres opłaty to dwie kolumny przy 1280 px, każdy punkt w jednej linii (260820-m35)', async ({
+	page
+}) => {
+	await page.setViewportSize(VIEWPORTS.desktop);
+	await page.goto('/cennik');
+
+	const punkty = page.locator(LISTA_ZAKRESU);
+	await expect(punkty).toHaveCount(7);
+
+	const pierwszy = await punkty.nth(0).boundingBox();
+	const drugi = await punkty.nth(1).boundingBox();
+	expect(pierwszy).not.toBeNull();
+	expect(drugi).not.toBeNull();
+
+	// Dwie kolumny: element 2 stoi OBOK elementu 1, nie pod nim. Siatka
+	// `repeat(2, minmax(0, 1fr))` daje to deterministycznie; `column-count` zostawilby
+	// rownowazenie przegladarce i ta asercja bylaby zgadywanka.
+	expect(drugi!.x).toBeGreaterThan(pierwszy!.x + pierwszy!.width - 1);
+	expect(Math.abs(drugi!.y - pierwszy!.y)).toBeLessThanOrEqual(1);
+
+	// Dokladnie dwie kolumny na calej liscie, nie tylko w pierwszym wierszu.
+	const odsuniecia = await punkty.evaluateAll((wiersze) => [
+		...new Set(wiersze.map((w) => Math.round(w.getBoundingClientRect().x)))
+	]);
+	expect(odsuniecia).toHaveLength(2);
+
+	// Kazdy punkt w jednej linii: wiersz 24 px plus zapas na zaokraglenia.
+	const wysokosci = await punkty.evaluateAll((wiersze) =>
+		wiersze.map((w) => w.getBoundingClientRect().height)
+	);
+	for (const wysokosc of wysokosci) {
+		expect(wysokosc).toBeLessThanOrEqual(40);
+	}
+});
+
+test('cennik: zakres opłaty to jedna kolumna przy 375 px (260820-m35)', async ({ page }) => {
+	await page.setViewportSize(VIEWPORTS.phone);
+	await page.goto('/cennik');
+
+	const punkty = page.locator(LISTA_ZAKRESU);
+	await expect(punkty).toHaveCount(7);
+
+	const odsuniecia = await punkty.evaluateAll((wiersze) => [
+		...new Set(wiersze.map((w) => Math.round(w.getBoundingClientRect().x)))
+	]);
+	expect(odsuniecia).toHaveLength(1);
+});
+
 test('phone width shows the hamburger, hides the inline nav links (SITE-02)', async ({ page }) => {
 	await page.setViewportSize(VIEWPORTS.phone);
 	await page.goto('/');
