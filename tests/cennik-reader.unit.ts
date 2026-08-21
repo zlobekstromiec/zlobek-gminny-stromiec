@@ -14,6 +14,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { cennikZWpisu } from '../src/lib/cennik.ts';
+import * as proza from '../src/lib/content/cennik.ts';
 
 // The exact key set the view may expose, pre-sorted. This is a key-set EQUALITY on
 // purpose: it is the durable proof that cennikZWpisu constructs its result key by key
@@ -136,4 +137,42 @@ test('znacznik placeholder jest czytany jako wartosc logiczna, nie przepuszczany
 	assert.equal(czytaj(poprawnyWpis())!.placeholder, true);
 	assert.equal(czytaj({ ...poprawnyWpis(), placeholder: false })!.placeholder, false);
 	assert.equal(czytaj({ ...poprawnyWpis(), placeholder: 'tak' })!.placeholder, false);
+});
+
+// HARD RULE 1 of src/lib/content/cennik.ts, made EXECUTABLE (quick 260821-gyh). Until now
+// the rule that the prose module states no złoty figure was defended by a comment only,
+// and this task added a fourth string to that module. A source-text grep would be the wrong
+// gate: two of the three „zł" matches in that file sit inside its own doc comments, which
+// discuss the rule rather than break it. So the gate reads the module's exported VALUES.
+//
+// The single carve-out is HARD RULE 3: przykladZus renders one zero, in the same sentence
+// as the condition under which a parent does not pay it. It is asserted as an exact list
+// rather than tolerated, so a SECOND amount sneaking into that function still turns red.
+const KWOTA_W_ZLOTYCH = /\d[\d\s\u00a0]*zł/gu;
+
+function kwotyW(wartosc: unknown, zebrane: string[] = []): string[] {
+	if (typeof wartosc === 'string') {
+		for (const trafienie of wartosc.matchAll(KWOTA_W_ZLOTYCH)) zebrane.push(trafienie[0]);
+	} else if (Array.isArray(wartosc)) {
+		for (const element of wartosc) kwotyW(element, zebrane);
+	} else if (wartosc && typeof wartosc === 'object') {
+		for (const element of Object.values(wartosc)) kwotyW(element, zebrane);
+	}
+	return zebrane;
+}
+
+test('HARD RULE 1: zaden staly eksport modulu prozy nie niesie kwoty w zlotych', () => {
+	const stale = Object.entries(proza).filter(([, wartosc]) => typeof wartosc !== 'function');
+	for (const [nazwa, wartosc] of stale) {
+		assert.deepEqual(
+			kwotyW(wartosc),
+			[],
+			`eksport ${nazwa} niesie kwote w zlotych, a kwoty naleza wylacznie do sklepu`
+		);
+	}
+});
+
+test('HARD RULE 3: przykladZus niesie DOKLADNIE jedno zero i zadnej innej kwoty', () => {
+	// Znacznik bez cyfr w miejscu kwoty ze sklepu, zeby test mierzyl sama proze.
+	assert.deepEqual(kwotyW(proza.przykladZus('KWOTA_ZE_SKLEPU')), ['0 zł']);
 });

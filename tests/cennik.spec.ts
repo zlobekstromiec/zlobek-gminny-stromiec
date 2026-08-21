@@ -1,5 +1,9 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+/* Asercje porownuja sie ze STALYMI, nigdy z przepisanym literalem: precedens
+   tests/admin-cennik.spec.ts. Przepisany napis rozjechalby sie z modulem prozy przy
+   pierwszej korekcie i test bronilby wtedy nieistniejacej tresci. */
+import { KWOTA_PODPIS, ROZBICIE } from '../src/lib/content/cennik';
 
 /**
  * Cennik acceptance test: encodes FEES-01 (a parent can read the fees page) plus the
@@ -104,6 +108,37 @@ test.describe('Cennik: FEES-01 acceptance', () => {
 		await expect(link).toHaveAttribute('href', URL_ZUS);
 		await expect(link).toHaveAttribute('target', '_blank');
 		await expect(link).toHaveAttribute('rel', /noopener/);
+	});
+
+	/* Podpis przy kwocie (260821-gyh). Najglosniejsza liczba na stronie stoi dzis bez
+	   etykiety: `naglowek` nad nia jest tytulem bloku, nie podpisem liczby, i wlasnie na tym
+	   potknela sie dyrektorka zlobka, czytajac stawke z uchwaly jako czesne. Podpis musi stac
+	   w TYM SAMYM bloku co kwota, zeby zadna regula responsywna ich nie rozdzielila, i musi
+	   byc bezkwotowy, zeby nie ruszyc bramki kwoty zerowej ponizej. */
+	test('kwota ma podpis mówiący, że to kwota rodzica, w tym samym bloku (260821-gyh)', async ({
+		page
+	}) => {
+		await page.goto('/cennik');
+		const ramka = page.locator('.ramka-oplaty');
+		await expect(ramka).toHaveCount(1);
+		await expect(ramka.locator('.kwota')).toHaveCount(1);
+
+		const podpis = ramka.locator('p.kwota-podpis');
+		await expect(podpis).toHaveCount(1);
+		await expect(podpis).toBeVisible();
+		await expect(podpis).toHaveText(KWOTA_PODPIS);
+
+		// Podpis stoi BEZPOSREDNIO nad kwota. Sasiedztwo w DOM jest kontraktem: dwa akapity,
+		// ktore regula responsywna moze rozdzielic, to dokladnie ta awaria, ktorej Kontrakt 4a
+		// zabrania dla kwoty i jej warunku.
+		await expect(ramka.locator('p.kwota-podpis + p.kwota')).toHaveCount(1);
+
+		// HARD RULE 1: podpis nie niesie zadnej cyfry, wiec nie moze ruszyc bramki kwoty zerowej.
+		expect(await podpis.innerText()).not.toMatch(/\d/);
+
+		// Podpis i dolny wiersz rozbicia mowia to samo, i to jest mechanizm, nie przypadek.
+		expect(KWOTA_PODPIS).toBe(`${ROZBICIE.placi}:`);
+		expect(ROZBICIE.stawka).toMatch(/przed obniżką/);
 	});
 
 	test('kwota zero pojawia się wyłącznie razem ze swoim warunkiem (D-31)', async ({ page }) => {

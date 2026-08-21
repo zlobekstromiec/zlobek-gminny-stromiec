@@ -166,7 +166,7 @@ Inherited unchanged. **No new size, no new weight, no new family.** Role assignm
 | Heading (20px sub-step) | `/cennik` `h3` („Skąd bierze się ta kwota"), lightbox caption heading | Baloo 2 | 20px | 700 | 1.2 |
 | **Fee headline value** | the payable amount on `/cennik` and in `FeeBox` | Baloo 2 | **20px** (the inherited card-title sub-step, identical to `FeeBox.svelte` `.kwota` today) | 700 | 1.2 |
 | Fee breakdown value | `2 337 zł` / `837 zł` / `1 500 zł` rows | Baloo 2 | 17px (v1.1 extended scale) | 700 | 1.4 |
-| Fee breakdown label | „Stawka z uchwały", „Obniżka", „Rodzic płaci" | Nunito | 15px | 400 | 1.5 |
+| Fee breakdown label | „Stawka z uchwały (przed obniżką)" (widened 2026-08-21, quick 260821-gyh), „Obniżka", „Rodzic płaci" | Nunito | 15px | 400 | 1.5 |
 | Lead | `/cennik` page lead | Nunito | 19px (v1.1 lead-quote role) | 400 | 1.55 |
 | Body | `/cennik` prose, gallery intro prose | Nunito | 16px | 400 | 1.5 |
 | Body (15px step) | fee qualifying lines, worked example, panel hints and validation | Nunito | 15px | 400 (700 for validation) | 1.5 |
@@ -480,6 +480,16 @@ into a sibling block by a responsive rule.**
 
 Contents, in DOM order, all inside that one block:
 1. the payable amount, Baloo 700 20px, `white-space: nowrap`;
+
+> **Korekta (2026-08-21, quick 260821-gyh):** a CODE-AUTHORED caption now precedes the payable amount, so the
+> DOM order inside the block is caption, amount, `kwotaOpis`, breakdown. It renders as
+> `p.kwota-podpis` (Label role: Nunito 700 14px `--color-muted`) immediately before
+> `p.kwota`, and that adjacency is pinned by `tests/cennik.spec.ts` as an adjacent-sibling
+> selector. It is code and never the store, because a panel save rewrites `naglowek`
+> wholesale and would delete a store-side fix. It may never carry an amount or the period
+> word. Reason: the loudest figure on the page carried no label at all, and the zlobek's
+> dyrektor read the uchwala's gross rate as the czesne on 2026-08-20.
+
 2. `kwotaOpis`, Nunito 400 15px;
 3. the breakdown (below);
 4. `wyzywienie` is **not** here: it has its own section, exactly as `FeeBox` keeps it a
@@ -491,9 +501,15 @@ An `h3` „Skąd bierze się ta kwota" followed by a `dl > div > dt/dd` of three
 
 | `dt` (Nunito 400 15px muted) | `dd` (Baloo 700 17px ink) |
 |---|---|
-| Stawka z uchwały | `{stawka} zł` |
+| Stawka z uchwały (przed obniżką) | `{stawka} zł` |
 | Obniżka | `{obnizka} zł` |
 | Rodzic płaci | `{stawka - obnizka} zł` |
+
+> **Korekta (2026-08-21, quick 260821-gyh):** the first `dt` gained „(przed obniżką)". The bare label left
+> the row ambiguous about which side of the reduction it sat on, while the row directly
+> below it IS the reduction. „z uchwały" is kept deliberately: the panel field label uses
+> the same name, so one number keeps exactly one name across the public page and the
+> editor's screen.
 
 - **Two numbers are stored, the third is computed** (05 D-28), so the page cannot
   contradict its own arithmetic.
@@ -804,7 +820,7 @@ build. No JavaScript required for anything on this screen.
 
 | Field | Control | Label | Hint |
 |---|---|---|---|
-| `stawka` | `number`, `inputmode="numeric"`, `min="0"`, `max="9999"` | `Stawka z uchwały (zł) *` | `Pełna miesięczna stawka za pobyt, w pełnych złotych, bez groszy. Na przykład 2337.` |
+| `stawka` | `number`, `inputmode="numeric"`, `min="0"`, `max="9999"` | `Stawka z uchwały (zł) *` | `Pełna stawka z uchwały, przed odjęciem obniżki. Nie jest to kwota, którą płaci rodzic. Tę wyliczamy sami i pokazujemy niżej. Wpisz stawkę w pełnych złotych, bez groszy, na przykład 2337.` (rewritten 2026-08-21, quick 260821-gyh; the LABEL is unchanged, because it is the control's accessible name and the validation-summary link text, so the disambiguation belongs in the hint that `aria-describedby` points at) |
 | `obnizka` | `number`, same | `Obniżka (zł) *` | `O ile obniżamy stawkę. Jeśli nie stosujemy obniżki, wpisz 0. Na przykład 837.` |
 
 Directly beneath the two controls, a read-only line (Nunito 400 15px `muted`):
@@ -1105,10 +1121,11 @@ interpolated at render time.
 | Page lead | `Tutaj znajdziesz wszystkie opłaty za żłobek: opłatę za pobyt, wyżywienie oraz zasady odpisów za nieobecność. Wyjaśniamy też, jak świadczenie „Aktywnie w żłobku" z ZUS obniża rachunek rodzica.` |
 | Section 2 `h2` | `Opłata za pobyt` |
 | Fee block heading | the stored `naglowek` (shipped value `Opłaty w skrócie`) |
+| Fee amount caption (code-authored, added 2026-08-21 quick 260821-gyh) | `Rodzic płaci:` — character-identical to the `Rodzic płaci` breakdown label plus a colon, on purpose: the label on the loudest number and the bottom row of the breakdown say the same two words |
 | Fee amount | `{kwota} miesięcznie` (shipped value `1 500 zł miesięcznie`) |
 | Fee description | the stored `kwotaOpis` |
 | Breakdown `h3` | `Skąd bierze się ta kwota` |
-| Breakdown labels | `Stawka z uchwały` · `Obniżka` · `Rodzic płaci` |
+| Breakdown labels | `Stawka z uchwały (przed obniżką)` · `Obniżka` · `Rodzic płaci` (first label widened 2026-08-21, quick 260821-gyh) |
 | Section 3 `h2` | `Świadczenie „Aktywnie w żłobku" (ZUS)` |
 | ZUS sentence | the stored `zus` (shipped value `Świadczenie „Aktywnie w żłobku" z ZUS może pokryć całą tę opłatę, pod warunkiem że ZUS przyzna je na Twoje dziecko.`) |
 | Worked example (ONE paragraph, amounts interpolated) | `Przykład: opłata za pobyt wynosi {kwota} miesięcznie. Jeśli ZUS przyzna świadczenie „Aktywnie w żłobku" w maksymalnej wysokości, przekazuje je bezpośrednio do żłobka i pokrywa całą tę opłatę, więc rodzic dopłaca 0 zł. Świadczenie nie jest przyznawane automatycznie: wniosek składa rodzic, a decyzję podejmuje ZUS.` |
@@ -1193,7 +1210,7 @@ interpolated at render time.
 | Group 1 legend | `Kwoty` |
 | Group 2 legend | `Opis opłat` |
 | Computed line | `Obecnie na stronie: {kwota} miesięcznie.` |
-| Computed line hint | `Ta kwota to stawka z uchwały pomniejszona o obniżkę. Zmieni się po zapisaniu.` |
+| Computed line hint | `To jest kwota, którą naprawdę płaci rodzic: stawka z uchwały pomniejszona o obniżkę. Zmieni się dopiero po zapisaniu.` (rewritten 2026-08-21, quick 260821-gyh; `docs/instrukcja-cms.md` quotes it verbatim and `tests/instrukcja.unit.ts` pins that quote, so the two move together) |
 | Field labels and hints | as tabulated in Contract 10 |
 | Saved link | `Zobacz stronę: Cennik` + visually-hidden ` (otwiera się w nowej karcie)` |
 

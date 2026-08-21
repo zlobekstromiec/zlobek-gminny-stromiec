@@ -69,11 +69,32 @@ export const ZAKRES = {
 	]
 } as const;
 
+/** The caption directly under the payable amount (quick 260821-gyh).
+ *
+ *  WHY THIS EXISTS: the loudest figure on the page had no label at all. `CENNIK.naglowek`
+ *  sits above it, but that is the block's title, not a caption for the number, so nothing
+ *  said which of the three amounts on this page a parent actually pays. The żłobek's own
+ *  dyrektor read the uchwała's gross rate as the czesne on 2026-08-20, which is the same
+ *  mistake a parent can make, and the fix belongs on the page rather than in a reply.
+ *
+ *  IT IS A LABEL, NEVER A SENTENCE, and it is code-authored on purpose. `naglowek` and
+ *  `kwotaOpis` are store fields the panel writes; a code-authored SENTENCE next to them
+ *  would start contradicting whatever an editor saves. A two-word label cannot.
+ *
+ *  It carries no period word. „miesięcznie" is welded to the figure inside `kwotaProza`
+ *  and declared exactly once (05 D-28); a second copy here would have to agree with it
+ *  character for character forever. */
+export const KWOTA_PODPIS = 'Rodzic płaci:';
+
 /** The breakdown block: its h3 and the three row labels. The VALUES belong to the
- *  store; only the labels are copy. */
+ *  store; only the labels are copy.
+ *
+ *  `stawka` says „Pełna" since quick 260821-gyh: the bare „Stawka z uchwały" left the row
+ *  ambiguous about whether it was before or after the reduction, and the row directly
+ *  below it is the reduction. */
 export const ROZBICIE = {
 	naglowek: 'Skąd bierze się ta kwota',
-	stawka: 'Stawka z uchwały',
+	stawka: 'Stawka z uchwały (przed obniżką)',
 	obnizka: 'Obniżka',
 	placi: 'Rodzic płaci'
 } as const;

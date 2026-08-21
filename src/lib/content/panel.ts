@@ -297,7 +297,7 @@ export const KOPIA_CENNIK = {
 	 *  live would need JavaScript on a screen that otherwise needs none, and a figure that
 	 *  changes as you type is the easiest thing on a form to mistake for a saved one. */
 	obliczonaPodpowiedz:
-		'Ta kwota to stawka z uchwały pomniejszona o obniżkę. Zmieni się po zapisaniu.',
+		'To jest kwota, którą naprawdę płaci rodzic: stawka z uchwały pomniejszona o obniżkę. Zmieni się dopiero po zapisaniu.',
 	/** Name of the public page the „Zapisano" panel links to. */
 	stronaNazwa: 'Cennik',
 	/** The commit description. Copy like any other: written in Polish by this project and
@@ -312,13 +312,19 @@ export const KOPIA_CENNIK = {
  *  „bez groszy" rather than leaving an editor to discover it from a refusal. */
 export const POLA_CENNIK = {
 	stawkaEtykieta: 'Stawka z uchwały (zł) *',
+	// Says outright that this is NOT the parent's amount (quick 260821-gyh). This is the
+	// FIRST and an EDITABLE control on the screen, while the payable figure appears third
+	// and read-only, so an editor who reads „stawka" as „czesne" could save a wrong number
+	// straight onto the live site. The żłobek's dyrektor made exactly that reading on
+	// 2026-08-20, from the uchwała rather than from this screen.
 	stawkaPodpowiedz:
-		'Pełna miesięczna stawka za pobyt, w pełnych złotych, bez groszy. Na przykład 2337.',
+		'Pełna stawka z uchwały, przed odjęciem obniżki. Nie jest to kwota, którą płaci rodzic. Tę wyliczamy sami i pokazujemy niżej. Wpisz stawkę w pełnych złotych, bez groszy, na przykład 2337.',
 	obnizkaEtykieta: 'Obniżka (zł) *',
 	obnizkaPodpowiedz:
-		'O ile obniżamy stawkę. Jeśli nie stosujemy obniżki, wpisz 0. Na przykład 837.',
+		'O ile obniżamy stawkę z uchwały. Tę kwotę odejmujemy od stawki, żeby wyliczyć to, co płaci rodzic. Jeśli nie stosujemy obniżki, wpisz 0. Na przykład 837.',
 	naglowekEtykieta: 'Nagłówek panelu opłat *',
-	naglowekPodpowiedz: 'Krótki tytuł nad kwotą, na przykład: Opłaty w skrócie.',
+	naglowekPodpowiedz:
+		'Krótki tytuł całej ramki z opłatami, na przykład: Opłaty w skrócie. Sama kwota ma już swój podpis, więc nie trzeba go tu powtarzać.',
 	kwotaOpisEtykieta: 'Opis opłaty *',
 	kwotaOpisPodpowiedz: 'Jedno zdanie wyjaśniające, za co jest ta kwota.',
 	zusEtykieta: 'Świadczenie z ZUS *',

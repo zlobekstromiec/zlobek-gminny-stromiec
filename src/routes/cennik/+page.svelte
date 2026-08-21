@@ -66,6 +66,7 @@
 	import { CENNIK } from '$lib/cennik';
 	import {
 		CTA,
+		KWOTA_PODPIS,
 		META,
 		NAGLOWEK,
 		PLATNOSCI,
@@ -99,6 +100,11 @@
 		<div class="tresc">
 			<div class="ramka-oplaty">
 				<h3 class="ramka-naglowek">{CENNIK.naglowek}</h3>
+				<!-- The caption is a <p>, never a heading: an h4 here would be a heading-order trap
+				     and an h3 would put a two-word label at the same level as the breakdown's own
+				     heading. It must stay IMMEDIATELY before .kwota, which tests/cennik.spec.ts
+				     pins as an adjacent-sibling selector. -->
+				<p class="kwota-podpis">{KWOTA_PODPIS}</p>
 				<p class="kwota">{CENNIK.kwotaProza}</p>
 				<p class="linia">{CENNIK.kwotaOpis}</p>
 
@@ -491,6 +497,20 @@
 		line-height: 1.2;
 		color: var(--color-ink);
 		white-space: nowrap;
+	}
+
+	/* Label role from the locked Typography table (01-UI-SPEC paragraf 3, which names
+	   captions): Nunito 700 at 14px in the muted ink, 7.58:1 on both surfaces this box can
+	   sit on. Deliberately smaller than .kwota, so it names the number without competing
+	   with it: making the two compete would re-open the „which figure matters" question
+	   this caption exists to close. */
+	.kwota-podpis {
+		margin: 0 0 4px;
+		font-family: var(--font-body);
+		font-size: 14px;
+		font-weight: 700;
+		line-height: 1.4;
+		color: var(--color-muted);
 	}
 
 	.linia {

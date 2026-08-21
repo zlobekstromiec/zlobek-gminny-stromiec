@@ -381,7 +381,8 @@ Ekran ma dwie grupy pól: **Kwoty** i **Opis opłat**. Na dole jest jeden przyci
 
 ### Kwoty
 
-- **Stawka z uchwały (zł)**: pełna miesięczna stawka za pobyt.
+- **Stawka z uchwały (zł)**: pełna miesięczna stawka za pobyt, przed odjęciem obniżki.
+  To nie jest kwota, którą płaci rodzic.
 - **Obniżka (zł)**: o ile tę stawkę obniżamy. Jeśli nie stosujemy obniżki, wpisz 0.
 
 **Obie kwoty wpisujemy w pełnych złotych, bez groszy.** Uchwała podaje grosze, a strona
@@ -390,8 +391,9 @@ zapisywaniu.
 
 Kwoty, którą rodzic naprawdę płaci, nie wpisuje się nigdzie. Strona wylicza ją sama,
 odejmując obniżkę od stawki, i pokazuje pod tymi dwoma polami, w zdaniu zaczynającym się
-od słów „Obecnie na stronie". Pod tym zdaniem jest wyjaśnienie: „Ta kwota to stawka z
-uchwały pomniejszona o obniżkę. Zmieni się po zapisaniu." Znaczy to dokładnie tyle: dopóki
+od słów „Obecnie na stronie". Pod tym zdaniem jest wyjaśnienie: „To jest kwota, którą
+naprawdę płaci rodzic: stawka z uchwały pomniejszona o obniżkę. Zmieni się dopiero po
+zapisaniu." Znaczy to dokładnie tyle: dopóki
 nie klikniesz **Zapisz**, w tym zdaniu stoi kwota, która jest teraz na stronie żłobka, a
 nie ta, którą właśnie wpisujesz. Nie jest to błąd.
 
