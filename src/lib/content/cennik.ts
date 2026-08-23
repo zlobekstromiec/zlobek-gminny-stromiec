@@ -100,6 +100,22 @@ export const PODPIS_PLACI = 'Rodzic płaci teraz:';
 export const STAWKA_OPIS =
 	'Pełna miesięczna stawka za pobyt dziecka do 10 godzin dziennie, ustalona uchwałą Rady Gminy Stromiec.';
 
+/** The reduction note in ONE SENTENCE, for `FeeBox.svelte` on /rekrutacja.
+ *
+ *  WHY A SECOND, SHORTER FORM EXISTS. FeeBox renders inside `.blok-formularz`, which is
+ *  `position: sticky; top: 96px` from 1024px up. A sticky element taller than
+ *  `viewport - 96px` has its lower edge permanently unreachable: it stops travelling once it
+ *  sticks, so nothing below the fold inside it can ever be scrolled to. The submit button
+ *  lives in that same block, BELOW this box. The full `notaObnizki` block added ~215px and
+ *  pushed the button out of reach at 1280x720, which is an ordinary laptop viewport.
+ *  Measured, then fixed: tests/rekrutacja.spec.ts now pins the button's reachability.
+ *
+ *  So /rekrutacja states the same two amounts in one line instead of a panel. That also
+ *  respects what this surface is: D-15 calls it the COMPACT summary, and /cennik is where
+ *  the full breakdown belongs.
+ *
+ *  Both amounts arrive as arguments, already formatted by the reader (HARD RULE 1). */
+
 /** The reduction note, with the reduction interpolated from the store.
  *
  *  A FUNCTION for the same reason `przykladZus` is one: HARD RULE 1 forbids this module from
@@ -109,6 +125,10 @@ export const STAWKA_OPIS =
  *  This note is why /cennik may lead with the uchwała's rate at all. The client asked for
  *  2 337 zł to be the stated price (quick 260823-p4w); this sentence, in the same block and
  *  immediately below it, is what stops a parent reading that as their bill. */
+export function notaObnizkiZwiezle(obnizkaTekst: string, placiProza: string): string {
+	return `Po obniżce ${obnizkaTekst} rodzic płaci teraz ${placiProza}.`;
+}
+
 export function notaObnizki(obnizkaTekst: string): string {
 	return (
 		`Obecnie obowiązuje obniżka ${obnizkaTekst} miesięcznie w okresie trwałości projektu, ` +

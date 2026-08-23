@@ -151,7 +151,15 @@ export const PROCEDURA: KrokProcedury[] = [
  *  and tests/rekrutacja.spec.ts all keep working without an edit. */
 export const OPLATY = {
 	naglowek: CENNIK.naglowek,
+	/** The uchwała's rate, which the box now LEADS with (quick 260823-pmv, at the client's
+	 *  request after the dyrektor asked the site to state 2 337 zł). NOBODY PAYS THIS while
+	 *  the reduction runs, so FeeBox may only render it under a label naming it as the
+	 *  uchwała's rate, never as the amount due. */
+	stawka: CENNIK.stawkaProza,
 	kwota: CENNIK.kwotaProza,
+	/** The reduction, for the note that stands between the two amounts and is what makes
+	 *  leading with the rate honest. */
+	obnizkaTekst: CENNIK.obnizkaTekst,
 	kwotaOpis: CENNIK.kwotaOpis,
 	zus: CENNIK.zus,
 	wyzywienie: CENNIK.wyzywienie,

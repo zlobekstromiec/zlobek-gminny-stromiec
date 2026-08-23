@@ -217,7 +217,12 @@ export const ATOMY_GODZIN: AtomyGodzin = W_SKROCIE.godziny;
 const SLOTY: readonly { label: string; icon: KluczIkony; tint: KluczTintu }[] = [
 	{ label: 'Wiek dzieci', icon: 'smile', tint: 'yellow' },
 	{ label: 'Godziny otwarcia', icon: 'clock', tint: 'blue' },
-	{ label: 'Opłata miesięczna', icon: 'coins', tint: 'orange' },
+	// „Stawka z uchwały", not „Opłata miesięczna", since quick 260823-pmv. THE LABEL HAD TO
+	// MOVE WITH THE VALUE. The client asked every fee surface to lead with the uchwała's
+	// rate; under the old label this tile would have stated, on the most-visited page of the
+	// site, that a parent pays 2 337 zł. No parent does while the reduction runs. The payable
+	// amount is still on the tile, in the note below the value.
+	{ label: 'Stawka z uchwały', icon: 'coins', tint: 'orange' },
 	{ label: 'Liczba miejsc', icon: 'house', tint: 'green' }
 ];
 
@@ -240,9 +245,18 @@ const WIEK_DOPISEK = 'wyjątkowo do 4 lat';
  * THE DAILY FOOD FIGURE INSIDE IT IS THE ONE VALUE THIS PLAN LEAVES IN TWO PLACES: here, and
  * in the wyżywienie sentence an editor owns on /admin/cennik. tests/home.spec.ts cross-checks
  * the two so they cannot drift apart silently.
+ *
+ * A FUNCTION since quick 260823-pmv, so the payable amount arrives from the store instead of
+ * being retyped. THE TAIL FROM „+ wyżywienie" ONWARD IS UNCHANGED CHARACTER FOR CHARACTER:
+ * it is the string tests/home.spec.ts retypes verbatim as the zero-with-its-condition gate,
+ * and that retype is prescribed by 05-UI-SPEC „Test lockstep". Only the prefix is new.
  */
-const OPLATA_DOPISEK =
-	'+ wyżywienie maks. 20 zł/dzień; możliwe 0 zł ze świadczeniem ZUS „Aktywnie w żłobku"';
+function oplataDopisek(placiTekst: string): string {
+	return (
+		`po obniżce ${placiTekst} miesięcznie; ` +
+		'+ wyżywienie maks. 20 zł/dzień; możliwe 0 zł ze świadczeniem ZUS „Aktywnie w żłobku"'
+	);
+}
 
 /** The four values, in slot order, each from the source Contract 7 assigns it. */
 const WARTOSCI: readonly { value: string; suffix?: string }[] = [
@@ -252,7 +266,11 @@ const WARTOSCI: readonly { value: string; suffix?: string }[] = [
 	// src/lib/content/rekrutacja.ts already imports src/lib/content/site.ts, so routing the
 	// tile that way would close a cycle, and OPLATY is prose („1 500 zł miesięcznie") while
 	// the tile needs the bare amount.
-	{ value: CENNIK.placiTekst, suffix: OPLATA_DOPISEK },
+	// Quick 260823-pmv: the VALUE is the uchwała's rate and the payable amount moved into the
+	// note. Both still come from the store, so the tile cannot disagree with FeeBox or
+	// /cennik about either figure, and the payable amount is interpolated rather than
+	// retyped so it cannot drift.
+	{ value: CENNIK.stawkaTekst, suffix: oplataDopisek(CENNIK.placiTekst) },
 	{ value: String(W_SKROCIE.miejsca), suffix: W_SKROCIE.dopisek }
 ];
 

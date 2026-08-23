@@ -283,7 +283,11 @@ test('czytnik oddaje dokladnie cztery kafelki, w kolejnosci renderowania', () =>
 	assert.equal(KAFELKI.length, 4);
 	assert.deepEqual(
 		KAFELKI.map((kafelek) => kafelek.label),
-		['Wiek dzieci', 'Godziny otwarcia', 'Opłata miesięczna', 'Liczba miejsc']
+		// Trzeci kafelek nazywa sie „Stawka z uchwaly" od quicka 260823-pmv. Etykieta MUSIALA
+		// pojsc za wartoscia: kafelek prowadzi teraz stawka z uchwaly, a pod stara etykieta
+		// twierdzilby na stronie glownej, ze rodzic placi 2 337 zl, czego nie robi zaden rodzic
+		// w okresie obnizki.
+		['Wiek dzieci', 'Godziny otwarcia', 'Stawka z uchwały', 'Liczba miejsc']
 	);
 });
 
@@ -324,7 +328,16 @@ test('kafelek oplaty jest LICZONY ze sklepu cennika, nigdy wpisany', () => {
 	// Read from the store view DIRECTLY and never through the OPLATY prose constant:
 	// src/lib/content/rekrutacja.ts already imports src/lib/content/site.ts, so routing the
 	// tile that way would close a cycle.
-	assert.equal(KAFELKI[2].value, CENNIK.placiTekst);
+	// Od quicka 260823-pmv wartoscia kafelka jest STAWKA, a kwota placona zeszla do dopiska.
+	// Obie dalej pochodza ze sklepu, wiec kafelek nie moze sie rozejsc z FeeBox ani z /cennik
+	// co do zadnej z nich.
+	assert.equal(KAFELKI[2].value, CENNIK.stawkaTekst);
+	// GRANICA CALEJ ZMIANY: kwota faktycznie placona NIE ZNIKA z kafelka, tylko schodzi nizej.
+	// Gdyby zniknela, strona glowna podawalaby stawke, ktorej nikt nie placi, i nic wiecej.
+	assert.ok(
+		KAFELKI[2].suffix?.includes(CENNIK.placiTekst),
+		'dopisek kafelka nie niesie kwoty, ktora rodzic naprawde placi'
+	);
 	// And the amount really is the subtraction rather than a third stored number, which is
 	// what makes „the tile, FeeBox and /cennik cannot disagree" a property and not a habit.
 	assert.equal(CENNIK.placi, CENNIK.stawka - CENNIK.obnizka);

@@ -172,6 +172,18 @@ test.describe('Rekrutacja: RECRUIT-01 / RECRUIT-02 / RECRUIT-03 acceptance', () 
 		const ramka = page.locator('.fee-box');
 		await expect(ramka).toHaveCount(1);
 		await expect(ramka).toContainText(OPLATY.kwota);
+
+		// Quick 260823-pmv: ramka prowadzi STAWKA z uchwaly. Kwota placona NIE ZNIKA: stoi w
+		// tym samym pudle, w jednym zdaniu razem z obnizka. Jedna kwota w duzym stopniu pisma,
+		// bo to jest ZWIEZLE podsumowanie (D-15), a pelne rozbicie nalezy do /cennik.
+		await expect(ramka).toContainText(OPLATY.stawka);
+		await expect(ramka.locator('p.kwota')).toHaveCount(1);
+		await expect(ramka.locator('p.kwota')).toHaveText(OPLATY.stawka);
+		await expect(ramka.locator('p.kwota-podpis')).toHaveCount(1);
+		// Zdanie o obnizce niesie OBIE liczby: bez niego ramka sugerowalaby, ze rodzic placi
+		// stawke z uchwaly.
+		await expect(ramka).toContainText(OPLATY.obnizkaTekst);
+		await expect(ramka).toContainText(OPLATY.kwota);
 		await expect(ramka).toContainText(OPLATY.wyzywienie);
 		await expect(ramka).toContainText(OPLATY.nieobecnosc);
 		// Warunek ZUS jest w tym samym bloku co kwota i nigdy od niej oddzielony.
@@ -303,6 +315,14 @@ test.describe('Rekrutacja: RECRUIT-01 / RECRUIT-02 / RECRUIT-03 acceptance', () 
 		expect(results.violations).toEqual([]);
 	});
 
+	/* Ten test ZLAPAL regresje z quicka 260823-pmv i dlatego nosi teraz ten komentarz.
+	   `.blok-formularz` jest od 1024 px `position: sticky` z `top: 96px`, a przycisk wysylki
+	   stoi w nim PONIZEJ ramki oplat. Element sticky wyzszy niz `viewport - 96px` przestaje
+	   wedrowac, kiedy sie przyklei, wiec jego dolna czesc robi sie nieosiagalna dopoki blok
+	   sie nie zwolni. Powiekszenie ramki oplat o ~215 px sprawilo, ze klikniecie „Wyślij
+	   zgłoszenie" przestalo cokolwiek robic przy 1280x720, czyli w domyslnym viewporcie tego
+	   pakietu i na zwyklym laptopie. Nie dodawaj wysokosci do FeeBox bez sprawdzenia tego
+	   testu; jest on jedynym miejscem, ktore o tym mowi. */
 	test('brak naruszeń WCAG 2.1 AA w stanie błędu walidacji z aria-invalid', async ({ page }) => {
 		await otworzRekrutacje(page);
 		// Puste wysłanie zaznacza wszystkie wymagane kontrolki jako nieprawidłowe, więc

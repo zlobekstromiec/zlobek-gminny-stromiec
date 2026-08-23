@@ -147,12 +147,20 @@ test.describe('Homepage: Phase 1 + 01.1 acceptance', () => {
 		await expect(facts.getByText('od 20. tyg. życia do 3 lat')).toBeVisible();
 		await expect(facts.getByText('wyjątkowo do 4 lat')).toBeVisible();
 
-		// The payable amount is computed from the cennik store, so the tile, FeeBox and
-		// /cennik cannot disagree about what a parent pays.
-		await expect(kafelki.nth(2).locator('.fact-value')).toHaveText(CENNIK.placiTekst);
+		// Quick 260823-pmv: the tile LEADS with the statutory rate, at the client's request.
+		// Both figures still come from the cennik store, so the tile, FeeBox and /cennik
+		// cannot disagree about either number.
+		await expect(kafelki.nth(2).locator('.fact-value')).toHaveText(CENNIK.stawkaTekst);
+
+		// ...and the payable amount is still on the tile, in the note. This assertion is the
+		// reason the label may say „Stawka z uchwały" at all: without the payable figure
+		// beside it, the homepage would state a rate nobody pays and stop there.
+		await expect(kafelki.nth(2).locator('.fact-note')).toContainText(CENNIK.placiTekst);
 
 		// The zero amount is never unconditional: it is rendered only inside the same
-		// string as the ZUS condition (dane-bip §10, item 1). RETYPED on purpose.
+		// string as the ZUS condition (dane-bip §10, item 1). The TAIL is RETYPED on purpose
+		// and is unchanged by 260823-pmv; only the payable amount ahead of it is now
+		// interpolated from the store instead of being absent.
 		await expect(
 			facts.getByText(
 				'+ wyżywienie maks. 20 zł/dzień; możliwe 0 zł ze świadczeniem ZUS „Aktywnie w żłobku"'

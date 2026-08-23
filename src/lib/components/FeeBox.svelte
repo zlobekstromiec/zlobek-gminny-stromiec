@@ -13,11 +13,24 @@
 	//
 	// Surface treatment is the v1.2 Recruitment info-card, reused rather than
 	// re-derived: tint-yellow with a 2px accent border, and ink text on it at 11.6:1.
+	//
+	// Quick 260823-pmv: the box LEADS with the uchwała's rate, matching /cennik, at the
+	// client's request. The captions and the reduction sentence are imported from the
+	// /cennik prose module rather than restated, so the two surfaces cannot word the same
+	// distinction differently. No cycle: that module imports nothing from rekrutacja.
 	import { OPLATY } from '$lib/content/rekrutacja';
+	import { KWOTA_PODPIS, notaObnizkiZwiezle } from '$lib/content/cennik';
 </script>
 
 <div class="fee-box">
-	<p class="kwota">{OPLATY.kwota}</p>
+	<p class="kwota-podpis">{KWOTA_PODPIS}</p>
+	<p class="kwota">{OPLATY.stawka}</p>
+	<!-- The condition that makes leading with the rate honest, in ONE LINE. It renders INSIDE
+	     .fee-box and may never be moved out of it: without it the panel implies a parent pays
+	     the uchwała rate, which no parent does while the reduction runs. It is one line and not
+	     the panel /cennik uses because this box sits in a STICKY rail with the submit button
+	     below it; see notaObnizkiZwiezle for the measured reason. -->
+	<p class="linia">{notaObnizkiZwiezle(OPLATY.obnizkaTekst, OPLATY.kwota)}</p>
 	<p class="linia">{OPLATY.kwotaOpis}</p>
 	<p class="linia">{OPLATY.zus}</p>
 	<p class="linia">{OPLATY.wyzywienie}</p>
@@ -46,6 +59,16 @@
 		font-weight: 700;
 		line-height: 1.2;
 		color: var(--color-ink);
+	}
+
+	/* Label role, same treatment as /cennik so the two fee surfaces read as one family. */
+	.kwota-podpis {
+		margin: 0 0 4px;
+		font-family: var(--font-body);
+		font-size: 14px;
+		font-weight: 700;
+		line-height: 1.4;
+		color: var(--color-muted);
 	}
 
 	.linia {

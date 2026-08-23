@@ -164,7 +164,20 @@ Inherited unchanged. **No new size, no new weight, no new family.** Role assignm
 | Display | `/cennik` `h1` | Baloo 2 | `clamp(2rem, 5vw, 2.75rem)` (locked h1 clamp) | 700 | 1.1 |
 | Heading | `/cennik` section `h2`, gallery section `h2` | Baloo 2 | `clamp(1.5rem, 3vw, 1.75rem)` (locked h2 clamp) | 700 | 1.2 |
 | Heading (20px sub-step) | `/cennik` `h3` („Skąd bierze się ta kwota"), lightbox caption heading | Baloo 2 | 20px | 700 | 1.2 |
-| **Fee headline value** | the payable amount on `/cennik` and in `FeeBox` | Baloo 2 | **20px** (the inherited card-title sub-step, identical to `FeeBox.svelte` `.kwota` today) | 700 | 1.2 |
+| **Fee headline value** | the STATUTORY RATE on `/cennik` and in `FeeBox` since quick 260823-p4w / 260823-pmv; was the payable amount |
+
+> **Korekta (2026-08-23, quick 260823-pmv):** `FeeBox` on /rekrutacja leads with the rate but
+> states the reduction and the payable amount in ONE LINE, not in the two-amount panel that
+> /cennik uses. This is a HARD CONSTRAINT, not a style choice: FeeBox renders inside
+> `.blok-formularz`, which is `position: sticky; top: 96px` from 1024px up, and the submit
+> button sits in that same block BELOW it. A sticky element taller than `viewport - 96px`
+> stops travelling once it sticks, so its lower part cannot be scrolled to until the block
+> releases. The full panel added about 215px and made the submit button do nothing at
+> 1280x720, an ordinary laptop viewport. Measured, reverted to one line, and the reason is
+> recorded on the test that caught it (`tests/rekrutacja.spec.ts`, the aria-invalid a11y
+> test). Do not add height to FeeBox without re-running it. This also matches D-15:
+> /rekrutacja is the COMPACT summary and /cennik owns the full breakdown.
+ Baloo 2 | **20px** (the inherited card-title sub-step, identical to `FeeBox.svelte` `.kwota` today) | 700 | 1.2 |
 | Fee breakdown value | `2 337 zł` / `837 zł` / `1 500 zł` rows | Baloo 2 | 17px (v1.1 extended scale) | 700 | 1.4 |
 | Fee breakdown label | „Stawka z uchwały (przed obniżką)" (widened 2026-08-21, quick 260821-gyh), „Obniżka", „Rodzic płaci" | Nunito | 15px | 400 | 1.5 |
 | Lead | `/cennik` page lead | Nunito | 19px (v1.1 lead-quote role) | 400 | 1.55 |
@@ -654,7 +667,18 @@ strings come from** and **which of them an editor may change**.
 |---|---|---|
 | Wiek dzieci | `site.ts` (unchanged) | **No.** Read-only, with a hint |
 | Godziny otwarcia | **new store, unified** | **Yes** |
-| Opłata miesięczna | **computed from the cennik store** | **No.** Read-only, with a link to Cennik |
+| Stawka z uchwały | **computed from the cennik store** | **No.** Read-only, with a link to Cennik |
+
+> **Korekta (2026-08-23, quick 260823-pmv):** the third tile was renamed from „Opłata miesięczna" and now
+> carries `CENNIK.stawkaTekst` as its value, with the payable amount moved into the note. The
+> LABEL had to move with the value: under the old label the homepage would have stated that a
+> parent pays the uchwała rate, which no parent does while the reduction runs. The note is
+> therefore binding, not decorative, and `tests/admin-walidacja-w-skrocie.unit.ts` asserts it
+> carries `CENNIK.placiTekst`. Both figures still come from the store, so the tile cannot
+> disagree with FeeBox or /cennik about either one. The suffix tail from „+ wyżywienie"
+> onward is unchanged character for character, so the zero-with-its-condition retype in
+> `tests/home.spec.ts` still holds.
+
 | Liczba miejsc | **new store** | **Yes** |
 
 **Two of the four tiles are deliberately read-only, and each resolves one of the two drift

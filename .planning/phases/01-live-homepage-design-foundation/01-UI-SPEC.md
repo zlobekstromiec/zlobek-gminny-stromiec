@@ -615,7 +615,18 @@ four strings changes**, and only two of the four tiles become editor-writable: G
 otwarcia and Liczba miejsc. Wiek dzieci stays code-authored, because the same range is
 stated twice on the homepage in two phrasings and both are statutory facts, not
 placeholders. Opłata miesięczna is computed from the cennik store, so no editor input can
-separate the amount from its ZUS condition (05 D-32, 05 D-33). Contract 7 of
+separate the amount from its ZUS condition (05 D-32, 05 D-33).
+
+> **Korekta (2026-08-23, quick 260823-pmv):** the third tile's `.fact-label` is now **„Stawka z uchwały"**,
+> not „Opłata miesięczna", and its value is the uchwała's rate. This is the one place the
+> „four `.fact-label` nodes are unchanged" lock of Amendment v1.6 paragraf 3 is broken, and it
+> is broken deliberately: the client asked every fee surface to lead with the rate, and a rate
+> standing under a label that says „opłata miesięczna" would tell the most-visited page of the
+> site that a parent pays 2 337 zł. The payable amount stays on the tile, in the note, pinned
+> by `tests/admin-walidacja-w-skrocie.unit.ts` and `tests/home.spec.ts`. Everything else in
+> paragraf 3 stands: `ul`/`li` semantics, the `aria-label`, the 46px tint chips, the note on
+> its own line, and the 4/2/1 grid.
+ Contract 7 of
 `05-UI-SPEC.md` holds the tile table and the implementation rules that travel with the
 store.
 
