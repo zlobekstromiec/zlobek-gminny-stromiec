@@ -6,9 +6,9 @@ current_phase: 6
 current_phase_name: Accessibility, Legal Compliance & Performance
 status: executing
 stopped_at: Faza 6 przeskalowana i omowiona; 06-CONTEXT.md gotowy, nastepny krok /gsd-ui-phase 6
-last_updated: "2026-08-21T00:00:00.000Z"
-last_activity: 2026-08-21
-last_activity_desc: "Quick 260821-gyh: podpis przy kwocie i ostrzejsze podpowiedzi w panelu; 2337 zl potwierdzone jako stawka PRZED obnizka, kwota czeka na potwierdzenie dyrektorki"
+last_updated: "2026-08-23T00:00:00.000Z"
+last_activity: 2026-08-23
+last_activity_desc: "Quick 260823-p4w: /cennik prowadzi stawka 2337 zl z uchwaly, a nota obok podaje obowiazujaca obnizke i kwote placona 1500 zl"
 progress:
   total_phases: 9
   completed_phases: 6
@@ -327,6 +327,8 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 | 260820-m35 | Mail dyrektor z 2026-08-20: zakres opłaty z uchwały jako nowa sekcja, cztery punkty i odnośnik ZUS, odbiorca opłat (Gmina Stromiec), „Aktywny Maluch” i „Aktywny rodzic” w podstawie prawnej; lista na obu torach usuwa pusty pas szyny 300 x 239 px | 2026-08-20 | b7734a9 | [260820-m35-aktualizacja-tresci-o-oplatach-wg-maila-](./quick/260820-m35-aktualizacja-tresci-o-oplatach-wg-maila-/) |
 
 | 260821-gyh | Podpis nad kwota nazywa platnika, a podpowiedzi panelu mowia wprost, ze stawka z uchwaly nie jest kwota rodzica; HARD RULE 1 i 3 modulu prozy staja sie testem | 2026-08-21 | f02ed1e | [260821-gyh-cennik-podpis-przy-kwocie-i-ostrzejsze-p](./quick/260821-gyh-cennik-podpis-przy-kwocie-i-ostrzejsze-p/) |
+
+| 260823-p4w | Na prosbe dyrektorki /cennik podaje 2 337 zl jako stawke z uchwaly, a nota w tej samej ramce niesie obnizke i kwote faktycznie placona; sklep nietkniety | 2026-08-23 | 9a985d3 | [260823-p4w-cennik-prowadzi-stawka-2337-zl-z-uchwaly](./quick/260823-p4w-cennik-prowadzi-stawka-2337-zl-z-uchwaly/) |
 
 ### Roadmap Evolution
 
