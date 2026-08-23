@@ -32,6 +32,7 @@ const OCZEKIWANE_KLUCZE = [
 	'placiTekst',
 	'pokazRozbicie',
 	'stawka',
+	'stawkaProza',
 	'stawkaTekst',
 	'wyzywienie',
 	'zus'

@@ -70,8 +70,14 @@ export interface WidokCennika {
 	stawkaTekst: string;
 	obnizkaTekst: string;
 	placiTekst: string;
-	/** „1 500 zł miesięcznie": the exact prose form OPLATY.kwota exposes. */
+	/** „1 500 zł miesięcznie": the exact prose form OPLATY.kwota exposes. This is the
+	 *  amount a parent ACTUALLY PAYS, and it stays the form FeeBox renders on /rekrutacja. */
 	kwotaProza: string;
+	/** „2 337 zł miesięcznie": the uchwała's rate in the same prose form, added by quick
+	 *  260823-p4w so /cennik can LEAD with the statutory rate at the client's request.
+	 *  NOBODY PAYS THIS while the reduction runs, so it may only ever render under a label
+	 *  naming it as the uchwała's rate, never as the amount due. */
+	stawkaProza: string;
 	naglowek: string;
 	kwotaOpis: string;
 	zus: string;
@@ -157,6 +163,9 @@ export function cennikZWpisu(wpis: unknown): WidokCennika | null {
 		obnizkaTekst: zlote(obnizka),
 		placiTekst: zlote(placi),
 		kwotaProza: `${zlote(placi)} ${OKRES}`,
+		// Same period word, same single declaration (05 D-28): both prose forms are built
+		// from OKRES here, so they can never disagree about „miesięcznie".
+		stawkaProza: `${zlote(stawka)} ${OKRES}`,
 		naglowek,
 		kwotaOpis,
 		zus,

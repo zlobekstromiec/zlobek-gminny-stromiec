@@ -3,7 +3,8 @@ import AxeBuilder from '@axe-core/playwright';
 /* Asercje porownuja sie ze STALYMI, nigdy z przepisanym literalem: precedens
    tests/admin-cennik.spec.ts. Przepisany napis rozjechalby sie z modulem prozy przy
    pierwszej korekcie i test bronilby wtedy nieistniejacej tresci. */
-import { KWOTA_PODPIS, ROZBICIE } from '../src/lib/content/cennik';
+import { KWOTA_PODPIS, PODPIS_PLACI, ROZBICIE } from '../src/lib/content/cennik';
+import { CENNIK } from '../src/lib/cennik';
 
 /**
  * Cennik acceptance test: encodes FEES-01 (a parent can read the fees page) plus the
@@ -110,35 +111,57 @@ test.describe('Cennik: FEES-01 acceptance', () => {
 		await expect(link).toHaveAttribute('rel', /noopener/);
 	});
 
-	/* Podpis przy kwocie (260821-gyh). Najglosniejsza liczba na stronie stoi dzis bez
-	   etykiety: `naglowek` nad nia jest tytulem bloku, nie podpisem liczby, i wlasnie na tym
-	   potknela sie dyrektorka zlobka, czytajac stawke z uchwaly jako czesne. Podpis musi stac
-	   w TYM SAMYM bloku co kwota, zeby zadna regula responsywna ich nie rozdzielila, i musi
-	   byc bezkwotowy, zeby nie ruszyc bramki kwoty zerowej ponizej. */
-	test('kwota ma podpis mówiący, że to kwota rodzica, w tym samym bloku (260821-gyh)', async ({
+	/* Ramka oplat po quicku 260823-p4w. Klient poprosil, zeby strona podawala jako cene
+	   STAWKE Z UCHWALY, bo o to poprosila dyrektorka. Ten test pilnuje warunku, ktory czyni to
+	   uczciwym: obie kwoty sa na ekranie, kazda pod wlasna etykieta, w JEDNEJ ramce, i zadna
+	   regula responsywna ich nie rozdziela. Gdyby nota obnizki kiedykolwiek zniknela albo
+	   wyladowala poza ramka, strona zaczelaby sugerowac, ze rodzic placi 2337 zl. */
+	test('ramka podaje stawkę z uchwały i obok niej kwotę faktycznie płaconą (260823-p4w)', async ({
 		page
 	}) => {
 		await page.goto('/cennik');
 		const ramka = page.locator('.ramka-oplaty');
 		await expect(ramka).toHaveCount(1);
-		await expect(ramka.locator('.kwota')).toHaveCount(1);
 
-		const podpis = ramka.locator('p.kwota-podpis');
-		await expect(podpis).toHaveCount(1);
-		await expect(podpis).toBeVisible();
-		await expect(podpis).toHaveText(KWOTA_PODPIS);
+		// Naglowkiem ramki jest STAWKA, nie kwota placona.
+		const podpisy = ramka.locator('p.kwota-podpis');
+		await expect(podpisy).toHaveCount(2);
+		await expect(podpisy.nth(0)).toHaveText(KWOTA_PODPIS);
+		await expect(podpisy.nth(1)).toHaveText(PODPIS_PLACI);
 
-		// Podpis stoi BEZPOSREDNIO nad kwota. Sasiedztwo w DOM jest kontraktem: dwa akapity,
-		// ktore regula responsywna moze rozdzielic, to dokladnie ta awaria, ktorej Kontrakt 4a
-		// zabrania dla kwoty i jej warunku.
-		await expect(ramka.locator('p.kwota-podpis + p.kwota')).toHaveCount(1);
+		const kwoty = ramka.locator('p.kwota');
+		await expect(kwoty).toHaveCount(2);
+		await expect(kwoty.nth(0)).toHaveText(CENNIK.stawkaProza);
+		await expect(kwoty.nth(1)).toHaveText(CENNIK.kwotaProza);
 
-		// HARD RULE 1: podpis nie niesie zadnej cyfry, wiec nie moze ruszyc bramki kwoty zerowej.
-		expect(await podpis.innerText()).not.toMatch(/\d/);
+		// Kazda kwota stoi BEZPOSREDNIO pod swoja etykieta.
+		await expect(ramka.locator('p.kwota-podpis + p.kwota')).toHaveCount(2);
 
-		// Podpis i dolny wiersz rozbicia mowia to samo, i to jest mechanizm, nie przypadek.
-		expect(KWOTA_PODPIS).toBe(`${ROZBICIE.placi}:`);
+		// Nota obnizki lezy W TEJ SAMEJ ramce co stawka i niesie kwote placona.
+		const nota = ramka.locator('.nota-obnizki');
+		await expect(nota).toHaveCount(1);
+		await expect(nota).toBeVisible();
+		await expect(nota.locator('p.kwota')).toHaveText(CENNIK.kwotaProza);
+		expect(await nota.innerText()).toContain(CENNIK.obnizkaTekst);
+
+		// Obie etykiety sa bezkwotowe i ROZNE: zlanie ich w jedna znosi caly sens tego bloku.
+		expect(await podpisy.nth(0).innerText()).not.toMatch(/\d/);
+		expect(await podpisy.nth(1).innerText()).not.toMatch(/\d/);
+		expect(KWOTA_PODPIS).not.toBe(PODPIS_PLACI);
 		expect(ROZBICIE.stawka).toMatch(/przed obniżką/);
+	});
+
+	/* Nigdzie na stronie 2337 zl nie jest podane jako kwota, ktora rodzic placi. To jest
+	   granica calej zmiany 260823-p4w, wiec jest testem, a nie notatka w commicie. */
+	test('stawka z uchwały nigdy nie stoi pod etykietą płatnika (260823-p4w)', async ({ page }) => {
+		await page.goto('/cennik');
+		const placi = page.locator('.nota-obnizki p.kwota');
+		await expect(placi).toHaveText(CENNIK.kwotaProza);
+		expect(await placi.innerText()).not.toContain(CENNIK.stawkaTekst);
+
+		const wiersz = page.locator('.rozbicie dl > div').nth(2);
+		await expect(wiersz.locator('dt')).toHaveText(ROZBICIE.placi);
+		await expect(wiersz.locator('dd')).toHaveText(CENNIK.placiTekst);
 	});
 
 	test('kwota zero pojawia się wyłącznie razem ze swoim warunkiem (D-31)', async ({ page }) => {

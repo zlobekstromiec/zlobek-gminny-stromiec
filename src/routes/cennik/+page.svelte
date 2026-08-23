@@ -68,6 +68,8 @@
 		CTA,
 		KWOTA_PODPIS,
 		META,
+		PODPIS_PLACI,
+		STAWKA_OPIS,
 		NAGLOWEK,
 		PLATNOSCI,
 		PODSTAWA,
@@ -78,6 +80,7 @@
 		ZUS_LINK,
 		ZUS_PUNKTY,
 		ZUS_WNIOSEK,
+		notaObnizki,
 		przykladZus
 	} from '$lib/content/cennik';
 </script>
@@ -105,8 +108,24 @@
 				     heading. It must stay IMMEDIATELY before .kwota, which tests/cennik.spec.ts
 				     pins as an adjacent-sibling selector. -->
 				<p class="kwota-podpis">{KWOTA_PODPIS}</p>
-				<p class="kwota">{CENNIK.kwotaProza}</p>
-				<p class="linia">{CENNIK.kwotaOpis}</p>
+				<p class="kwota">{CENNIK.stawkaProza}</p>
+				<p class="linia">{STAWKA_OPIS}</p>
+
+				<!-- The reduction note (quick 260823-p4w). The client asked for the uchwała's rate
+				     to be the stated price; this block is the condition that makes that honest, so
+				     it lives INSIDE .ramka-oplaty and must never be moved into a sibling block by a
+				     responsive rule. Same rule as the amount-and-its-condition pairing the whole
+				     page is built on.
+				     `kwotaOpis` is the STORE's sentence and it describes the PAYABLE amount, so it
+				     travels here with the figure it describes rather than being rewritten. That is
+				     what keeps this change at zero store edits and leaves FeeBox on /rekrutacja,
+				     which renders the same sentence under the same figure, untouched. -->
+				<div class="nota-obnizki">
+					<p class="linia nota-wstep">{notaObnizki(CENNIK.obnizkaTekst)}</p>
+					<p class="kwota-podpis">{PODPIS_PLACI}</p>
+					<p class="kwota">{CENNIK.kwotaProza}</p>
+					<p class="linia">{CENNIK.kwotaOpis}</p>
+				</div>
 
 				{#if CENNIK.pokazRozbicie}
 					<!-- Rendered only when the reduction is greater than zero. A row reading
@@ -521,6 +540,22 @@
 		font-weight: 400;
 		line-height: 1.5;
 		color: var(--color-ink);
+	}
+
+	/* The reduction note: a white panel inside the yellow fee box, so it reads as a distinct
+	   statement about the rate above it rather than as small print hanging off it. The payable
+	   amount inside keeps the .kwota treatment, at the SAME size as the statutory rate: the
+	   client asked for 2 337 zł to be the stated price, not for the amount a parent actually
+	   pays to be demoted. */
+	.nota-obnizki {
+		margin-top: 16px;
+		padding: 12px 16px;
+		border-radius: var(--radius-md);
+		background: var(--color-surface);
+	}
+
+	.nota-obnizki .nota-wstep {
+		margin-top: 0;
 	}
 
 	.rozbicie {

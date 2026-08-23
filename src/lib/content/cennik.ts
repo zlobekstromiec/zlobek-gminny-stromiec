@@ -84,7 +84,37 @@ export const ZAKRES = {
  *  It carries no period word. „miesięcznie" is welded to the figure inside `kwotaProza`
  *  and declared exactly once (05 D-28); a second copy here would have to agree with it
  *  character for character forever. */
-export const KWOTA_PODPIS = 'Rodzic płaci:';
+export const KWOTA_PODPIS = 'Stawka z uchwały:';
+
+/** The caption on the amount a parent actually pays, inside the reduction note.
+ *
+ *  „teraz" is doing real work: it says the figure is today's, under a reduction that has an
+ *  end date nobody in this repository holds. Without it the two amounts read as a permanent
+ *  pair rather than as a rate and its current state. */
+export const PODPIS_PLACI = 'Rodzic płaci teraz:';
+
+/** What the uchwała rate covers. Code-authored, because the store's `kwotaOpis` describes the
+ *  PAYABLE amount and follows it into the reduction note (and into FeeBox on /rekrutacja),
+ *  where it is still true. Moving it rather than rewriting it is what keeps this change to
+ *  zero store edits. */
+export const STAWKA_OPIS =
+	'Pełna miesięczna stawka za pobyt dziecka do 10 godzin dziennie, ustalona uchwałą Rady Gminy Stromiec.';
+
+/** The reduction note, with the reduction interpolated from the store.
+ *
+ *  A FUNCTION for the same reason `przykladZus` is one: HARD RULE 1 forbids this module from
+ *  stating a złoty figure, so the amount arrives as an argument already formatted by the
+ *  reader and can never drift from the store.
+ *
+ *  This note is why /cennik may lead with the uchwała's rate at all. The client asked for
+ *  2 337 zł to be the stated price (quick 260823-p4w); this sentence, in the same block and
+ *  immediately below it, is what stops a parent reading that as their bill. */
+export function notaObnizki(obnizkaTekst: string): string {
+	return (
+		`Obecnie obowiązuje obniżka ${obnizkaTekst} miesięcznie w okresie trwałości projektu, ` +
+		'więc kwota do zapłaty jest niższa od stawki z uchwały.'
+	);
+}
 
 /** The breakdown block: its h3 and the three row labels. The VALUES belong to the
  *  store; only the labels are copy.

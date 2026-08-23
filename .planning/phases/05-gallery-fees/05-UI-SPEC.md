@@ -490,6 +490,23 @@ Contents, in DOM order, all inside that one block:
 > word. Reason: the loudest figure on the page carried no label at all, and the zlobek's
 > dyrektor read the uchwala's gross rate as the czesne on 2026-08-20.
 
+> **Korekta (2026-08-23, quick 260823-p4w):** THE HEADLINE FIGURE IS NOW THE STATUTORY RATE, NOT THE
+> PAYABLE AMOUNT. At the client's instruction, following the dyrektor's explicit request that
+> the site state 2 337 zl, the block's DOM order is: caption `Stawka z uchwaly:`, the rate
+> (`stawkaProza`, a new reader field), a code-authored description of the rate, then a
+> `.nota-obnizki` panel carrying the reduction sentence, the caption `Rodzic placi teraz:`,
+> the payable amount (`kwotaProza`), and the store's `kwotaOpis`, then the breakdown.
+>
+> **The note is the condition that makes the new headline honest and is therefore binding.**
+> It renders INSIDE `.ramka-oplaty` and may never be moved into a sibling block: without it the
+> page implies a parent pays 2 337 zl, which no parent does while the reduction runs. Both
+> amounts carry the same `.kwota` treatment, so the payable figure is not demoted.
+> `kwotaOpis` describes the PAYABLE amount and travels with it into the note rather than being
+> rewritten, which is what keeps this change at zero store edits and leaves `FeeBox.svelte` on
+> /rekrutacja, which renders the same sentence under the same figure, untouched.
+> Pinned by two tests in `tests/cennik.spec.ts`, one of which asserts the statutory rate never
+> stands under a payer label.
+
 2. `kwotaOpis`, Nunito 400 15px;
 3. the breakdown (below);
 4. `wyzywienie` is **not** here: it has its own section, exactly as `FeeBox` keeps it a
@@ -1121,8 +1138,12 @@ interpolated at render time.
 | Page lead | `Tutaj znajdziesz wszystkie opłaty za żłobek: opłatę za pobyt, wyżywienie oraz zasady odpisów za nieobecność. Wyjaśniamy też, jak świadczenie „Aktywnie w żłobku" z ZUS obniża rachunek rodzica.` |
 | Section 2 `h2` | `Opłata za pobyt` |
 | Fee block heading | the stored `naglowek` (shipped value `Opłaty w skrócie`) |
-| Fee amount caption (code-authored, added 2026-08-21 quick 260821-gyh) | `Rodzic płaci:` — character-identical to the `Rodzic płaci` breakdown label plus a colon, on purpose: the label on the loudest number and the bottom row of the breakdown say the same two words |
-| Fee amount | `{kwota} miesięcznie` (shipped value `1 500 zł miesięcznie`) |
+| Fee amount caption (code-authored) | `Stawka z uchwały:` — retargeted 2026-08-23 (quick 260823-p4w) from `Rodzic płaci:` when the headline moved to the statutory rate |
+| Fee amount | `{stawka} miesięcznie` (shipped value `2 337 zł miesięcznie`) — the STATUTORY RATE since quick 260823-p4w |
+| Rate description (code-authored, 260823-p4w) | `Pełna miesięczna stawka za pobyt dziecka do 10 godzin dziennie, ustalona uchwałą Rady Gminy Stromiec.` |
+| Reduction note (code-authored, amount interpolated, 260823-p4w) | `Obecnie obowiązuje obniżka {obnizka} miesięcznie w okresie trwałości projektu, więc kwota do zapłaty jest niższa od stawki z uchwały.` |
+| Payable caption (code-authored, 260823-p4w) | `Rodzic płaci teraz:` |
+| Payable amount | `{kwota} miesięcznie` (shipped value `1 500 zł miesięcznie`), same `.kwota` treatment as the rate |
 | Fee description | the stored `kwotaOpis` |
 | Breakdown `h3` | `Skąd bierze się ta kwota` |
 | Breakdown labels | `Stawka z uchwały (przed obniżką)` · `Obniżka` · `Rodzic płaci` (first label widened 2026-08-21, quick 260821-gyh) |
