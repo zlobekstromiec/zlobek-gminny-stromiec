@@ -168,7 +168,7 @@ export function okladkaDoUsuniecia(
 //     from the gallery list sees it disappear from the page while the file stays in git.
 //     That is correct behaviour, not a leak, and a later plan must not „fix" it.
 //  2. `sala-zabaw.jpg` is also the cover of the seeded aktualność
-//     `2026-08-01-wielkie-otwarcie-zlobka.json`. Deleting it would degrade that post's cover
+//     `2026-08-19-uroczyste-otwarcie-zlobka.json`. Deleting it would degrade that post's cover
 //     to the decorative tint fallback (05 D-26), which is the second, independent reason the
 //     prefix condition comes first.
 //  3. Replacing a photo the panel itself named overwrites IN PLACE (P-21); replacing a

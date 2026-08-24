@@ -58,14 +58,37 @@ const ZNACZNIKI = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
  *  implementation instead of checking it. */
 const SEEDY = [
 	{
-		slug: '2026-08-01-wielkie-otwarcie-zlobka',
-		tytul: 'Wielkie otwarcie żłobka: 14 sierpnia!',
-		data: '1 sierpnia 2026'
+		slug: '2026-08-24-spotkanie-organizacyjne-z-rodzicami',
+		tytul: 'Spotkanie organizacyjne z rodzicami: czwartek 27 sierpnia',
+		data: '24 sierpnia 2026',
+		dzien: '24',
+		miesiac: '8',
+		rok: '2026',
+		zajawka:
+			'Zapraszamy rodziców na spotkanie organizacyjne w czwartek 27 sierpnia 2026 r. o godzinie 17:00 w żłobku przy ulicy Radomskiej 72.',
+		zastepcza: false
+	},
+	{
+		slug: '2026-08-19-uroczyste-otwarcie-zlobka',
+		tytul: 'Uroczyste otwarcie żłobka za nami',
+		data: '19 sierpnia 2026',
+		dzien: '19',
+		miesiac: '8',
+		rok: '2026',
+		zajawka:
+			'19 sierpnia 2026 r. Publiczny Żłobek w Stromcu został oficjalnie otwarty. Dziękujemy wszystkim, którzy byli z nami tego dnia.',
+		zastepcza: false
 	},
 	{
 		slug: '2026-07-15-witamy-na-nowej-stronie-zlobka',
 		tytul: 'Witamy na nowej stronie żłobka',
-		data: '15 lipca 2026'
+		data: '15 lipca 2026',
+		dzien: '15',
+		miesiac: '7',
+		rok: '2026',
+		zajawka:
+			'Uruchomiliśmy nową stronę internetową Publicznego Żłobka w Stromcu. Znajdziesz tu informacje o rekrutacji, dokumentach i codziennym życiu placówki. Zaglądaj tu po najnowsze wiadomości.',
+		zastepcza: true
 	}
 ];
 
@@ -125,15 +148,23 @@ test.describe('Lista aktualności: Contract 4', () => {
 			await expect(wiersz.getByRole('link', { name: KOPIA_LISTY.usun, exact: true })).toHaveCount(
 				0
 			);
-			// Both seeds are placeholder content today, and the badge carries TEXT, never a
-			// bare colour swatch.
-			await expect(wiersz).toContainText(KOPIA_LISTY.odznakaZastepcza);
+			// The badge marks placeholder content and must be ABSENT from real content: an
+			// „everything is placeholder" assertion passed only while nothing on the site was
+			// real, and it would have gone on passing if the badge were stuck on. Both arms are
+			// asserted, so this fails whichever way the marker breaks. The badge carries TEXT,
+			// never a bare colour swatch.
+			if (seed.zastepcza) {
+				await expect(wiersz).toContainText(KOPIA_LISTY.odznakaZastepcza);
+			} else {
+				await expect(wiersz).not.toContainText(KOPIA_LISTY.odznakaZastepcza);
+			}
 		}
 
 		// Newest first, matching the public list. Asserted as an ORDER, so a stable but wrong
-		// sort cannot pass by having both rows present.
+		// sort cannot pass by having every row present. Indexed off the END of the table rather
+		// than off a literal 1, so adding a seed cannot silently stop checking the last row.
 		await expect(wiersze.first()).toContainText(SEEDY[0].tytul);
-		await expect(wiersze.last()).toContainText(SEEDY[1].tytul);
+		await expect(wiersze.last()).toContainText(SEEDY[SEEDY.length - 1].tytul);
 	});
 
 	test('wiersz niesie dwie akcje jako odnosniki, kazda dopowiedziana nazwa wpisu', async ({
@@ -315,12 +346,15 @@ test.describe('Dodawanie wpisu: Contracts 5, 9 i 10', () => {
 	}) => {
 		expect(zalogowany.uchwyt.length).toBeGreaterThan(0);
 		await page.goto(NOWY);
-		// Title and date chosen so the generator produces exactly the filename the first seed
-		// already occupies.
+		// Title and date chosen so the generator produces exactly the filename an existing
+		// entry already occupies. Deliberately the ONE seed this project has never rewritten
+		// („Witamy na nowej stronie żłobka", 15 July 2026): the collision has to be with a
+		// file that is really on disk, so pointing it at whichever post is newest today makes
+		// this test fail every time the żłobek publishes, for a reason unrelated to T-04.1-25.
 		await wypelnij(page, {
-			tytul: 'Wielkie otwarcie żłobka',
-			dzien: '1',
-			miesiac: '8',
+			tytul: 'Witamy na nowej stronie żłobka',
+			dzien: '15',
+			miesiac: '7',
 			rok: '2026',
 			tresc: 'Druga wersja tego samego ogłoszenia.'
 		});
@@ -335,7 +369,7 @@ test.describe('Dodawanie wpisu: Contracts 5, 9 i 10', () => {
 		// Contract 10c: every typed value intact, so the editor can change one field and try
 		// again instead of retyping the whole entry.
 		await expect(page.getByLabel(POLA_WPIS.tytulEtykieta, { exact: false })).toHaveValue(
-			'Wielkie otwarcie żłobka'
+			'Witamy na nowej stronie żłobka'
 		);
 		await expect(page.getByLabel(POLA_WPIS.trescEtykieta, { exact: false })).toHaveValue(
 			'Druga wersja tego samego ogłoszenia.'
@@ -367,23 +401,27 @@ test.describe('Edycja wpisu: D-07 i Contract 5', () => {
 		await expect(page.getByLabel(POLA_WPIS.tytulEtykieta, { exact: false })).toHaveValue(
 			SEED.tytul
 		);
-		await expect(page.getByLabel(POLA_DATA.dzien, { exact: true })).toHaveValue('1');
-		await expect(page.getByLabel(POLA_DATA.miesiac, { exact: true })).toHaveValue('8');
-		await expect(page.getByLabel(POLA_DATA.rok, { exact: true })).toHaveValue('2026');
+		await expect(page.getByLabel(POLA_DATA.dzien, { exact: true })).toHaveValue(SEED.dzien);
+		await expect(page.getByLabel(POLA_DATA.miesiac, { exact: true })).toHaveValue(SEED.miesiac);
+		await expect(page.getByLabel(POLA_DATA.rok, { exact: true })).toHaveValue(SEED.rok);
 
 		// The AUTHORED zajawka, and specifically NOT the excerpt the reader derives from the
 		// body when there is none. Pre-filling the derived value would duplicate the opening
 		// paragraph into the field on the very next save.
 		const zajawka = page.getByLabel(POLA_WPIS.zajawkaEtykieta, { exact: false });
-		await expect(zajawka).toHaveValue(
-			'Zapraszamy na uroczyste otwarcie Publicznego Żłobka w Stromcu 14 sierpnia 2026 r.'
-		);
+		await expect(zajawka).toHaveValue(SEED.zajawka);
+		// The body arrives filled and is NOT the same string as the zajawka, which is the whole
+		// claim: a derived excerpt would make these two equal. Asserted as that relationship
+		// rather than against a literal opening phrase, so editing the post does not fail it.
 		const tresc = await page.getByLabel(POLA_WPIS.trescEtykieta, { exact: false }).inputValue();
-		expect(tresc.startsWith('Z ogromną radością informujemy')).toBe(true);
-		expect(zajawka).not.toBe(tresc);
+		expect(tresc.trim().length).toBeGreaterThan(0);
+		expect(tresc.trim()).not.toBe(SEED.zajawka);
 
-		// The placeholder flag is stored true on both seeds, so the checkbox arrives ticked.
-		await expect(page.getByLabel(POLA_WPIS.zastepczaEtykieta, { exact: false })).toBeChecked();
+		// The stored placeholder flag drives the checkbox, in BOTH directions: asserting only
+		// „ticked" would keep passing on a checkbox that is stuck on.
+		const zastepcza = page.getByLabel(POLA_WPIS.zastepczaEtykieta, { exact: false });
+		if (SEED.zastepcza) await expect(zastepcza).toBeChecked();
+		else await expect(zastepcza).not.toBeChecked();
 	});
 
 	// D-07, and the reason slug.ts runs at create time only. The filename IS the public URL.

@@ -124,7 +124,7 @@ function probki(): Array<readonly [string, unknown]> {
 const PLIKI_KONTROLNE = [
 	'src/lib/content/o-nas.json',
 	'src/lib/content/day-plan.json',
-	'src/lib/content/aktualnosci/2026-08-01-wielkie-otwarcie-zlobka.json',
+	'src/lib/content/aktualnosci/2026-08-19-uroczyste-otwarcie-zlobka.json',
 	'src/lib/content/dokumenty/statut-zlobka.json'
 ];
 

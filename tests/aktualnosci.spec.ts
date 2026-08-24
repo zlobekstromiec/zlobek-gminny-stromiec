@@ -30,18 +30,23 @@ test.describe('Aktualności: NEWS-01 list acceptance', () => {
 		await expect(page.getByRole('heading', { level: 1 })).toHaveText('Aktualności');
 	});
 
+	// Asserted as a PROPERTY of the rendered dates, never by naming two posts. The previous
+	// version looked up two literal titles and their positions, so it went red whenever the
+	// żłobek edited a headline and it proved nothing about a third post. This reads the
+	// machine-readable `datetime` off every card in DOM order and asserts the sequence never
+	// ascends, which IS requirement NEWS-01 and stays true for any content.
 	test('wpisy renderują się od najnowszego (NEWS-01)', async ({ page }) => {
 		await page.goto('/aktualnosci');
-		const titles = await page.locator('a.news-card h3').allTextContents();
-		expect(titles.length).toBeGreaterThan(0);
-		const newestIndex = titles.indexOf('Wielkie otwarcie żłobka: 14 sierpnia!');
-		const olderIndex = titles.indexOf('Witamy na nowej stronie żłobka');
-		expect(newestIndex).toBeGreaterThanOrEqual(0);
-		expect(olderIndex).toBeGreaterThanOrEqual(0);
-		expect(newestIndex).toBeLessThan(olderIndex);
+		const daty = await page
+			.locator('a.news-card time')
+			.evaluateAll((czasy) => czasy.map((czas) => czas.getAttribute('datetime') ?? ''));
+		expect(daty.length).toBeGreaterThan(0);
+		expect(daty.every((data) => /^\d{4}-\d{2}-\d{2}$/.test(data))).toBe(true);
+		// ISO dates sort lexicographically, so a plain copy-and-sort is the whole check.
+		expect(daty).toEqual([...daty].sort().reverse());
 	});
 
-	test('każdy kafelek to link do /aktualnosci/{slug}, najnowszy do wpisu z 2026-08-01 (D-06/D-07/D-08)', async ({
+	test('każdy kafelek to link do /aktualnosci/{slug}, a pierwszy prowadzi do najnowszego wpisu (D-06/D-07/D-08)', async ({
 		page
 	}) => {
 		await page.goto('/aktualnosci');
@@ -52,10 +57,12 @@ test.describe('Aktualności: NEWS-01 list acceptance', () => {
 			const href = await cards.nth(i).getAttribute('href');
 			expect(href).toMatch(/^\/aktualnosci\//);
 		}
-		await expect(cards.first()).toHaveAttribute(
-			'href',
-			'/aktualnosci/2026-08-01-wielkie-otwarcie-zlobka'
-		);
+		// The slug is the on-disk filename, which is date prefixed, so the newest card's own
+		// date must be the one its href carries. Ties the link to the ordering above without
+		// either test knowing which post is newest today.
+		const pierwszaData = await cards.first().locator('time').getAttribute('datetime');
+		const pierwszyHref = await cards.first().getAttribute('href');
+		expect(pierwszyHref).toContain(pierwszaData ?? 'brak-daty');
 	});
 
 	test('brak naruszeń WCAG 2.1 AA (SITE-04 / A11Y baseline)', async ({ page }) => {
@@ -74,34 +81,57 @@ test.describe('Aktualności: NEWS-01 list acceptance', () => {
  * these assertions to make the suite pass.
  */
 
-const SEED_SLUG = '2026-08-01-wielkie-otwarcie-zlobka';
+/** The newest post's slug and date, READ OFF THE LIST PAGE rather than written down here.
+ *
+ *  A literal seed slug pinned this suite to whichever post happened to be first on the day
+ *  it was written, so renaming or replacing that post turned five tests red for a reason
+ *  that had nothing to do with the requirement under test. What NEWS-02 actually claims is
+ *  „a visitor can open a post from the list and read it", and that is what this derives. */
+async function najnowszyWpis(page: import('@playwright/test').Page) {
+	await page.goto('/aktualnosci');
+	const karta = page.locator('a.news-card').first();
+	const href = await karta.getAttribute('href');
+	const tytul = await karta.locator('h3').textContent();
+	const data = await karta.locator('time').getAttribute('datetime');
+	expect(href).toMatch(/^\/aktualnosci\/.+/);
+	return { href: href ?? '', tytul: (tytul ?? '').trim(), data: data ?? '' };
+}
 
 test.describe('Aktualności: NEWS-02 single post', () => {
 	test('wpis /aktualnosci/{slug} odpowiada statusem 200', async ({ page }) => {
-		const response = await page.goto(`/aktualnosci/${SEED_SLUG}`);
+		const { href } = await najnowszyWpis(page);
+		const response = await page.goto(href);
 		expect(response?.status()).toBe(200);
 	});
 
+	// The h1 must be the title the LIST promised, which is the real contract between the two
+	// pages. Pinning a literal only proved that one post still existed.
 	test('dokładnie jeden nagłówek h1 z tytułem wpisu', async ({ page }) => {
-		await page.goto(`/aktualnosci/${SEED_SLUG}`);
+		const { href, tytul } = await najnowszyWpis(page);
+		await page.goto(href);
 		await expect(page.locator('h1')).toHaveCount(1);
-		await expect(page.getByRole('heading', { level: 1 })).toHaveText(/Wielkie otwarcie/);
+		await expect(page.getByRole('heading', { level: 1 })).toHaveText(tytul);
 	});
 
-	test('data wpisu jest maszynowo-czytelna w elemencie time (datetime = 2026-08-01)', async ({
-		page
-	}) => {
-		await page.goto(`/aktualnosci/${SEED_SLUG}`);
-		await expect(page.locator('time').first()).toHaveAttribute('datetime', '2026-08-01');
+	test('data wpisu jest maszynowo-czytelna w elemencie time i zgodna z listą', async ({ page }) => {
+		const { href, data } = await najnowszyWpis(page);
+		await page.goto(href);
+		await expect(page.locator('time').first()).toHaveAttribute('datetime', data);
 	});
 
 	test('pełna treść wpisu jest widoczna (NEWS-02)', async ({ page }) => {
-		await page.goto(`/aktualnosci/${SEED_SLUG}`);
-		await expect(page.getByText('uroczyste otwarcie Publicznego Żłobka w Stromcu')).toBeVisible();
+		const { href } = await najnowszyWpis(page);
+		await page.goto(href);
+		// „There is a rendered body", not „the body says this sentence": the second is a copy
+		// assertion wearing a rendering assertion's clothes.
+		const tresc = page.locator('.prose').first();
+		await expect(tresc).toBeVisible();
+		expect(((await tresc.textContent()) ?? '').trim().length).toBeGreaterThan(80);
 	});
 
 	test('link powrotny "Wszystkie aktualności" prowadzi do /aktualnosci', async ({ page }) => {
-		await page.goto(`/aktualnosci/${SEED_SLUG}`);
+		const { href } = await najnowszyWpis(page);
+		await page.goto(href);
 		const back = page.getByRole('link', { name: 'Wszystkie aktualności' });
 		await expect(back).toHaveAttribute('href', '/aktualnosci');
 	});
@@ -117,7 +147,8 @@ test.describe('Aktualności: NEWS-02 single post', () => {
 	});
 
 	test('brak naruszeń WCAG 2.1 AA na stronie wpisu (SITE-04 / A11Y baseline)', async ({ page }) => {
-		await page.goto(`/aktualnosci/${SEED_SLUG}`);
+		const { href } = await najnowszyWpis(page);
+		await page.goto(href);
 		const results = await new AxeBuilder({ page })
 			.withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
 			.analyze();

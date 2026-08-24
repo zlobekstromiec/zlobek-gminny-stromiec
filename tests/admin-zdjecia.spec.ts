@@ -55,7 +55,7 @@ const NOWY = '/admin/aktualnosci/nowy';
 const ZIARNO = JSON.parse(
 	readFileSync(
 		new URL(
-			'../src/lib/content/aktualnosci/2026-08-01-wielkie-otwarcie-zlobka.json',
+			'../src/lib/content/aktualnosci/2026-08-19-uroczyste-otwarcie-zlobka.json',
 			import.meta.url
 		),
 		'utf8'
@@ -63,7 +63,7 @@ const ZIARNO = JSON.parse(
 ) as { obraz: string; obraz_alt: string };
 
 const Z_OKLADKA = {
-	slug: '2026-08-01-wielkie-otwarcie-zlobka',
+	slug: '2026-08-19-uroczyste-otwarcie-zlobka',
 	obraz: ZIARNO.obraz,
 	alt: ZIARNO.obraz_alt
 };
@@ -448,7 +448,12 @@ test.describe('Okladka renderuje sie naprawde, a nie jako tint zastepczy', () =>
 		const odpowiedz = await page.goto(`/aktualnosci/${Z_OKLADKA.slug}`);
 		expect(odpowiedz?.status()).toBe(200);
 
-		const obrazek = page.locator('main picture');
+		// Scoped to the COVER BAND, not to the whole main. A bare `main picture` count of one
+		// silently doubled as „this post has exactly one photograph", which stopped being true
+		// the moment a post could carry its own gallery. What this test is about is the cover
+		// rendering as a real <picture> rather than degrading to the decorative tint, and that
+		// claim belongs to the cover band alone.
+		const obrazek = page.locator('.cover-band picture');
 		await expect(obrazek).toHaveCount(1);
 		// The optimizer really ran: the modern formats are offered before the fallback.
 		await expect(obrazek.locator('source').first()).toHaveAttribute('srcset', /\.(avif|webp)/);
