@@ -7,6 +7,7 @@
 	// do NOT rebuild it (RESEARCH Pitfall 14).
 	import Wave from './Wave.svelte';
 	import { contact } from '$lib/content/site';
+	import { nipDoWyswietlenia, regonDoWyswietlenia } from '$lib/identyfikatory';
 	import { godzinyStopkiDni, godzinyStopkiWeekend, godzinyStopkiZakres } from '$lib/godziny';
 	import { ATOMY_GODZIN } from '$lib/w-skrocie';
 	import logoFull from '$lib/assets/brand/logo-full.png?enhanced';
@@ -29,6 +30,20 @@
 				     on /kontakt, and the homepage's single-mailto rule depends on it. -->
 				{contact.addressLines[0]}, {contact.addressLines[1]}<br />
 				{contact.email}
+			</p>
+			<!-- Institutional identifiers, the block a Polish public body's footer is expected to
+			     carry. Its own <p>, not another line inside `.org`, because it is reference data
+			     a parent COPIES (into a ZUS form, onto a transfer) rather than prose they read,
+			     and the smaller muted type says so.
+
+			     REGON is omitted entirely while the store holds an empty string, and that is a
+			     content decision, not a rendering shortcut: „REGON: brak" asserts an absence as
+			     a published fact, whereas no line asserts nothing. The launch-gate marker for it
+			     lives beside the field in site.ts. -->
+			<p class="identyfikatory">
+				NIP {nipDoWyswietlenia(contact.nip)}{#if contact.regon}<br />REGON {regonDoWyswietlenia(
+						contact.regon
+					)}{/if}
 			</p>
 			<div class="logo-slots" aria-hidden="true">
 				<!-- PLACEHOLDER: real program logos (Phase 6 assets). -->
@@ -180,6 +195,19 @@
 		color: var(--color-band);
 		margin: 0;
 		overflow-wrap: anywhere;
+	}
+
+	/* Reference data, set apart from the address prose above it by SIZE and SPACING only.
+	   The colour is `--color-band`, the same token `.org` uses, deliberately rather than a
+	   dimmer one: this text sits on the brand-blue block, that pairing is the one already
+	   proven against the AA contrast ratio, and a new muted tone invented for two lines of
+	   small type is exactly where a 4.5:1 failure gets introduced. */
+	.identyfikatory {
+		font-family: var(--font-body);
+		font-size: 13px;
+		line-height: 1.7;
+		color: var(--color-band);
+		margin: 12px 0 0;
 	}
 
 	.logo-slots {

@@ -72,11 +72,21 @@ export const contact = {
 	/** FINAL: confirmed public institutional inbox; do NOT mark placeholder. */
 	email: 'zlobek@ugstromiec.pl',
 	/** FINAL: given in writing by the żłobek's director on 2026-08-24 („Mogę dodać NIP
-	 *  7981489629"). Stored DIGITS ONLY and grouped for display at the one place that
-	 *  renders it, so nothing downstream has to strip separators to compare or reuse it.
-	 *  A parent needs this for the ZUS dofinansowanie paperwork, which is why it earns a
-	 *  row on /kontakt rather than living only in the BIP. */
+	 *  7981489629"). Stored DIGITS ONLY and grouped for display by
+	 *  `nipDoWyswietlenia` in $lib/identyfikatory, so nothing downstream has to strip
+	 *  separators to compare or reuse it. A parent needs this for the ZUS dofinansowanie
+	 *  paperwork, which is why it appears on /kontakt and in the footer of every page
+	 *  rather than living only in the BIP. */
 	nip: '7981489629',
+	// PLACEHOLDER: the REGON has not been given to us. `.planning/dane-bip-zlobek-stromiec.md`
+	// recorded NIP and REGON together as „[BRAK] jeszcze nieprzyznane"; the NIP arrived on
+	// 2026-08-24 and the REGON did not. EMPTY STRING, never an invented or partial number,
+	// and both surfaces that render institutional data omit the line entirely while it is
+	// empty. Publishing „REGON: brak" on a public body's site states an absence as a fact;
+	// omitting the line states nothing. Filling this in is a one-field edit: type the digits
+	// between the quotes and the footer and /kontakt both pick it up, because neither holds
+	// a literal.
+	regon: '',
 	// DERIVED, not a literal, since plan 05-09: the opening hours have ONE source, the
 	// editor-owned store src/lib/content/w-skrocie.json, and this line, the homepage tile
 	// and the footer are all composed from the same four atoms. Before that they were three

@@ -34,17 +34,10 @@
 	import MapPanel from '$lib/components/MapPanel.svelte';
 	import Seo from '$lib/components/Seo.svelte';
 	import { contact, urzad } from '$lib/content/site';
-
-	// The Polish NIP is written 000-000-00-00. The store keeps bare digits (one canonical
-	// value, nothing downstream has to strip separators), so the grouping is applied here,
-	// at the only surface that shows it. Built from the stored string rather than typed out
-	// a second time, so the two cannot disagree.
-	const nipDoWyswietlenia = [
-		contact.nip.slice(0, 3),
-		contact.nip.slice(3, 6),
-		contact.nip.slice(6, 8),
-		contact.nip.slice(8, 10)
-	].join('-');
+	// The grouping moved to $lib/identyfikatory when the footer started showing the NIP too:
+	// this page is no longer the only surface that renders it, and two copies of the same
+	// formatting are two places that can disagree about how one number looks.
+	import { nipDoWyswietlenia, regonDoWyswietlenia } from '$lib/identyfikatory';
 </script>
 
 <Seo
@@ -109,9 +102,22 @@
 					<Hash class="item-icon" size={22} aria-hidden="true" focusable="false" />
 					<div class="item-text">
 						<span class="item-label">NIP</span>
-						<span class="item-value">{nipDoWyswietlenia}</span>
+						<span class="item-value">{nipDoWyswietlenia(contact.nip)}</span>
 					</div>
 				</li>
+
+				<!-- Omitted entirely while the REGON is unknown, matching the footer. A row reading
+				     „REGON: brak" would publish an absence as a fact and would also cost the card
+				     a quarter of its space to say nothing. -->
+				{#if contact.regon}
+					<li class="item">
+						<Hash class="item-icon" size={22} aria-hidden="true" focusable="false" />
+						<div class="item-text">
+							<span class="item-label">REGON</span>
+							<span class="item-value">{regonDoWyswietlenia(contact.regon)}</span>
+						</div>
+					</li>
+				{/if}
 			</ul>
 		</section>
 
