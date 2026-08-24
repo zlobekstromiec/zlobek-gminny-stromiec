@@ -46,3 +46,6 @@ vite.config.ts.timestamp-*
 
 # GSD research fetch cache (local only)
 .planning/research/.cache/
+
+# Client-supplied originals staged for import (resized copies live in src/lib/assets/uploads/)
+/pictures/
