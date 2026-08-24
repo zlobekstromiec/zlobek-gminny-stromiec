@@ -123,6 +123,32 @@ ręcznie. Nazwa `constructor` wiązała okładkę z **funkcją**, a
 T-05-07-02, którego `$lib/galeria.ts` pilnuje u siebie. Teraz obie ścieżki
 obrazu na tej stronie czytają tak samo, przez `Object.hasOwn`.
 
+## Ustalenie uboczne: `static/robots.txt` nie jest tym, co widzi Google
+
+Sprawdzone na żywo przy okazji pisania odpowiedzi, bo odpowiedź twierdziła
+coś o indeksowaniu i to twierdzenie trzeba było zweryfikować.
+
+Cloudflare dokleja własny blok „Cloudflare Managed content" NAD treścią
+z repozytorium, z własną grupą `User-agent: *` niosącą
+`Content-Signal: search=yes,ai-train=no,use=reference` oraz `Allow: /`.
+Plik na żywo ma więc **dwie grupy `User-agent: *`**, jedną z `Allow: /`
+(Cloudflare) i jedną z `Disallow: /` (repozytorium). Roboty scalają grupy
+o tym samym `User-agent`, a przy sprzeczności reguł o równej długości
+ścieżki wygrywa mniej restrykcyjna, czyli `Allow`.
+
+**Crawlerów nie powstrzymuje więc dziś robots.txt, tylko wyłącznie
+`<meta name="robots" content="noindex">`** (potwierdzone na żywo).
+
+To jest konfiguracja funkcjonalnie POPRAWNA dla celu „nie indeksuj":
+`Disallow` zabroniłby Google pobrać stronę, robot nigdy nie zobaczyłby
+`noindex`, a adres i tak mógłby trafić do wyników jako goły link. Zestaw
+„crawlowanie dozwolone plus noindex" jest właściwy.
+
+Problemem jest natomiast **założenie planu**: komentarz w `static/robots.txt`
+i plan fazy 6 mówią, że ten plik jest jedynym źródłem prawdy i że przy
+starcie przełącza się go na allow-all. Grupa z repozytorium jest dziś
+martwa. Do rozstrzygnięcia w fazie 6, pełny rozbiór w `ODPOWIEDZ.md`.
+
 ## Czego to zadanie NIE zrobiło, świadomie
 
 - **Galeria wpisu nie jest edytowalna z panelu.** Dodanie, usunięcie
