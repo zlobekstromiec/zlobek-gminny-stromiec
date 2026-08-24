@@ -32,6 +32,7 @@ import {
 	MAKS_TYTULU,
 	MAKS_ZAJAWKI,
 	walidujWpis,
+	zGaleria,
 	zOkladka
 } from '../src/lib/server/admin/walidacja/aktualnosci.ts';
 import { MAKS_BASE64 } from '../src/lib/server/admin/obraz.ts';
@@ -648,4 +649,100 @@ test('lista lat nigdy nie wychodzi poza okno, ktore przyjmuje walidator', () => 
 			assert.ok(rok >= ROK_MIN && rok <= ROK_MAKS, `rok ${rok} poza oknem walidatora`);
 		}
 	}
+});
+
+// ── Galeria wpisu przezywa zapis redaktora ───────────────────────────────────
+// The single most expensive failure this file can prevent, because it fails SILENTLY.
+// `walidujWpis` rebuilds its result key by key and never spreads the submission, so a key
+// it does not know about is simply absent from what gets committed. `zdjecia` is authored
+// in a pull request and has no control on the edit screen, so without `zGaleria` the first
+// editor to fix a typo in a post's title would delete that post's whole gallery, with no
+// error, no warning and nothing in the diff to explain it.
+
+const GALERIA = [
+	{ plik: 'otwarcie-poswiecenie.jpg', podpis: 'Poświęcenie', alt: 'Ksiądz przy mównicy' },
+	{ plik: 'otwarcie-dyrektor.jpg', podpis: 'Przemówienie', alt: 'Kobieta przy mównicy' }
+];
+
+test('zGaleria wklada zdjecia miedzy obraz_alt a placeholder, nie na koniec', () => {
+	const wynik = walidujWpis(poprawne({ [POLE_ZAJAWKA]: 'Streszczenie.' }));
+	assert.equal(wynik.ok, true);
+	if (!wynik.ok) return;
+	assert.deepEqual(Object.keys(zGaleria(wynik.dane, GALERIA)), [
+		'tytul',
+		'data',
+		'zajawka',
+		'tresc',
+		'zdjecia',
+		'placeholder'
+	]);
+});
+
+test('zGaleria zachowuje okladke, ktora juz stala w danych', () => {
+	const wynik = walidujWpis(poprawne({ [POLE_OBRAZ]: 'stara.jpg', [POLE_OBRAZ_ALT]: ALT }));
+	assert.equal(wynik.ok, true);
+	if (!wynik.ok) return;
+	const zObiema = zGaleria(wynik.dane, GALERIA);
+	assert.deepEqual(Object.keys(zObiema), [
+		'tytul',
+		'data',
+		'tresc',
+		'obraz',
+		'obraz_alt',
+		'zdjecia',
+		'placeholder'
+	]);
+	assert.equal(zObiema.obraz, 'stara.jpg');
+});
+
+test('zGaleria przy pustej galerii nie dopisuje klucza (bez smiecia w diffie)', () => {
+	const wynik = walidujWpis(poprawne({}));
+	assert.equal(wynik.ok, true);
+	if (!wynik.ok) return;
+	assert.ok(!Object.keys(zGaleria(wynik.dane, [])).includes('zdjecia'));
+});
+
+test('zGaleria kopiuje zdjecia pole po polu, nie przez referencje', () => {
+	const wynik = walidujWpis(poprawne({}));
+	assert.equal(wynik.ok, true);
+	if (!wynik.ok) return;
+	const zrodlo = [{ ...GALERIA[0], nieznane: 'kasowane' }];
+	const zapisane = zGaleria(wynik.dane, zrodlo).zdjecia ?? [];
+	assert.deepEqual(Object.keys(zapisane[0]).sort(), ['alt', 'plik', 'podpis']);
+	assert.notEqual(zapisane[0], zrodlo[0]);
+});
+
+test('zOkladka nie gubi galerii wpisu przy podmianie zdjecia', () => {
+	const wynik = walidujWpis(poprawne({}));
+	assert.equal(wynik.ok, true);
+	if (!wynik.ok) return;
+	// The order the edit route uses: gallery first, cover second.
+	const zObiema = zOkladka(zGaleria(wynik.dane, GALERIA), 'nowa.jpg', ALT);
+	assert.deepEqual(zObiema.zdjecia, GALERIA);
+	assert.deepEqual(Object.keys(zObiema), [
+		'tytul',
+		'data',
+		'tresc',
+		'obraz',
+		'obraz_alt',
+		'zdjecia',
+		'placeholder'
+	]);
+});
+
+// The end-to-end property, asserted through the PUBLIC READER rather than through a
+// description of the stored shape: whatever the panel commits must still show the gallery
+// on the site. That is the assertion that stays true if the storage shape ever changes.
+test('galeria przezywa pelna droge: zapis panelu, serializacja, czytnik publiczny', () => {
+	const wynik = walidujWpis(poprawne({ [POLE_TYTUL]: 'Poprawiony tytuł' }));
+	assert.equal(wynik.ok, true);
+	if (!wynik.ok) return;
+	const zapisane = zGaleria(wynik.dane, GALERIA);
+	const odczytane: unknown = JSON.parse(serializujJson(zapisane));
+	const post = postFromEntry(
+		`${KATALOG_WPISOW}/${nazwaPlikuWpisu('2026-08-19', 'uroczyste-otwarcie')}`,
+		odczytane as never
+	);
+	assert.notEqual(post, null);
+	assert.deepEqual(post?.zdjecia, GALERIA);
 });

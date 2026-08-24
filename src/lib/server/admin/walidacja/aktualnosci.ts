@@ -40,6 +40,7 @@ import {
 	POLE_ZDJECIE_USUN,
 	type ZrodloPol
 } from '../../../pola-wpisu.ts';
+import type { ZdjecieWpisu } from '../../aktualnosci.ts';
 import { base64ZDataUrl, zaDuzeZdjecie } from '../obraz.ts';
 import { bezpiecznaNazwaOkladki } from '../uploads.ts';
 import {
@@ -98,6 +99,9 @@ export interface WpisDane {
 	tresc: string;
 	obraz?: string;
 	obraz_alt?: string;
+	/** The post's own gallery. NOT editable from the panel and never read off a submission
+	 *  (see `zGaleria`): it is carried through a save so an edit cannot delete it. */
+	zdjecia?: ZdjecieWpisu[];
 	placeholder: boolean;
 }
 
@@ -148,8 +152,47 @@ export function zOkladka(dane: WpisDane, nazwa: string, alt: string): WpisDane {
 	zOkladkaDane.tresc = dane.tresc;
 	zOkladkaDane.obraz = nazwa;
 	zOkladkaDane.obraz_alt = alt;
+	// Carried, not dropped. This function REBUILDS the object, so a key it forgets is a key
+	// the save deletes: an editor who changes a cover would otherwise silently take the
+	// post's whole gallery with it.
+	if (dane.zdjecia !== undefined) zOkladkaDane.zdjecia = dane.zdjecia;
 	zOkladkaDane.placeholder = dane.placeholder;
 	return zOkladkaDane as WpisDane;
+}
+
+/**
+ * The validated entry with the post's EXISTING gallery folded back in, in seed key order.
+ *
+ * WHY THIS FUNCTION HAS TO EXIST. `walidujWpis` builds its result key by key from guarded
+ * locals and never spreads the submission, which is the property that stops an unvalidated
+ * field reaching a commit. The same property means any key the validator does not know
+ * about is not refused or reported, it is silently ABSENT from what gets written. `zdjecia`
+ * is authored in a pull request and has no control on the edit screen, so without this the
+ * first time an editor fixed a typo in that post's title the entire gallery would vanish
+ * from the JSON, with no error, no warning and nothing in the diff to explain it.
+ *
+ * THE ARRAY COMES FROM THE STORED ENTRY THE ROUTE ALREADY READ, never from the request.
+ * The panel cannot edit a gallery, so round-tripping one through a hidden form field would
+ * buy nothing and would hand a request the ability to write image paths into a committed
+ * file. Passing the value the server itself read keeps that surface at zero.
+ *
+ * An empty array is stored as ABSENT rather than as `[]`, so a post that never had a
+ * gallery keeps the exact byte shape the seed files use (D-09: no diff churn).
+ */
+export function zGaleria(dane: WpisDane, zdjecia: readonly ZdjecieWpisu[]): WpisDane {
+	if (zdjecia.length === 0) return dane;
+	const zGaleriaDane: Partial<WpisDane> = {};
+	zGaleriaDane.tytul = dane.tytul;
+	zGaleriaDane.data = dane.data;
+	if (typeof dane.zajawka === 'string') zGaleriaDane.zajawka = dane.zajawka;
+	zGaleriaDane.tresc = dane.tresc;
+	if (typeof dane.obraz === 'string') zGaleriaDane.obraz = dane.obraz;
+	if (typeof dane.obraz_alt === 'string') zGaleriaDane.obraz_alt = dane.obraz_alt;
+	// Copied member by member, never by reference to the caller's array and never spread
+	// from the stored objects: the same rule the rest of this file follows.
+	zGaleriaDane.zdjecia = zdjecia.map(({ plik, podpis, alt }) => ({ plik, podpis, alt }));
+	zGaleriaDane.placeholder = dane.placeholder;
+	return zGaleriaDane as WpisDane;
 }
 
 /** Required text, with the two refusals the UI-SPEC error table distinguishes: „you left

@@ -35,7 +35,7 @@ import { lataDoWyboru } from '$lib/daty';
 import { sciezkaWpisu } from '$lib/server/admin/slug';
 import { nazwaOkladki, okladkaDoUsuniecia, sciezkaOkladki } from '$lib/server/admin/uploads';
 import { serializujJson } from '$lib/server/admin/serializuj';
-import { walidujWpis, zOkladka } from '$lib/server/admin/walidacja/aktualnosci';
+import { walidujWpis, zGaleria, zOkladka } from '$lib/server/admin/walidacja/aktualnosci';
 import { aktualnyShaGlowy, zapiszTresc } from '$lib/server/admin/zapis';
 import type { PlikDoZapisu } from '$lib/server/admin/commit';
 import type { PageServerLoad } from './$types';
@@ -144,7 +144,13 @@ export const actions: Actions = {
 		// The entry and its cover are ONE commit (D-07). A new photo overwrites the previous
 		// one IN PLACE, at the same generated path, so a replacement never appears in the
 		// delete list as well: one commit cannot both write and remove one file (P-21).
-		let doZapisu = wynik.dane;
+		// The post's own gallery is folded back in FIRST, before any cover handling, because
+		// `zOkladka` below rebuilds the object again and carries whatever it is given. The
+		// array comes from `wpis`, the entry this route already read off disk, never from the
+		// submission: the panel has no control for it, so nothing about it is the request's to
+		// say. Without this the validator's key-by-key rebuild would drop the key entirely and
+		// an editor fixing a typo would silently delete the whole gallery.
+		let doZapisu = zGaleria(wynik.dane, wpis.zdjecia);
 		const pliki: PlikDoZapisu[] = [];
 		if (wynik.zdjecie !== undefined) {
 			const nazwaObrazu = nazwaOkladki(wpis.slug);
