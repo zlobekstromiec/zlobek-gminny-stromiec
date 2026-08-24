@@ -477,7 +477,19 @@ desktop tier is composed rather than left as a narrow column in a wide container
 >
 > 1. **Grid, never `column-count`.** `repeat(2, minmax(0, 1fr))` makes item 2's position deterministic; `column-count` leaves balancing to the browser and makes „how many columns" untestable.
 > 2. **60 characters per point is a layout contract, not a style preference.** A longer point wraps to a second line and the list grows by half, which brings the empty rail back. `tests/responsive.spec.ts` pins it: no `li` may exceed 40px tall at 1280px.
-> 3. **Two columns only where the items are short.** The four ZUS points added in the same change are 73 to 163 characters, and in two columns they measured as ragged blocks 120px to 176px tall whose rows never aligned. They stay **single column and keep the 65ch cap**, still inside a both-track `.szeroko` so the rail is filled either way. Dropping the cap the way the two-column tier does would have set them 1088px wide, about 136 characters per line.
+> 3. **Two columns only where the items are short.** The four ZUS points added in the same change are 73 to 163 characters, and in two columns they measured as ragged blocks 120px to 176px tall whose rows never aligned. They stay **single column and keep the 65ch cap**.
+
+> **Korekta (2026-08-24, quick 260824-hzm):** the ZUS points and the link are NO LONGER inside a
+> both-track `.szeroko`. Filling the rail that way gave the section two left edges: measured at
+> 1440px the panel began at x=524 and the points at x=176, 348px apart inside one section, which
+> reads as two unrelated blocks. They now sit in `.tresc` under the panel, so the whole section
+> has one left edge and one measure, which is the idiom every other section here and on /o-nas,
+> /dokumenty and /kontakt already uses. The rail stays empty below the h2 and that is correct at
+> this length: the earlier complaint was about one-sentence sections where the rail dwarfed the
+> content, not about a 660px block. `#zus-blok` is untouched, so Contract 4b and both zero-amount
+> gates are unaffected. The modifier was renamed `.lista-szeroka` -> `.lista-jedna-kolumna`,
+> since keeping ONE column was the only thing it ever did. Measured: section 809px -> 785px, and
+> the page's vertical empty share 46% -> 34%. Pinned by `tests/responsive.spec.ts`. Dropping the cap the way the two-column tier does would have set them 1088px wide, about 136 characters per line.
 >
 > Below 1024px `.uklad` is not a grid, so the container stacks and the list is single-column at 65ch. That applies at 768px too: two columns there would be about 43ch each and every point would wrap, making the list taller than one column, not shorter.
 

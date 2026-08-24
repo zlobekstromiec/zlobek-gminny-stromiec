@@ -353,3 +353,28 @@ test('cennik: karty „Dobrze wiedzieć" schodza do jednej kolumny przy 375 px (
 	const pudla = await Promise.all((await karty.all()).map((k) => k.boundingBox()));
 	expect(new Set(pudla.map((p) => Math.round(p!.x))).size, 'karty nie sa jednokolumnowe').toBe(1);
 });
+
+/* Quick 260824-hzm. Sekcja ZUS miala DWIE krawedzie lewe: panel siedzial w prawym torze
+   podzialu redakcyjnego, a punkty i odnosnik w kontenerze rozpietym na oba tory, wiec
+   startowaly pod naglowkiem. Zmierzone na zywej stronie przy 1440 px: panel x=524, punkty
+   x=176, czyli 348 px roznicy w jednej sekcji.
+
+   Asercja porownuje ELEMENTY ZE SOBA, nigdy z liczba pikseli, zgodnie z konwencja tego pliku:
+   szerokosc kontenera, padding i przerwa miedzy kolumnami moga sie zmienic i nie o nich jest
+   ten kontrakt. */
+test('cennik: panel ZUS, punkty i odnośnik mają tę samą krawędź lewą (260824-hzm)', async ({
+	page
+}) => {
+	await page.setViewportSize({ width: 1440, height: 1000 });
+	await page.goto('/cennik');
+	const sekcja = page.locator('section[aria-labelledby="zus-heading"]');
+
+	const panel = await sekcja.locator('#zus-blok').boundingBox();
+	const punkty = await sekcja.locator('ul').boundingBox();
+	const odnosnik = await sekcja.locator('a[href*="zus.pl"]').boundingBox();
+
+	expect(Math.round(punkty!.x), 'punkty nie stoja na krawedzi panelu').toBe(Math.round(panel!.x));
+	expect(Math.round(odnosnik!.x), 'odnosnik nie stoi na krawedzi panelu').toBe(
+		Math.round(panel!.x)
+	);
+});

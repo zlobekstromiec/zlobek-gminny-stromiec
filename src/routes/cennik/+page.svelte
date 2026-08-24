@@ -182,15 +182,22 @@
 <section class="band warm" aria-labelledby="zus-heading">
 	<div class="inner uklad">
 		<h2 id="zus-heading">{SEKCJE.zus}</h2>
+		<!-- ONE COLUMN, ONE LEFT EDGE (quick 260824-hzm). The points and the link used to live in
+		     a `.szeroko` container spanning BOTH tracks, so they started under the h2 while the
+		     panel started in the right track: measured at 1440px, panel x=524 against points
+		     x=176, two left edges 348px apart inside one section. That was my own 260820-m35
+		     debt, taken on to fill the empty rail; it filled the rail and ragged the edge, which
+		     is worse. Everything now sits in `.tresc`, which is the idiom every other section on
+		     this page and on /o-nas, /dokumenty and /kontakt already uses.
+		     `#zus-blok` is untouched: same node, same three paragraphs in the same DOM order,
+		     which is what Contract 4b pins and what both zero-amount gates measure. -->
 		<div class="tresc">
 			<div class="blok-zus" id="zus-blok">
 				<p class="linia">{CENNIK.zus}</p>
 				<p class="linia">{przykladZus(CENNIK.kwotaProza)}</p>
 				<p class="linia">{ZUS_WNIOSEK}</p>
 			</div>
-		</div>
-		<div class="szeroko">
-			<ul class="lista lista-szeroka" role="list">
+			<ul class="lista lista-jedna-kolumna" role="list">
 				{#each ZUS_PUNKTY as punkt (punkt)}
 					<li>{punkt}</li>
 				{/each}
@@ -441,14 +448,23 @@
 		   per line, roughly twice every other body text on the site.
 		   The container still spans both tracks, so the list starts at the rail's own left
 		   edge and the rail has no empty vertical run either way. */
-		.lista-szeroka {
+		/* Renamed from `.lista-szeroka` in quick 260824-hzm: it is no longer wide. What it still
+		   does is the only thing that ever mattered, which is keeping ONE column. Without it the
+		   list would inherit the two-column tier from `.lista`, and the ZUS points run 73 to 163
+		   characters, which measured as ragged blocks 120px to 176px tall whose rows never lined
+		   up. The 65ch cap stays for the same reason it always applied: line length. */
+		.lista-jedna-kolumna {
 			grid-template-columns: minmax(0, 1fr);
 			row-gap: 12px;
 			max-width: 65ch;
 		}
 	}
 
-	.szeroko .proza:first-of-type {
+	/* Air between the ZUS points and the sentence that introduces the link. Scoped to the list
+	   rather than to `.szeroko` since 260824-hzm, because this block no longer spans the tracks
+	   and `.szeroko` now carries only the scope list and the card row, neither of which has a
+	   sibling paragraph. */
+	.lista-jedna-kolumna + .proza {
 		margin-top: 16px;
 	}
 
