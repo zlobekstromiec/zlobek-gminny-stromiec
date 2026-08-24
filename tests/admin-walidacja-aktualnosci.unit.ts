@@ -661,7 +661,11 @@ test('lista lat nigdy nie wychodzi poza okno, ktore przyjmuje walidator', () => 
 
 const GALERIA = [
 	{ plik: 'otwarcie-poswiecenie.jpg', podpis: 'Poświęcenie', alt: 'Ksiądz przy mównicy' },
-	{ plik: 'otwarcie-dyrektor.jpg', podpis: 'Przemówienie', alt: 'Kobieta przy mównicy' }
+	{
+		plik: 'otwarcie-przemowienie-maskotka.jpg',
+		podpis: 'Przemówienie',
+		alt: 'Przemówienie przy mównicy'
+	}
 ];
 
 test('zGaleria wklada zdjecia miedzy obraz_alt a placeholder, nie na koniec', () => {

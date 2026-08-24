@@ -241,9 +241,9 @@ for (const brak of ['plik', 'podpis', 'alt']) {
 
 test('readZdjecia keeps the good photos and drops only the bad one', () => {
 	const drugie = {
-		plik: 'otwarcie-dyrektor.jpg',
+		plik: 'otwarcie-przemowienie-maskotka.jpg',
 		podpis: 'Przemówienie',
-		alt: 'Kobieta przy mównicy'
+		alt: 'Przemówienie przy mównicy'
 	};
 	assert.deepEqual(readZdjecia([ZDJECIE_OK, { plik: 'x.jpg' }, drugie]), [ZDJECIE_OK, drugie]);
 });
