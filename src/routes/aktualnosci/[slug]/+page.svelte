@@ -1,9 +1,16 @@
 <script lang="ts">
 	// Single post page (NEWS-02; 03-UI-SPEC.md single-post composition 1-5).
-	// Prerendered, zero-JS (inherits prerender = true from +layout.ts): NO +server.ts,
-	// NO extra <main>/landmark beyond the layout's, and exactly ONE h1 (the post
-	// tytul) — the body renders through renderPost, which neutralizes any heading in
-	// the Markdown to a paragraph, so nothing rivals that h1 (a11y + D-08).
+	// Prerendered: NO +server.ts, NO extra <main>/landmark beyond the layout's, and
+	// exactly ONE h1 (the post tytul) — the body renders through renderPost, which
+	// neutralizes any heading in the Markdown to a paragraph, so nothing rivals that h1
+	// (a11y + D-08). The post gallery's h2 sits below it, in order.
+	//
+	// NO LONGER ZERO-JS, and deliberately: a post that carries `zdjecia` mounts the same
+	// `Lightbox` island /o-nas already uses (05-UI-SPEC Contract 2). That island is
+	// progressive by construction — each tile is a real <a href> to the full-size asset
+	// that is already in the prerendered HTML, so with scripting off the tap still opens
+	// the photograph, and hydration adds behaviour without changing markup or layout. A
+	// post with no gallery mounts nothing and is byte-for-byte as static as before.
 	//
 	// The body is authored Markdown (CMS/editor-controlled). It renders with
 	// renderPost ($lib/markdown): a hardened full-block renderer that escapes raw
@@ -17,27 +24,42 @@
 	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
 	import Seo from '$lib/components/Seo.svelte';
 	import Cta from '$lib/components/Cta.svelte';
+	import Lightbox from '$lib/components/Lightbox.svelte';
 	import { renderPost } from '$lib/markdown';
+	import { galeriaZObrazami } from '$lib/galeria';
+	import { bazowaNazwa, wedlugBazowejNazwy } from '$lib/zdjecia-nazwy';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 	const post = $derived(data.post);
 
 	// Statically-analyzable glob: keys are absolute file paths, values are processed
-	// enhanced-img Picture objects. Map by final path segment (basename) for lookup.
+	// enhanced-img Picture objects. Re-keyed by basename through the shared mapper rather
+	// than an inline loop, so this page and /o-nas cannot acquire two answers to one
+	// question (the glob itself cannot move: see the header of $lib/zdjecia-nazwy).
 	const uploads = import.meta.glob<Picture>('$lib/assets/uploads/*.{jpg,jpeg,png,webp}', {
 		query: { enhanced: true },
 		eager: true,
 		import: 'default'
 	});
-	const byName: Record<string, Picture> = {};
-	for (const [path, mod] of Object.entries(uploads)) {
-		const base = path.split('/').pop();
-		if (base) byName[base] = mod;
-	}
-	const cover = $derived(
-		post.obraz ? byName[post.obraz.split('/').pop() ?? post.obraz] : undefined
-	);
+	const byName = wedlugBazowejNazwy(uploads);
+	// `Object.hasOwn`, NEVER a bare `!== undefined` (T-05-07-02). `byName` is a plain
+	// object, so it answers `constructor`, `__proto__`, `toString`, `valueOf` and
+	// `hasOwnProperty` off its prototype. `obraz` is only guarded as far as „it is a
+	// string", and this content is hand editable, so a stored name of `constructor` would
+	// otherwise bind `cover` to a FUNCTION and the `<enhanced:img>` below would throw in
+	// the middle of the whole-site prerender.
+	const cover = $derived.by(() => {
+		if (!post.obraz) return undefined;
+		const nazwa = bazowaNazwa(post.obraz);
+		return Object.hasOwn(byName, nazwa) ? byName[nazwa] : undefined;
+	});
+
+	// The post's own gallery, filtered to the photos the build really carries. Reuses the
+	// facility gallery's mapper rather than re-deriving it: `ZdjecieWpisu` is structurally
+	// the same record, so the „lightbox can never open onto nothing" guarantee and the
+	// prototype-name defence above both come along unchanged.
+	const zdjecia = $derived(galeriaZObrazami(post.zdjecia, byName));
 
 	const bodyHtml = $derived(renderPost(post.tresc));
 </script>
@@ -75,7 +97,53 @@
 			<!-- eslint-disable-next-line svelte/no-at-html-tags -- D-08: renderPost sanitizes (raw HTML escaped, unsafe hrefs dropped, images to alt, headings/tables neutralized); CSP script-src 'self' is the second layer (T-03-01) -->
 			<div class="prose">{@html bodyHtml}</div>
 
-			<!-- 4. Back link. -->
+			<!-- 4. The post's own gallery. The whole block is conditional, unlike the facility
+			     gallery on /o-nas: there the section is a permanent landing target for a footer
+			     shortcut and must render its empty state, whereas here nothing links to it and a
+			     post without photographs should simply not have the heading. -->
+			{#if zdjecia.length > 0}
+				<section class="galeria-wpisu" aria-labelledby="galeria-wpisu-heading">
+					<h2 id="galeria-wpisu-heading">Zdjęcia z wydarzenia</h2>
+					<ul class="galeria">
+						<!-- Keyed by POSITION: this list is authored by hand and two photographs may
+						     legitimately carry the same caption, so the caption is not an identity. -->
+						{#each zdjecia as zdjecie, i (i)}
+							<li>
+								<figure>
+									<!-- Both image elements stay HERE, one per snippet, so the island carries
+									     no image-processing concern and knows nothing about enhanced-img. The
+									     two differ only in `sizes`: the tile fills a grid cell, the dialog
+									     fills the viewport. -->
+									<Lightbox
+										podpis={zdjecie.podpis}
+										opis={zdjecie.alt}
+										zrodlo={zdjecie.obraz.img.src}
+									>
+										{#snippet miniatura()}
+											<enhanced:img
+												src={zdjecie.obraz}
+												alt={zdjecie.alt}
+												loading="lazy"
+												sizes="(min-width:768px) 25rem, 100vw"
+											/>
+										{/snippet}
+										{#snippet powiekszenie()}
+											<enhanced:img
+												src={zdjecie.obraz}
+												alt={zdjecie.alt}
+												sizes="(min-width:1024px) 90vw, 100vw"
+											/>
+										{/snippet}
+									</Lightbox>
+									<figcaption>{zdjecie.podpis}</figcaption>
+								</figure>
+							</li>
+						{/each}
+					</ul>
+				</section>
+			{/if}
+
+			<!-- 5. Back link. -->
 			<p class="back">
 				<a href="/aktualnosci">
 					<ArrowLeft class="back-icon" size={16} aria-hidden="true" focusable="false" />
@@ -85,7 +153,7 @@
 		</div>
 	</section>
 
-	<!-- 5. Closing CTA (inherited primary variant). -->
+	<!-- 6. Closing CTA (inherited primary variant). -->
 	<section class="band warm cta-band">
 		<div class="inner">
 			<Cta href="/rekrutacja" variant="primary" icon>Zapisz dziecko</Cta>
@@ -203,6 +271,66 @@
 
 	.prose :global(strong) {
 		font-weight: 700;
+	}
+
+	/* -------------------------------------------------------------------------------
+	   Post gallery. TWO columns at the top tier, not the three /o-nas uses, because this
+	   grid sits inside the article's `.inner.narrow` (52rem) rather than the full 72rem
+	   band: a third track here would put the tiles below the width at which a face in a
+	   ceremony photograph is still legible.
+
+	   EXPLICIT TRACK COUNTS, never auto-fit, for the reason the facility gallery records:
+	   an auto-fitting track list stretches a LONE tile to the full container width, where
+	   it reads as a second cover competing with the one at the top of the page.
+	   ------------------------------------------------------------------------------- */
+	.galeria-wpisu {
+		margin-top: 40px;
+	}
+
+	.galeria-wpisu h2 {
+		font-family: var(--font-display);
+		font-weight: 700;
+		font-size: clamp(1.375rem, 3vw, 1.75rem);
+		line-height: 1.2;
+		color: var(--color-ink);
+		margin: 0;
+	}
+
+	.galeria {
+		list-style: none;
+		margin: 24px 0 0;
+		padding: 0;
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 24px;
+		justify-content: start;
+	}
+
+	@media (min-width: 768px) {
+		.galeria {
+			grid-template-columns: repeat(2, 1fr);
+		}
+	}
+
+	.galeria figure {
+		margin: 0;
+	}
+
+	/* The TILE itself is styled by the island that renders it ($lib/components/Lightbox.svelte),
+	   together with its hover scale and its own reduced-motion guard: a page-scoped selector
+	   cannot reach an element another component renders. What stays here is the grid, the
+	   figure and the caption, exactly as on /o-nas. */
+	.galeria figcaption {
+		margin-top: 8px;
+		font-family: var(--font-body);
+		font-weight: 700;
+		font-size: 15px;
+		line-height: 1.4;
+		color: var(--color-ink);
+	}
+
+	.galeria li:hover figcaption {
+		text-decoration: underline;
 	}
 
 	.back {
