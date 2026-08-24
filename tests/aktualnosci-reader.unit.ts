@@ -7,7 +7,12 @@
 // simulate malformed hand-edited on-disk JSON.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseData, postFromEntry } from '../src/lib/server/aktualnosci.ts';
+import {
+	MAKS_ZDJEC_WPISU,
+	parseData,
+	postFromEntry,
+	readZdjecia
+} from '../src/lib/server/aktualnosci.ts';
 import type { PostEntry } from '../src/lib/server/aktualnosci.ts';
 import { renderPost } from '../src/lib/markdown.ts';
 
@@ -27,7 +32,8 @@ const EXPECTED_POST_KEYS = [
 	'slug',
 	'tresc',
 	'tytul',
-	'zajawka'
+	'zajawka',
+	'zdjecia'
 ];
 
 /** Call the reader with a deliberately malformed value. The compile-time
@@ -199,3 +205,95 @@ for (const { nazwa, entry } of MALFORMED_SHAPES) {
 		}, `cover basename split threw for shape: ${nazwa}`);
 	});
 }
+
+// ── Post gallery (`zdjecia`) ──────────────────────────────────────────────────
+// The array is authored by hand in a pull request, never by a bounded form, so every
+// shape below is genuinely reachable on disk. The contract these pin is: never throw,
+// never emit a partial photo, never exceed the cap, and always hand back an array.
+
+const ZDJECIE_OK = {
+	plik: 'otwarcie-poswiecenie.jpg',
+	podpis: 'Poświęcenie',
+	alt: 'Ksiądz przy mównicy'
+};
+
+test('readZdjecia keeps a whole photo and constructs it key by key', () => {
+	const wynik = readZdjecia([{ ...ZDJECIE_OK, nieznane: 'kasowane' }]);
+	assert.equal(wynik.length, 1);
+	// Key-set equality, same reason as EXPECTED_POST_KEYS above: an unknown key surviving
+	// means someone reintroduced a spread.
+	assert.deepEqual(Object.keys(wynik[0]).sort(), ['alt', 'plik', 'podpis']);
+});
+
+// Each of the three fields is required, so a photo missing any one is dropped whole
+// rather than rendered unlabelled (WCAG 1.1.1 on a public body's site).
+for (const brak of ['plik', 'podpis', 'alt']) {
+	test(`readZdjecia drops a photo missing ${brak}`, () => {
+		const niepelne: Record<string, unknown> = { ...ZDJECIE_OK };
+		delete niepelne[brak];
+		assert.deepEqual(readZdjecia([niepelne]), []);
+	});
+
+	test(`readZdjecia drops a photo whose ${brak} is blank`, () => {
+		assert.deepEqual(readZdjecia([{ ...ZDJECIE_OK, [brak]: '   ' }]), []);
+	});
+}
+
+test('readZdjecia keeps the good photos and drops only the bad one', () => {
+	const drugie = {
+		plik: 'otwarcie-dyrektor.jpg',
+		podpis: 'Przemówienie',
+		alt: 'Kobieta przy mównicy'
+	};
+	assert.deepEqual(readZdjecia([ZDJECIE_OK, { plik: 'x.jpg' }, drugie]), [ZDJECIE_OK, drugie]);
+});
+
+test('readZdjecia caps the gallery', () => {
+	const nadmiar = Array.from({ length: MAKS_ZDJEC_WPISU + 5 }, (_, i) => ({
+		...ZDJECIE_OK,
+		podpis: `Zdjęcie ${i}`
+	}));
+	assert.equal(readZdjecia(nadmiar).length, MAKS_ZDJEC_WPISU);
+});
+
+// Anything that is not an array yields an empty gallery rather than a throw: this content
+// is hand edited and partially committed, and one bad value must not abort the prerender.
+for (const { nazwa, wartosc } of [
+	{ nazwa: 'undefined', wartosc: undefined },
+	{ nazwa: 'null', wartosc: null },
+	{ nazwa: 'a string', wartosc: 'otwarcie.jpg' },
+	{ nazwa: 'a number', wartosc: 7 },
+	{ nazwa: 'an object', wartosc: { plik: 'otwarcie.jpg' } },
+	{ nazwa: 'an array of nulls', wartosc: [null, null] },
+	{ nazwa: 'an array of arrays', wartosc: [[], []] },
+	{ nazwa: 'an array of strings', wartosc: ['a.jpg'] }
+]) {
+	test(`readZdjecia returns an empty array, without throwing, for: ${nazwa}`, () => {
+		let wynik: unknown = null;
+		assert.doesNotThrow(() => {
+			wynik = readZdjecia(wartosc);
+		});
+		assert.deepEqual(wynik, []);
+	});
+}
+
+test('postFromEntry always exposes zdjecia as an array, even when the key is absent', () => {
+	const post = readEntry('/lib/content/aktualnosci/2026-01-01-bez-galerii.json', {
+		tytul: 'Bez galerii',
+		data: '2026-01-01',
+		tresc: 'Treść wpisu.'
+	});
+	assert.ok(post !== null);
+	assert.deepEqual(post.zdjecia, []);
+});
+
+test('postFromEntry carries a valid gallery through', () => {
+	const post = readEntry('/lib/content/aktualnosci/2026-01-01-z-galeria.json', {
+		tytul: 'Z galerią',
+		data: '2026-01-01',
+		tresc: 'Treść wpisu.',
+		zdjecia: [ZDJECIE_OK]
+	});
+	assert.ok(post !== null);
+	assert.deepEqual(post.zdjecia, [ZDJECIE_OK]);
+});

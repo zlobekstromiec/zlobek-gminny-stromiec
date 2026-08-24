@@ -9,6 +9,23 @@
 // route (this plan), the [slug] route (Plan 02) and the homepage (Plan 04) all
 // consume one source and cannot drift.
 
+/** One photograph of a post's own gallery, in the key order the stored JSON uses.
+ *
+ *  DELIBERATELY THE SAME SHAPE as `ZdjecieGalerii` in $lib/galeria.ts, field for field and
+ *  name for name, because both end up in the same `Lightbox` and a second vocabulary for
+ *  one concept is how the two drift. All three fields are REQUIRED for the reason the
+ *  facility gallery states about itself: the dialog is named by its caption through
+ *  aria-labelledby, so an entry missing one would open an unlabelled dialog onto an
+ *  unlabelled image, which is a WCAG failure on a public body's website. */
+export interface ZdjecieWpisu {
+	/** Bare basename inside src/lib/assets/uploads (04.1 P-20). */
+	plik: string;
+	/** The short visible caption under the tile, and the dialog's accessible name. */
+	podpis: string;
+	/** What is in the picture, for a screen reader. Never the same string as the caption. */
+	alt: string;
+}
+
 export interface PostEntry {
 	tytul: string;
 	data: string; // stored ISO "YYYY-MM-DD" (CMS saves ISO so the slug substitutes it verbatim; CR-01)
@@ -16,10 +33,12 @@ export interface PostEntry {
 	tresc: string; // markdown-subset string
 	obraz?: string; // optional cover (basename or path under uploads)
 	obraz_alt?: string;
+	zdjecia?: ZdjecieWpisu[]; // optional post gallery, authored in a pull request (D-5 of 260824-qqa)
 	placeholder?: boolean;
 }
 
 export interface PostWithMeta extends PostEntry {
+	zdjecia: ZdjecieWpisu[]; // always an array here (possibly empty), so consumers need no guard
 	slug: string; // = on-disk filename minus .json (D-07: fixed at creation)
 	href: string; // /aktualnosci/{slug}
 	iso: string; // "YYYY-MM-DD" for <time datetime> + sort key
@@ -81,6 +100,42 @@ function readString(value: unknown): string | undefined {
 	return typeof value === 'string' && value.trim() !== '' ? value : undefined;
 }
 
+/** Upper bound on one post's gallery. The array is authored by hand in a pull request
+ *  rather than by a bounded form, so nothing else stops a paste from putting a hundred
+ *  full-width photographs on one prerendered page. Twelve is the cap the facility gallery
+ *  already carries, reused rather than re-argued. */
+export const MAKS_ZDJEC_WPISU = 12;
+
+/**
+ * One post's gallery: every entry that is whole, capped, never throwing.
+ *
+ * SKIPS the bad entry and keeps the good ones, which is the same trade the facility
+ * gallery makes: dropping one photograph costs a tile, whereas rejecting the whole array
+ * would silently strip a gallery a person can see is there, and rendering an entry with a
+ * missing alt would ship an unlabelled image. Anything that is not an array at all (a
+ * string, an object, a hand-edited null) yields an empty gallery rather than a throw, for
+ * the reason the whole module exists: this content is hand edited and partially committed,
+ * and one bad value must not abort the site-wide prerender (WR-02).
+ */
+export function readZdjecia(value: unknown): ZdjecieWpisu[] {
+	if (!Array.isArray(value)) return [];
+	const zdjecia: ZdjecieWpisu[] = [];
+	for (const wpis of value) {
+		if (zdjecia.length >= MAKS_ZDJEC_WPISU) break;
+		// A member holding null, an array, a bare string or a number would throw on the
+		// first property access, before any field guard could run.
+		if (typeof wpis !== 'object' || wpis === null || Array.isArray(wpis)) continue;
+		const rekord = wpis as Record<string, unknown>;
+		const plik = readString(rekord.plik);
+		const podpis = readString(rekord.podpis);
+		const alt = readString(rekord.alt);
+		if (plik === undefined || podpis === undefined || alt === undefined) continue;
+		// Constructed key by key from guarded locals, never spread from `wpis`.
+		zdjecia.push({ plik, podpis, alt });
+	}
+	return zdjecia;
+}
+
 /** Map one on-disk entry to a PostWithMeta, or skip it with a build warning
  *  (never throw) when it is malformed — the `dokumenty.ts` `withMeta` precedent
  *  applied to hand-edited news JSON so a single bad post can never abort the
@@ -138,6 +193,10 @@ export function postFromEntry(path: string, entry: unknown): PostWithMeta | null
 	const zajawka = readString(record.zajawka);
 	const obraz = readString(record.obraz);
 	const obraz_alt = readString(record.obraz_alt);
+	// Always an ARRAY out, never undefined, so the page needs no `?? []` and cannot forget
+	// one. An absent, malformed or wholly-rejected gallery is the empty array, and the page
+	// renders no gallery section at all for it.
+	const zdjecia = readZdjecia(record.zdjecia);
 	const excerpt = zajawka ? zajawka.trim() : firstParagraph(tresc);
 	// Constructed key by key from guarded locals only — never `...entry`, which is
 	// how unvalidated fields survived two prior fixes (T-03-07-03).
@@ -148,6 +207,7 @@ export function postFromEntry(path: string, entry: unknown): PostWithMeta | null
 		tresc,
 		obraz,
 		obraz_alt,
+		zdjecia,
 		placeholder: record.placeholder === true,
 		slug,
 		href: `/aktualnosci/${slug}`,
