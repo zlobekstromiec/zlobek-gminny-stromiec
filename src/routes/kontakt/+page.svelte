@@ -25,6 +25,7 @@
 	// number, e-mail or opening-hours string is written as a literal anywhere in this
 	// file, including in the head metadata below.
 	import Clock from '@lucide/svelte/icons/clock';
+	import Hash from '@lucide/svelte/icons/hash';
 	import Info from '@lucide/svelte/icons/info';
 	import Mail from '@lucide/svelte/icons/mail';
 	import MapPin from '@lucide/svelte/icons/map-pin';
@@ -33,6 +34,17 @@
 	import MapPanel from '$lib/components/MapPanel.svelte';
 	import Seo from '$lib/components/Seo.svelte';
 	import { contact, urzad } from '$lib/content/site';
+
+	// The Polish NIP is written 000-000-00-00. The store keeps bare digits (one canonical
+	// value, nothing downstream has to strip separators), so the grouping is applied here,
+	// at the only surface that shows it. Built from the stored string rather than typed out
+	// a second time, so the two cannot disagree.
+	const nipDoWyswietlenia = [
+		contact.nip.slice(0, 3),
+		contact.nip.slice(3, 6),
+		contact.nip.slice(6, 8),
+		contact.nip.slice(8, 10)
+	].join('-');
 </script>
 
 <Seo
@@ -86,6 +98,18 @@
 					<div class="item-text">
 						<span class="item-label">Godziny otwarcia</span>
 						<span class="item-value">{contact.hours}</span>
+					</div>
+				</li>
+
+				<!-- NIP last: it is the row a parent needs least often, and the one they need it
+				     for (the ZUS dofinansowanie paperwork) is a deliberate errand rather than a
+				     glance. Grouped 000-000-00-00 HERE and stored as bare digits in site.ts, so
+				     the separators are a presentation choice in one place. -->
+				<li class="item">
+					<Hash class="item-icon" size={22} aria-hidden="true" focusable="false" />
+					<div class="item-text">
+						<span class="item-label">NIP</span>
+						<span class="item-value">{nipDoWyswietlenia}</span>
 					</div>
 				</li>
 			</ul>

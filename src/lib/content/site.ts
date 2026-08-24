@@ -71,6 +71,12 @@ export const contact = {
 	// reintroduced by hand in markup fails the suite instead of shipping.
 	/** FINAL: confirmed public institutional inbox; do NOT mark placeholder. */
 	email: 'zlobek@ugstromiec.pl',
+	/** FINAL: given in writing by the żłobek's director on 2026-08-24 („Mogę dodać NIP
+	 *  7981489629"). Stored DIGITS ONLY and grouped for display at the one place that
+	 *  renders it, so nothing downstream has to strip separators to compare or reuse it.
+	 *  A parent needs this for the ZUS dofinansowanie paperwork, which is why it earns a
+	 *  row on /kontakt rather than living only in the BIP. */
+	nip: '7981489629',
 	// DERIVED, not a literal, since plan 05-09: the opening hours have ONE source, the
 	// editor-owned store src/lib/content/w-skrocie.json, and this line, the homepage tile
 	// and the footer are all composed from the same four atoms. Before that they were three
