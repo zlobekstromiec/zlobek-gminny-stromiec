@@ -8,7 +8,7 @@ status: executing
 stopped_at: Faza 6 przeskalowana i omowiona; 06-CONTEXT.md gotowy, nastepny krok /gsd-ui-phase 6
 last_updated: "2026-08-24T00:00:00.000Z"
 last_activity: 2026-08-24
-last_activity_desc: "Quick 260824-hev: /cennik z dziewieciu pasm na siedem, trzy najciensze sekcje jako wiersz kart Dobrze wiedziec"
+last_activity_desc: "Quick 260824-hzm: sekcja ZUS na /cennik ma jedna krawedz lewa zamiast dwoch oddalonych o 348 px"
 progress:
   total_phases: 9
   completed_phases: 6
@@ -333,6 +333,8 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 | 260823-pmv | Stawka z uchwaly prowadzi takze na /rekrutacja i w kafelku strony glownej; po drodze naprawiona regresja lepkiej szyny blokujaca przycisk wysylki | 2026-08-23 | 0b1a300 | [260823-pmv-rekrutacja-i-strona-glowna-tez-prowadza-](./quick/260823-pmv-rekrutacja-i-strona-glowna-tez-prowadza-/) |
 
 | 260824-hev | /cennik: trzy sekcje po okolo 150 znakow lacza sie w wiersz trzech kart „Dobrze wiedziec"; dziewiec pasm na siedem, 3918 px na 3745 px | 2026-08-24 | 7b9d36b | [260824-hev-cennik-trzy-cienkie-sekcje-lacza-sie-w-j](./quick/260824-hev-cennik-trzy-cienkie-sekcje-lacza-sie-w-j/) |
+
+| 260824-hzm | Sekcja ZUS na /cennik: punkty i odnosnik wracaja do prawego toru, wiec panel i tresc maja jedna krawedz zamiast dwoch oddalonych o 348 px | 2026-08-24 | 65b9151 | [260824-hzm-sekcja-zus-na-cenniku-dostaje-jedna-kraw](./quick/260824-hzm-sekcja-zus-na-cenniku-dostaje-jedna-kraw/) |
 
 ### Roadmap Evolution
 
