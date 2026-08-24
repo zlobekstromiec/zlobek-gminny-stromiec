@@ -1,20 +1,22 @@
 // Published photo descriptions may not label people by who they are (260824-t8n).
 //
-// WHY THIS IS A TEST AND NOT A NOTE IN A STYLE GUIDE. The `alt` field of a gallery photo
-// is NOT screen-reader-only in this project. `src/lib/components/Lightbox.svelte` renders
-// it twice: once as the image's `alt` attribute and once as a VISIBLE `<p class="opis">`
-// under the caption (05-UI-SPEC Contract 2). That is deliberate and good, because a
-// sighted and a blind visitor then read the same sentence. It also means the field is
-// published prose, and conventional alt-text habits are actively wrong for it.
+// WHY THIS IS A TEST AND NOT A NOTE IN A STYLE GUIDE. Six descriptions shipped reading
+// „Kobieta przemawia przy mównicy" about what may well be the żłobek's own director, and
+// at the time the Lightbox printed that sentence UNDER the photograph as visible prose.
+// The visible line has since been removed, so these strings are now only the images' `alt`
+// attributes, read aloud rather than printed.
 //
-// The habit that has to be trained out: alt text conventionally describes people by
-// appearance, because someone who cannot see the photo has no other way to know who is in
-// it. Printed underneath the picture on the subject's OWN institution's website, that same
-// sentence reduces a named person to a demographic label. Six descriptions shipped reading
-// „Kobieta przemawia przy mównicy" about what may well be the żłobek's own director.
+// THAT CHANGE MAKES THIS GUARD NARROWER, NOT POINTLESS. The subjects are still real,
+// identifiable people photographed at a public event, the text is still content the żłobek
+// publishes about them, and „who is standing there" is still a guess where „what is
+// happening" is an observation. Alt text conventionally describes people by appearance
+// because someone who cannot see the photo has no other way to know who is in it; that
+// convention is defensible for a stock photograph and presumptuous for a named guest at
+// their own institution's opening.
 //
 // THE RULE THIS ENCODES: describe the ROLE and the ACTION, not the body. „Przemówienie
-// przy mównicy" is both more informative and less presumptuous than „Kobieta przemawia".
+// przy mównicy" is both more informative and less presumptuous than „Kobieta przemawia",
+// and it is better alt text on its own merits: it says what the picture SHOWS.
 // Role words that describe what someone is DOING at the event („ksiądz" reading a
 // blessing) are fine and are deliberately not caught here: they carry information, and
 // they are evident from the act itself rather than guessed from a face.
@@ -97,7 +99,7 @@ test('zaden publikowany opis zdjecia nie etykietuje osoby plcia', () => {
 	assert.deepEqual(
 		winne.map(({ gdzie, trafienia }) => `${gdzie}: ${trafienia?.join(', ')}`),
 		[],
-		'Opis zdjecia jest widoczny pod fotografia, nie tylko dla czytnika ekranu. ' +
+		'Opis zdjecia jest tresc publikowana o realnych, rozpoznawalnych osobach. ' +
 			'Opisz ROLE i CZYNNOSC („Przemowienie przy mownicy"), nie osobe („Kobieta przemawia").'
 	);
 });

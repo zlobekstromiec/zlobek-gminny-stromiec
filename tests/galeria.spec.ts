@@ -676,7 +676,15 @@ test.describe('Podglad zdjecia na /o-nas: kontrakt dialogu (GAL-3 otwarty, GAL-4
 		expect(zablokowane, 'kolejno: Ctrl lub Cmd, srodkowy, zwykly').toEqual([false, false, true]);
 	});
 
-	test('podglad pokazuje zdjecie, podpis i opis alternatywny, w kolejnosci z kontraktu', async ({
+	// AMENDS 05-UI-SPEC Contract 2. The dialog used to print the alt a second time as a
+	// visible description line, and this test asserted it. That line is gone (260824-t8n):
+	// the photographs carry their own meaning, and printing a description written for
+	// assistive technology underneath them published prose about identifiable people.
+	//
+	// THE ALT ASSERTION BELOW MATTERS MORE NOW, NOT LESS. The image attribute is the ONLY
+	// carrier of the description since the visible line went, so a change that dropped it
+	// would take the whole accessible name with it and leave nothing on screen to notice.
+	test('podglad pokazuje zdjecie z opisem w alt i podpis, bez powielania opisu na ekranie', async ({
 		page
 	}) => {
 		await page.goto('/o-nas');
@@ -687,18 +695,20 @@ test.describe('Podglad zdjecia na /o-nas: kontrakt dialogu (GAL-3 otwarty, GAL-4
 		await expect(obraz).toHaveCount(1);
 		await expect(obraz).toHaveAttribute('alt', zdjecie.alt);
 
-		// The alt is also VISIBLE text, so a sighted visitor reads the description instead of
-		// only a screen reader announcing it (05-UI-SPEC Contract 2, the description line).
+		// The caption stays visible: it names the dialog through aria-labelledby and is what a
+		// sighted visitor reads.
 		await expect(podglad(page).getByText(zdjecie.podpis, { exact: true })).toBeVisible();
-		await expect(podglad(page).getByText(zdjecie.alt, { exact: true })).toBeVisible();
+		// The description does NOT appear as text. Asserted as absence rather than dropped
+		// from the suite, so re-adding the line is a deliberate act that turns this red.
+		await expect(podglad(page).getByText(zdjecie.alt, { exact: true })).toHaveCount(0);
 
-		// DOM order from Contract 2: close button, image, caption, description line.
+		// DOM order: close button, image, caption.
 		const kolejnosc = await podglad(page).evaluate((element) =>
 			Array.from(element.querySelectorAll('button, img, h2, p')).map((dziecko) =>
 				dziecko.tagName.toLowerCase()
 			)
 		);
-		expect(kolejnosc).toEqual(['button', 'img', 'h2', 'p']);
+		expect(kolejnosc).toEqual(['button', 'img', 'h2']);
 	});
 
 	// GAL-6, the dialog half. Positive control FIRST, exactly as the tile half above does it.

@@ -206,7 +206,7 @@
 							     no image-processing concern and knows nothing about enhanced-img. The
 							     two differ only in `sizes`: the tile fills a grid cell, the dialog
 							     fills the viewport (05-UI-SPEC Contract 2). -->
-							<Lightbox podpis={zdjecie.podpis} opis={zdjecie.alt} zrodlo={zdjecie.obraz.img.src}>
+							<Lightbox podpis={zdjecie.podpis} zrodlo={zdjecie.obraz.img.src}>
 								{#snippet miniatura()}
 									<enhanced:img
 										src={zdjecie.obraz}

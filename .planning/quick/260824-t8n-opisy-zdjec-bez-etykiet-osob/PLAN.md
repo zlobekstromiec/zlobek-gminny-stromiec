@@ -48,3 +48,29 @@ guard na regexie umiera właśnie na zepsutym wzorcu, nie na brudnej treści.
 ## Bramki
 
 `check` 0 błędów · `lint` czysty · `test:unit` 640/640 · `test` 442/442.
+
+## Uzupełnienie: opis znika z ekranu w całości
+
+Po pierwszej poprawce użytkownik zgłosił, że tekst nadal jest widoczny i że
+zdjęcia bronią się same. Wiersz opisu usunięty z `Lightbox.svelte`.
+
+**Co zostaje, a co znika.** Znika powielenie: `<p class="opis">` pod
+podpisem. Zostaje `alt` na samym obrazie, renderowany przez STRONĘ
+w snippetach, więc czytnik ekranu nadal dostaje pełny opis. Podpis zostaje,
+bo nazywa dialog przez `aria-labelledby`.
+
+**Nie było `aria-describedby` wskazującego na ten akapit**, więc usunięcie go
+nie zostawia wiszącej referencji. Sprawdzone przed zmianą, bo to byłby cichy
+błąd dostępności, który axe zgłosiłby dopiero na innej stronie.
+
+**Prop `opis` usunięty z komponentu i z obu miejsc wywołania**, zamiast
+zostawienia martwego API.
+
+**To ZMIENIA 05-UI-SPEC Kontrakt 2**, który wprost przewidywał wiersz opisu.
+Test kontraktu w `galeria.spec.ts` przepisany na asercję NIEOBECNOŚCI, żeby
+przywrócenie wiersza było świadomym aktem, który czerwieni test, a nie cichym
+powrotem.
+
+**Guard zostaje, z węższym uzasadnieniem.** Opisy nie są już drukowane, ale
+dotyczą realnych, rozpoznawalnych osób i są czytane na głos. „Co się dzieje"
+jest lepszym alt-tekstem niż „kto stoi", niezależnie od widoczności.

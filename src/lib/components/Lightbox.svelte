@@ -44,15 +44,19 @@
 
 	let {
 		podpis,
-		opis,
 		zrodlo,
 		miniatura,
 		powiekszenie
 	}: {
 		/** The stored caption. Names the dialog through aria-labelledby. */
 		podpis: string;
-		/** The stored alt text, announced as the image description AND shown as visible text. */
-		opis: string;
+		// THERE IS NO `opis` PROP, and its absence is a content decision rather than an
+		// oversight. The stored alt text used to be rendered here a second time, as a visible
+		// line under the caption. It is still on the photograph itself, as the `alt` attribute
+		// of the image the PAGE renders into the snippets below, so nothing is lost for a
+		// screen reader; what is gone is the duplicate printed under the picture, which a
+		// sighted visitor did not need and which turned a description written for assistive
+		// technology into published prose about identifiable people.
 		/** The full-size asset the tile links to, which is the no-scripting affordance. */
 		zrodlo: string;
 		/** The tile's image, rendered by the page so this island knows nothing about it. */
@@ -184,7 +188,7 @@
 		transition:fade={{ duration: czasRuchu() }}
 		onkeydown={klawisz}
 	>
-		<!-- DOM order is the contract: close button, image, caption, description line. The close
+		<!-- DOM order is the contract: close button, image, caption. The close
 		     button sits INSIDE the panel rather than floating on the scrim, because a control
 		     whose only backing is a translucent overlay has no guaranteed contrast against the
 		     photograph behind it. -->
@@ -205,8 +209,6 @@
 		</div>
 
 		<h2 id={PODPIS_ID} class="podpis">{podpis}</h2>
-		<!-- The alt as VISIBLE text, so the description is readable and not only announced. -->
-		<p class="opis">{opis}</p>
 	</div>
 {/if}
 
@@ -324,15 +326,6 @@
 		line-height: 1.2;
 		color: var(--color-ink);
 		margin: 16px 0 0;
-	}
-
-	.opis {
-		font-family: var(--font-body);
-		font-weight: 400;
-		font-size: 13px;
-		line-height: 1.5;
-		color: var(--color-muted);
-		margin: 4px 0 0;
 	}
 
 	/* The component's OWN guard, in addition to the global neutraliser in app.css and to the
