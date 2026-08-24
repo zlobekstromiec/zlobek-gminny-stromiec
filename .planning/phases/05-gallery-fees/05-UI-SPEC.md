@@ -452,6 +452,23 @@ At ≥1024px every section from 2 to 7 uses the **v1.6 §2 editorial split** (`m
 minmax(0, 1fr)`, column-gap 48px, `align-items: start`): the `h2` sits in the left rail and
 the content fills the right track. Below 1024px nothing changes. This is the pattern
 `/o-nas` and `/dokumenty` already use, so `/cennik` needs no new layout idiom and the
+
+> **Korekta (2026-08-24, quick 260824-hev):** the page is now SEVEN sections, not nine. „Wyżywienie",
+> „Nieobecność dziecka" and „Jak i kiedy płacić" carried about 150 characters each and were
+> each given a full-width band with 128px of padding and an empty 300px rail beside them. At
+> 1440px the page measured 3918px for roughly 3500 characters across nine surface changes,
+> which read as unfinished. They are now three CARDS inside one section, „Dobrze wiedzieć",
+> and their headings dropped from h2 to h3. Nothing was cut.
+>
+> The card row spans both tracks (the `.szeroko` idiom already used by the scope list) and is
+> `repeat(3, minmax(0, 1fr))` with `align-items: stretch` from 1024px, one column below that.
+> Cards are warm on a white band: this section sits between two warm bands, so inverting keeps
+> the alternation without a new token. Measured after: 3745px and seven sections.
+>
+> Its desktop rules live in their OWN media block placed BELOW the base `.karty` rules, for the
+> source-order reason the `.lista` note already records. Written above them the cards stacked
+> at 1440px while the structural test still passed, because a stacked row is still full width;
+> `tests/responsive.spec.ts` now pins the geometry and was mutation-tested against exactly that.
 desktop tier is composed rather than left as a narrow column in a wide container.
 
 > **Correction (2026-08-20, quick 260820-m35): „needs no new layout idiom" no longer holds. `/cennik` now carries a `.szeroko` container that spans BOTH tracks of the editorial split, and inside it a two-column text list from 1024px.** The reason is measured, not stylistic. The left rail holds nothing but its `h2`, so a seven-point list confined to the right track leaves the rail white for the whole run below that heading: measured at 1280px the rejected single-column variant gave a **300 x 239px empty rail** and a 402px-tall section. Spanning both tracks (`grid-column: 1 / -1`) puts the list under the rail as well, and two columns of exactly 520px (`(1088 − 48) / 2`, which is the 65ch cap for 16px text) fit every point on one line, so the list is four rows of 24px instead of seven. Measured result: **list 1088 x 120px, section 306px including its 2 x 64px padding, and 23px of rail below the h2, which is the grid row gap itself.**

@@ -36,11 +36,17 @@ export const NAGLOWEK = {
 	lead: 'Tutaj znajdziesz wszystkie opłaty za żłobek: opłatę za pobyt, wyżywienie oraz zasady odpisów za nieobecność. Wyjaśniamy też, jak świadczenie „Aktywnie w żłobku" z ZUS obniża rachunek rodzica.'
 } as const;
 
-/** The h2 of each of the seven content sections, in the order they render. */
+/** Section and card titles. Since quick 260824-hev not every key here is an h2:
+ *  `wyzywienie`, `nieobecnosc` and `platnosci` title h3 cards inside `dobrzeWiedziec`. */
 export const SEKCJE = {
 	oplata: 'Opłata za pobyt',
 	zakres: 'Co obejmuje opłata',
 	zus: 'Świadczenie „Aktywnie w żłobku" (ZUS)',
+	/** Quick 260824-hev. The three keys below are no longer section headings: they title the
+	 *  three CARDS inside this one section. Each carried about 150 characters and was given a
+	 *  full-width band with an empty rail beside it, which is what made the desktop page read
+	 *  as unfinished. Their strings are unchanged, only their level and container moved. */
+	dobrzeWiedziec: 'Dobrze wiedzieć',
 	wyzywienie: 'Wyżywienie',
 	nieobecnosc: 'Nieobecność dziecka',
 	platnosci: 'Jak i kiedy płacić',

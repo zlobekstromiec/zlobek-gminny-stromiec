@@ -60,13 +60,47 @@ test.describe('Cennik: FEES-01 acceptance', () => {
 			// Siodmy wpis, dodany przez quick 260820-m35: zakres oplaty z uchwaly.
 			'Co obejmuje opłata',
 			'Świadczenie „Aktywnie w żłobku" (ZUS)',
-			'Wyżywienie',
-			'Nieobecność dziecka',
-			'Jak i kiedy płacić',
+			// Quick 260824-hev: „Wyżywienie", „Nieobecność dziecka" i „Jak i kiedy płacić"
+			// przestaly byc osobnymi pasmami i sa teraz KARTAMI w tej jednej sekcji. Kazda
+			// z nich niosla okolo 150 znakow, a dostawala pelnowymiarowe pasmo z pusta szyna
+			// obok. Ich naglowki zeszly na poziom h3 i sa pinowane nizej.
+			'Dobrze wiedzieć',
 			'Podstawa prawna'
 		]) {
 			await expect(page.getByRole('heading', { name: nazwa, exact: true })).toBeVisible();
 		}
+	});
+
+	/* Quick 260824-hev. Trzy najciensze sekcje strony (okolo 150 znakow kazda) mialy wlasne
+	   pasmo i wlasna pusta szyne, przez co strona czytala sie jak niedokonczona: 3918 px na
+	   3500 znakow i dziewiec zmian tla. Sa teraz trzema kartami w jednym pasmie, rozpietymi na
+	   obu torach podzialu redakcyjnego. Ten test pilnuje, ze zadna tresc nie zginela po drodze. */
+	test('trzy cienkie tematy są kartami w jednej sekcji, nie osobnymi pasmami (260824-hev)', async ({
+		page
+	}) => {
+		await page.goto('/cennik');
+		const sekcja = page.locator('section[aria-labelledby="wiedziec-heading"]');
+		await expect(sekcja).toHaveCount(1);
+
+		const karty = sekcja.locator('.karta');
+		await expect(karty).toHaveCount(3);
+		for (const [i, nazwa] of [
+			'Wyżywienie',
+			'Nieobecność dziecka',
+			'Jak i kiedy płacić'
+		].entries()) {
+			await expect(karty.nth(i).getByRole('heading', { level: 3, name: nazwa })).toBeVisible();
+		}
+
+		// Zadne z tych zdan nie zniknelo przy przenosinach.
+		await expect(sekcja).toContainText(CENNIK.wyzywienie);
+		await expect(sekcja).toContainText(CENNIK.nieobecnosc);
+		await expect(sekcja).toContainText('na rzecz Gminy Stromiec');
+
+		// Karty sa rozpiete na obu torach, wiec szyna nie swieci pustka obok jednego zdania.
+		const szer = (await sekcja.locator('.karty').boundingBox())!.width;
+		const tor = (await sekcja.locator('h2').boundingBox())!;
+		expect(szer).toBeGreaterThan(tor.width * 2);
 	});
 
 	test('kwoty renderują się jako panele i listy definicji, nigdy jako tabela', async ({ page }) => {

@@ -205,38 +205,36 @@
 	</div>
 </section>
 
-<!-- 5. Wyżywienie (white since 260820-m35). -->
-<section class="band" aria-labelledby="wyzywienie-heading">
+<!-- 5. Dobrze wiedzieć (white). Quick 260824-hev merged three former bands into this one.
+     Each of them carried roughly 150 characters and was given a full-width band with 128px of
+     padding and an empty 300px rail beside it; the desktop page came to 3918px for about 3500
+     characters across nine surface changes, which read as unfinished. As cards they keep every
+     word and every heading, one level down, and the row spans BOTH tracks so the rail is no
+     longer a void beside a single sentence.
+     The cards are warm on a white band rather than white on warm: this section sits between two
+     warm bands, so inverting here keeps the page's alternation intact without a new token. -->
+<section class="band" aria-labelledby="wiedziec-heading">
 	<div class="inner uklad">
-		<h2 id="wyzywienie-heading">{SEKCJE.wyzywienie}</h2>
-		<div class="tresc">
-			<p class="proza">{CENNIK.wyzywienie}</p>
-			<p class="proza">{WYZYWIENIE_SZCZEGOL}</p>
-		</div>
-	</div>
-</section>
-
-<!-- 6. Nieobecność dziecka (warm since 260820-m35). -->
-<section class="band warm" aria-labelledby="nieobecnosc-heading">
-	<div class="inner uklad">
-		<h2 id="nieobecnosc-heading">{SEKCJE.nieobecnosc}</h2>
-		<div class="tresc">
-			<p class="proza">{CENNIK.nieobecnosc}</p>
-		</div>
-	</div>
-</section>
-
-<!-- 7. Jak i kiedy płacić (white since 260820-m35). Names the RECIPIENT, which the uchwała
-     paragraf 3 ustep 1 supplies as of 2026-08-20, and nothing else: no account number, no
-     deadline, no interest rule and no consequence of paying late, because no committed
-     source carries any of them and the copy module still marks those three as unconfirmed
-     for the Phase 6 sweep (05 D-30). Per the locked project convention a placeholder
-     renders NO visitor-facing badge. -->
-<section class="band" aria-labelledby="platnosci-heading">
-	<div class="inner uklad">
-		<h2 id="platnosci-heading">{SEKCJE.platnosci}</h2>
-		<div class="tresc">
-			<p class="proza">{PLATNOSCI}</p>
+		<h2 id="wiedziec-heading">{SEKCJE.dobrzeWiedziec}</h2>
+		<div class="szeroko karty">
+			<article class="karta">
+				<h3>{SEKCJE.wyzywienie}</h3>
+				<p class="proza">{CENNIK.wyzywienie}</p>
+				<p class="proza">{WYZYWIENIE_SZCZEGOL}</p>
+			</article>
+			<article class="karta">
+				<h3>{SEKCJE.nieobecnosc}</h3>
+				<p class="proza">{CENNIK.nieobecnosc}</p>
+			</article>
+			<!-- Names the RECIPIENT, which the uchwała paragraf 3 ustep 1 supplies as of
+			     2026-08-20, and nothing else: no account number, no deadline, no interest rule
+			     and no consequence of paying late, because no committed source carries any of
+			     them and the copy module still marks those three as unconfirmed for the Phase 6
+			     sweep (05 D-30). Per the locked convention a placeholder renders NO badge. -->
+			<article class="karta">
+				<h3>{SEKCJE.platnosci}</h3>
+				<p class="proza">{PLATNOSCI}</p>
+			</article>
 		</div>
 	</div>
 </section>
@@ -556,6 +554,62 @@
 
 	.nota-obnizki .nota-wstep {
 		margin-top: 0;
+	}
+
+	/* Card row for „Dobrze wiedzieć" (quick 260824-hev). One column on phones, where the page
+	   already read well because the editorial split collapses and nothing leaves a rail empty. */
+	.karty {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 16px;
+		margin: 0;
+	}
+
+	/* Warm card on the white band. The section is flanked by two warm bands, so inverting the
+	   surface here keeps the page alternating without introducing a colour. */
+	.karta {
+		background: var(--color-surface-warm);
+		border: 1px solid var(--color-border-subtle);
+		border-radius: var(--radius-md);
+		padding: 20px;
+	}
+
+	.karta h3 {
+		margin: 0 0 8px;
+		font-family: var(--font-display);
+		font-size: 20px;
+		font-weight: 700;
+		line-height: 1.2;
+		color: var(--color-ink);
+	}
+
+	/* Inside a card the 65ch measure is already enforced by the column, and keeping it would
+	   only stop the text filling its own card. */
+	.karta .proza {
+		max-width: none;
+	}
+
+	.karta .proza:last-child {
+		margin-bottom: 0;
+	}
+
+	/* Desktop card row. THIS BLOCK MUST STAY BELOW THE BASE `.karty` RULES ABOVE. Media queries
+	   add no specificity, so with equal selectors source order decides, and written higher up
+	   this lost `grid-template-columns` to the single-column base rule: the cards stacked at
+	   1440px while every test still passed, because a stacked row is still full width. Exactly
+	   the defect the `.lista` comment further down records, walked into a second time. */
+	@media (min-width: 1024px) {
+		/* Three across, stretched to equal height so the row reads as one object rather than
+		   three ragged blocks. */
+		.karty {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			gap: 24px;
+			align-items: stretch;
+		}
+
+		.karta {
+			padding: 24px;
+		}
 	}
 
 	.rozbicie {

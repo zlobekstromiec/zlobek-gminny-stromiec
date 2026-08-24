@@ -323,3 +323,33 @@ test('szerokość 1024px pokazuje odnośniki w pasku i chowa hamburgera (v1.7 §
 	).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Otwórz menu' })).toBeHidden();
 });
+
+/* Quick 260824-hev. Karty „Dobrze wiedzieć" MUSZA stac w jednym wierszu na desktopie. Test
+   struktury w tests/cennik.spec.ts tego nie zlapie: sprawdza szerokosc kontenera, a kontener
+   jest pelnej szerokosci takze wtedy, gdy karty sie ulozyly jedna pod druga. Dokladnie tak
+   przeszedl na zielono, kiedy reguly trzykolumnowe przegraly kolejnoscia zrodla z regula
+   bazowa. Geometria jest jedynym miejscem, ktore to widzi. */
+test('cennik: „Dobrze wiedzieć" to trzy karty w jednym wierszu przy 1280 px (260824-hev)', async ({
+	page
+}) => {
+	await page.setViewportSize({ width: 1280, height: 900 });
+	await page.goto('/cennik');
+	const karty = page.locator('section[aria-labelledby="wiedziec-heading"] .karta');
+	await expect(karty).toHaveCount(3);
+
+	const pudla = await Promise.all((await karty.all()).map((k) => k.boundingBox()));
+	const y = pudla.map((p) => Math.round(p!.y));
+	const x = pudla.map((p) => Math.round(p!.x));
+	expect(new Set(y).size, 'karty nie stoja w jednym wierszu').toBe(1);
+	expect(new Set(x).size, 'karty nie maja trzech roznych kolumn').toBe(3);
+});
+
+test('cennik: karty „Dobrze wiedzieć" schodza do jednej kolumny przy 375 px (260824-hev)', async ({
+	page
+}) => {
+	await page.setViewportSize({ width: 375, height: 812 });
+	await page.goto('/cennik');
+	const karty = page.locator('section[aria-labelledby="wiedziec-heading"] .karta');
+	const pudla = await Promise.all((await karty.all()).map((k) => k.boundingBox()));
+	expect(new Set(pudla.map((p) => Math.round(p!.x))).size, 'karty nie sa jednokolumnowe').toBe(1);
+});
