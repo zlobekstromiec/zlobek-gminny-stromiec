@@ -6,9 +6,9 @@ current_phase: 6
 current_phase_name: Accessibility, Legal Compliance & Performance
 status: executing
 stopped_at: Faza 6 przeskalowana i omowiona; 06-CONTEXT.md gotowy, nastepny krok /gsd-ui-phase 6
-last_updated: "2026-08-24T21:15:00.000Z"
+last_updated: "2026-08-24T22:10:00.000Z"
 last_activity: 2026-08-24
-last_activity_desc: "Quick 260824-r4c: NIP w stopce kazdej strony, REGON przygotowany jako pole z bramka uruchomieniowa"
+last_activity_desc: "Quick 260824-t8n: opisy zdjec bez etykiet osob, plus guard przemiatajacy publikowane opisy"
 progress:
   total_phases: 9
   completed_phases: 6
@@ -339,6 +339,8 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 | 260824-qqa | Mail Kamili z 2026-08-24: otwarcie bylo 19 nie 14 sierpnia i wpis staje sie relacja z siedmioma zdjeciami, NIP na /kontakt, wpis o spotkaniu z rodzicami 27 sierpnia; wpis moze odtad niesc wlasna galerie, a panel jej nie kasuje przy zapisie | 2026-08-24 | 8f9588d | [260824-qqa-aktualizacja-po-mailu-kamili-data-otwarc](./quick/260824-qqa-aktualizacja-po-mailu-kamili-data-otwarc/) |
 
 | 260824-r4c | NIP w stopce kazdej strony (polska konwencja dla instytucji publicznej), grupowanie przeniesione do wspolnego $lib/identyfikatory; REGON przygotowany jako puste pole ze znacznikiem PLACEHOLDER, bo placowka go jeszcze nie podala | 2026-08-24 | c541d83 | [260824-r4c-nip-i-regon-w-stopce](./quick/260824-r4c-nip-i-regon-w-stopce/) |
+
+| 260824-t8n | Opisy zdjec galerii opisuja wydarzenie, nie osoby: pole `alt` jest w Lightboxie renderowane takze jako WIDOCZNA proza, wiec "Kobieta przemawia" bylo publikowana etykieta na rozpoznawalnej osobie; szesc opisow przepisanych, plik otwarcie-dyrektor przemianowany, guard przemiatajacy drzewo tresci | 2026-08-24 | 692138d | [260824-t8n-opisy-zdjec-bez-etykiet-osob](./quick/260824-t8n-opisy-zdjec-bez-etykiet-osob/) |
 
 ### Roadmap Evolution
 
