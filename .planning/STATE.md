@@ -6,9 +6,9 @@ current_phase: 6
 current_phase_name: Accessibility, Legal Compliance & Performance
 status: executing
 stopped_at: Faza 6 przeskalowana i omowiona; 06-CONTEXT.md gotowy, nastepny krok /gsd-ui-phase 6
-last_updated: "2026-08-24T18:45:00.000Z"
+last_updated: "2026-08-24T21:15:00.000Z"
 last_activity: 2026-08-24
-last_activity_desc: "Quick 260824-qqa: mail Kamili wdrozony (data otwarcia 19 sierpnia, NIP, spotkanie z rodzicami, 7 zdjec); wpis niesie wlasna galerie"
+last_activity_desc: "Quick 260824-r4c: NIP w stopce kazdej strony, REGON przygotowany jako pole z bramka uruchomieniowa"
 progress:
   total_phases: 9
   completed_phases: 6
@@ -337,6 +337,8 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 | 260824-hzm | Sekcja ZUS na /cennik: punkty i odnosnik wracaja do prawego toru, wiec panel i tresc maja jedna krawedz zamiast dwoch oddalonych o 348 px | 2026-08-24 | 65b9151 | [260824-hzm-sekcja-zus-na-cenniku-dostaje-jedna-kraw](./quick/260824-hzm-sekcja-zus-na-cenniku-dostaje-jedna-kraw/) |
 
 | 260824-qqa | Mail Kamili z 2026-08-24: otwarcie bylo 19 nie 14 sierpnia i wpis staje sie relacja z siedmioma zdjeciami, NIP na /kontakt, wpis o spotkaniu z rodzicami 27 sierpnia; wpis moze odtad niesc wlasna galerie, a panel jej nie kasuje przy zapisie | 2026-08-24 | 8f9588d | [260824-qqa-aktualizacja-po-mailu-kamili-data-otwarc](./quick/260824-qqa-aktualizacja-po-mailu-kamili-data-otwarc/) |
+
+| 260824-r4c | NIP w stopce kazdej strony (polska konwencja dla instytucji publicznej), grupowanie przeniesione do wspolnego $lib/identyfikatory; REGON przygotowany jako puste pole ze znacznikiem PLACEHOLDER, bo placowka go jeszcze nie podala | 2026-08-24 | c541d83 | [260824-r4c-nip-i-regon-w-stopce](./quick/260824-r4c-nip-i-regon-w-stopce/) |
 
 ### Roadmap Evolution
 
