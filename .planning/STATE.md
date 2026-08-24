@@ -6,9 +6,9 @@ current_phase: 6
 current_phase_name: Accessibility, Legal Compliance & Performance
 status: executing
 stopped_at: Faza 6 przeskalowana i omowiona; 06-CONTEXT.md gotowy, nastepny krok /gsd-ui-phase 6
-last_updated: "2026-08-23T00:00:00.000Z"
-last_activity: 2026-08-23
-last_activity_desc: "Quick 260823-pmv: /rekrutacja i strona glowna tez prowadza stawka 2337 zl; po drodze znaleziona i naprawiona regresja lepkiej szyny, ktora czynila przycisk wysylki nieosiagalnym przy 1280x720"
+last_updated: "2026-08-24T00:00:00.000Z"
+last_activity: 2026-08-24
+last_activity_desc: "Quick 260824-hev: /cennik z dziewieciu pasm na siedem, trzy najciensze sekcje jako wiersz kart Dobrze wiedziec"
 progress:
   total_phases: 9
   completed_phases: 6
@@ -331,6 +331,8 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 | 260823-p4w | Na prosbe dyrektorki /cennik podaje 2 337 zl jako stawke z uchwaly, a nota w tej samej ramce niesie obnizke i kwote faktycznie placona; sklep nietkniety | 2026-08-23 | 9a985d3 | [260823-p4w-cennik-prowadzi-stawka-2337-zl-z-uchwaly](./quick/260823-p4w-cennik-prowadzi-stawka-2337-zl-z-uchwaly/) |
 
 | 260823-pmv | Stawka z uchwaly prowadzi takze na /rekrutacja i w kafelku strony glownej; po drodze naprawiona regresja lepkiej szyny blokujaca przycisk wysylki | 2026-08-23 | 0b1a300 | [260823-pmv-rekrutacja-i-strona-glowna-tez-prowadza-](./quick/260823-pmv-rekrutacja-i-strona-glowna-tez-prowadza-/) |
+
+| 260824-hev | /cennik: trzy sekcje po okolo 150 znakow lacza sie w wiersz trzech kart „Dobrze wiedziec"; dziewiec pasm na siedem, 3918 px na 3745 px | 2026-08-24 | 7b9d36b | [260824-hev-cennik-trzy-cienkie-sekcje-lacza-sie-w-j](./quick/260824-hev-cennik-trzy-cienkie-sekcje-lacza-sie-w-j/) |
 
 ### Roadmap Evolution
 
