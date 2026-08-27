@@ -69,8 +69,13 @@ export const contact = {
 	// fallbacks pick them up, because not one of them ever held a literal.
 	// tests/kontakt.spec.ts asserts the ABSENCE of any tel: link, so a number
 	// reintroduced by hand in markup fails the suite instead of shipping.
-	/** FINAL: confirmed public institutional inbox; do NOT mark placeholder. */
-	email: 'zlobek@ugstromiec.pl',
+	/** FINAL: the institutional inbox, given in writing by Kamila Dobosz (Urząd Gminy
+	 *  w Stromcu) on 2026-08-27. It REPLACES the earlier `zlobek@` address on the same
+	 *  domain, which was never a real mailbox: mail sent there bounced, which is why the
+	 *  żłobek was asked for a working address and gave this one. Still not placeholder
+	 *  content, so there is no placeholder marker here. This one field feeds every surface
+	 *  that shows an address, so a future change is again a one-place edit. */
+	email: 'publicznyzlobek@ugstromiec.pl',
 	/** FINAL: given in writing by the żłobek's director on 2026-08-24 („Mogę dodać NIP
 	 *  7981489629"). Stored DIGITS ONLY and grouped for display by
 	 *  `nipDoWyswietlenia` in $lib/identyfikatory, so nothing downstream has to strip

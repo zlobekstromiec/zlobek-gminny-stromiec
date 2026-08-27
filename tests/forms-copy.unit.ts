@@ -33,6 +33,11 @@ import {
 	tekstBledu
 } from '../src/lib/content/forms.ts';
 import { contact, urzad } from '../src/lib/content/site.ts';
+// The CC recipient is IMPORTED, never repeated as a literal here. Two literals could
+// drift apart the day the address changes, and the drifted copy would be the one that
+// silently stops being checked. The mailer module has a type-only import and executes
+// nothing on load, so pulling it into a node:test file costs nothing (T-bfa-01).
+import { CC } from '../src/lib/server/forms/mailer.ts';
 import type { FormCode } from '../src/lib/forms/types.ts';
 
 /** Every FormCode the server can return. Written out rather than derived from the
@@ -130,6 +135,42 @@ test('every e-mail address in the exported copy is the value from site.ts', () =
 	}
 	adresy.delete(DOZWOLONY_PRZYKLAD);
 	assert.deepEqual([...adresy].sort(), [contact.email]);
+});
+
+// D-2 / T-bfa-04. The Urząd Gminy receives a copy of every submission, so art. 13 RODO
+// obliges the klauzula to say so. The constant in mailer.ts and this sentence are a pair:
+// a recipient nobody was told about is exactly the defect 04-RESEARCH Pitfall 8 names.
+test('the klauzula discloses the copy sent to the Urząd Gminy (D-2, Pitfall 8)', () => {
+	assert.match(
+		KLAUZULA_TEKST,
+		/Kopię każdej wiadomości i każdego zgłoszenia z formularza otrzymuje/
+	);
+	assert.ok(KLAUZULA_TEKST.includes(urzad.name));
+});
+
+// D-2 / T-bfa-01. The named clerk's address is a server-side constant and must never be
+// published. The positive control is not decoration: without it a broken detector would
+// report an empty sweep as a pass forever.
+test('the copy recipient address is published nowhere in the exported copy (D-2)', () => {
+	const zawiera = (s: string) => s.includes(CC);
+	assert.deepEqual(WSZYSTKIE_STRINGI.filter(zawiera), []);
+	assert.equal(zawiera(`Napisz na ${CC}, odpowiemy.`), true, 'kontrola dodatnia detektora');
+});
+
+// Copy rules v1.2 §8. An en dash is legal ONLY inside a numeric range, which is why the
+// digit boundary is part of the expression: contact.hours legitimately carries 6:30–16:30.
+// This gate exists so a client's text pasted in without editing turns red.
+test('no exported copy string carries an en dash outside a numeric range (copy rules)', () => {
+	const polpauza = /(?<!\d)–|–(?!\d)/u;
+	assert.deepEqual(
+		WSZYSTKIE_STRINGI.filter((s) => polpauza.test(s)),
+		[]
+	);
+	assert.equal(
+		polpauza.test('rozliczania opłat – na podstawie'),
+		true,
+		'kontrola dodatnia detektora'
+	);
 });
 
 test('the klauzula names the administrator', () => {

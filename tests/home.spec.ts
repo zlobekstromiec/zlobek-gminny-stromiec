@@ -246,7 +246,7 @@ test.describe('Homepage: Phase 1 + 01.1 acceptance', () => {
 	}) => {
 		await page.goto('/');
 		await expect(page.getByRole('heading', { name: 'Kontakt i dojazd' })).toBeVisible();
-		await expect(page.locator('a[href="mailto:zlobek@ugstromiec.pl"]')).toHaveCount(1);
+		await expect(page.locator('a[href="mailto:publicznyzlobek@ugstromiec.pl"]')).toHaveCount(1);
 		const directions = page.getByRole('link', { name: /Wyznacz trasę/ });
 		await expect(directions).toHaveAttribute('href', /openstreetmap\.org\/directions/);
 		await expect(directions).toHaveAttribute('target', '_blank');

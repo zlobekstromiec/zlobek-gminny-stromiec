@@ -13,8 +13,24 @@ import type { KontaktDane, ZgloszenieDane } from './validate.ts';
  *  and the Polish wording that staff actually read lives in the subject and body. */
 export const FROM = 'Formularz zlobka <formularz@send.zlobekstromiec.pl>';
 
-/** Hard-coded recipient, never request-derived (FORM-02). Confirmed mailbox. */
-export const TO = 'zlobek@ugstromiec.pl';
+/** Hard-coded recipient, never request-derived (FORM-02). This is the institutional
+ *  mailbox the placówka gave us in writing on 2026-08-27; it replaced `zlobek@`, which
+ *  was never a real mailbox at all. Delivery to THIS address is NOT yet proven: nobody
+ *  has sent a form to it and looked inside, which is why the BCC below still stands and
+ *  FORM-01 is still unticked. */
+export const TO = 'publicznyzlobek@ugstromiec.pl';
+
+/** Hard-coded copy recipient, never request-derived, exactly like FROM, TO and BCC
+ *  (FORM-02, D-2). Semantically the żłobek is the addressee and the Urząd Gminy, which
+ *  runs the recruitment casework, is the copy, so this is `cc` and not a second `to`.
+ *
+ *  This recipient IS DISCLOSED in the „Odbiorcy danych" block of KLAUZULA in
+ *  src/lib/content/forms.ts, and neither may exist without the other: a recipient the
+ *  parent was never told about breaches art. 13 RODO, and a disclosed recipient that no
+ *  longer receives anything is a false statement (04-RESEARCH Pitfall 8). The address is
+ *  a named clerk's, so it lives here and never in published copy; tests/forms-copy.unit.ts
+ *  imports this constant to prove its absence from every exported string. */
+export const CC = 'kamila.dobosz@ugstromiec.pl';
 
 /** TEMPORARY anti-silent-loss backup (D-13). Because nothing is stored, a filtered
  *  or bounced message is a lost application with no record anywhere.
@@ -45,6 +61,7 @@ const RESEND = 'https://api.resend.com/emails';
 export interface PayloadResend {
 	from: string;
 	to: string[];
+	cc: string[];
 	bcc: string[];
 	reply_to: string;
 	subject: string;
@@ -93,11 +110,12 @@ export function zbudujTrescZgloszenie(
 
 /** Build the payload. Takes only a static subject, an already-sanitized body and
  *  an already-validated address: there is no parameter through which a request
- *  could influence from, to or bcc (T-04-02). */
+ *  could influence from, to, cc or bcc (T-04-02). */
 export function zbudujPayload(temat: string, tresc: string, replyTo: string): PayloadResend {
 	return {
 		from: FROM,
 		to: [TO],
+		cc: [CC],
 		bcc: [BCC],
 		reply_to: replyTo,
 		subject: temat,

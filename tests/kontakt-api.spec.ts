@@ -76,13 +76,14 @@ test.describe.serial('API kontakt: CONTACT-03 / FORM-01 / FORM-02 acceptance', (
 
 	// The payload-immutability assertion itself lives in tests/forms.unit.ts. This
 	// case only proves the endpoint neither rejects nor honours the extra keys.
-	test('dodatkowe klucze to i bcc w ciele żądania są ignorowane i nadal zwracamy 200 (FORM-02)', async ({
+	test('dodatkowe klucze to, cc i bcc w ciele żądania są ignorowane i nadal zwracamy 200 (FORM-02)', async ({
 		page
 	}) => {
 		const res = await page.request.post('/api/kontakt', {
 			data: {
 				...POPRAWNE,
 				to: 'atakujacy@example.com',
+				cc: 'atakujacy@example.com',
 				bcc: 'atakujacy@example.com'
 			}
 		});

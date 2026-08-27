@@ -49,7 +49,7 @@ const CROP_H = 640;
 // The OSMF tile usage policy requires a descriptive, identifying User-Agent and
 // forbids anonymous or bulk fetching. Twelve tiles, fetched by hand, once.
 const USER_AGENT =
-	'zlobekstromiec.pl static map snapshot generator (one-off, build-time; contact: zlobek@ugstromiec.pl)';
+	'zlobekstromiec.pl static map snapshot generator (one-off, build-time; contact: publicznyzlobek@ugstromiec.pl)';
 
 /** Standard Web Mercator (slippy map) projection, in fractional tile units. */
 function project(lat, lon, zoom) {

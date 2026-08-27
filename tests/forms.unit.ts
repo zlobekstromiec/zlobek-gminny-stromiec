@@ -19,6 +19,7 @@ import {
 import { walidujKontakt, walidujZgloszenie } from '../src/lib/server/forms/validate.ts';
 import {
 	BCC,
+	CC,
 	FROM,
 	TEMAT_KONTAKT,
 	TEMAT_ZGLOSZENIE,
@@ -262,12 +263,13 @@ test('walidujKontakt rejects a header-injection e-mail before consent is ever co
 // mailer.ts: T-04-02, the sending identity no request can influence
 // ---------------------------------------------------------------------------
 
-const KLUCZE_PAYLOAD = ['bcc', 'from', 'reply_to', 'subject', 'text', 'to'];
+const KLUCZE_PAYLOAD = ['bcc', 'cc', 'from', 'reply_to', 'subject', 'text', 'to'];
 
 test('zbudujPayload emits the module FROM, a single-element to array and a bcc array', () => {
 	const payload = zbudujPayload(TEMAT_KONTAKT, 'Tresc', 'jan@example.com');
 	assert.equal(payload.from, FROM);
 	assert.deepEqual(payload.to, [TO]);
+	assert.deepEqual(payload.cc, [CC]);
 	assert.deepEqual(payload.bcc, [BCC]);
 	assert.equal(payload.subject, TEMAT_KONTAKT);
 	assert.equal(payload.text, 'Tresc');
@@ -298,6 +300,7 @@ test('the payload keeps the module recipients when the body carries to, from, cc
 	);
 	assert.equal(payload.from, FROM);
 	assert.deepEqual(payload.to, [TO]);
+	assert.deepEqual(payload.cc, [CC]);
 	assert.deepEqual(payload.bcc, [BCC]);
 	assert.deepEqual(Object.keys(payload).sort(), KLUCZE_PAYLOAD);
 	assert.equal(payload.reply_to, 'jan@example.com');
@@ -1033,5 +1036,6 @@ test('TEMAT_ZGLOSZENIE is a static constant, distinct from the contact subject',
 	// forms, so a recipient change is impossible to make in only one place (T-04-25).
 	assert.equal(payload.from, FROM);
 	assert.deepEqual(payload.to, [TO]);
+	assert.deepEqual(payload.cc, [CC]);
 	assert.deepEqual(payload.bcc, [BCC]);
 });

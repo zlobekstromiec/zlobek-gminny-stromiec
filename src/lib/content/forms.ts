@@ -338,6 +338,16 @@ export const KLAUZULA: readonly BlokKlauzuli[] = Object.freeze([
 	{
 		naglowek: 'Odbiorcy danych',
 		akapity: [
+			// D-2 / T-bfa-04. This sentence and the CC constant in
+			// src/lib/server/forms/mailer.ts are a PAIR and may never drift apart: a
+			// recipient the parent was never told about breaches art. 13 RODO, and a
+			// disclosed recipient who receives nothing is a false statement
+			// (04-RESEARCH Pitfall 8). tests/forms-copy.unit.ts pins both directions.
+			// The office name is interpolated in the NOMINATIVE and stands as the SUBJECT
+			// of the sentence: „trafia do ${urzad.name}" would be a grammar bug, because
+			// „do" governs the genitive and the constant is not declined. Plans 04-04 and
+			// 04-05 already fixed that exact mistake once.
+			`Kopię każdej wiadomości i każdego zgłoszenia z formularza otrzymuje ${urzad.name}, który prowadzi sprawy rekrutacyjne żłobka.`,
 			'Wiadomość dostarcza nam Resend, dostawca usługi wysyłki poczty elektronicznej, działający jako podmiot przetwarzający.',
 			'Strona jest hostowana przez Cloudflare, który dostarcza także mechanizm ochrony formularza przed automatycznymi zgłoszeniami (Cloudflare Turnstile) i działa jako podmiot przetwarzający.'
 		]
