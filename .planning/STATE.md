@@ -344,6 +344,7 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 | 260824-r4c | NIP w stopce kazdej strony (polska konwencja dla instytucji publicznej), grupowanie przeniesione do wspolnego $lib/identyfikatory; REGON przygotowany jako puste pole ze znacznikiem PLACEHOLDER, bo placowka go jeszcze nie podala | 2026-08-24 | c541d83 | [260824-r4c-nip-i-regon-w-stopce](./quick/260824-r4c-nip-i-regon-w-stopce/) |
 
 | 260824-t8n | Opisy zdjec galerii opisuja wydarzenie, nie osoby: pole `alt` jest w Lightboxie renderowane takze jako WIDOCZNA proza, wiec "Kobieta przemawia" bylo publikowana etykieta na rozpoznawalnej osobie; szesc opisow przepisanych, plik otwarcie-dyrektor przemianowany, guard przemiatajacy drzewo tresci | 2026-08-24 | 692138d | [260824-t8n-opisy-zdjec-bez-etykiet-osob](./quick/260824-t8n-opisy-zdjec-bez-etykiet-osob/) |
+| 260827-bfa | Mail Kamili z 2026-08-27: skrzynka publicznyzlobek@ugstromiec.pl zastapila nieistniejaca na kazdej powierzchni i jako odbiorca formularzy, kopia cc do Urzedu Gminy ujawniona w klauzuli, a /polityka-prywatnosci przestala byc zaslepka i jest strona prawna o dwoch rozlacznych zakresach; iod@ugstromiec.pl opublikowany, PLACEHOLDER zawezony do brakujacego nazwiska inspektora | 2026-08-27 | 6b69ea6 | [260827-bfa-mail-kamili-2026-08-27-publicznyzlobek-u](./quick/260827-bfa-mail-kamili-2026-08-27-publicznyzlobek-u/) |
 
 ### Roadmap Evolution
 
