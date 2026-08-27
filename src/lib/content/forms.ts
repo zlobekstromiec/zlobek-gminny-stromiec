@@ -314,11 +314,15 @@ export const KLAUZULA: readonly BlokKlauzuli[] = Object.freeze([
 	{
 		naglowek: 'Inspektor ochrony danych',
 		akapity: [
-			// PLACEHOLDER: the inspektor ochrony danych (IOD) has not been named to us
-			// and no contact is published in the BIP (D-03). LAUNCH GATE (Phase 6):
-			// obtain the name and the contact address from the Urząd Gminy and replace
-			// this paragraph with them.
-			`Dane kontaktowe inspektora ochrony danych zostaną opublikowane po ich potwierdzeniu przez ${urzad.name}. Do tego czasu w sprawach ochrony danych możesz napisać na adres ${contact.email}.`
+			// PLACEHOLDER: the inspektor ochrony danych has still not been NAMED to us. The
+			// contact address arrived on 2026-08-27 and is published below, so this marker
+			// is narrower than it was: what is missing now is the inspector's IMIĘ I
+			// NAZWISKO, nothing else. Art. 11 of the ustawa of 10 May 2018 o ochronie
+			// danych osobowych requires a public body to publish BOTH the name and a
+			// contact, so the address alone does not discharge the duty.
+			// LAUNCH GATE (LEGAL-02 / Phase 7): obtain the surname from the Urząd Gminy and
+			// add it here, exactly as the koordynator dostępności surname is still awaited.
+			`Kontakt z inspektorem ochrony danych jest możliwy pod adresem e-mail ${contact.iodEmail} oraz pod adresem korespondencyjnym administratora.`
 		]
 	},
 	{

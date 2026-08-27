@@ -76,6 +76,16 @@ export const contact = {
 	 *  content, so there is no placeholder marker here. This one field feeds every surface
 	 *  that shows an address, so a future change is again a one-place edit. */
 	email: 'publicznyzlobek@ugstromiec.pl',
+	/** Contact address of the inspektor ochrony danych, given in writing by Kamila Dobosz
+	 *  on 2026-08-27. THE ONLY source of this address in the project: the klauzula under
+	 *  both forms and the administrator's klauzula on /polityka-prywatnosci both
+	 *  interpolate it, so the two can never disagree about where to write.
+	 *
+	 *  The inspector's NAME AND SURNAME are still missing, and art. 11 of the ustawa of
+	 *  10 May 2018 o ochronie danych osobowych requires them alongside the address. The
+	 *  launch gate is therefore narrowed, not closed; the marker lives with the paragraph
+	 *  it belongs to, in the „Inspektor ochrony danych" block of KLAUZULA. */
+	iodEmail: 'iod@ugstromiec.pl',
 	/** FINAL: given in writing by the żłobek's director on 2026-08-24 („Mogę dodać NIP
 	 *  7981489629"). Stored DIGITS ONLY and grouped for display by
 	 *  `nipDoWyswietlenia` in $lib/identyfikatory, so nothing downstream has to strip

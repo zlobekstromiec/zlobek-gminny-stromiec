@@ -32,6 +32,20 @@ import {
 	nazwaMiesiaca,
 	tekstBledu
 } from '../src/lib/content/forms.ts';
+// The prose of /polityka-prywatnosci is swept by the SAME gates as the form copy, and
+// that is deliberate. The copy rules (no emoji, no em dash, en dash only in a numeric
+// range, exactly one source for every address) are ONE contract for all public prose,
+// not a contract belonging to one file. Without this import the client's own text would
+// be the only published text in the project with no gate over it, which is precisely the
+// text most likely to arrive unedited.
+import {
+	KLAUZULA_ADMINISTRATORA,
+	POLITYKA_ADMINISTRATOR_NAGLOWEK,
+	POLITYKA_FORMULARZE_NAGLOWEK,
+	POLITYKA_FORMULARZE_WSTEP,
+	POLITYKA_TYTUL,
+	POLITYKA_WSTEP
+} from '../src/lib/content/polityka.ts';
 import { contact, urzad } from '../src/lib/content/site.ts';
 // The CC recipient is IMPORTED, never repeated as a literal here. Two literals could
 // drift apart the day the address changes, and the drifted copy would be the one that
@@ -66,7 +80,13 @@ const WSZYSTKIE_STRINGI = zbierz([
 	KOPIA_FALLBACK,
 	KOPIA_NOSCRIPT,
 	MIESIACE_WYBOR,
-	KLAUZULA
+	KLAUZULA,
+	POLITYKA_TYTUL,
+	POLITYKA_WSTEP,
+	POLITYKA_ADMINISTRATOR_NAGLOWEK,
+	POLITYKA_FORMULARZE_NAGLOWEK,
+	POLITYKA_FORMULARZE_WSTEP,
+	KLAUZULA_ADMINISTRATORA
 ]);
 
 const KLAUZULA_TEKST = zbierz(KLAUZULA).join('\n');
@@ -134,7 +154,18 @@ test('every e-mail address in the exported copy is the value from site.ts', () =
 		for (const trafienie of s.matchAll(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g)) adresy.add(trafienie[0]);
 	}
 	adresy.delete(DOZWOLONY_PRZYKLAD);
-	assert.deepEqual([...adresy].sort(), [contact.email]);
+	// TWO permitted values since 2026-08-27, and the set stays CLOSED. It is the closure
+	// that does the work: it is what proves no third address, and in particular no named
+	// clerk's address, ever leaked into published prose.
+	assert.deepEqual([...adresy].sort(), [contact.email, contact.iodEmail].sort());
+});
+
+// D-3. The IOD contact is a legal obligation under art. 11 of the ustawa of 10 May 2018,
+// not a nicety, and it has to be reachable from under every form, not only from the policy
+// page. The inspector's NAME is still missing and its PLACEHOLDER marker still stands.
+test('the klauzula publishes the data protection officer contact address (D-3)', () => {
+	assert.ok(KLAUZULA_TEKST.includes(contact.iodEmail));
+	assert.match(KLAUZULA_TEKST, /inspektor(em|a) ochrony danych/i);
 });
 
 // D-2 / T-bfa-04. The Urząd Gminy receives a copy of every submission, so art. 13 RODO
