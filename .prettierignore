@@ -13,6 +13,8 @@ worker-configuration.d.ts
 # GSD planning + agent config (not application source — do not reformat)
 /.planning/
 /.claude/
+# GSD dispatch runtime state, written by the harness during a task, never source
+/.gsd/
 
 # Miscellaneous
 /static/

@@ -47,5 +47,8 @@ vite.config.ts.timestamp-*
 # GSD research fetch cache (local only)
 .planning/research/.cache/
 
+# GSD dispatch runtime state (local only, written by the harness per task)
+/.gsd/
+
 # Client-supplied originals staged for import (resized copies live in src/lib/assets/uploads/)
 /pictures/
