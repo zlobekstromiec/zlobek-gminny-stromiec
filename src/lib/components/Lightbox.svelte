@@ -275,22 +275,24 @@
 		aspect-ratio: 4 / 3;
 	}
 
-	/* `center top` rather than the default centre (260901-amq, D-6). Four of the six facility
-	   photographs are PORTRAIT, and the 4:3 box with `cover` was cropping them to the middle
-	   band, which in an interior or a playground throws away the thing being photographed.
+	/* Object-position stays at the DEFAULT centre, and that is a decision made by looking at
+	   the rendered tiles rather than by reasoning about them (260901-amq, D-6 REVERSED).
 
-	   THIS ONE RULE HAS NO SIDE EFFECT ON THE POST PAGE, and the reason is worth writing down
-	   rather than re-deriving. Under `cover` a photograph WIDER than 4:3 overflows horizontally,
-	   so its vertical component is already fully shown and this value means nothing for it; the
-	   change reaches portrait files only. Files uploaded through the panel are cropped to the
-	   target ratio server side, so source ratio equals tile ratio for them and they are likewise
-	   untouched. Only the hand-placed portrait seeds move, which is exactly the intent. */
+	   D-6 assumed that an interior or a playground puts its subject high in the frame, so it
+	   set `center top`. Rendered against the six real facility photographs the assumption is
+	   backwards: four of them are PORTRAIT phone shots whose upper third is ceiling tiles or
+	   sky, so `center top` cropped the tiles down to a ceiling, a blank wall and a treeline,
+	   and threw away the play kitchen, the toys and the swings. The middle band is where the
+	   subject actually sits in this set.
+
+	   Do not reintroduce a vertical bias here without looking at the tiles afterwards. No test
+	   can catch this: every radius, layout and axe case passes either way, because none of them
+	   can tell whether the crop contains the thing worth photographing. */
 	.kafelek :global(img) {
 		display: block;
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
-		object-position: center top;
 		transition: transform 150ms ease;
 	}
 

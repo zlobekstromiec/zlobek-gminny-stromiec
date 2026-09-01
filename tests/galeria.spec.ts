@@ -896,15 +896,23 @@ test.describe('Podglad zdjecia na /o-nas: kontrakt dialogu (GAL-3 otwarty, GAL-4
 		).toBeLessThanOrEqual(1);
 	});
 
-	// D-6. Cztery z szesciu fotografii zlobka sa PIONOWE, a kafelek wymusza 4:3 z `cover`, wiec
-	// srodkowy pas wysokiego zdjecia ucina to, po co sie na nie patrzy. Tresc wnetrza i placu
-	// zabaw siedzi u gory kadru.
-	test('kafelek kadruje od gory, nie ze srodka (D-6)', async ({ page }) => {
+	// D-6 ODWROCONE po obejrzeniu wyrenderowanych kafelkow. Pierwotnie ustawiono tu
+	// `center top`, zakladajac, ze wnetrze i plac zabaw maja tresc u gory kadru. Cztery z
+	// szesciu fotografii zlobka sa PIONOWE i ich gorna trzecia to sufit albo niebo, wiec
+	// `center top` przyciela kafelki do sufitu, pustej sciany i linii drzew, a kuchnia do
+	// zabawy, zabawki i hustawki z nich znikly. Srodek kadru jest tym miejscem, gdzie w tym
+	// zbiorze faktycznie siedzi temat zdjecia.
+	//
+	// Ta asercja jest bramka przeciwko POWTORZENIU tamtego bledu, a nie przypieciem domyslnej
+	// wartosci dla samego przypiecia: zaden inny test tego nie zlapie, bo promienie, uklad i
+	// axe przechodza tak samo przy kazdym kadrowaniu. Jesli kiedys pojawi sie tu powod na
+	// przesuniecie kadru, trzeba PATRZEC na kafelki po zmianie, nie tylko na zielone testy.
+	test('kafelek kadruje ze srodka, bez pionowego przechylu (D-6 odwrocone)', async ({ page }) => {
 		await page.goto('/o-nas');
 		const obraz = kafelek(page).locator('img');
 		await expect(obraz).toBeVisible();
 		expect(await obraz.evaluate((element) => getComputedStyle(element).objectPosition)).toBe(
-			'50% 0%'
+			'50% 50%'
 		);
 	});
 });
