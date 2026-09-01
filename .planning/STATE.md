@@ -6,9 +6,9 @@ current_phase: 6
 current_phase_name: Accessibility, Legal Compliance & Performance
 status: executing
 stopped_at: Faza 6 przeskalowana i omowiona; 06-CONTEXT.md gotowy, nastepny krok /gsd-ui-phase 6
-last_updated: "2026-08-24T22:10:00.000Z"
-last_activity: 2026-08-24
-last_activity_desc: "Quick 260824-t8n: opisy zdjec bez etykiet osob, plus guard przemiatajacy publikowane opisy"
+last_updated: "2026-09-01T00:00:00.000Z"
+last_activity: 2026-09-01
+last_activity_desc: "Quick 260901-amq: jeden system prezentacji mediow (passe-partout), zero kol, jedna miara kolumny wpisu"
 progress:
   total_phases: 9
   completed_phases: 6
@@ -345,6 +345,7 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 
 | 260824-t8n | Opisy zdjec galerii opisuja wydarzenie, nie osoby: pole `alt` jest w Lightboxie renderowane takze jako WIDOCZNA proza, wiec "Kobieta przemawia" bylo publikowana etykieta na rozpoznawalnej osobie; szesc opisow przepisanych, plik otwarcie-dyrektor przemianowany, guard przemiatajacy drzewo tresci | 2026-08-24 | 692138d | [260824-t8n-opisy-zdjec-bez-etykiet-osob](./quick/260824-t8n-opisy-zdjec-bez-etykiet-osob/) |
 | 260827-bfa | Mail Kamili z 2026-08-27: skrzynka publicznyzlobek@ugstromiec.pl zastapila nieistniejaca na kazdej powierzchni i jako odbiorca formularzy, kopia cc do Urzedu Gminy ujawniona w klauzuli, a /polityka-prywatnosci przestala byc zaslepka i jest strona prawna o dwoch rozlacznych zakresach; iod@ugstromiec.pl opublikowany, PLACEHOLDER zawezony do brakujacego nazwiska inspektora | 2026-08-27 | 6b69ea6 | [260827-bfa-mail-kamili-2026-08-27-publicznyzlobek-u](./quick/260827-bfa-mail-kamili-2026-08-27-publicznyzlobek-u/) |
+| 260901-amq | System prezentacji mediow (passe-partout): podglad zdjecia przestal mieszac trzy geometrie i otwiera sie jako oprawiona fotografia (panel 24, wciecie 16, zdjecie 8, kontrolka 8); niebieskie kolo 44x44 w osobnym pasku zastapione ghostowym kwadratem 40x40, wiec w obudowie mediow nie ma juz zadnego kola; podpis stal sie opcjonalny i zostaje TYLKO na /o-nas, a okno podgladu ma niepusta nazwe dostepna w obu stanach (stala etykieta zamiast tekstu alternatywnego); strona wpisu dostala jedna miare 680 px zamiast trzech, wiec proza nie konczy sie juz 248 px przed fotografiami; nowy tests/promienie-mediow.spec.ts pinuje prawo koncentrycznosci na siedmiu powierzchniach naraz. Audyt zamknal wiersz „sprawdzic" z tabeli D-2, dopisal do niej brakujaca okladke wpisu i sprostowal wyprowadzenie 8 px okladki NewsCard (wciecia 16 px tam nie ma). Przeslanka D-4 o nieprawdzie panelu SPRAWDZONA i ODRZUCONA: galeria wpisu nie jest edytowalna w panelu, wiec zadnego lancucha nie zmieniono | 2026-09-01 | 085c01c | [260901-amq-system-prezentacji-mediow-passe-partout-](./quick/260901-amq-system-prezentacji-mediow-passe-partout-/) |
 
 ### Roadmap Evolution
 
