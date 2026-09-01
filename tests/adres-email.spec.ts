@@ -127,3 +127,28 @@ for (const trasa of TRASY) {
 		await expect(page.locator(`footer p.org ${ADRES}`)).toHaveCount(1);
 	});
 }
+
+/* Zadanie 3 (D-3): sam znacznik `<wbr>` naprawia ESTETYKĘ złamania, ale nie zmienia tego,
+   że kolumna pozycji kontaktowych na stronie głównej była węższa niż adres. Zmierzone na
+   zbudowanej stronie przed zmianą: `.item-text` miało 198 px przy 1440 px i 168 px przy
+   1024 px, a adres potrzebuje 227 px, więc łamał się na dwa wiersze przy obu szerokościach.
+
+   Przypadek celuje w SEKCJĘ KONTAKTOWĄ, nie w dowolne wystąpienie: adres w stopce tej samej
+   strony ma inną szerokość do dyspozycji i ma pełne prawo się zawinąć. */
+for (const widok of WIDOKI) {
+	test(`strona główna przy ${widok.nazwa}: adres kontaktowy stoi w jednym wierszu`, async ({
+		page
+	}) => {
+		await page.setViewportSize({ width: widok.width, height: widok.height });
+		await page.goto('/');
+
+		const pomiary = await zmierzAdresy(page, 'section.contact a.item-link .adres-email');
+		expect(pomiary, 'sekcja kontaktowa nie renderuje adresu').toHaveLength(1);
+
+		const [gora, dol] = pomiary[0].wezly.map((w) => w.gora);
+		expect(
+			Math.abs(dol - gora),
+			'adres w karcie kontaktowej zawija domenę do drugiego wiersza'
+		).toBeLessThanOrEqual(1);
+	});
+}

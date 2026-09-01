@@ -136,6 +136,26 @@
 		}
 	}
 
+	/* Quick 260901-duo (D-3). Od 1024 px karta kontaktowa wraca do JEDNEJ kolumny, i to
+	   nie jest cofnięcie układu, tylko dopasowanie go do dzisiejszej treści: siatka dwa na
+	   dwa powstała, kiedy pozycji były CZTERY, a od 2026-08-18 są TRZY (wiersz Telefon
+	   zniknął razem z numerem), więc druga kolumna drugiego wiersza i tak stała pusta.
+
+	   Cena tej pustej kolumny była mierzalna: `.item-text` dostawało 198 px przy 1440 px
+	   i 168 px przy 1024 px, a adres `publicznyzlobek@ugstromiec.pl` potrzebuje 227 px,
+	   więc jedyna droga kontaktu na stronie łamała się na dwa wiersze przy KAŻDEJ
+	   szerokości desktopowej. Jedna kolumna daje jej 453 px i 387 px, czyli zapas.
+
+	   Blok MUSI stać po bloku 640 px, inaczej reguła dwukolumnowa przykryje go kolejnością
+	   źródła. Zewnętrzna siatka `.grid` i jej proporcja 1fr 1.15fr są nietknięte, więc
+	   kolumna mapy ma dokładnie tę samą szerokość co przedtem. */
+	@media (min-width: 1024px) {
+		.contact-grid {
+			grid-template-columns: 1fr;
+			gap: 24px;
+		}
+	}
+
 	.item {
 		display: flex;
 		align-items: flex-start;
