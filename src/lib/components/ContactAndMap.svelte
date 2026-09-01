@@ -11,6 +11,7 @@
 	import Mail from '@lucide/svelte/icons/mail';
 	import Clock from '@lucide/svelte/icons/clock';
 	import MapPanel from './MapPanel.svelte';
+	import AdresEmail from './AdresEmail.svelte';
 	import { contact } from '$lib/content/site';
 </script>
 
@@ -40,7 +41,11 @@
 					<Mail class="item-icon" size={22} aria-hidden="true" focusable="false" />
 					<div class="item-text">
 						<span class="item-label">E-mail</span>
-						<a class="item-link" href="mailto:{contact.email}">{contact.email}</a>
+						<!-- Treść odnośnika idzie przez AdresEmail (D-2): to on niesie `<wbr>` po małpie,
+						     żeby adres nie łamał się w środku domeny. Odnośnik, jego klasa i jego `href`
+						     zostają bez zmian, więc zasada jednego odnośnika pocztowego na stronie
+						     głównej (tests/home.spec.ts) jest nienaruszona. -->
+						<a class="item-link" href="mailto:{contact.email}"><AdresEmail /></a>
 					</div>
 				</li>
 
