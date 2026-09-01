@@ -5,6 +5,7 @@
 	// stay inside the form islands, which is why those keep their own .fallback
 	// styles. Static content only: prerendered, never revealed or hidden by script.
 	import Info from '@lucide/svelte/icons/info';
+	import AdresEmail from './AdresEmail.svelte';
 	import { contact } from '$lib/content/site';
 	import { KOPIA_FALLBACK } from '$lib/content/forms';
 </script>
@@ -18,7 +19,7 @@
 	<div>
 		<p class="fallback-tytul">{KOPIA_FALLBACK.naglowek}</p>
 		<p class="fallback-tresc">
-			E-mail: <a href={`mailto:${contact.email}`}>{contact.email}</a>. Czynne {contact.hours}.
+			E-mail: <a href={`mailto:${contact.email}`}><AdresEmail /></a>. Czynne {contact.hours}.
 		</p>
 	</div>
 </div>

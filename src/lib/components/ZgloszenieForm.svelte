@@ -33,6 +33,7 @@
 	import CircleAlert from '@lucide/svelte/icons/circle-alert';
 	import CircleCheck from '@lucide/svelte/icons/circle-check';
 	import Info from '@lucide/svelte/icons/info';
+	import AdresEmail from './AdresEmail.svelte';
 	import ConsentBlock from './ConsentBlock.svelte';
 	import FormField from './FormField.svelte';
 	import TurnstileWidget from './TurnstileWidget.svelte';
@@ -336,7 +337,7 @@
 					     (site.ts). This is the send-failure escape hatch, so it has to lead
 					     somewhere real, and the inbox is what is left. -->
 					<p class="awaria-kontakt">
-						<a href={`mailto:${contact.email}`}>{contact.email}</a>
+						<a href={`mailto:${contact.email}`}><AdresEmail /></a>
 					</p>
 				{/if}
 			</div>

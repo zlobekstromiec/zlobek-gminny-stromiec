@@ -29,6 +29,7 @@
 	import Info from '@lucide/svelte/icons/info';
 	import Mail from '@lucide/svelte/icons/mail';
 	import MapPin from '@lucide/svelte/icons/map-pin';
+	import AdresEmail from '$lib/components/AdresEmail.svelte';
 	import FallbackPanel from '$lib/components/FallbackPanel.svelte';
 	import KontaktForm from '$lib/components/KontaktForm.svelte';
 	import MapPanel from '$lib/components/MapPanel.svelte';
@@ -82,7 +83,9 @@
 					<Mail class="item-icon" size={22} aria-hidden="true" focusable="false" />
 					<div class="item-text">
 						<span class="item-label">E-mail</span>
-						<a class="item-link" href="mailto:{contact.email}">{contact.email}</a>
+						<!-- Treść odnośnika idzie przez AdresEmail (D-2): jedno źródło znacznika `<wbr>`
+						     po małpie dla wszystkich sześciu powierzchni. Odnośnik i jego `href` bez zmian. -->
+						<a class="item-link" href="mailto:{contact.email}"><AdresEmail /></a>
 					</div>
 				</li>
 

@@ -5,6 +5,7 @@
 	// link at all; the linked e-mail lives in ContactAndMap). BIP stays an external
 	// municipal system:
 	// do NOT rebuild it (RESEARCH Pitfall 14).
+	import AdresEmail from './AdresEmail.svelte';
 	import Wave from './Wave.svelte';
 	import { contact } from '$lib/content/site';
 	import { nipDoWyswietlenia, regonDoWyswietlenia } from '$lib/identyfikatory';
@@ -27,9 +28,16 @@
 				<!-- Address [BIP]-confirmed; the tel. line came out with the number itself on
 				     2026-08-18 (site.ts). What is left is the address and the one inbox, both
 				     still PLAIN TEXT by design: the linked versions live in ContactAndMap and
-				     on /kontakt, and the homepage's single-mailto rule depends on it. -->
+				     on /kontakt, and the homepage's single-mailto rule depends on it. The
+				     footer therefore DELIBERATELY does not wrap the address in an <a>, and
+				     tests/home.spec.ts fails if it ever does.
+
+				     Since quick 260901-duo the address MARKUP comes from AdresEmail.svelte, the
+				     project's single source of the `<wbr>` after the at-sign, so the plain-text
+				     footer copy breaks on the same boundary as every linked copy. The value
+				     itself still comes from site.ts, through that component. -->
 				{contact.addressLines[0]}, {contact.addressLines[1]}<br />
-				{contact.email}
+				<AdresEmail />
 			</p>
 			<!-- Institutional identifiers, the block a Polish public body's footer is expected to
 			     carry. Its own <p>, not another line inside `.org`, because it is reference data
