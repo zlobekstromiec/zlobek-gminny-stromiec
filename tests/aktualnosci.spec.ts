@@ -1,4 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { readdirSync, readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { test, expect, type Locator } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
 /**
@@ -153,5 +155,116 @@ test.describe('Aktualności: NEWS-02 single post', () => {
 			.withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
 			.analyze();
 		expect(results.violations).toEqual([]);
+	});
+});
+
+/* ==========================================================================================
+   Strona wpisu: jedna miara kolumny i podpisy tylko na /o-nas (260901-amq, D-4, D-5).
+
+   ZGLOSZENIE, KTORE TO URUCHOMILO, brzmialo „pages render weirdly". Pomiar przy 1440 px
+   pokazal, ze strona wpisu ma TRZY rozne miary w jednej kolumnie: naglowki i siatka zdjec
+   konczyly sie na 1097, a proza na 849, czyli 248 px wczesniej. Wszystko dzielilo lewa
+   krawedz, a prawa skakala miedzy dwiema pozycjami i czytalo sie to jak niezamierzone
+   wyjscie poza kolumne.
+
+   ASERCJE POROWNUJA ELEMENT Z ELEMENTEM, NIGDY Z LICZBA PIKSELI, zgodnie z regula zapisana
+   w tests/responsive.spec.ts: szerokosc kontenera, wciecie i przerwa miedzy kolumnami moga
+   sie zmienic i nie o nich jest ten kontrakt.
+
+   Wpis z galeria jest WYSZUKIWANY Z DYSKU, nie wpisany na sztywno i nie brany przez pomocnik
+   najnowszyWpis(): dzis galerie ma dokladnie jeden wpis i NIE jest on najnowszy.
+   ========================================================================================== */
+
+/** The one post that carries a gallery, found on disk. Same move as tests/opisy-zdjec.unit.ts:
+ *  the assertion is about what ships, and a post added later must join the sweep without
+ *  anybody remembering to edit this line. */
+function wpisZGaleria(): string {
+	const katalog = fileURLToPath(new URL('../src/lib/content/aktualnosci', import.meta.url));
+	for (const plik of readdirSync(katalog).sort()) {
+		if (!plik.endsWith('.json')) continue;
+		const wpis = JSON.parse(readFileSync(`${katalog}/${plik}`, 'utf8')) as { zdjecia?: unknown[] };
+		if (Array.isArray(wpis.zdjecia) && wpis.zdjecia.length > 0) {
+			return `/aktualnosci/${plik.replace(/\.json$/u, '')}`;
+		}
+	}
+	throw new Error('Zaden wpis nie ma galerii, wiec tego kontraktu nie da sie sprawdzic');
+}
+
+const WPIS_Z_GALERIA = wpisZGaleria();
+const ZNACZNIKI_WCAG = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
+
+/** Left and right edge of an element, in page coordinates. */
+async function krawedzie(cel: Locator): Promise<[number, number]> {
+	const pudelko = await cel.boundingBox();
+	expect(pudelko, 'element do zmierzenia nie istnieje').not.toBeNull();
+	return [pudelko!.x, pudelko!.x + pudelko!.width];
+}
+
+test.describe('Wpis z galeria: jedna miara i brak podpisow (260901-amq, D-4, D-5)', () => {
+	test('h1, naglowek sekcji zdjec, proza i siatka maja te sama lewa i prawa krawedz (D-5)', async ({
+		page
+	}) => {
+		await page.setViewportSize({ width: 1280, height: 900 });
+		await page.goto(WPIS_Z_GALERIA);
+
+		const naglowek = await krawedzie(page.locator('h1'));
+		const sekcja = await krawedzie(page.locator('.galeria-wpisu h2'));
+		const proza = await krawedzie(page.locator('.prose').first());
+		const siatka = await krawedzie(page.locator('.galeria-wpisu ul.galeria'));
+
+		for (const [nazwa, zmierzone] of [
+			['naglowek sekcji zdjec', sekcja],
+			['blok prozy', proza],
+			['siatka zdjec', siatka]
+		] as [string, [number, number]][]) {
+			expect(Math.abs(zmierzone[0] - naglowek[0]), `${nazwa}: lewa krawedz`).toBeLessThanOrEqual(1);
+			expect(Math.abs(zmierzone[1] - naglowek[1]), `${nazwa}: prawa krawedz`).toBeLessThanOrEqual(
+				1
+			);
+		}
+	});
+
+	// D-4. Asercja NIEOBECNOSCI, wiec obok niej kontrola dodatnia na /o-nas w tym samym
+	// przypadku: bez niej zielony wynik znaczylby tylko tyle, ze locator niczego nie widzi.
+	test('pod kafelkami wpisu nie ma podpisow, a na /o-nas sa pod kazdym (D-4)', async ({ page }) => {
+		await page.goto(WPIS_Z_GALERIA);
+		const kafelkiWpisu = page.locator('.galeria-wpisu ul.galeria li');
+		expect(await kafelkiWpisu.count(), 'kontrola dodatnia: wpis ma miec zdjecia').toBeGreaterThan(
+			0
+		);
+		await expect(page.locator('.galeria-wpisu figcaption')).toHaveCount(0);
+
+		await page.goto('/o-nas');
+		const kafelkiONas = page.locator('section#galeria ul.galeria li');
+		const ile = await kafelkiONas.count();
+		expect(ile, 'kontrola dodatnia: /o-nas ma miec zdjecia').toBeGreaterThan(0);
+		await expect(page.locator('section#galeria ul.galeria figcaption')).toHaveCount(ile);
+	});
+
+	// D-4 plus WCAG 4.1.2. BRAMKA DOSTEPNOSCI po stronie wpisu; jej blizniak dla /o-nas, gdzie
+	// podpis zostaje i nazwe daje aria-labelledby, mieszka w tests/galeria.spec.ts.
+	// Usuniecie widocznego naglowka BEZ zamiennika zostawiloby role="dialog" aria-modal="true"
+	// bez nazwy dostepnej, i to jest dokladnie ta pulapka, ktorej ten przypadek pilnuje.
+	test('podglad we wpisie nie ma naglowka, a mimo to ma niepusta nazwe dostepna (D-4)', async ({
+		page
+	}) => {
+		await page.goto(WPIS_Z_GALERIA);
+		await page.locator('.galeria-wpisu ul.galeria a').first().click();
+
+		const dialog = page.getByRole('dialog');
+		await expect(dialog).toBeVisible();
+		await expect(dialog.locator('h2')).toHaveCount(0);
+		await expect(page.getByRole('dialog', { name: /\S/u })).toHaveCount(1);
+	});
+
+	// Istniejacy skan axe strony wpisu bada wylacznie stan ZAMKNIETY, wiec nazwa okna podgladu
+	// nie byla dotad pod zadna brama. Te same cztery znaczniki, ktorych uzywa reszta pakietu.
+	test('otwarty podglad we wpisie nie narusza WCAG 2.1 AA', async ({ page }) => {
+		await page.goto(WPIS_Z_GALERIA);
+		await page.locator('.galeria-wpisu ul.galeria a').first().click();
+		await expect(page.getByRole('dialog')).toBeVisible();
+
+		const wynik = await new AxeBuilder({ page }).withTags(ZNACZNIKI_WCAG).analyze();
+		expect(wynik.violations).toEqual([]);
 	});
 });

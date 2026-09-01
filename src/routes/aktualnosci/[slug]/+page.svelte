@@ -12,6 +12,24 @@
 	// the photograph, and hydration adds behaviour without changing markup or layout. A
 	// post with no gallery mounts nothing and is byte-for-byte as static as before.
 	//
+	// ONE MEASURE FOR THE WHOLE COLUMN (260901-amq, D-5). The h1, the photo section's h2, the
+	// prose and the gallery grid all share one left and one right edge, because all three blocks
+	// of the page use the same `.inner.narrow` and nothing inside them carries a width cap of
+	// its own. The page used to have THREE measures and read as an unintended bleed to the
+	// right; see the rule at `.inner.narrow` below for the numbers and for what was rejected.
+	//
+	// THE POST GALLERY PUBLISHES NO CAPTIONS (260901-amq, D-4), unlike the facility gallery on
+	// /o-nas. The reason is a content one: under a post the prose already describes the scene,
+	// so the photograph stands on its own, whereas on /o-nas the caption carries the name of a
+	// room that no neighbouring text repeats. The stored `podpis` stays in the data and is
+	// simply not rendered — see the note on the field in $lib/server/aktualnosci.
+	//
+	// THAT MAKES THE DIALOG'S NAME THIS PAGE'S CONCERN, not an afterthought. With no caption
+	// there is no heading for aria-labelledby to point at, so the island names its dialog from
+	// its own constant Polish label instead (ETYKIETA_OKNA in Lightbox.svelte). A modal with
+	// role="dialog" and no accessible name is a WCAG 4.1.2 failure, and tests/aktualnosci.spec.ts
+	// holds the gate that says so.
+	//
 	// The body is authored Markdown (CMS/editor-controlled). It renders with
 	// renderPost ($lib/markdown): a hardened full-block renderer that escapes raw
 	// HTML, drops unsafe link protocols, flattens images to alt text and drops GFM
@@ -82,10 +100,14 @@
 	{#if cover}
 		<div class="cover-band">
 			<div class="inner narrow">
+				<!-- `sizes` idzie za nowa miara (260901-amq, D-5): waska odmiana kontenera ma
+				     46.5rem razem z wcieciem, wiec najszerzej ta okladka maluje sie tuz ponizej
+				     44rem. Zostawiona na 52rem prosilaby o plik skrojony pod kolumne, ktorej
+				     juz nie ma. -->
 				<enhanced:img
 					src={cover}
 					alt={post.obraz_alt ?? ''}
-					sizes="(min-width:768px) 52rem, 100vw"
+					sizes="(min-width:768px) 44rem, 100vw"
 				/>
 			</div>
 		</div>
@@ -113,14 +135,18 @@
 									<!-- Both image elements stay HERE, one per snippet, so the island carries
 									     no image-processing concern and knows nothing about enhanced-img. The
 									     two differ only in `sizes`: the tile fills a grid cell, the dialog
-									     fills the viewport. -->
-									<Lightbox podpis={zdjecie.podpis} zrodlo={zdjecie.obraz.img.src}>
+									     fills the viewport.
+
+									     NO `podpis` IS PASSED (260901-amq, D-4), so the island renders no heading
+									     and names its dialog from its own constant label instead. The stored
+									     caption is still in the data; it is simply not published here. -->
+									<Lightbox zrodlo={zdjecie.obraz.img.src}>
 										{#snippet miniatura()}
 											<enhanced:img
 												src={zdjecie.obraz}
 												alt={zdjecie.alt}
 												loading="lazy"
-												sizes="(min-width:768px) 25rem, 100vw"
+												sizes="(min-width:768px) 21rem, 100vw"
 											/>
 										{/snippet}
 										{#snippet powiekszenie()}
@@ -131,7 +157,6 @@
 											/>
 										{/snippet}
 									</Lightbox>
-									<figcaption>{zdjecie.podpis}</figcaption>
 								</figure>
 							</li>
 						{/each}
@@ -190,8 +215,24 @@
 		padding-inline: 16px;
 	}
 
+	/* JEDNA MIARA TRESCI (260901-amq, D-5). Ta strona miala TRZY rozne miary w jednej kolumnie:
+	   przy 1440 px naglowki i siatka zdjec konczyly sie na 1097, a proza na 849, czyli 248 px
+	   wczesniej. Wszystko dzielilo lewa krawedz, a prawa skakala miedzy dwiema pozycjami.
+
+	   46.5rem LICZY SIE RAZEM Z WCIECIEM, bo preflight Tailwinda ustawia box-sizing: border-box
+	   globalnie. Od 1024 px wychodzi z tego 744 minus dwa razy 32, czyli 680 px miary (okolo 68
+	   znakow), a dwukolumnowa siatka z przerwa 24 px daje kafelki po 328 px.
+
+	   WSPOLNE KRAWEDZIE BIORA SIE STAD, ZE TEJ ODMIANY UZYWAJA TRZY BLOKI TEJ STRONY: naglowek,
+	   okladka i tresc. Nie ma tu zadnego drugiego ograniczenia szerokosci i nie wolno go dodac,
+	   bo to wlasnie ono bylo trzecia miara.
+
+	   ODRZUCONE SWIADOMIE, zeby nikt do tego nie wracal: (a) rozciagniecie prozy do pelnych
+	   768 px daje okolo 96 znakow w wierszu; (b) zwezenie samej siatki do 520 px zbija kafelek
+	   do okolo 248 px; (c) zostawienie wyjscia poza kolumne musialoby byc symetryczne po obu
+	   stronach, zeby czytac sie jako zamierzone, a tamto rozszerzalo sie wylacznie w prawo. */
 	.inner.narrow {
-		max-width: 52rem;
+		max-width: 46.5rem;
 	}
 
 	@media (min-width: 768px) {
@@ -248,12 +289,15 @@
 		border-radius: var(--radius-lg);
 	}
 
+	/* NO `max-width` HERE ANY MORE (260901-amq, D-5). The 65ch cap was the third measure on the
+	   page and the source of the mismatch; the column itself is now the measure, so the prose
+	   inherits it. Raising the cap rather than removing it would have rebuilt the same fault
+	   with different numbers in six months. */
 	.prose {
 		font-family: var(--font-body);
 		font-size: 16px;
 		line-height: 1.6;
 		color: var(--color-ink);
-		max-width: 65ch;
 	}
 
 	.prose :global(p) {
@@ -323,20 +367,10 @@
 
 	/* The TILE itself is styled by the island that renders it ($lib/components/Lightbox.svelte),
 	   together with its hover scale and its own reduced-motion guard: a page-scoped selector
-	   cannot reach an element another component renders. What stays here is the grid, the
-	   figure and the caption, exactly as on /o-nas. */
-	.galeria figcaption {
-		margin-top: 8px;
-		font-family: var(--font-body);
-		font-weight: 700;
-		font-size: 15px;
-		line-height: 1.4;
-		color: var(--color-ink);
-	}
-
-	.galeria li:hover figcaption {
-		text-decoration: underline;
-	}
+	   cannot reach an element another component renders. What stays here is the grid and the
+	   figure. THE CAPTION RULES ARE GONE WITH THE CAPTION (260901-amq, D-4) rather than left
+	   behind as dead selectors: `npm run check` reports an unused selector as a warning, and in
+	   this project that warning is the correct behaviour and not noise to route around. */
 
 	.back {
 		margin: 32px 0 0;
