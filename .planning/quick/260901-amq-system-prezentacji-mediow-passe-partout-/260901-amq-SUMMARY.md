@@ -307,3 +307,34 @@ jednego nieuruchomionego `<verify>`.
 - commit `a0eb871` - FOUND
 - commit `b9dfde5` - FOUND
 - commit `085c01c` - FOUND
+
+---
+
+## Uzupelnienie po weryfikacji wzrokowej: D-6 ODWROCONE (2026-09-01, commit ee4eb4c)
+
+Zadanie 1 wdrozylo D-6 wiernie, a **decyzja D-6 byla bledna** i zostala cofnieta po
+obejrzeniu wyrenderowanych kafelkow na lokalnym podgladzie.
+
+D-6 zakladalo, ze „w fotografii wnetrza i placu zabaw tresc jest u gory kadru", i na tej
+podstawie ustawilo `object-position: center top`. Przy szesciu prawdziwych fotografiach
+zlobka zalozenie jest odwrotne: cztery z nich sa pionowymi zdjeciami telefonem, ktorych
+gorna trzecia to sufit albo niebo. Efekt `center top` na zywym kafelku:
+
+| Kafelek | Co pokazywal po zmianie | Co powinien pokazywac |
+|---|---|---|
+| Sala zabaw | plyty sufitowe i lampy | wnetrze sali |
+| Kacik kuchenny | okno i pudla pod sufitem | kuchnie do zabawy |
+| Zabawki edukacyjne | pusta zolta sciana | zabawki na stole |
+| Plac zabaw | niebo i korony drzew | hustawki i niebieska nawierzchnia |
+
+Kafelek wraca do domyslnego srodka. Reszta zadania (passe-partout, prawo koncentrycznosci,
+brak kol, jedna miara wpisu, podpisy tylko na /o-nas) pozostaje bez zmian i bez zwiazku
+z tym bledem.
+
+**Wniosek metodyczny, wazniejszy od samej poprawki.** Pelna bramka byla ZIELONA z blednym
+kadrowaniem: 4409 plikow bez bledow, 644 testy jednostkowe, 464 testy Playwrighta, w tym
+osiem nowych asercji promieni i axe z otwartym oknem podgladu. Zaden z nich nie moze
+rozstrzygnac, czy w kadrze zostal temat zdjecia, a jeden z nich wrecz PRZYPINAL bledna
+wartosc jako kontrakt. Zmiana dotyczaca tego, co widac, wymaga spojrzenia na to, co widac.
+Asercja w `tests/galeria.spec.ts` przypina teraz srodek jako bramke przeciw powtorzeniu
+tego bledu, z komentarzem mowiacym wprost, ze zielone testy nie sa tu dowodem.
