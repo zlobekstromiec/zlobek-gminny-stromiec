@@ -95,6 +95,14 @@ function podglad(page: Page): Locator {
 	return page.getByRole('dialog');
 }
 
+/** The element's border radius AS THE BROWSER COMPUTED IT (260901-amq, D-2). Reads one corner
+ *  rather than the shorthand, because the shorthand collapses to a slash form as soon as the
+ *  four corners differ and a percentage survives here as a percentage, which is exactly what
+ *  the „zero kol" sweep below needs to see. */
+function promien(cel: Locator): Promise<string> {
+	return cel.evaluate((element) => getComputedStyle(element).borderTopLeftRadius);
+}
+
 /** True when focus is still somewhere inside the dialog. Evaluated INSIDE the page, because
  *  `document.activeElement` is the only authority on where focus actually went. */
 function fokusWPodgladzie(page: Page): Promise<boolean> {
@@ -763,5 +771,140 @@ test.describe('Podglad zdjecia na /o-nas: kontrakt dialogu (GAL-3 otwarty, GAL-4
 		} finally {
 			await kontekst.close();
 		}
+	});
+
+	/* --- System prezentacji mediow: passe-partout (260901-amq, D-1 do D-6). ---------------
+	   Podglad przestal mieszac trzy geometrie i czyta sie jak oprawiona fotografia: panel 24,
+	   wciecie 16, zdjecie 8, kontrolka 8. Kazda asercja ponizej zapada na wartosci OBLICZONEJ
+	   przez przegladarke, nigdy na zrodle CSS ani na nazwie klasy, wiec przezyje kazda zmiane
+	   tokenu i kazde przemianowanie selektora, a upadnie dokladnie wtedy, gdy zmieni sie to,
+	   co widzi odwiedzajacy.
+	   ------------------------------------------------------------------------------------- */
+
+	// D-4, BRAMKA DOSTEPNOSCI. Okno dialogowe musi miec niepusta nazwe dostepna ZAWSZE, takze
+	// wtedy, gdy nie ma widocznego podpisu (WCAG 4.1.2, Level A). Na /o-nas podpis zostaje, wiec
+	// ten przypadek stoi tu jako straznik: gdyby widoczny naglowek kiedys zniknal bez zamiennika,
+	// zapali sie na czerwono. Jego blizniak dla strony wpisu, gdzie podpisu juz NIE MA i nazwe
+	// daje stala etykieta, mieszka w tests/aktualnosci.spec.ts.
+	test('nazwa dostepna dialogu nigdy nie jest pusta (D-4, WCAG 4.1.2)', async ({ page }) => {
+		await page.goto('/o-nas');
+		await kafelek(page).click();
+		await expect(podglad(page)).toBeVisible();
+
+		// SAMA BRAMKA NAJPIERW, zeby to ona pekala pierwsza, gdy nazwa zniknie. Odwrotna
+		// kolejnosc wywracalaby przypadek na kontroli dodatniej i ukrywala, ze regula
+		// „okno ma nazwe" jest tym, co wlasnie przestalo obowiazywac.
+		await expect(page.getByRole('dialog', { name: /\S/u })).toHaveCount(1);
+		// Kontrola dodatnia tym samym wzorcem, ktorym posluguje sie reszta pliku: nazwa jest
+		// podpisem TEGO zdjecia, wiec zielone /\S/u powyzej znaczy „nazwa jest", a nie
+		// „locator niczego nie sprawdza".
+		await expect(page.getByRole('dialog', { name: galeria.zdjecia[0].podpis })).toHaveCount(1);
+	});
+
+	// D-2, PRAWO KONCENTRYCZNOSCI: promien wewnetrzny = promien kontenera minus wciecie.
+	// Panel 24 z wcieciem 16 daje dokladnie 8 na fotografii i na kontrolce obok niej, wiec cala
+	// kompozycja ma jeden jezyk ksztaltu. Kafelek stoi samodzielnie w siatce i nie jest „duza
+	// powierzchnia" w rozumieniu zablokowanej specyfikacji, wiec nalezy mu skala karty: 16.
+	test('prawo koncentrycznosci: panel 24, zdjecie 8, kontrolka 8, kafelek 16 (D-2)', async ({
+		page
+	}) => {
+		await page.goto('/o-nas');
+		expect(await promien(kafelek(page)), 'kafelek galerii').toBe('16px');
+
+		await kafelek(page).click();
+		await expect(podglad(page)).toBeVisible();
+
+		expect(await promien(podglad(page)), 'panel podgladu').toBe('24px');
+		expect(await promien(podglad(page).locator('img')), 'zdjecie w panelu').toBe('8px');
+		expect(
+			await promien(podglad(page).getByRole('button', { name: PRZYCISK_ZAMKNIJ })),
+			'kontrolka zamkniecia'
+		).toBe('8px');
+	});
+
+	// D-3, ZERO KOL W OBUDOWIE MEDIOW. Przemiata KAZDY element wewnatrz dialogu oraz kafelek,
+	// a nie tylko przycisk, bo regula dotyczy calej obudowy, a nie jednego formantu.
+	test('zero kol i pigulek w calej obudowie mediow (D-3)', async ({ page }) => {
+		await page.goto('/o-nas');
+		await kafelek(page).click();
+		await expect(podglad(page)).toBeVisible();
+
+		const promienie = await page.evaluate(() => {
+			const dialog = document.querySelector('[role="dialog"]');
+			const kafel = document.querySelector('section#galeria ul.galeria a');
+			const elementy = [dialog, kafel, ...(dialog ? Array.from(dialog.querySelectorAll('*')) : [])];
+			return elementy
+				.filter((element): element is Element => element !== null)
+				.flatMap((element) => {
+					const styl = getComputedStyle(element);
+					return [
+						styl.borderTopLeftRadius,
+						styl.borderTopRightRadius,
+						styl.borderBottomLeftRadius,
+						styl.borderBottomRightRadius
+					];
+				});
+		});
+
+		expect(
+			promienie.length,
+			'kontrola dodatnia: przemiatanie ma cokolwiek widziec'
+		).toBeGreaterThan(0);
+		for (const wartosc of promienie) {
+			expect(wartosc, 'promien procentowy to kolo w obudowie mediow').not.toContain('%');
+			expect(
+				Number.parseFloat(wartosc),
+				`promien ${wartosc} czyta sie jako pigulka, a nie jako narozniki`
+			).toBeLessThanOrEqual(100);
+		}
+	});
+
+	// D-3, znikniecie osobnego paska nad fotografia. Wyrazone przez STRUKTURE i WYMIAR, nie
+	// przez grep po nazwie klasy: pasek znika wtedy i tylko wtedy, gdy przycisk jest
+	// bezposrednim dzieckiem dialogu, a jego prawa krawedz konczy sie tam, gdzie obszar zdjecia.
+	// 40 px spelnia WCAG 2.1 AA kryterium 2.5.8 (prog 24 px); prog 44 px nalezy do poziomu AAA.
+	test('kontrolka zamkniecia stoi wprost w dialogu, ma 40x40 i konczy sie tam co zdjecie (D-3)', async ({
+		page
+	}) => {
+		await page.goto('/o-nas');
+		await kafelek(page).click();
+		const przycisk = podglad(page).getByRole('button', { name: PRZYCISK_ZAMKNIJ });
+		await expect(przycisk).toBeVisible();
+
+		expect(
+			await przycisk.evaluate((element) => element.parentElement?.getAttribute('role')),
+			'przycisk zamkniecia siedzi w opakowaniu, a nie wprost w dialogu'
+		).toBe('dialog');
+
+		const pudelko = await przycisk.boundingBox();
+		expect(pudelko).not.toBeNull();
+		expect(Math.round(pudelko!.width), 'szerokosc kontrolki').toBe(40);
+		expect(Math.round(pudelko!.height), 'wysokosc kontrolki').toBe(40);
+
+		// Sasiad w DOM, a nie liczba pikseli: przycisk to pierwsze dziecko dialogu, obszar
+		// zdjecia drugie, i obie prawe krawedzie maja sie zgadzac.
+		const krawedzie = await podglad(page).evaluate((element) => {
+			const [pierwsze, drugie] = Array.from(element.children);
+			return [
+				pierwsze?.getBoundingClientRect().right ?? Number.NaN,
+				drugie?.getBoundingClientRect().right ?? Number.NaN
+			];
+		});
+		expect(
+			Math.abs(krawedzie[0] - krawedzie[1]),
+			'kontrolka nie konczy sie tam, gdzie obszar zdjecia'
+		).toBeLessThanOrEqual(1);
+	});
+
+	// D-6. Cztery z szesciu fotografii zlobka sa PIONOWE, a kafelek wymusza 4:3 z `cover`, wiec
+	// srodkowy pas wysokiego zdjecia ucina to, po co sie na nie patrzy. Tresc wnetrza i placu
+	// zabaw siedzi u gory kadru.
+	test('kafelek kadruje od gory, nie ze srodka (D-6)', async ({ page }) => {
+		await page.goto('/o-nas');
+		const obraz = kafelek(page).locator('img');
+		await expect(obraz).toBeVisible();
+		expect(await obraz.evaluate((element) => getComputedStyle(element).objectPosition)).toBe(
+			'50% 0%'
+		);
 	});
 });

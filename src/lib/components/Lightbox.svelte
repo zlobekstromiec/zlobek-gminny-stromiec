@@ -36,6 +36,21 @@
 	// because there is no runtime fetch and an entry whose file the build does not carry was
 	// already dropped by the reader in $lib/galeria, so this dialog can never open onto nothing.
 	//
+	// THE PRESENTATION IS A PASSE-PARTOUT (260901-amq, D-1 to D-3). The dialog is a MOUNTED
+	// PHOTOGRAPH: one even 16px inset all the way round, and the concentricity law
+	// (inner radius = container radius minus inset) then FIXES every other number in the
+	// composition — panel 24, photograph 8, close control 8. Nothing in the media surround is a
+	// circle or a pill any more, and the close control no longer sits in a band of its own above
+	// the picture. Each of those numbers is pinned by tests/galeria.spec.ts on the value the
+	// BROWSER computes, so a later refactor that keeps the look keeps the suite green and one
+	// that quietly changes it does not.
+	//
+	// THE CAPTION IS OPTIONAL AND THE NAME IS NOT (D-4). `podpis` is published on /o-nas only,
+	// where it carries a room name no neighbouring text repeats; a post's gallery passes none,
+	// because the post's prose already describes the scene. The dialog's accessible name is
+	// therefore never allowed to depend on the caption: see ETYKIETA_OKNA below for the rule
+	// and for why a fixed label beats the photograph's alt text here.
+	//
 	// The image element itself stays in the PAGE and arrives as a snippet, so the island
 	// carries no image-processing concern and knows nothing about enhanced-img.
 	import type { Snippet } from 'svelte';
@@ -48,8 +63,13 @@
 		miniatura,
 		powiekszenie
 	}: {
-		/** The stored caption. Names the dialog through aria-labelledby. */
-		podpis: string;
+		/** The stored caption, OPTIONAL since 260901-amq (D-4). Where it is present it is
+		 *  rendered as the visible h2 below and names the dialog through aria-labelledby;
+		 *  where it is absent no heading renders at all and the name comes from ETYKIETA_OKNA.
+		 *  Captions are published on /o-nas only, because there the caption carries the name of
+		 *  a room that no neighbouring text repeats, whereas under a post the prose already
+		 *  describes the scene and the photograph stands on its own. */
+		podpis?: string;
 		// THERE IS NO `opis` PROP, and its absence is a content decision rather than an
 		// oversight. The stored alt text used to be rendered here a second time, as a visible
 		// line under the caption. It is still on the photograph itself, as the `alt` attribute
@@ -70,6 +90,26 @@
 	const idWyspy = $props.id();
 	const PODPIS_ID = `podglad-podpis-${idWyspy}`;
 	const CZAS_MS = 150;
+
+	/**
+	 * The dialog's name WHEN THERE IS NO CAPTION (D-4). A modal with role="dialog" and no
+	 * accessible name is a WCAG 4.1.2 failure, so the name is never allowed to be optional even
+	 * where the caption is: exactly one of aria-labelledby and aria-label is emitted, never both
+	 * and never neither.
+	 *
+	 * WHY A FIXED LABEL RATHER THAN THE PHOTOGRAPH'S ALT TEXT (D-4 allows either):
+	 *   1. The alt text is already on the image INSIDE this dialog, so a name built from it
+	 *      would be announced twice in a row.
+	 *   2. A constant does not have to be threaded as a prop through two pages, so it cannot go
+	 *      missing on one of them the way a threaded value can.
+	 *   3. „Podgląd" is the same word the close button's name already uses („Zamknij podgląd"),
+	 *      so the two controls of this dialog speak one vocabulary.
+	 */
+	const ETYKIETA_OKNA = 'Podgląd zdjęcia';
+
+	/** Whitespace is not a caption: a stored value of „ " must not produce an empty heading that
+	 *  then names the dialog with nothing. */
+	const maPodpis = $derived(typeof podpis === 'string' && podpis.trim().length > 0);
 
 	let otwarte = $state(false);
 	let wyzwalacz: HTMLAnchorElement | undefined = $state();
@@ -183,7 +223,8 @@
 		class="panel"
 		role="dialog"
 		aria-modal="true"
-		aria-labelledby={PODPIS_ID}
+		aria-labelledby={maPodpis ? PODPIS_ID : undefined}
+		aria-label={maPodpis ? undefined : ETYKIETA_OKNA}
 		tabindex="-1"
 		transition:fade={{ duration: czasRuchu() }}
 		onkeydown={klawisz}
@@ -191,24 +232,26 @@
 		<!-- DOM order is the contract: close button, image, caption. The close
 		     button sits INSIDE the panel rather than floating on the scrim, because a control
 		     whose only backing is a translucent overlay has no guaranteed contrast against the
-		     photograph behind it. -->
-		<div class="pasek">
-			<button
-				bind:this={przyciskZamkniecia}
-				type="button"
-				class="zamknij"
-				aria-label="Zamknij podgląd"
-				onclick={zamknij}
-			>
-				<X size={24} aria-hidden="true" />
-			</button>
-		</div>
+		     photograph behind it. It is a DIRECT CHILD of the panel and pushed right by its own
+		     auto margin: the wrapper it used to sit in was a 44px band above the photograph and
+		     read as an empty white strip (260901-amq, D-3). -->
+		<button
+			bind:this={przyciskZamkniecia}
+			type="button"
+			class="zamknij"
+			aria-label="Zamknij podgląd"
+			onclick={zamknij}
+		>
+			<X size={24} aria-hidden="true" />
+		</button>
 
 		<div class="obraz">
 			{@render powiekszenie()}
 		</div>
 
-		<h2 id={PODPIS_ID} class="podpis">{podpis}</h2>
+		{#if maPodpis}
+			<h2 id={PODPIS_ID} class="podpis">{podpis}</h2>
+		{/if}
 	</div>
 {/if}
 
@@ -225,15 +268,29 @@
 	.kafelek {
 		display: block;
 		overflow: hidden;
-		border-radius: var(--radius-lg);
+		/* --radius-md, not --radius-lg (260901-amq, D-2). The locked spec reserves 24px for the
+		   „hero image slot, large surfaces"; a 328-372px tile in a grid is neither, and it sat
+		   at three times the radius of the NewsCard cover it shares a content class with. */
+		border-radius: var(--radius-md);
 		aspect-ratio: 4 / 3;
 	}
 
+	/* `center top` rather than the default centre (260901-amq, D-6). Four of the six facility
+	   photographs are PORTRAIT, and the 4:3 box with `cover` was cropping them to the middle
+	   band, which in an interior or a playground throws away the thing being photographed.
+
+	   THIS ONE RULE HAS NO SIDE EFFECT ON THE POST PAGE, and the reason is worth writing down
+	   rather than re-deriving. Under `cover` a photograph WIDER than 4:3 overflows horizontally,
+	   so its vertical component is already fully shown and this value means nothing for it; the
+	   change reaches portrait files only. Files uploaded through the panel are cropped to the
+	   target ratio server side, so source ratio equals tile ratio for them and they are likewise
+	   untouched. Only the hand-placed portrait seeds move, which is exactly the intent. */
 	.kafelek :global(img) {
 		display: block;
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
+		object-position: center top;
 		transition: transform 150ms ease;
 	}
 
@@ -267,7 +324,13 @@
 	}
 
 	/* Centred with auto margins rather than a translate, so the only thing this component ever
-	   animates is opacity. */
+	   animates is opacity.
+
+	   THE PANEL IS THE ANCHOR OF THE CONCENTRICITY LAW (260901-amq, D-1, D-2): 24px of radius
+	   with a 16px inset, and 24 minus 16 is 8, which is the radius the photograph and the close
+	   control below both take. The card therefore reads as a MOUNTED PHOTOGRAPH: one even
+	   border all the way round, one shape language, and the control yielding to the picture.
+	   Changing the padding here without changing those two is what would break the law. */
 	.panel {
 		position: fixed;
 		inset: 0;
@@ -283,40 +346,61 @@
 		border-radius: var(--radius-lg);
 	}
 
-	.pasek {
-		display: flex;
-		justify-content: flex-end;
-	}
+	/* The close control, ghost rather than a filled blue circle (260901-amq, D-3). No circle and
+	   no pill survives anywhere in the media surround, so the composition speaks one shape:
+	   panel 24, photograph 8, control 8.
 
+	   `margin-left: auto` on a fixed-width element is what pushes it to the right edge of the
+	   panel's content box, which is the right edge of the photograph area beside it. That
+	   replaces the old flex wrapper, whose only job was the same alignment and whose side effect
+	   was a 44px band of empty white above the picture.
+
+	   40x40 MEETS WCAG 2.1 AA. Success criterion 2.5.8 Target Size (Minimum) sets the AA
+	   threshold at 24px; the 44px figure belongs to 2.5.5 at level AAA and is not binding here.
+
+	   THE BORDER IS EDGE DECORATION, NOT THE CONTROL'S ONLY BOUNDARY, so 1.4.11 Non-text
+	   Contrast is carried by the X glyph in --color-ink against the panel's white, not by the
+	   1px --color-border-subtle line. NO FOCUS RING IS DECLARED HERE ON PURPOSE: the global
+	   :focus-visible rule in app.css already draws it, and a second declaration would drift out
+	   of step with every other control on the site. */
 	.zamknij {
-		display: inline-flex;
+		/* `flex`, NOT `inline-flex`: an inline-level box ignores an auto side margin, so the
+		   control would stay pinned to the left edge of the panel. Block level plus a fixed
+		   width is what makes `margin-left: auto` the right-alignment it reads as. */
+		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 44px;
-		height: 44px;
+		width: 40px;
+		height: 40px;
+		margin-left: auto;
 		padding: 0;
-		border: none;
-		border-radius: var(--radius-pill);
-		background: var(--color-brand-blue);
-		color: #ffffff;
+		border: 1px solid var(--color-border-subtle);
+		border-radius: var(--radius-sm);
+		background: transparent;
+		color: var(--color-ink);
 		cursor: pointer;
 	}
 
-	.zamknij:hover {
-		background: var(--color-brand-blue-hover);
+	.zamknij:hover,
+	.zamknij:focus-visible {
+		background: var(--color-surface-warm);
 	}
 
 	.obraz {
 		margin-top: 8px;
 	}
 
+	/* --radius-sm, and it is DERIVED rather than chosen: the panel's 24px minus its 16px inset
+	   is 8px, so this is the one place the concentricity law actually produces a number
+	   (260901-amq, D-2). At 24px the photograph shared its container's radius while sitting
+	   16px inside it, which is the mismatch a visitor reads as „unfinished". */
 	.obraz :global(img) {
 		display: block;
 		width: auto;
 		max-width: 100%;
 		max-height: 70vh;
 		margin-inline: auto;
-		border-radius: var(--radius-lg);
+		border-radius: var(--radius-sm);
 	}
 
 	.podpis {
