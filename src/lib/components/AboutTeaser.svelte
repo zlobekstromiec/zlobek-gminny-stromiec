@@ -90,7 +90,14 @@
 	   still reads as a portrait-ish panel beside the quotation rather than a wide strip.
 
 	   No `height` rule: enhanced-img emits intrinsic width and height attributes, and a
-	   `height: auto` here would beat the aspect-ratio box and let the native 16:9 out. */
+	   `height: auto` here would beat the aspect-ratio box and let the native 16:9 out.
+
+	   CONCENTRICITY AUDIT, 260901-amq row (b): --radius-lg STAYS. D-2 left this row open
+	   („sprawdzić i doprowadzić do reguły") and the verdict is that it is already right. This is
+	   half the width of a two-column band above 1024px and the FULL container width below it,
+	   which is a „large surface" in the locked spec's sense; it is not a tile in a grid, so the
+	   16px that the gallery tiles took does not apply. It also has no rounded container around
+	   it, so there is no inset to subtract and the law produces no number here. */
 	.about-media {
 		width: 100%;
 		aspect-ratio: 4 / 3;

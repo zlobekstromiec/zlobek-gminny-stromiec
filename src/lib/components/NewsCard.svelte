@@ -106,6 +106,20 @@
 		}
 	}
 
+	/* CONCENTRICITY AUDIT, 260901-amq row (d): --radius-sm STAYS, and the reason recorded in the
+	   D-2 table is WRONG, so it is corrected here rather than repeated.
+
+	   That table derives 8px as „card 16 minus a 16px inset". THERE IS NO 16px INSET AROUND THIS
+	   COVER: the card declares no padding of its own, `.body` carries all of it, and the cover is
+	   a direct child flush against the card's edge. The concentricity law therefore produces no
+	   number here at all. 8px is a straight reading of the locked spec's usage table („sm 8px,
+	   image placeholders"), which is a different and equally valid justification.
+	   Writing this down matters because a derivation that does not hold, left standing, gets
+	   applied by analogy to the next surface someone adds.
+
+	   THE VALUE ITSELF IS NOT TOUCHED: D-2 is locked and says „już poprawne, nie ruszać", and
+	   this component renders on the homepage and on /aktualnosci, so a radius change here would
+	   be a change on two pages at once. */
 	.cover {
 		aspect-ratio: 16 / 9;
 		border-radius: var(--radius-sm);
@@ -121,6 +135,11 @@
 			grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
 		}
 
+		/* CONCENTRICITY AUDIT, 260901-amq row (e): the zero is DELIBERATE and compliant, not an
+		   omission. In this variant the cover fills its whole grid column and touches the card's
+		   edge on three sides, and the card clips it with its own `overflow: hidden`, so the
+		   OUTER corners already take the card's 16px. The inset is zero, so the law gives zero
+		   for the inner corners; any radius written here would draw a corner inside a corner. */
 		.poziomy .cover {
 			aspect-ratio: auto;
 			height: 100%;

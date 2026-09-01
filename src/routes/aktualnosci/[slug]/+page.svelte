@@ -232,6 +232,15 @@
 		color: var(--color-muted);
 	}
 
+	/* CONCENTRICITY AUDIT, 260901-amq row (f). THIS IS THE ONE SURFACE THE D-2 TABLE DOES NOT
+	   LIST, and the audit's only real finding: the table enumerates the lightbox panel, the
+	   gallery tile, the NewsCard cover, the Hero slot, MapPanel and AboutTeaser, and stops.
+
+	   Verdict: --radius-lg STAYS, and it is a hierarchy decision rather than an accident. This is
+	   the lead image of the page, the closest counterpart to the Hero slot D-2 explicitly leaves
+	   at 24px, and it is the only media surface here that runs the full width of the column. The
+	   post's own gallery tiles sit at 16px below it, so the two read as two ranks of one system.
+	   There is no rounded container and no inset, so the law produces no number here either. */
 	.cover-band :global(img) {
 		display: block;
 		width: 100%;

@@ -188,7 +188,13 @@
 
 	   `height: auto` is deliberately NOT set here: enhanced-img emits its own intrinsic
 	   width and height attributes, and a rule saying `height: auto` would beat the
-	   aspect-ratio box and let the natural 16:9 through. */
+	   aspect-ratio box and let the natural 16:9 through.
+
+	   CONCENTRICITY AUDIT, 260901-amq row (a): --radius-lg STAYS. This is the lead image slot
+	   the locked spec names for 24px („hero image slot, large surfaces"), it stands on its own
+	   with no rounded container around it and therefore no inset to subtract from, and D-2 says
+	   „bez zmian" for it in as many words. Note the radius belongs to the box INCLUDING the 6px
+	   white border, which is intended: the frame is what the corner rounds. */
 	.hero-img {
 		display: block;
 		width: 100%;

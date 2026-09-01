@@ -75,7 +75,13 @@
 		margin: 0;
 	}
 
-	/* enhanced:img renders <picture><img>: style the generated img directly. */
+	/* enhanced:img renders <picture><img>: style the generated img directly.
+
+	   CONCENTRICITY AUDIT, 260901-amq row (c): --radius-md STAYS, already compliant. D-2 left
+	   this row open and the verdict is that nothing is wrong with it. The image has no rounded
+	   container and no inset, so the law produces no number; the value is a scale choice, and
+	   card scale is the right one here, because this panel sits in the contact column beside the
+	   address block rather than leading a page the way a hero image does. */
 	.map-figure :global(img) {
 		display: block;
 		width: 100%;
