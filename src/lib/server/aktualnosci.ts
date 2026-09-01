@@ -13,14 +13,35 @@
  *
  *  DELIBERATELY THE SAME SHAPE as `ZdjecieGalerii` in $lib/galeria.ts, field for field and
  *  name for name, because both end up in the same `Lightbox` and a second vocabulary for
- *  one concept is how the two drift. All three fields are REQUIRED for the reason the
- *  facility gallery states about itself: the dialog is named by its caption through
- *  aria-labelledby, so an entry missing one would open an unlabelled dialog onto an
- *  unlabelled image, which is a WCAG failure on a public body's website. */
+ *  one concept is how the two drift.
+ *
+ *  ALL THREE FIELDS STAY REQUIRED, but since 260901-amq the reason differs per field and the
+ *  old blanket justification no longer holds here. It used to read „the dialog is named by its
+ *  caption through aria-labelledby, so an entry missing one would open an unlabelled dialog".
+ *  THAT IS NOW TRUE OF /o-nas ONLY (`ZdjecieGalerii`). A post's dialog is named by a constant
+ *  Polish label in the island itself, precisely so that the name cannot depend on a field the
+ *  page no longer renders. `alt` carries the whole WCAG weight here and is required for that
+ *  reason; `podpis` is required because `readZdjecia` below skips an incomplete entry outright,
+ *  and dropping the field would silently discard photographs from every existing post. */
 export interface ZdjecieWpisu {
 	/** Bare basename inside src/lib/assets/uploads (04.1 P-20). */
 	plik: string;
-	/** The short visible caption under the tile, and the dialog's accessible name. */
+	/** The short caption.
+	 *
+	 *  SINCE 260901-amq (D-4) IT IS NOT RENDERED ON THE POST PAGE AT ALL: not under the tile
+	 *  and not inside the preview dialog. Write one anyway, but do not expect a reader to see
+	 *  it. It survives here as a position marker for whoever edits this gallery in a pull
+	 *  request, which is the only place it can be edited: no panel screen authors this array
+	 *  (`zGaleria` in $lib/server/admin/walidacja/aktualnosci.ts merely carries it through a
+	 *  save untouched), so nobody is being told otherwise by the editorial UI.
+	 *
+	 *  THE DIALOG'S NAME DOES NOT COME FROM THIS FIELD on the post page. It comes from
+	 *  ETYKIETA_OKNA in $lib/components/Lightbox.svelte. Anyone tempted to reintroduce a
+	 *  visible caption here should change the page and its tests, not assume this string is
+	 *  already reaching a reader.
+	 *
+	 *  On /o-nas the equivalent field IS published and IS the dialog's accessible name; the
+	 *  two galleries share a shape, not a presentation. */
 	podpis: string;
 	/** What is in the picture, for a screen reader. Never the same string as the caption. */
 	alt: string;
