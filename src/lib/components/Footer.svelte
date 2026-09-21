@@ -1,8 +1,8 @@
 <script lang="ts">
 	// Site footer v2 (SITE-03, UI-SPEC v1.2 §6): wave into a brand-blue block with
 	// four columns. Contact lines are PLAIN TEXT by design (the homepage carries
-	// exactly one mailto, and tests/home.spec.ts now asserts that it carries NO tel:
-	// link at all; the linked e-mail lives in ContactAndMap). BIP stays an external
+	// exactly one mailto and its tel: link count is asserted at three; the linked
+	// versions live in TopBar, Hero and ContactAndMap). BIP stays an external
 	// municipal system:
 	// do NOT rebuild it (RESEARCH Pitfall 14).
 	import AdresEmail from './AdresEmail.svelte';
@@ -26,9 +26,10 @@
 			<p class="org">
 				Publiczny Żłobek w Stromcu, jednostka organizacyjna Gminy Stromiec<br />
 				<!-- Address [BIP]-confirmed; the tel. line came out with the number itself on
-				     2026-08-18 (site.ts). What is left is the address and the one inbox, both
-				     still PLAIN TEXT by design: the linked versions live in ContactAndMap and
-				     on /kontakt, and the homepage's single-mailto rule depends on it. The
+				     2026-08-18 and came back with the żłobek's own line on 2026-09-21 (site.ts).
+				     Address, phone and inbox are all PLAIN TEXT here by design: the linked
+				     versions live in TopBar, Hero, ContactAndMap and on /kontakt, and both the
+				     homepage's single-mailto rule and its tel:-count of three depend on it. The
 				     footer therefore DELIBERATELY does not wrap the address in an <a>, and
 				     tests/home.spec.ts fails if it ever does.
 
@@ -37,6 +38,7 @@
 				     footer copy breaks on the same boundary as every linked copy. The value
 				     itself still comes from site.ts, through that component. -->
 				{contact.addressLines[0]}, {contact.addressLines[1]}<br />
+				tel. {contact.phoneDisplay}<br />
 				<AdresEmail />
 			</p>
 			<!-- Institutional identifiers, the block a Polish public body's footer is expected to

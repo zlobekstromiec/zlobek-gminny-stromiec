@@ -99,13 +99,13 @@ export const KOPIA_BLEDOW: Readonly<Record<FormCode, KopiaBledu>> = Object.freez
 	turnstile: {
 		naglowek: 'Nie udało się potwierdzić, że nie jesteś robotem',
 		tresc: [
-			`Odśwież stronę i spróbuj ponownie. Jeśli problem się powtarza, napisz do nas na ${contact.email}.`
+			`Odśwież stronę i spróbuj ponownie. Jeśli problem się powtarza, zadzwoń pod numer ${contact.phoneDisplay} lub napisz na ${contact.email}.`
 		]
 	},
 	limit: {
 		naglowek: 'Za dużo prób wysyłki',
 		tresc: [
-			`Z tego urządzenia wysłano już kilka wiadomości. Spróbuj ponownie za godzinę albo napisz wprost na ${contact.email}.`
+			`Z tego urządzenia wysłano już kilka wiadomości. Spróbuj ponownie za godzinę albo zadzwoń pod numer ${contact.phoneDisplay}.`
 		]
 	},
 	wysylka: {
@@ -113,7 +113,7 @@ export const KOPIA_BLEDOW: Readonly<Record<FormCode, KopiaBledu>> = Object.freez
 		tresc: [
 			'Twoja wiadomość ',
 			{ mocne: 'nie została wysłana' },
-			`. Wpisane dane zostały w formularzu, możesz spróbować ponownie za chwilę. Jeśli sprawa jest pilna, napisz wprost na ${contact.email}.`
+			`. Wpisane dane zostały w formularzu, możesz spróbować ponownie za chwilę. Jeśli sprawa jest pilna, zadzwoń pod numer ${contact.phoneDisplay} lub napisz na ${contact.email}.`
 		]
 	}
 });
@@ -275,15 +275,16 @@ export const KOPIA_ZGLOSZENIE = {
  *  it serves the no-JavaScript visitor, the failed-widget case and the D-12 send
  *  failure at once (04-RESEARCH Pitfall 7). */
 export const KOPIA_FALLBACK = {
-	// „Wolisz zadzwonić?" until 2026-08-18, when the number came off the site (site.ts).
-	// The heading had to move with it: a panel that opens by offering a phone call and
-	// then lists only an inbox reads as a page that lost half its content.
-	naglowek: 'Wolisz napisać wprost?',
-	tresc: `E-mail: ${contact.email}. Czynne ${contact.hours}.`
+	// „Wolisz napisać wprost?" between 2026-08-18 and 2026-09-21, while the site had no
+	// number to publish: a panel that opens by offering a phone call and then lists only
+	// an inbox reads as a page that lost half its content. The żłobek's own line is back
+	// in `contact` (site.ts), so the heading offers the call again.
+	naglowek: 'Wolisz zadzwonić?',
+	tresc: `Telefon: ${contact.phoneDisplay}. E-mail: ${contact.email}. Czynne ${contact.hours}.`
 } as const;
 
 /** The `<noscript>` sentence rendered directly above the form card. */
-export const KOPIA_NOSCRIPT = `Ten formularz wymaga włączonej obsługi JavaScript. Możesz też napisać do nas na ${contact.email}.`;
+export const KOPIA_NOSCRIPT = `Ten formularz wymaga włączonej obsługi JavaScript. Możesz też zadzwonić pod numer ${contact.phoneDisplay} lub napisać na ${contact.email}.`;
 
 /** One block of the klauzula: an optional sub-heading plus its paragraphs. The
  *  strings carry no markup at all, so the disclosure component owns the whole

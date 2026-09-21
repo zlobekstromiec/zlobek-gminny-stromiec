@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { keyFacts, recruitment } from '../src/lib/content/site';
+import { contact, keyFacts, recruitment } from '../src/lib/content/site';
 import { CENNIK } from '../src/lib/cennik';
 
 /**
@@ -96,15 +96,22 @@ test.describe('Homepage: Phase 1 + 01.1 acceptance', () => {
 		await expect(page.getByText('Czynne:', { exact: false })).toBeVisible();
 	});
 
-	// THREE tel links until 2026-08-18, ZERO after. The count was a real contract while
-	// the site published a number: it pinned exactly which three surfaces were allowed to
-	// linkify it, so a fourth appearing anywhere turned the suite red. The żłobek asked
-	// for the number to come off until it has its own line (site.ts), and the contract
-	// that replaces it is the strictest version of the same idea. When a number returns,
-	// this goes back to a count and names the surfaces again.
-	test('nie ma ani jednego odnosnika tel: na stronie glownej (2026-08-18)', async ({ page }) => {
+	// THREE tel links, then ZERO from 2026-08-18, and THREE again from 2026-09-21. The
+	// count is a real contract while the site publishes a number: it pins exactly which
+	// three surfaces may linkify it, so a fourth appearing anywhere turns the suite red.
+	// It went to zero the day the director asked for her private mobile to come off; it
+	// is back because she gave the żłobek's own line. The href and the text are compared
+	// against site.ts, so a number pasted into markup by hand fails here too.
+	test('dokladnie trzy odnosniki tel:: pasek gorny, linia w hero, karta kontaktowa', async ({
+		page
+	}) => {
 		await page.goto('/');
-		await expect(page.locator('a[href^="tel:"]')).toHaveCount(0);
+		const telefony = page.locator('a[href^="tel:"]');
+		await expect(telefony).toHaveCount(3);
+		for (let i = 0; i < 3; i++) {
+			await expect(telefony.nth(i)).toHaveAttribute('href', contact.phoneHref);
+			await expect(telefony.nth(i)).toHaveText(contact.phoneDisplay);
+		}
 	});
 
 	// LOCKSTEP CHANGE (D-05, D-09): the placeholder facts are replaced by the

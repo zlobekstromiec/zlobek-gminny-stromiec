@@ -97,7 +97,7 @@ test.describe('Kontakt: CONTACT-01 / CONTACT-02 / CONTACT-03 acceptance', () => 
 		).toBeVisible();
 	});
 
-	test('karty kontaktowe pokazują adres, e-mail i godziny z modułu treści (CONTACT-01)', async ({
+	test('karty kontaktowe pokazują adres, telefon, e-mail i godziny z modułu treści (CONTACT-01)', async ({
 		page
 	}) => {
 		await page.goto('/kontakt');
@@ -108,11 +108,13 @@ test.describe('Kontakt: CONTACT-01 / CONTACT-02 / CONTACT-03 acceptance', () => 
 		await expect(karty.getByText(contact.addressLines[0])).toBeVisible();
 		await expect(karty.getByText(contact.addressLines[1])).toBeVisible();
 
-		// ZERO odnosnikow tel:, od 2026-08-18. Zlobek poprosil o zdjecie numeru ze strony
-		// do czasu, az bedzie mial wlasna linie, wiec asercja odwrocila sie z „numer jest
-		// ten sam co w site.ts" na „numeru nie ma". Ta wersja lapie takze numer wpisany
-		// recznie w markup, czego poprzednia nie robila.
-		await expect(karty.locator('a[href^="tel:"]')).toHaveCount(0);
+		// Telefon i e-mail: href porownany z wartoscia z modulu tresci. Asercja wrocila
+		// 2026-09-21, gdy dyrektor podala sluzbowy numer zlobka; miedzy 2026-08-18 a ta
+		// data zadala ZERA odnosnikow tel:, bo numer zdjeto ze strony na jej prosbe.
+		const telefon = karty.locator('a[href^="tel:"]');
+		await expect(telefon).toHaveCount(1);
+		await expect(telefon).toHaveAttribute('href', contact.phoneHref);
+		await expect(telefon).toHaveText(contact.phoneDisplay);
 
 		const mail = karty.locator('a[href^="mailto:"]');
 		await expect(mail).toHaveCount(1);
@@ -194,31 +196,44 @@ test.describe('Kontakt: CONTACT-01 / CONTACT-02 / CONTACT-03 acceptance', () => 
 		await expect(page.getByRole('heading', { name: 'Administrator danych' })).toBeVisible();
 	});
 
-	test('panel awaryjny z e-mailem jest w HTML przed interakcją (Pitfall 7)', async ({ page }) => {
+	test('panel awaryjny z telefonem i e-mailem jest w HTML przed interakcją (Pitfall 7)', async ({
+		page
+	}) => {
 		await page.goto('/kontakt');
 		const panel = page.locator('.fallback');
 		await expect(panel).toHaveCount(1);
 		await expect(panel.getByText(KOPIA_FALLBACK.naglowek)).toBeVisible();
+		await expect(panel.locator(`a[href="${contact.phoneHref}"]`)).toBeVisible();
 		await expect(panel.locator(`a[href="mailto:${contact.email}"]`)).toBeVisible();
 	});
 
 	// Pitfall 7 jest o tym, ze odwiedzajacy bez JavaScriptu musi dostac droge, ktora
-	// dziala. Od 2026-08-18 ta droga jest jedna, wiec noscript niesie adres e-mail
-	// zamiast numeru.
-	test('strona zawiera element noscript z adresem e-mail (Pitfall 7)', async ({ page }) => {
+	// dziala. Od 2026-09-21 sa znowu dwie, wiec noscript niesie numer i adres e-mail.
+	test('strona zawiera element noscript z numerem telefonu i adresem e-mail (Pitfall 7)', async ({
+		page
+	}) => {
 		await page.goto('/kontakt');
 		const noscript = page.locator('noscript');
 		expect(await noscript.count()).toBeGreaterThan(0);
 		const tresc = await noscript.first().innerHTML();
+		expect(tresc).toContain(contact.phoneDisplay);
 		expect(tresc).toContain(contact.email);
 	});
 
-	// Nowa asercja, bez odpowiednika przed 2026-08-18: caly dokument, nie tylko karta
-	// kontaktowa. Numer telefonu w stopce, w pasku gornym albo w kopii formularza nie
-	// przeszedlby przez zadna z pozostalych asercji tego pliku.
-	test('nigdzie na stronie kontaktu nie ma odnosnika tel: (2026-08-18)', async ({ page }) => {
+	// Caly dokument, nie tylko karta kontaktowa. Od 2026-08-18 do 2026-09-21 ta asercja
+	// zadala ZERA odnosnikow tel:; teraz, gdy zlobek ma wlasna linie, pilnuje rzeczy
+	// mocniejszej: KAZDY odnosnik tel: na tej stronie, w pasku gornym, w karcie i w
+	// panelu awaryjnym, wskazuje numer z site.ts. Numer wpisany recznie w markup albo
+	// przepisany z bledem nie przeszedlby przez zadna z pozostalych asercji tego pliku.
+	test('kazdy odnosnik tel: na stronie kontaktu pochodzi z site.ts', async ({ page }) => {
 		await page.goto('/kontakt');
-		await expect(page.locator('a[href^="tel:"]')).toHaveCount(0);
+		const telefony = page.locator('a[href^="tel:"]');
+		const ile = await telefony.count();
+		expect(ile).toBeGreaterThan(0);
+		for (let i = 0; i < ile; i++) {
+			await expect(telefony.nth(i)).toHaveAttribute('href', contact.phoneHref);
+			await expect(telefony.nth(i)).toHaveText(contact.phoneDisplay);
+		}
 	});
 
 	test('pełna ścieżka wysyłki: formularz zamienia się w panel sukcesu (CONTACT-03, D-11)', async ({

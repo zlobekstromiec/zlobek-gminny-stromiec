@@ -20,7 +20,7 @@
 	// living there would show up in an editor's photo picker as if it were a gallery tile.
 	import Cta from './Cta.svelte';
 	import IconSun from '$lib/icons/IconSun.svelte';
-	import { recruitment } from '$lib/content/site';
+	import { contact, recruitment } from '$lib/content/site';
 	import budynek from '$lib/assets/foto/budynek-front.jpg?enhanced';
 </script>
 
@@ -51,14 +51,18 @@
 
 			<div class="cta-row">
 				<Cta href="/rekrutacja" variant="primary" icon>Zapisz dziecko</Cta>
-				<!-- „Napisz", not „Zadzwoń", since 2026-08-18: there is no phone on the site
-				     to honour that invitation with (site.ts). -->
-				<Cta href="/kontakt" variant="secondary">Napisz do nas</Cta>
+				<!-- „Zadzwoń" again since 2026-09-21: the żłobek has its own line, so the
+				     invitation has something to honour it with (site.ts). It read „Napisz do
+				     nas" for the month the site published no number at all. -->
+				<Cta href="/kontakt" variant="secondary">Zadzwoń do nas</Cta>
 			</div>
 
-			<!-- The phone line that stood here is GONE with the number itself (site.ts).
-			     Nothing replaces it: both buttons above already reach the contact page, and
-			     a third line repeating that would be noise. -->
+			<!-- The hero's phone line, back with the number on 2026-09-21 (site.ts). The
+			     value is interpolated, never written out here. -->
+			<p class="phone-line">
+				Masz pytanie? Zadzwoń:
+				<a href={contact.phoneHref}>{contact.phoneDisplay}</a>
+			</p>
 		</div>
 
 		<div class="hero-media">
@@ -165,12 +169,31 @@
 		margin: 0 0 28px;
 	}
 
-	/* No bottom margin any more: the phone line this row used to be separated from is
-	   gone with the number (site.ts), so the buttons are the last thing in the column. */
 	.cta-row {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 16px;
+		margin-bottom: 24px;
+	}
+
+	.phone-line {
+		font-family: var(--font-body);
+		font-size: 15px;
+		color: var(--color-muted);
+		margin: 0;
+	}
+
+	.phone-line a {
+		display: inline-flex;
+		align-items: center;
+		min-height: 44px;
+		color: var(--color-brand-blue);
+		font-weight: 700;
+		text-decoration: underline;
+	}
+
+	.phone-line a:hover {
+		color: var(--color-brand-blue-hover);
 	}
 
 	.hero-media {

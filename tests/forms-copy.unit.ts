@@ -129,22 +129,23 @@ test('the wysylka emphasis is a strong fragment, never capitals (UI-SPEC 7c)', (
 	assert.equal((mocne[0] as { mocne: string }).mocne, 'nie została wysłana');
 });
 
-// THIS TEST INVERTED ON 2026-08-18 and is stronger for it. It used to prove that every
-// phone-shaped literal in the copy equalled `contact.phoneDisplay`, which is the right
-// assertion while a phone exists. The żłobek asked for the number to come off the site
-// until it has a line of its own, so `contact` no longer has the field, and the property
-// worth defending changed with it: not „the number here is the right number" but „there
-// is no number here at all". The same sweep answers both questions, and this direction
-// is the one that catches somebody pasting a number straight into a copy string.
-test('no phone number survives anywhere in the exported copy (2026-08-18)', () => {
+// THIS SWEEP HAS NOW INVERTED TWICE. It began as „every phone-shaped literal in the
+// copy equals `contact.phoneDisplay`", which is the right assertion while a phone
+// exists. On 2026-08-18 the żłobek asked for the number to come off the site until it
+// had a line of its own, `contact` lost the field, and the property worth defending
+// became „there is no number here at all". On 2026-09-21 the director gave the żłobek's
+// own służbowy line, so the original direction is the true one again. Both directions
+// catch the same defect, somebody pasting a number straight into a copy string, and the
+// one that fits the present state of `contact` is the one that stays.
+test('every phone number in the exported copy is the value from site.ts', () => {
 	const telefony = new Set<string>();
 	for (const s of WSZYSTKIE_STRINGI) {
 		for (const trafienie of s.matchAll(/\d[\d\s-]{7,}\d/g)) telefony.add(trafienie[0]);
 	}
 	assert.deepEqual(
 		[...telefony].sort(),
-		[],
-		'numer telefonu wrocil do kopii formularzy; jesli zlobek ma juz wlasna linie, dodaj ja do contact w site.ts zamiast wpisywac w tekst'
+		[contact.phoneDisplay],
+		'w kopii formularzy jest numer inny niz ten z contact w site.ts'
 	);
 });
 
@@ -286,10 +287,12 @@ test('komunikatPola returns undefined for a field the copy does not know', () =>
 });
 
 // Both panels exist to give a visitor a route that works when the form does not, so the
-// assertion is that each one still names a reachable route. Since 2026-08-18 there is
-// exactly one, and the phone half of this test went with the number (site.ts).
-test('the static fallback and noscript copy carry the e-mail', () => {
+// assertion is that each one still names every reachable route. There were two, then
+// one from 2026-08-18, and two again from 2026-09-21 (site.ts).
+test('the static fallback and noscript copy carry the phone and the e-mail', () => {
+	assert.match(KOPIA_FALLBACK.tresc, new RegExp(contact.phoneDisplay));
 	assert.match(KOPIA_FALLBACK.tresc, new RegExp(contact.email));
+	assert.match(KOPIA_NOSCRIPT, new RegExp(contact.phoneDisplay));
 	assert.match(KOPIA_NOSCRIPT, new RegExp(contact.email));
 });
 

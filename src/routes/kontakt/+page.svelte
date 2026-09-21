@@ -29,6 +29,7 @@
 	import Info from '@lucide/svelte/icons/info';
 	import Mail from '@lucide/svelte/icons/mail';
 	import MapPin from '@lucide/svelte/icons/map-pin';
+	import Phone from '@lucide/svelte/icons/phone';
 	import AdresEmail from '$lib/components/AdresEmail.svelte';
 	import FallbackPanel from '$lib/components/FallbackPanel.svelte';
 	import KontaktForm from '$lib/components/KontaktForm.svelte';
@@ -76,8 +77,17 @@
 					</div>
 				</li>
 
-				<!-- No Telefon row: the number came off the site on 2026-08-18 (site.ts), and a
-				     row saying so would be a quarter of this card spent on an absence. -->
+				<!-- The Telefon row, back on 2026-09-21 with the żłobek's own line (site.ts).
+				     Between 2026-08-18 and that date there was no row at all rather than a row
+				     announcing an absence, which would have been a quarter of this card spent
+				     on saying nothing. -->
+				<li class="item">
+					<Phone class="item-icon" size={22} aria-hidden="true" focusable="false" />
+					<div class="item-text">
+						<span class="item-label">Telefon</span>
+						<a class="item-link" href={contact.phoneHref}>{contact.phoneDisplay}</a>
+					</div>
+				</li>
 
 				<li class="item">
 					<Mail class="item-icon" size={22} aria-hidden="true" focusable="false" />

@@ -175,7 +175,7 @@ export function przykladZus(kwotaProza: string): string {
 
 /** How to apply for the benefit. Names no ZUS amount and no deadline. */
 export const ZUS_WNIOSEK =
-	'Wniosek o świadczenie składasz elektronicznie, w serwisie ZUS. Chętnie pomożemy Ci przejść przez formalności: napisz do nas.';
+	'Wniosek o świadczenie składasz elektronicznie, w serwisie ZUS. Chętnie pomożemy Ci przejść przez formalności: zadzwoń lub napisz do nas.';
 
 /** The programme in four points, requested by the dyrektor's e-mail of 2026-08-20.
  *
@@ -226,7 +226,7 @@ export const WYZYWIENIE_SZCZEGOL =
 // quietly falsified the Phase 6 gate for the three facts that remain open.
 /** „Jak i kiedy płacić". Names the recipient, invents nothing else. */
 export const PLATNOSCI =
-	'Opłaty za żłobek wnosisz na rzecz Gminy Stromiec. Zasady płatności, w tym termin i numer konta, przekazujemy rodzicom przy zapisie dziecka do żłobka. Jeśli chcesz poznać je wcześniej, napisz do nas.';
+	'Opłaty za żłobek wnosisz na rzecz Gminy Stromiec. Zasady płatności, w tym termin i numer konta, przekazujemy rodzicom przy zapisie dziecka do żłobka. Jeśli chcesz poznać je wcześniej, zadzwoń lub napisz do nas.';
 
 /** „Podstawa prawna" and its link into the documents section. The uchwała itself is
  *  never restated here: it lives in /dokumenty, which is the surface that owns it. */

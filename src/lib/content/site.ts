@@ -54,21 +54,24 @@ export const contact = {
 	/** FINAL: [BIP]-confirmed by both the statut (uchwała XXIII.133.2026) and the
 	 *  fee uchwała XXIII.134.2026 (.planning/dane-bip-zlobek-stromiec.md §1). */
 	addressLines: ['ul. Radomska 72', '26-804 Stromiec'],
-	// THERE IS NO PHONE FIELD HERE, and its absence is the content decision of
-	// 2026-08-18, not an oversight. The number this object used to carry
-	// (`phoneDisplay` / `phoneHref`, published under D-08 with a Phase 6 launch
-	// gate asking whether it was a służbowy line) turned out to be the director's
-	// PRIVATE mobile. She asked in writing for it to come off the site until the
-	// żłobek has its own line: „Proszę narazie nie dodawać nr telefonu ponieważ to
-	// mój nr prywatny". The launch gate therefore did its job and the answer was no.
-	//
-	// So the site now offers exactly ONE contact route, the e-mail below, and every
-	// surface that used to phrase an invitation as „zadzwoń" phrases it as „napisz".
-	// Restoring a phone is deliberately a one-place edit: add the two fields back
-	// here and the TopBar, hero, contact card, footer, /kontakt and both form
-	// fallbacks pick them up, because not one of them ever held a literal.
-	// tests/kontakt.spec.ts asserts the ABSENCE of any tel: link, so a number
-	// reintroduced by hand in markup fails the suite instead of shipping.
+	/** THE ŻŁOBEK'S OWN LINE, given in writing by the director Kamila Dobosz on
+	 *  2026-09-21: „Telefon do żłobka: 500 051 228". It is not the number that used to
+	 *  stand here. That one was published under D-08 with a Phase 6 launch gate asking
+	 *  whether it was a służbowy line, and on 2026-08-18 the answer came back no: it was
+	 *  the director's PRIVATE mobile, and she asked for it to come off the site until the
+	 *  żłobek had a line of its own („Proszę narazie nie dodawać nr telefonu ponieważ to
+	 *  mój nr prywatny"). The gate did its job, the site ran for a month on the e-mail
+	 *  alone, and this is the number that closes it.
+	 *
+	 *  ONE SOURCE, NINE SURFACES. The TopBar, the hero line, the homepage contact card,
+	 *  the footer, /kontakt, both form islands' escape hatches, the shared fallback panel
+	 *  and the mailer footer all interpolate these two fields; not one of them holds a
+	 *  literal, which is why the number's removal and its return were each a one-place
+	 *  edit. tests/home.spec.ts pins the tel: link COUNT at three and compares every href
+	 *  and every visible string against these fields, so a number typed by hand into
+	 *  markup fails the suite instead of shipping. */
+	phoneDisplay: '500 051 228',
+	phoneHref: 'tel:+48500051228',
 	/** FINAL: the institutional inbox, given in writing by Kamila Dobosz (Urząd Gminy
 	 *  w Stromcu) on 2026-08-27. It REPLACES the earlier `zlobek@` address on the same
 	 *  domain, which was never a real mailbox: mail sent there bounced, which is why the
