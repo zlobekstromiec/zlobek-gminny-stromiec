@@ -75,15 +75,23 @@ test.describe('Polityka prywatności: strona prawna o dwóch zakresach', () => {
 		}
 	});
 
-	test('klauzula administratora otwiera się dosłownie swoim zdaniem (tekst placówki)', async ({
+	/* Do 2026-09-21 ta asercja pilnowala pierwszego zdania tekstu, ktory placowka napisala
+	   sama 2026-08-27, gdy nie miala zadnej klauzuli. Tego dnia inspektor ochrony danych
+	   dostarczyl klauzule 06, napisana dla dokladnie tej publicznosci, i to ona stoi teraz
+	   na stronie. Asercja pilnuje tego samego, co wtedy, czyli ze strona otwiera sie
+	   tekstem, ktory dostalismy, a nie streszczeniem: podstawa prawna, a zaraz po niej
+	   naglowek „Administrator" z brzmieniem z dokumentow. */
+	test('klauzula administratora otwiera się tekstem inspektora, a nie streszczeniem', async ({
 		page
 	}) => {
 		await page.goto('/polityka-prywatnosci');
+		const sekcja = page.locator('section[aria-labelledby="zakres-zlobek"]');
 		await expect(
-			page.getByText('Administratorem danych osobowych jest podmiot prowadzący Publiczny Żłobek', {
+			sekcja.getByText('na podstawie art. 13 rozporządzenia Parlamentu Europejskiego', {
 				exact: false
 			})
 		).toBeVisible();
+		await expect(sekcja.getByRole('heading', { name: 'Administrator', level: 3 })).toBeVisible();
 	});
 
 	// One source, not a copy: the page renders the SAME KLAUZULA export that
@@ -93,12 +101,51 @@ test.describe('Polityka prywatności: strona prawna o dwóch zakresach', () => {
 		page
 	}) => {
 		await page.goto('/polityka-prywatnosci');
-		await expect(page.getByRole('heading', { name: 'Odbiorcy danych', level: 3 })).toBeVisible();
+		// SELEKTOR JEST ZAWEZONY DO SEKCJI FORMULARZY od 2026-09-21. Naglowek „Odbiorcy
+		// danych" istnieje teraz DWA RAZY, bo klauzula 06 niesie blok o tej samej nazwie, i
+		// to jest wlasciwe: obie klauzule opisuja swoich wlasnych odbiorcow. Asercja bez
+		// zawezenia lapala oba i konczyla sie naruszeniem trybu scislego.
+		const sekcja = page.locator('section[aria-labelledby="zakres-formularze"]');
+		await expect(sekcja.getByRole('heading', { name: 'Odbiorcy danych', level: 3 })).toBeVisible();
 		await expect(
-			page.getByText('Kopię każdej wiadomości i każdego zgłoszenia z formularza otrzymuje', {
+			sekcja.getByText('Kopię każdej wiadomości i każdego zgłoszenia z formularza otrzymuje', {
 				exact: false
 			})
 		).toBeVisible();
+	});
+
+	/* Art. 11 ustawy z 10 maja 2018 r. wymaga OD PODMIOTU PUBLICZNEGO imienia, nazwiska i
+	   kontaktu inspektora, wiec sam adres obowiazku nie wypelnia. Nazwisko przyszlo
+	   2026-09-21 w dokumentach samego inspektora i zamknelo bramke uruchomieniowa otwarta
+	   pismem z 2026-09-01. Asercja czyta je z site.ts, bo to jedyne zrodlo obu wartosci. */
+	test('inspektor ochrony danych jest nazwany z imienia i nazwiska (art. 11)', async ({ page }) => {
+		await page.goto('/polityka-prywatnosci');
+		await expect(page.getByText(contact.iodName, { exact: false }).first()).toBeVisible();
+	});
+
+	/* Administrator brzmi tak samo tu i pod formularzami. Do 2026-09-21 ta strona mowila
+	   „podmiot prowadzacy Publiczny Zlobek w Stromcu", a klauzula formularzowa nazywala
+	   sam zlobek; rozbieznosc byla swiadoma i udokumentowana, bo nie bylo zrodla, ktore by
+	   ja rozstrzygnelo. Osiem dokumentow inspektora podaje jedno brzmienie i to ono stoi
+	   teraz po obu stronach. */
+	test('administrator brzmi na stronie dokładnie tak, jak w dokumentach inspektora', async ({
+		page
+	}) => {
+		await page.goto('/polityka-prywatnosci');
+		const brzmienie = `${contact.name}, ${contact.addressLines.join(', ')}`;
+		const tekst = (await page.locator('.policy').innerText()).replace(/\s+/gu, ' ');
+		expect(tekst).toContain(brzmienie);
+		expect(tekst).not.toContain('podmiot prowadzący');
+	});
+
+	/* Klauzule szczegolowe, w tym monitoringu wizyjnego, leza na /dokumenty i strona ma
+	   tam kierowac, a nie powtarzac ich tresci. Odnosnik, nie samo zdanie: czytelnik ma
+	   dojsc do nich jednym klknieciem. */
+	test('strona kieruje po klauzule szczegółowe do sekcji RODO na /dokumenty', async ({ page }) => {
+		await page.goto('/polityka-prywatnosci');
+		const link = page.locator('.policy a[href="/dokumenty"]');
+		await expect(link).toHaveCount(1);
+		await expect(link).toBeVisible();
 	});
 
 	// Both halves in ONE case on purpose. A negative assertion alone can pass because

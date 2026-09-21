@@ -41,36 +41,117 @@ export const POLITYKA_FORMULARZE_NAGLOWEK = 'Dane przesyłane przez formularze n
 export const POLITYKA_FORMULARZE_WSTEP =
 	'Poniżej jest ta sama klauzula informacyjna, którą widzisz pod formularzem kontaktowym i pod formularzem zgłoszenia. Dotyczy wyłącznie danych, które sam wpiszesz w formularzu na tej stronie.';
 
-/** The administrator's klauzula, supplied in writing by the placówka on 2026-08-27.
+/** The administrator's klauzula: KLAUZULA 06 („dzieci, rodzice i opiekunowie"), prepared by
+ *  the inspektor ochrony danych and delivered by the director on 2026-09-21.
  *
- *  THE LEGAL SUBSTANCE IS THE ADMINISTRATOR'S AND IS UNTOUCHED. Nothing was added and
- *  nothing was shortened. Only the writing layer was corrected, because the text as sent
- *  broke this project's copy rules: two en dashes became commas, two stray capital „I"
- *  became „i", an orphaned space before a full stop and some doubled spaces were removed,
- *  and „niniejszej umowy" became „umowy o objęcie dziecka opieką" because a website has
- *  no „niniejsza umowa" and the phrase, carried over verbatim from the contract template,
- *  would point a reader at a document that is not there. The capital letters in
- *  „Rodziców" and „Administratora danych" are HERS and stay.
+ *  IT REPLACED THE TEXT THE PLACÓWKA SENT ON 2026-08-27, and the replacement is a promotion
+ *  rather than a rewrite. That earlier text was five paragraphs the żłobek wrote itself
+ *  while it had no klauzula at all, and publishing it was the right call at the time. This
+ *  one is the inspector's own authoritative text for EXACTLY this audience, structured
+ *  under his own headings, and it says materially more: the legal bases article by article,
+ *  who the recipients are, how long data is kept, and the full list of a person's rights.
  *
- *  ONE DELIBERATE DISCREPANCY, NOT RECONCILED IN CODE (D-3). This text names „podmiot
- *  prowadzący Publiczny Żłobek w Stromcu" as the administrator; the form klauzula in
- *  ./forms.ts names „Publiczny Żłobek w Stromcu, jednostka organizacyjna Gminy Stromiec".
- *  Under the ustawa o opiece nad dziećmi w wieku do lat 3 the podmiot prowadzący a public
- *  żłobek is the gmina, so the two sentences may point at two different entities. Both
- *  are published, each inside its own section, and the question goes to the placówka.
- *  Quietly harmonising them here would be us deciding who the administrator is, which is
- *  not ours to decide.
+ *  THE LEGAL SUBSTANCE IS THE INSPECTOR'S AND IS UNTOUCHED. Only the writing layer was
+ *  corrected, exactly as it was for the previous text: en dashes outside numeric ranges
+ *  became commas or colons (copy rules v1.2 paragraf 8), the bullet lists became arrays,
+ *  and the inspector's name is interpolated from ./site.ts instead of being written out,
+ *  because that is the project's single source for it.
  *
- *  ONE block with no heading: the section's own h2 is its heading, so a nested one would
- *  duplicate it and push the hierarchy a level deeper for nothing. */
+ *  THE „ONE DELIBERATE DISCREPANCY" IS SETTLED AND THE NOTE THAT RECORDED IT IS GONE.
+ *  It said this page named „podmiot prowadzący Publiczny Żłobek w Stromcu" as the
+ *  administrator while the form klauzula named the żłobek itself, that the two might be
+ *  different entities, and that harmonising them in code would be us deciding who the
+ *  administrator is. That was true only while nothing authoritative said which. Every one
+ *  of the eight documents the inspektor ochrony danych delivered on 2026-09-21 names the
+ *  administrator identically, so both surfaces now say what he says, and neither of them
+ *  is us deciding anything.
+ *
+ *  Blocks carry their own headings, which the route renders as h3 under the section's h2. */
 export const KLAUZULA_ADMINISTRATORA: readonly BlokKlauzuli[] = Object.freeze([
 	{
 		akapity: [
-			'Administratorem danych osobowych jest podmiot prowadzący Publiczny Żłobek w Stromcu.',
-			'Dane dziecka i Rodziców są przetwarzane w celu przeprowadzenia rekrutacji, zawarcia i realizacji umowy o objęcie dziecka opieką, organizacji opieki, zapewnienia bezpieczeństwa, prowadzenia dokumentacji oraz rozliczania opłat, na podstawie obowiązujących przepisów prawa i zawartej umowy.',
-			'Dane będą przechowywane przez okres wynikający z przepisów o archiwizacji i przepisów szczególnych.',
-			'Osobie, której dane dotyczą, przysługują prawa określone w RODO, w szczególności prawo dostępu do danych, ich sprostowania, ograniczenia przetwarzania oraz wniesienia skargi do Prezesa Urzędu Ochrony Danych Osobowych, w zakresie przewidzianym prawem.',
-			`W Publicznym Żłobku został wyznaczony Inspektor Ochrony Danych Osobowych, z którym kontakt jest możliwy pod adresem korespondencyjnym Administratora danych, bądź za pomocą adresu e-mail: ${contact.iodEmail}.`
+			'Poniższa klauzula informacyjna została sporządzona na podstawie art. 13 rozporządzenia Parlamentu Europejskiego i Rady (UE) 2016/679 z dnia 27 kwietnia 2016 r. (RODO).'
+		]
+	},
+	{
+		naglowek: 'Administrator',
+		akapity: [`${contact.name}, ${contact.addressLines.join(', ')}.`]
+	},
+	{
+		naglowek: 'Inspektor Ochrony Danych',
+		akapity: [
+			`W placówce wyznaczono Inspektora Ochrony Danych, którym jest ${contact.iodName}. Z inspektorem można skontaktować się korespondencyjnie na adres administratora albo za pomocą poczty elektronicznej: ${contact.iodEmail}.`
+		]
+	},
+	{
+		naglowek: 'Cele i podstawy przetwarzania',
+		akapity: [
+			'Rekrutacja dziecka do żłobka, objęcie dziecka opieką oraz zapewnienie prawidłowej opieki, w tym realizacja funkcji opiekuńczej, wychowawczej i edukacyjnej: art. 6 ust. 1 lit. c i e RODO w związku z ustawą z dnia 4 lutego 2011 r. o opiece nad dziećmi w wieku do lat 3, w szczególności jej art. 3a i art. 10.',
+			'Przetwarzanie danych o stanie zdrowia, stosowanej diecie, rozwoju psychofizycznym dziecka oraz informacji o niepełnosprawności, w zakresie przewidzianym art. 3a ustawy o opiece nad dziećmi w wieku do lat 3: art. 9 ust. 2 lit. g RODO w związku z tym przepisem, w celu rekrutacji i zapewnienia dziecku prawidłowej opieki.',
+			'Realizacja obowiązków sprawozdawczych, rozliczeniowych, finansowych i archiwalnych, w tym związanych ze świadczeniem „aktywnie w żłobku": art. 6 ust. 1 lit. c RODO.',
+			'Realizacja celów dodatkowych, które nie wynikają z obowiązku prawnego lub zadania publicznego, na przykład publikacja wizerunku: wyłącznie na podstawie dobrowolnej zgody, art. 6 ust. 1 lit. a RODO, a gdy dotyczy to danych szczególnej kategorii, art. 9 ust. 2 lit. a RODO.'
+		]
+	},
+	{
+		naglowek: 'Odbiorcy danych',
+		akapity: [
+			'Dane mogą być przekazywane podmiotom i organom uprawnionym na podstawie prawa, w szczególności właściwym organom administracji publicznej, Zakładowi Ubezpieczeń Społecznych oraz podmiotom uczestniczącym w realizacji ustawowych systemów dotyczących opieki nad dziećmi do lat 3.',
+			'Dane mogą być również powierzane podmiotom świadczącym usługi informatyczne, hostingowe, księgowe, żywieniowe lub inne usługi niezbędne do funkcjonowania żłobka, na podstawie odpowiednich umów.'
+		]
+	},
+	{
+		naglowek: 'Okres przechowywania',
+		akapity: [
+			'Dane będą przechowywane przez okres korzystania z opieki w żłobku, a następnie przez okres wynikający z przepisów prawa oraz obowiązującego administratora jednolitego rzeczowego wykazu akt.',
+			'Dane przetwarzane na podstawie zgody będą przechowywane do czasu wycofania zgody lub ustania celu przetwarzania.'
+		]
+	},
+	{
+		naglowek: 'Prawa osoby, której dane dotyczą',
+		akapity: [
+			'Prawo dostępu do danych osobowych i otrzymania ich kopii.',
+			'Prawo sprostowania danych.',
+			'Prawo ograniczenia przetwarzania.',
+			'Prawo usunięcia danych, w przypadkach przewidzianych RODO.',
+			'Prawo wniesienia sprzeciwu, jeżeli podstawą przetwarzania jest art. 6 ust. 1 lit. e lub f RODO.',
+			'Prawo wycofania zgody w dowolnym momencie, jeżeli dane są przetwarzane na podstawie zgody. Wycofanie zgody nie wpływa na zgodność z prawem wcześniejszego przetwarzania.',
+			'Prawo wniesienia skargi do Prezesa Urzędu Ochrony Danych Osobowych, jeżeli przetwarzanie danych narusza przepisy RODO.'
+		]
+	},
+	{
+		naglowek: 'Podanie danych',
+		akapity: [
+			'Podanie danych wymaganych ustawą o opiece nad dziećmi w wieku do lat 3 jest obowiązkowe w zakresie niezbędnym do rekrutacji i zapewnienia dziecku prawidłowej opieki. Podanie danych wykorzystywanych wyłącznie do celów dodatkowych jest dobrowolne.'
+		]
+	},
+	{
+		naglowek: 'Przekazywanie poza EOG',
+		akapity: [
+			'Administrator nie zamierza przekazywać danych osobowych do państw trzecich ani organizacji międzynarodowych, chyba że obowiązek taki będzie wynikał z przepisów prawa lub zastosowane zostaną wymagane przez RODO zabezpieczenia.'
+		]
+	},
+	{
+		naglowek: 'Automatyzacja i profilowanie',
+		akapity: [
+			'Dane nie będą wykorzystywane do podejmowania decyzji w sposób wyłącznie zautomatyzowany, w tym do profilowania.'
 		]
 	}
 ]);
+
+/** The pointer to the rest of the RODO paperwork, rendered as ONE sentence with ONE link.
+ *
+ *  WHY IT IS HERE AND NOT A PARAGRAPH INSIDE THE KLAUZULA. The klauzula above is the
+ *  inspector's text and nothing of ours belongs inside it. This sentence is ours: it exists
+ *  because from 2026-09-21 there are seven further klauzule on /dokumenty, including the one
+ *  about the monitoring wizyjny, and a reader of this page has no other way of learning that.
+ *
+ *  It is SPLIT AROUND THE LINK rather than carrying markup, exactly like every other string
+ *  in this project: a copy string that contained an anchor would be a copy string no sweep
+ *  could check and no editor could safely touch. */
+export const POLITYKA_DOKUMENTY = Object.freeze({
+	przed:
+		'Pozostałe klauzule informacyjne, w tym klauzula o monitoringu wizyjnym oraz klauzule dla osób współpracujących ze żłobkiem, są do pobrania w sekcji RODO na stronie',
+	etykieta: 'Dokumenty',
+	adres: '/dokumenty',
+	po: '.'
+});

@@ -186,10 +186,33 @@ test('every e-mail address in the exported copy is the value from site.ts', () =
 
 // D-3. The IOD contact is a legal obligation under art. 11 of the ustawa of 10 May 2018,
 // not a nicety, and it has to be reachable from under every form, not only from the policy
-// page. The inspector's NAME is still missing and its PLACEHOLDER marker still stands.
-test('the klauzula publishes the data protection officer contact address (D-3)', () => {
+// page. Art. 11 requires the NAME as well as the address, so both halves are asserted and
+// the PLACEHOLDER marker that stood here for the missing surname retired on 2026-09-21,
+// when the inspector's own documents named him.
+test('the klauzula publishes the data protection officer by name and address (D-3)', () => {
 	assert.ok(KLAUZULA_TEKST.includes(contact.iodEmail));
+	assert.ok(
+		KLAUZULA_TEKST.includes(contact.iodName),
+		'klauzula nie nazywa inspektora ochrony danych z imienia i nazwiska (art. 11 ustawy z 10.05.2018)'
+	);
 	assert.match(KLAUZULA_TEKST, /inspektor(em|a) ochrony danych/i);
+});
+
+// JEDNO BRZMIENIE ADMINISTRATORA NA CALEJ STRONIE, od 2026-09-21. Do tego dnia klauzula
+// formularzowa i klauzula administratora nazywaly dwa rozne podmioty, i byla to udokumentowana,
+// SWIADOMA rozbieznosc: nie bylo zrodla, ktore by ja rozstrzygalo, a uzgodnienie jej w kodzie
+// byloby rozstrzygnieciem przez nas, kto jest administratorem. Kazdy z osmiu dokumentow
+// inspektora podaje to samo brzmienie, wiec zrodlo jest i rozbieznosc znika.
+test('obie klauzule nazywaja administratora dokladnie tak samo', () => {
+	const brzmienie = `${contact.name}, ${contact.addressLines.join(', ')}`;
+	assert.ok(
+		KLAUZULA_TEKST.includes(brzmienie),
+		`klauzula formularzowa nie niesie brzmienia: ${brzmienie}`
+	);
+	assert.ok(
+		zbierz(KLAUZULA_ADMINISTRATORA).join('\n').includes(brzmienie),
+		`klauzula administratora nie niesie brzmienia: ${brzmienie}`
+	);
 });
 
 // D-2 / T-bfa-04. The Urząd Gminy receives a copy of every submission, so art. 13 RODO

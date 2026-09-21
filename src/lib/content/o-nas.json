@@ -23,20 +23,20 @@
 	"kadra_opis": "Naszą kadrę tworzą **wykwalifikowane opiekunki**, które z sercem i cierpliwością towarzyszą dzieciom przez cały dzień. Stawiamy na bliskość, uważność i codzienną troskę o dobre samopoczucie każdego malucha.",
 	"kadra": [
 		{
-			"imie": "Justyna Kamińska",
-			"rola": ""
+			"imie": "mgr Kamila Dobosz",
+			"rola": "Dyrektor"
 		},
 		{
 			"imie": "Agnieszka Bernaciak",
-			"rola": ""
+			"rola": "Opiekun"
+		},
+		{
+			"imie": "Justyna Kamińska",
+			"rola": "Opiekun"
 		},
 		{
 			"imie": "Renata Rumniak-Cyngot",
-			"rola": ""
-		},
-		{
-			"imie": "Kamila Dobosz",
-			"rola": "Dyrektor"
+			"rola": "Pomoc"
 		}
 	],
 	"obiekt_opis": "Poniższe zdjęcia pokazują nasz budynek, sale, szatnię i plac zabaw takimi, jakie są na co dzień."

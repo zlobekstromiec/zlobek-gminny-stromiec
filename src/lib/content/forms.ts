@@ -308,22 +308,27 @@ export const KLAUZULA: readonly BlokKlauzuli[] = Object.freeze([
 	{
 		naglowek: 'Administrator danych',
 		akapity: [
-			`Administratorem Twoich danych osobowych jest Publiczny Żłobek w Stromcu, ${contact.addressLines.join(', ')}, jednostka organizacyjna Gminy Stromiec.`,
+			// JEDNO BRZMIENIE, uzgodnione 2026-09-21. Wcześniej ta linia mówiła „Publiczny
+			// Żłobek w Stromcu, ul. Radomska 72, 26-804 Stromiec, jednostka organizacyjna
+			// Gminy Stromiec", a /polityka-prywatnosci mówiła „podmiot prowadzący Publiczny
+			// Żłobek w Stromcu", i była to świadoma, udokumentowana rozbieżność: obie mogły
+			// wskazywać dwa różne podmioty, a nie było źródła, które by to rozstrzygało.
+			// Rozstrzygnęło je osiem dokumentów inspektora ochrony danych, z których każdy
+			// nazywa administratora tak samo, i to brzmienie stoi teraz po obu stronach.
+			`Administratorem Twoich danych osobowych jest ${contact.name}, ${contact.addressLines.join(', ')}.`,
 			`W sprawach dotyczących wniosków rekrutacyjnych właściwy jest ${urzad.name}, ${urzad.addressLines.join(', ')}, ${urzad.room}.`
 		]
 	},
 	{
 		naglowek: 'Inspektor ochrony danych',
 		akapity: [
-			// PLACEHOLDER: the inspektor ochrony danych has still not been NAMED to us. The
-			// contact address arrived on 2026-08-27 and is published below, so this marker
-			// is narrower than it was: what is missing now is the inspector's IMIĘ I
-			// NAZWISKO, nothing else. Art. 11 of the ustawa of 10 May 2018 o ochronie
-			// danych osobowych requires a public body to publish BOTH the name and a
-			// contact, so the address alone does not discharge the duty.
-			// LAUNCH GATE (LEGAL-02 / Phase 7): obtain the surname from the Urząd Gminy and
-			// add it here, exactly as the koordynator dostępności surname is still awaited.
-			`Kontakt z inspektorem ochrony danych jest możliwy pod adresem e-mail ${contact.iodEmail} oraz pod adresem korespondencyjnym administratora.`
+			// NAZWISKO I ADRES RAZEM, bo art. 11 ustawy z 10 maja 2018 r. o ochronie danych
+			// osobowych wymaga od podmiotu publicznego obu naraz, a sam adres obowiązku nie
+			// wypełniał. Marker PLACEHOLDER stał tu od chwili, gdy adres przyszedł bez
+			// nazwiska (2026-08-27), i zszedł 2026-09-21 razem z dokumentami, które
+			// inspektor przygotował i podpisał własnym nazwiskiem. Obie wartości pochodzą z
+			// `contact` i nigdzie w projekcie nie są przepisane.
+			`Inspektorem ochrony danych jest ${contact.iodName}. Kontakt z inspektorem jest możliwy pod adresem e-mail ${contact.iodEmail} oraz pod adresem korespondencyjnym administratora.`
 		]
 	},
 	{

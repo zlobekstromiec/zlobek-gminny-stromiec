@@ -84,7 +84,14 @@ test.describe('O nas: Phase 2 acceptance', () => {
 		await expect(pozycje).toHaveCount(oNas.kadra.length);
 		for (const [i, osoba] of oNas.kadra.entries()) {
 			await expect(pozycje.nth(i).locator('.osoba-imie')).toHaveText(osoba.imie);
+			// ROLA KAZDEJ Z CZTERECH OSOB, od 2026-09-21. Do tego dnia trzy z czterech pol
+			// `rola` byly puste i lista czytala sie jak cztery nazwiska bez wyjasnienia, kto
+			// czym sie w zlobku zajmuje. Dyrektor podala role na pismie. Asercja bierze je z
+			// modulu, wiec zmiana roli w panelu jej nie zapala, ale rola USUNIETA juz tak.
+			await expect(pozycje.nth(i).locator('.osoba-rola')).toHaveText(osoba.rola);
 		}
+		// Dyrektor stoi PIERWSZA, i to jest kolejnosc z e-maila dyrektor, a nie alfabet.
+		await expect(pozycje.first().locator('.osoba-rola')).toHaveText('Dyrektor');
 
 		// THE TWO PROPERTIES D-02 IS ABOUT. A staff photograph would need a wizerunek
 		// consent record that does not exist, and a link out of this section is how a

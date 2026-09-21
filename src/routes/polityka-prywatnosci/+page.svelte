@@ -22,6 +22,7 @@
 	import {
 		KLAUZULA_ADMINISTRATORA,
 		POLITYKA_ADMINISTRATOR_NAGLOWEK,
+		POLITYKA_DOKUMENTY,
 		POLITYKA_FORMULARZE_NAGLOWEK,
 		POLITYKA_FORMULARZE_WSTEP,
 		POLITYKA_TYTUL,
@@ -50,6 +51,14 @@
 				<p>{akapit}</p>
 			{/each}
 		{/each}
+		<!-- Wskazanie na pozostale klauzule, ktore leza na /dokumenty (quick 260921-j9c).
+		     Stoi POZA petla po blokach, bo klauzula powyzej jest tekstem inspektora i nic
+		     naszego nie nalezy do jej srodka. Zdanie jest rozbite wokol odnosnika, wiec
+		     zaden ciag kopii nie niesie znacznika. -->
+		<p class="wskazanie">
+			{POLITYKA_DOKUMENTY.przed}
+			<a href={POLITYKA_DOKUMENTY.adres}>{POLITYKA_DOKUMENTY.etykieta}</a>{POLITYKA_DOKUMENTY.po}
+		</p>
 	</section>
 
 	<section aria-labelledby="zakres-formularze">
@@ -137,5 +146,21 @@
 
 	.wstep-sekcji {
 		margin-top: 0;
+	}
+
+	/* Wskazanie na /dokumenty. Odstep wiekszy niz miedzy akapitami klauzuli, bo to zdanie
+	   nie nalezy do niej: ma sie czytac jako dopisek redakcji, a nie jako jej ostatni
+	   punkt. Odnosnik dostaje podkreslenie, wiec nie zalezy wylacznie od koloru. */
+	.wskazanie {
+		margin-top: 1.5rem;
+	}
+
+	.wskazanie a {
+		color: var(--color-brand-blue);
+		text-decoration: underline;
+	}
+
+	.wskazanie a:hover {
+		color: var(--color-brand-blue-hover);
 	}
 </style>

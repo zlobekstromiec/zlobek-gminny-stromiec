@@ -383,15 +383,16 @@ test('kadra: imie jest wymagane, rola nie, a pusta rola zapisuje sie jako pusty 
 	assert.equal(wynik.ok, true);
 	if (wynik.ok) {
 		assert.deepEqual(wynik.dane.kadra, O_NAS_ZLOZONY.kadra);
-		// The committed file really does exercise both branches, or this case would be
-		// proving the easy half twice.
+		// The committed file exercised BOTH branches until 2026-09-21, because three of the
+		// four people had no role, and this case asserted that it did. It stopped being
+		// true the day the director sent the roles, and it was never the right place to
+		// prove it: „the validator accepts an empty role" is a property of the validator,
+		// not of whatever the store happens to hold this month. The empty-role branch is
+		// driven from a synthetic list at the end of this case, and this half now asserts
+		// only what the committed file really does claim, that every person is named.
 		assert.ok(
-			wynik.dane.kadra.some((osoba) => osoba.rola === ''),
-			'store nie zawiera ani jednej osoby bez roli'
-		);
-		assert.ok(
-			wynik.dane.kadra.some((osoba) => osoba.rola !== ''),
-			'store nie zawiera ani jednej osoby z rola'
+			wynik.dane.kadra.every((osoba) => osoba.imie.trim() !== ''),
+			'store zawiera osobe bez imienia'
 		);
 	}
 
@@ -414,8 +415,9 @@ test('kadra: imie jest wymagane, rola nie, a pusta rola zapisuje sie jako pusty 
 		);
 	}
 
-	// An empty role is accepted on every row, which is the normal case: only the dyrektor
-	// carries one.
+	// An empty role is accepted on every row. It stopped being the normal case on
+	// 2026-09-21, when all four people got one, and that is exactly why this branch is
+	// driven from a synthetic list rather than from the committed store.
 	//
 	// THE REPLACEMENT LIST IS DERIVED FROM THE STORE, NOT TYPED AS TWO ROWS, and that is not
 	// tidiness. `polaListy` produces `osoba[0]`, `osoba[1]` and so on, and spreading a
