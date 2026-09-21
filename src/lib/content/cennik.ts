@@ -8,11 +8,22 @@
 // directly under the block it illustrates, and a retyped figure there would drift away
 // from it on the first save an editor makes.
 //
-// HARD RULE 2: /cennik MUST NOT STATE THE ZUS BENEFIT'S OWN ZŁOTY AMOUNT. The banked
-// „do 400 zł miesięcznie" in .planning/DESIGN-BANK.md is stale draft copy, struck by
-// 05 D-02, and no confirmed source replaces it. Copying it forward would republish a
-// wrong figure AND understate the benefit. The copy therefore says „w maksymalnej
-// wysokości" and states that ZUS pays the benefit straight to the żłobek.
+// HARD RULE 2: THIS MODULE STILL STATES NO AMOUNT (that is HARD RULE 1), but the
+// reason it named none for the ZUS benefit in particular has expired. The rule used to
+// be „/cennik MUST NOT STATE THE ZUS BENEFIT'S OWN ZŁOTY AMOUNT", because the banked
+// „do 400 zł miesięcznie" in .planning/DESIGN-BANK.md was stale draft copy struck by
+// 05 D-02 and NO CONFIRMED SOURCE replaced it. A source arrived: the director Kamila
+// Dobosz wrote on 2026-09-21 that a parent „może starać się w ZUS o dopłatę 1500 zł z
+// programu Aktywnie w Żłobku", and that the reduction and the benefit together cover
+// the 2 337 zł rate.
+//
+// The amount therefore falls EXACTLY ONCE on this page, in the `zus` sentence of
+// src/lib/content/cennik.json, which belongs to the editor and is the only surface
+// either page reads it from. It is deliberately not restated here: a figure in this
+// module would drift from the store on the first save an editor makes, which is the
+// whole reason HARD RULE 1 exists. tests/cennik.spec.ts pins the arithmetic rather
+// than the string, by requiring the stored sentence to name the amount a parent
+// actually pays.
 //
 // HARD RULE 3: the only zero amount on this page lives in the worked example, in the
 // SAME paragraph as the condition under which a parent does not pay it. That is the

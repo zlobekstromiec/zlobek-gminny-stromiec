@@ -207,6 +207,27 @@ test.describe('Cennik: FEES-01 acceptance', () => {
 		expect(trescZus).toMatch(ZERO);
 	});
 
+	/* Zdanie o ZUS podaje od 2026-09-21 wlasna kwote swiadczenia: dyrektor potwierdzila ja
+	   na pismie („moze starac sie w ZUS o doplate 1500 zl z programu Aktywnie w Zlobku"),
+	   czym uniewaznila przeslanke HARD RULE 2 w module prozy. Kwota pada DOKLADNIE RAZ, w
+	   polu `zus` sklepu, wiec obie powierzchnie musza renderowac to samo zdanie z tego
+	   samego zrodla. Test nie przepisuje ani zdania, ani kwoty: bierze je z CENNIK. */
+	test('zdanie o ZUS ze sklepu renderuje się i na /cennik, i w FeeBox na /rekrutacji', async ({
+		page
+	}) => {
+		/* Kwota swiadczenia jest przepisana z NICZEGO: to ta sama liczba, ktora rodzic
+		   placi po obnizce, i wlasnie to jest tresc potwierdzenia dyrektor. Asercja pyta
+		   wiec o arytmetyke, a nie o napis: zdanie musi nazwac kwote rowna `placi`. */
+		expect(CENNIK.zus).toContain(CENNIK.placiTekst);
+		expect(CENNIK.zus).toContain('Aktywnie w żłobku');
+
+		await page.goto('/cennik');
+		await expect(page.locator('#zus-blok')).toContainText(CENNIK.zus);
+
+		await page.goto('/rekrutacja');
+		await expect(page.locator('.fee-box')).toContainText(CENNIK.zus);
+	});
+
 	test('strona bez bloku ZUS nie zawiera już żadnej kwoty zerowej (D-31)', async ({ page }) => {
 		await page.goto('/cennik');
 		const bezZus = await page.evaluate(() => {
