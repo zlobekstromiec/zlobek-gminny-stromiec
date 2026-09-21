@@ -40,8 +40,9 @@ export interface DokumentGroup {
 	dokumenty: DokumentWithMeta[];
 }
 
-// Fixed order + Polish headings. The RODO group stays dormant (D-13): it only
-// appears once it holds at least one document (Phase 4). The order itself is the shared
+// Fixed order + Polish headings. The dormancy rule (D-13) is unchanged: a group appears
+// only once it holds at least one document. RODO was dormant under it until 2026-09-21 and
+// is not any more, because the inspektor's klauzule arrived. The order itself is the shared
 // one, so the public grouping and the panel's list and category select cannot disagree.
 const KOLEJNOSC: readonly Kategoria[] = KATEGORIE;
 /** Exported by 04.1-08 so tests/admin-walidacja-dokumenty.unit.ts can assert that this
@@ -50,6 +51,7 @@ const KOLEJNOSC: readonly Kategoria[] = KATEGORIE;
 export const NAGLOWEK: Record<Kategoria, string> = {
 	rekrutacja: 'Rekrutacja',
 	statut: 'Statut i uchwały',
+	organizacja: 'Organizacja żłobka',
 	rodo: 'RODO'
 };
 

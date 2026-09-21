@@ -46,6 +46,20 @@ import {
 	POLITYKA_TYTUL,
 	POLITYKA_WSTEP
 } from '../src/lib/content/polityka.ts';
+// Wstep pasma RODO na /dokumenty przechodzi przez TE SAME bramki, i to z tego samego
+// powodu, dla ktorego przechodzi przez nie proza /polityka-prywatnosci: zasady kopii sa
+// jednym kontraktem dla calego publikowanego tekstu, a nie wlasnoscia jednego pliku. Ten
+// modul jest dodatkowo najbardziej narazony na literal adresu, bo dokument zrodlowy, z
+// ktorego zostal przepisany, podaje dwa adresy wprost. Zamkniety zbior adresow ponizej
+// jest wiec jedyna rzecza, ktora udowadnia, ze zadnego z nich nie przepisano.
+import {
+	RODO_ADMINISTRATOR,
+	RODO_ADRESACI,
+	RODO_IOD,
+	RODO_POBRANIE,
+	RODO_PO_LISCIE,
+	RODO_WSTEP
+} from '../src/lib/content/rodo.ts';
 import { contact, urzad } from '../src/lib/content/site.ts';
 // The CC recipient is IMPORTED, never repeated as a literal here. Two literals could
 // drift apart the day the address changes, and the drifted copy would be the one that
@@ -86,7 +100,16 @@ const WSZYSTKIE_STRINGI = zbierz([
 	POLITYKA_ADMINISTRATOR_NAGLOWEK,
 	POLITYKA_FORMULARZE_NAGLOWEK,
 	POLITYKA_FORMULARZE_WSTEP,
-	KLAUZULA_ADMINISTRATORA
+	KLAUZULA_ADMINISTRATORA,
+	RODO_WSTEP,
+	RODO_ADRESACI,
+	RODO_PO_LISCIE,
+	RODO_IOD,
+	RODO_ADMINISTRATOR,
+	RODO_POBRANIE,
+	// `RODO_IOD.wstep` jest funkcja, wiec `zbierz` nie zajrzalby do jej wyniku. Wynik jest
+	// jednak tekstem, ktory rodzic czyta na /dokumenty, wiec wchodzi do zbioru wywolany.
+	RODO_IOD.wstep(contact.iodName)
 ]);
 
 const KLAUZULA_TEKST = zbierz(KLAUZULA).join('\n');

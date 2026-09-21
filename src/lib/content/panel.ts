@@ -503,8 +503,8 @@ export const POLA_DOKUMENT = {
 	nazwaPodpowiedz: 'Czytelna nazwa po polsku (nie nazwa pliku).',
 	kategoriaEtykieta: 'Kategoria *',
 	kategoriaPodpowiedz:
-		'Rekrutacja oraz Statut i uchwały są widoczne na stronie. Kategoria RODO zostanie włączona później.',
-	kategorieOpcje: ['Rekrutacja', 'Statut i uchwały', 'RODO'],
+		'Wybierz kategorię, w której dokument ma się pojawić na stronie. Kategoria bez dokumentów nie jest na stronie widoczna.',
+	kategorieOpcje: ['Rekrutacja', 'Statut i uchwały', 'Organizacja żłobka', 'RODO'],
 	plikEtykieta: 'Plik *',
 	plikPodpowiedz: 'Wybierz plik PDF, DOC lub DOCX. Maksymalny rozmiar to 10 MB.',
 	wersjaLegenda: 'Wersja z dnia *',

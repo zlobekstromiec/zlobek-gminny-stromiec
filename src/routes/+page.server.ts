@@ -15,6 +15,15 @@ export const load: PageServerLoad = () => {
 		// Curated homepage subset (D-18): the centrepiece panel shows at most two
 		// rows, no matter how many rekrutacja documents an editor adds; the full
 		// set always lives on /dokumenty behind the see-all link.
+		//
+		// WHICH TWO IS DECIDED BY THE ENTRY FILENAMES, and that is worth saying out loud
+		// because it is invisible from here. `readDokumenty` preserves the order of
+		// `import.meta.glob`, which is the alphabetical order of the files under
+		// src/lib/content/dokumenty, so this slice takes the two alphabetically first
+		// rekrutacja entries. Quick 260921-j9c added a third one and learned this the hard
+		// way: filed as `druk-rezygnacji.json` it sorted ahead of both `rekrutacja-*`
+		// entries and pushed the wniosek, the single document a parent comes here for, off
+		// the homepage. It is filed as `rezygnacja-z-miejsca.json` for that reason alone.
 		.slice(0, 2)
 		.map((entry) => ({ name: entry.nazwa, meta: entry.meta, href: entry.plik }));
 	// Curated homepage news feed (NEWS-01): the three newest posts for the

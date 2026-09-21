@@ -214,8 +214,8 @@ składający się z opisu i z pliku.
 2. Wypełnij pola:
    - **Nazwa dokumentu**: czytelna nazwa po polsku, a nie nazwa pliku. To ona jest
      widoczna na stronie.
-   - **Kategoria**: wybierz z listy. Rekrutacja oraz Statut i uchwały są widoczne na
-     stronie, kategoria RODO zostanie włączona później.
+   - **Kategoria**: wybierz z listy. Do wyboru są cztery: Rekrutacja, Statut i uchwały,
+     Organizacja żłobka oraz RODO. Kategoria bez dokumentów nie jest na stronie widoczna.
    - **Plik**: kliknij **Wybierz plik** i wskaż plik. Dopuszczalne są pliki PDF, DOC i
      DOCX, o rozmiarze do 10 MB. Pod przyciskiem pojawi się nazwa i rozmiar wybranego
      pliku.

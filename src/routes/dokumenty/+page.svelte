@@ -5,11 +5,32 @@
 	// statSync (D-14). Rows reuse the WCAG-correct .doc-row pattern from
 	// Recruitment.svelte: the meta (typ, rozmiar, wersja) lives INSIDE the link so a
 	// screen reader announces it with the name. Category groups render in the fixed
-	// order Rekrutacja, Statut i uchwały, RODO, and an empty group is not emitted at
-	// all (dormant-category rule, D-13). Route adds NO extra <main>/h1 beyond the
-	// page heading (the layout owns <main>).
+	// order Rekrutacja, Statut i uchwały, Organizacja żłobka, RODO, and an empty group
+	// is not emitted at all (dormant-category rule, D-13). Route adds NO extra
+	// <main>/h1 beyond the page heading (the layout owns <main>).
+	//
+	// ONE BAND HAS AN INTRO AND IT IS RODO (quick 260921-j9c). The inspektor ochrony
+	// danych delivered his obowiązek informacyjny as a text to publish HERE plus a set
+	// of klauzule to hang under it, so that band opens with the text of document 08 and
+	// ends with „Materiały do pobrania:" before its list. The condition is on the
+	// CATEGORY, not on the group index, so inserting a category above RODO cannot move
+	// the intro onto somebody else's band.
+	//
+	// The two e-mail addresses in that intro are interpolated from `contact` and the
+	// żłobek's own address goes through AdresEmail, the project's single renderer of it
+	// (quick 260901-duo). src/lib/content/rodo.ts deliberately holds no address at all.
 	import { FileText } from '@lucide/svelte';
+	import AdresEmail from '$lib/components/AdresEmail.svelte';
 	import Seo from '$lib/components/Seo.svelte';
+	import { contact } from '$lib/content/site';
+	import {
+		RODO_ADMINISTRATOR,
+		RODO_ADRESACI,
+		RODO_IOD,
+		RODO_POBRANIE,
+		RODO_PO_LISCIE,
+		RODO_WSTEP
+	} from '$lib/content/rodo';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -18,7 +39,7 @@
 
 <Seo
 	title="Dokumenty: Publiczny Żłobek w Stromcu"
-	description="Pobierz dokumenty rekrutacyjne oraz statut i uchwały dotyczące Publicznego Żłobka w Stromcu. Każdy dokument otwierasz jednym kliknięciem."
+	description="Pobierz dokumenty rekrutacyjne, statut i uchwały, dokumenty organizacyjne oraz klauzule informacyjne RODO Publicznego Żłobka w Stromcu."
 	canonical="/dokumenty"
 />
 
@@ -27,8 +48,8 @@
 	<div class="inner">
 		<h1>Dokumenty</h1>
 		<p class="lead">
-			Tutaj znajdziesz dokumenty potrzebne w rekrutacji oraz statut i uchwały dotyczące żłobka.
-			Kliknij nazwę dokumentu, aby go pobrać.
+			Tutaj znajdziesz dokumenty potrzebne w rekrutacji, statut i uchwały, dokumenty organizacyjne
+			żłobka oraz klauzule informacyjne RODO. Kliknij nazwę dokumentu, aby go pobrać.
 		</p>
 	</div>
 </header>
@@ -38,27 +59,68 @@
 		<section class="band" class:warm={i % 2 === 1} aria-labelledby="{grupa.kategoria}-heading">
 			<div class="inner uklad">
 				<h2 id="{grupa.kategoria}-heading">{grupa.naglowek}</h2>
-				<ul class="docs">
-					{#each grupa.dokumenty as dok (dok.plik)}
-						<li>
-							<a class="doc-row" href={dok.plik}>
-								<FileText class="doc-icon" size={20} aria-hidden="true" />
-								<span class="doc-name">{dok.nazwa}</span>
-								<span class="doc-meta">{dok.meta}</span>
-							</a>
-							{#if dok.zrodlo_bip}
-								<a
-									class="doc-source"
-									href={dok.zrodlo_bip}
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									Źródło: BIP<span class="visually-hidden"> (otwiera się w nowej karcie)</span>
+				<div class="tresc">
+					{#if grupa.kategoria === 'rodo'}
+						<div class="wstep-rodo">
+							{#each RODO_WSTEP as akapit (akapit)}
+								<p class="proza">{akapit}</p>
+							{/each}
+							<ul class="adresaci">
+								{#each RODO_ADRESACI as punkt (punkt)}
+									<li>{punkt}</li>
+								{/each}
+							</ul>
+							{#each RODO_PO_LISCIE as akapit (akapit)}
+								<p class="proza">{akapit}</p>
+							{/each}
+
+							<h3>{RODO_IOD.naglowek}</h3>
+							<p class="proza">{RODO_IOD.wstep(contact.iodName)}</p>
+							<p class="proza">
+								{RODO_IOD.email}
+								<a href="mailto:{contact.iodEmail}">{contact.iodEmail}</a>
+							</p>
+							<p class="proza">
+								{RODO_IOD.poczta}
+								{contact.name}, {contact.addressLines[0]}, {contact.addressLines[1]}
+							</p>
+
+							<h3>{RODO_ADMINISTRATOR.naglowek}</h3>
+							<p class="proza">{RODO_ADMINISTRATOR.wstep}</p>
+							<p class="proza">
+								{RODO_ADMINISTRATOR.email}
+								<a href="mailto:{contact.email}"><AdresEmail /></a>
+							</p>
+							<p class="proza">
+								{RODO_ADMINISTRATOR.poczta}
+								{contact.name}, {contact.addressLines[0]}, {contact.addressLines[1]}
+							</p>
+
+							<p class="proza pobranie">{RODO_POBRANIE}</p>
+						</div>
+					{/if}
+					<ul class="docs">
+						{#each grupa.dokumenty as dok (dok.plik)}
+							<li>
+								<a class="doc-row" href={dok.plik}>
+									<FileText class="doc-icon" size={20} aria-hidden="true" />
+									<span class="doc-name">{dok.nazwa}</span>
+									<span class="doc-meta">{dok.meta}</span>
 								</a>
-							{/if}
-						</li>
-					{/each}
-				</ul>
+								{#if dok.zrodlo_bip}
+									<a
+										class="doc-source"
+										href={dok.zrodlo_bip}
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										Źródło: BIP<span class="visually-hidden"> (otwiera się w nowej karcie)</span>
+									</a>
+								{/if}
+							</li>
+						{/each}
+					</ul>
+				</div>
 			</div>
 		</section>
 	{/each}
@@ -127,7 +189,8 @@
 			margin-bottom: 0;
 		}
 
-		.uklad .docs {
+		.uklad .docs,
+		.uklad .tresc {
 			max-width: none;
 		}
 	}
@@ -164,6 +227,72 @@
 		margin: 0;
 		padding: 0;
 		max-width: 52rem;
+	}
+
+	/* Prawy tor pasma. Istnieje po to, zeby wstep RODO i lista dokumentow byly JEDNYM
+	   dzieckiem siatki edytorskiej: bez niego wstep zajalby tor naglowka i naglowek
+	   „RODO" wyladowalby nad tekstem zamiast obok niego. */
+	.tresc {
+		max-width: 52rem;
+	}
+
+	/* Wstep pasma RODO. Odstep na dole oddziela go od listy plikow, ktora zapowiada;
+	   reszta wygladu to zwykla proza tej strony. Poziom palety: wylacznie dostepny. */
+	.wstep-rodo {
+		margin-bottom: 24px;
+	}
+
+	.proza {
+		font-family: var(--font-body);
+		font-size: 16px;
+		line-height: 1.6;
+		color: var(--color-ink);
+		max-width: 65ch;
+		margin: 0 0 12px;
+	}
+
+	.proza a {
+		color: var(--color-brand-blue);
+		text-decoration: underline;
+		overflow-wrap: anywhere;
+	}
+
+	.proza a:hover {
+		color: var(--color-brand-blue-hover);
+	}
+
+	/* `list-style: disc` jest tu JAWNIE, bo reset w app.css zdejmuje znaczniki z kazdej
+	   listy, a ta jest wyliczeniem czytanym jako wyliczenie: bez znacznikow cztery grupy
+	   adresatow wygladalyby jak cztery wciete akapity. */
+	.adresaci {
+		list-style: disc;
+		font-family: var(--font-body);
+		font-size: 16px;
+		line-height: 1.6;
+		color: var(--color-ink);
+		max-width: 65ch;
+		margin: 0 0 12px;
+		padding-left: 24px;
+	}
+
+	.adresaci li {
+		margin-bottom: 4px;
+	}
+
+	.wstep-rodo h3 {
+		font-family: var(--font-display);
+		font-weight: 700;
+		font-size: 18px;
+		line-height: 1.3;
+		color: var(--color-ink);
+		margin: 24px 0 8px;
+	}
+
+	/* Zdanie zapowiadajace liste. Pogrubione, bo jest zapowiedzia, a nie kolejnym
+	   akapitem; bez dolnego odstepu, bo odstep nalezy do calego wstepu. */
+	.pobranie {
+		font-weight: 700;
+		margin-bottom: 0;
 	}
 
 	/* Row markup + a11y reused verbatim from Recruitment.svelte (.doc-row): the
@@ -203,6 +332,38 @@
 		font-size: 13px;
 		font-weight: 700;
 		color: var(--color-muted);
+	}
+
+	/* WIERSZ ROZKLADA SIE NA DWIE LINIE NA TELEFONIE, i to jest poprawka z quicka
+	   260921-j9c, a nie ozdoba. Meta („DOCX · 33 KB · wersja z 21.09.2026") zajmuje okolo
+	   180 px niezaleznie od szerokosci ekranu, wiec przy 390 px na nazwe zostawalo okolo
+	   150 px. Dopoki nazwy byly krotkie, miescily sie mimo to; „Klauzula informacyjna dla
+	   dzieci, rodziców i opiekunów" zawijala sie na piec wierszy, a `overflow-wrap: anywhere`
+	   lamalo ostatnia z nich w srodku wyrazu. Nazwa dostaje wiec caly wiersz, a meta staje
+	   pod nia, wciete o ikone i odstep (20 px + 12 px), zeby oba naleply do jednego wiersza
+	   wizualnie. Meta nadal jest WEWNATRZ odnosnika, wiec kontrakt D-14 jest nienaruszony. */
+	@media (max-width: 639px) {
+		/* SIATKA, A NIE ZAWIJANY FLEX. Zawijany flex lamie sie tam, gdzie zabraknie
+		   miejsca, wiec przy dluzszej nazwie pierwsza do nowego wiersza szla NAZWA i ikona
+		   zostawala sama w swoim wierszu. Siatka o dwoch torach stawia kazdy element tam,
+		   gdzie ma stac, niezaleznie od dlugosci tekstu: ikona w lewym torze, nazwa obok
+		   niej, meta pod nazwa i w jej torze. */
+		.doc-row {
+			display: grid;
+			grid-template-columns: 20px minmax(0, 1fr);
+			align-items: start;
+			column-gap: 12px;
+			row-gap: 2px;
+			padding-block: 12px;
+		}
+
+		.doc-name {
+			grid-column: 2;
+		}
+
+		.doc-meta {
+			grid-column: 2;
+		}
 	}
 
 	/* Optional provenance link (D-16), rendered only when zrodlo_bip is set. */

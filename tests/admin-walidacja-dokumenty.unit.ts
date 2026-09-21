@@ -231,13 +231,17 @@ test('nieznana kategoria jest odrzucona tak samo jak brak kategorii', () => {
 	}
 });
 
-test('kazda z trzech kategorii unii jest przyjeta, lacznie z uspiona RODO (P-24)', () => {
+// Cztery od 2026-09-21: „organizacja" dolaczyla miedzy `statut` a `rodo` razem z
+// regulaminem organizacyjnym, standardami ochrony maloletnich i zasadami adaptacji.
+// RODO przestalo byc uspione tego samego dnia, ale regula D-13 jest nietknieta: grupa
+// pojawia sie na stronie dopiero wtedy, gdy cos w niej jest, a teraz jest.
+test('kazda z czterech kategorii unii jest przyjeta przez walidator', () => {
 	for (const kategoria of KATEGORIE) {
 		const wynik = walidujDokument(zrodlo(komplet({ [POLE_KATEGORIA]: kategoria })), true);
 		assert.equal(wynik.ok, true, `odrzucono kategorie: ${kategoria}`);
 		if (wynik.ok) assert.equal(wynik.dane.kategoria, kategoria);
 	}
-	assert.deepEqual([...KATEGORIE], ['rekrutacja', 'statut', 'rodo']);
+	assert.deepEqual([...KATEGORIE], ['rekrutacja', 'statut', 'organizacja', 'rodo']);
 });
 
 test('niepelna data wersji jest odmowiona jednym komunikatem dla calej grupy', () => {

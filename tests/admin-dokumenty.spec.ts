@@ -43,7 +43,10 @@ const SEED = {
 	slug: 'statut-zlobka',
 	nazwa: 'Statut żłobka (uchwała XXIII.133.2026)',
 	typ: 'PDF',
-	wersja: '29.01.2026',
+	// Wersja z dnia uchwaly XXIII.133.2026 Rady Gminy Stromiec. Do 2026-09-21 staly tu
+	// 29.01.2026 i atrapa pliku o 623 bajtach; tego dnia zlobek przekazal prawdziwy PDF
+	// uchwaly, wiec data wersji zrownala sie z data uchwaly.
+	wersja: '26.03.2026',
 	plik: 'statut-zlobka.pdf'
 };
 
@@ -122,12 +125,25 @@ test('kategoria bez dokumentow ma naglowek i jednolinijkowa notatke (D-13, P-24)
 	expect(zalogowany.adres.length).toBeGreaterThan(0);
 	await page.goto(LISTA);
 
-	// RODO is dormant: the public page omits the group entirely, and the panel must not,
-	// because a drawer with no heading is a drawer an editor cannot see exists.
-	const rodo = page.locator('section', { has: page.getByRole('heading', { name: 'RODO' }) });
-	await expect(rodo.getByText(KOPIA_LISTY.pustaKategoria)).toBeVisible();
-	// Exactly one category is empty in the seeds, so the note appears exactly once.
-	await expect(page.getByText(KOPIA_LISTY.pustaKategoria)).toHaveCount(1);
+	// The public page omits an empty group entirely and the panel must not, because a drawer
+	// with no heading is a drawer an editor cannot see exists. Until 2026-09-21 exactly one
+	// category was empty (RODO) and this case pinned the count at one. Every category holds
+	// documents today, so a literal count would only record the state of the seeds; the
+	// property being defended is the CORRESPONDENCE, and it is read off the page itself.
+	const sekcje = page.locator('main section');
+	const ile = await sekcje.count();
+	expect(ile).toBe(KATEGORIE.length);
+
+	let puste = 0;
+	for (let i = 0; i < ile; i++) {
+		const sekcja = sekcje.nth(i);
+		await expect(sekcja.locator('h2')).toHaveCount(1);
+		const dokumentow = await sekcja.locator('li').count();
+		const notatka = await sekcja.getByText(KOPIA_LISTY.pustaKategoria).count();
+		expect(notatka).toBe(dokumentow === 0 ? 1 : 0);
+		if (dokumentow === 0) puste++;
+	}
+	await expect(page.getByText(KOPIA_LISTY.pustaKategoria)).toHaveCount(puste);
 });
 
 test('zasiane dokumenty stoja pod wlasciwymi kategoriami, z meta i odznaka', async ({
@@ -149,8 +165,9 @@ test('zasiane dokumenty stoja pod wlasciwymi kategoriami, z meta i odznaka', asy
 	await expect(glowny).toHaveAttribute('href', `${LISTA}/${SEED.slug}`);
 	// The meta is inside that same link, so a screen reader announces it with the name.
 	await expect(glowny).toContainText(metaDokumentu(SEED.typ, SEED.wersja));
-	// All three seeds are placeholder content today.
-	await expect(statut.getByText(KOPIA_LISTY.odznakaZastepcza).first()).toBeVisible();
+	// The statut STOPPED being placeholder content on 2026-09-21, when the real uchwała PDF
+	// replaced the 623-byte stub, so the badge no longer belongs on this row.
+	await expect(statut.getByText(KOPIA_LISTY.odznakaZastepcza)).toHaveCount(0);
 
 	const rekrutacja = page.locator('section', {
 		has: page.getByRole('heading', { name: POLA_DOKUMENT.kategorieOpcje[0] })
@@ -158,6 +175,9 @@ test('zasiane dokumenty stoja pod wlasciwymi kategoriami, z meta i odznaka', asy
 	await expect(
 		rekrutacja.locator('li').filter({ hasText: 'Wniosek o przyjęcie dziecka' })
 	).toHaveCount(1);
+	// The wniosek and the regulamin rekrutacji ARE still placeholders: neither was delivered
+	// for Stromiec, so the badge has to be somewhere and it is here.
+	await expect(rekrutacja.getByText(KOPIA_LISTY.odznakaZastepcza)).toHaveCount(2);
 });
 
 test('lista nie zawiera zadnego elementu wysylajacego formularz (T-04.1-27)', async ({
@@ -343,9 +363,10 @@ test('ekran edycji otwiera zapisane wartosci i nazywa plik, ktory dokument juz m
 	await expect(page.getByLabel(POLA_DOKUMENT.kategoriaEtykieta, { exact: false })).toHaveValue(
 		'statut'
 	);
-	await expect(page.getByLabel(POLA_DATA.dzien, { exact: true })).toHaveValue('29');
-	await expect(page.getByLabel(POLA_DATA.miesiac, { exact: true })).toHaveValue('1');
-	await expect(page.getByLabel(POLA_DATA.rok, { exact: true })).toHaveValue('2026');
+	const [dzien, miesiac, rok] = SEED.wersja.split('.');
+	await expect(page.getByLabel(POLA_DATA.dzien, { exact: true })).toHaveValue(String(+dzien));
+	await expect(page.getByLabel(POLA_DATA.miesiac, { exact: true })).toHaveValue(String(+miesiac));
+	await expect(page.getByLabel(POLA_DATA.rok, { exact: true })).toHaveValue(rok);
 	// The file is named as text, so the editor knows what is attached before replacing it.
 	await expect(page.getByText(SEED.plik, { exact: false })).toBeVisible();
 	// Nothing is pending on a fresh load.

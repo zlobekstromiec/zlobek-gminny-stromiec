@@ -51,6 +51,13 @@ export const recruitmentOpen = nabor.otwarty;
 export const openingBanner = false;
 
 export const contact = {
+	/** The administrator's own name, as every document the inspektor ochrony danych
+	 *  delivered on 2026-09-21 spells it. It exists as a FIELD rather than as a literal in
+	 *  each surface because from that date the site has to name the administrator
+	 *  identically on /polityka-prywatnosci, under both forms and in the RODO band on
+	 *  /dokumenty. Those three used to word it three different ways, and one of them was a
+	 *  deliberate, documented discrepancy nobody could settle for want of a source. */
+	name: 'Publiczny Żłobek w Stromcu',
 	/** FINAL: [BIP]-confirmed by both the statut (uchwała XXIII.133.2026) and the
 	 *  fee uchwała XXIII.134.2026 (.planning/dane-bip-zlobek-stromiec.md §1). */
 	addressLines: ['ul. Radomska 72', '26-804 Stromiec'],
@@ -79,16 +86,21 @@ export const contact = {
 	 *  content, so there is no placeholder marker here. This one field feeds every surface
 	 *  that shows an address, so a future change is again a one-place edit. */
 	email: 'publicznyzlobek@ugstromiec.pl',
-	/** Contact address of the inspektor ochrony danych, given in writing by Kamila Dobosz
-	 *  on 2026-08-27. THE ONLY source of this address in the project: the klauzula under
-	 *  both forms and the administrator's klauzula on /polityka-prywatnosci both
-	 *  interpolate it, so the two can never disagree about where to write.
+	/** The inspektor ochrony danych, NAME AND ADDRESS TOGETHER, because art. 11 of the
+	 *  ustawa of 10 May 2018 o ochronie danych osobowych requires both and a field pair
+	 *  that can be filled in halves is a field pair that eventually is.
 	 *
-	 *  The inspector's NAME AND SURNAME are still missing, and art. 11 of the ustawa of
-	 *  10 May 2018 o ochronie danych osobowych requires them alongside the address. The
-	 *  launch gate is therefore narrowed, not closed; the marker lives with the paragraph
-	 *  it belongs to, in the „Inspektor ochrony danych" block of KLAUZULA. */
-	iodEmail: 'iod@ugstromiec.pl',
+	 *  Both values come from the documents the inspector himself prepared, delivered by the
+	 *  director on 2026-09-21 (klauzule 06 and 07, the RODO band text 08, the monitoring
+	 *  piktogram 09). The address REPLACES `iod@ugstromiec.pl`, given in writing on
+	 *  2026-08-27 and superseded by the inspector's own paperwork; the name closes the
+	 *  launch gate that the letter of 2026-09-01 opened by asking for it.
+	 *
+	 *  THE ONLY source of either value in the project: the klauzula under both forms, the
+	 *  administrator's klauzula on /polityka-prywatnosci and the RODO band on /dokumenty
+	 *  all interpolate them, so no two surfaces can disagree about whom to write to. */
+	iodName: 'Michał Paprocki',
+	iodEmail: 'iod.zlobek@ugstromiec.pl',
 	/** FINAL: given in writing by the żłobek's director on 2026-08-24 („Mogę dodać NIP
 	 *  7981489629"). Stored DIGITS ONLY and grouped for display by
 	 *  `nipDoWyswietlenia` in $lib/identyfikatory, so nothing downstream has to strip

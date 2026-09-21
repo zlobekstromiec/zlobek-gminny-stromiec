@@ -82,6 +82,7 @@ import {
 	zobaczStrone
 } from '../src/lib/content/panel.ts';
 import { zbudujPayloadKod, zbudujTrescKodu } from '../src/lib/server/admin/mail-kod.ts';
+import { KATEGORIE } from '../src/lib/kategorie-dokumentow.ts';
 // The banned English-chrome list and its two controls live in one module, because
 // tests/admin-polski.spec.ts sweeps the same words across every RENDERED admin screen
 // and two copies of that list would drift apart the first time one of them grew.
@@ -344,8 +345,16 @@ test('etykiety pol wymaganych sa oznaczone gwiazdka, a opcjonalne nie sa', () =>
 	assert.equal(POLA_WPIS.zdjecieEtykieta.includes('*'), false);
 });
 
-test('kategorie dokumentu sa dokladnie te trzy, w ustalonej kolejnosci', () => {
-	assert.deepEqual([...POLA_DOKUMENT.kategorieOpcje], ['Rekrutacja', 'Statut i uchwały', 'RODO']);
+// ETYKIETY SA SPARZONE POZYCYJNIE Z `KATEGORIE`, wiec ta asercja pilnuje obu list naraz:
+// dlugosci musza byc rowne, bo select o trzech etykietach na cztery wartosci wysylalby
+// pusta kategorie, ktorej serwer odmawia z powodem niewidocznym dla edytora. Lista
+// literalow zostaje wypisana, bo to jest KOPIA i ma byc czytana w calosci przy przegladzie.
+test('kategorie dokumentu sa dokladnie te cztery, w ustalonej kolejnosci', () => {
+	assert.deepEqual(
+		[...POLA_DOKUMENT.kategorieOpcje],
+		['Rekrutacja', 'Statut i uchwały', 'Organizacja żłobka', 'RODO']
+	);
+	assert.equal(POLA_DOKUMENT.kategorieOpcje.length, KATEGORIE.length);
 	assert.equal(POLA_DATA.pusty, 'Wybierz');
 });
 
