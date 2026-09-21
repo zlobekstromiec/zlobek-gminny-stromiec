@@ -60,6 +60,20 @@ import {
 	RODO_PO_LISCIE,
 	RODO_WSTEP
 } from '../src/lib/content/rodo.ts';
+// Fakty o dostepnosci ze stuba /deklaracja-dostepnosci przechodza przez bramki kopii,
+// ale NIE przez bramke numeru telefonu, i to jest decyzja, a nie przeoczenie. Modul niesie
+// numer KOORDYNATORKI dostepnosci, czyli innej osoby niz zlobek, wiec sweep porownujacy
+// kazdy numer z `contact.phoneDisplay` odmowilby mu slusznie. Zasada jednego zrodla
+// obowiazuje per wartosc: kazdy z tych dwoch numerow ma dokladnie jedno miejsce, w ktorym
+// jest wartoscia, i te miejsca sa rozne. Dlatego te ciagi wchodza do WSZYSTKIE_STRINGI_BEZ_NUMERU,
+// a nie do WSZYSTKIE_STRINGI.
+import {
+	ARCHITEKTONICZNA,
+	KOMUNIKACYJNO_INFORMACYJNA,
+	KOORDYNATOR_TELEFON_ETYKIETA,
+	KOORDYNATOR_WSTEP,
+	NAGLOWKI as NAGLOWKI_DOSTEPNOSCI
+} from '../src/lib/content/dostepnosc.ts';
 import { contact, urzad } from '../src/lib/content/site.ts';
 // The CC recipient is IMPORTED, never repeated as a literal here. Two literals could
 // drift apart the day the address changes, and the drifted copy would be the one that
@@ -112,6 +126,18 @@ const WSZYSTKIE_STRINGI = zbierz([
 	RODO_IOD.wstep(contact.iodName)
 ]);
 
+/** Ciagi, ktore podlegaja regulom kopii, ale NIE bramce numeru telefonu. Dzis jest w tym
+ *  zbiorze jeden modul i jeden powod: niesie numer koordynatorki dostepnosci, ktora jest
+ *  inna osoba niz zlobek. Zbior istnieje jako osobna nazwa, a nie jako wyjatek wpisany w
+ *  jedna asercje, zeby kazdy nastepny modul z cudzym numerem musial tu stanac jawnie. */
+const WSZYSTKIE_STRINGI_BEZ_NUMERU = zbierz([
+	NAGLOWKI_DOSTEPNOSCI,
+	KOORDYNATOR_WSTEP,
+	KOORDYNATOR_TELEFON_ETYKIETA,
+	ARCHITEKTONICZNA,
+	KOMUNIKACYJNO_INFORMACYJNA
+]);
+
 const KLAUZULA_TEKST = zbierz(KLAUZULA).join('\n');
 
 /** The one e-mail literal the copy is allowed to contain besides the institutional
@@ -121,13 +147,17 @@ const KLAUZULA_TEKST = zbierz(KLAUZULA).join('\n');
 const DOZWOLONY_PRZYKLAD = 'jan.kowalski@example.com';
 
 test('no exported copy string contains an em dash (copy rules, C-11)', () => {
-	const winne = WSZYSTKIE_STRINGI.filter((s) => s.includes('—'));
+	const winne = [...WSZYSTKIE_STRINGI, ...WSZYSTKIE_STRINGI_BEZ_NUMERU].filter((s) =>
+		s.includes('—')
+	);
 	assert.deepEqual(winne, []);
 });
 
 test('no exported copy string contains an emoji (copy rules, C-11)', () => {
 	const emoji = /\p{Extended_Pictographic}/u;
-	const winne = WSZYSTKIE_STRINGI.filter((s) => emoji.test(s));
+	const winne = [...WSZYSTKIE_STRINGI, ...WSZYSTKIE_STRINGI_BEZ_NUMERU].filter((s) =>
+		emoji.test(s)
+	);
 	assert.deepEqual(winne, []);
 });
 
