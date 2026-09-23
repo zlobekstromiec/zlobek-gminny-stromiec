@@ -5,10 +5,10 @@ milestone_name: milestone
 current_phase: 6
 current_phase_name: Accessibility, Legal Compliance & Performance
 status: executing
-stopped_at: Quick 260923-mb0 zamkniety; przy zadnym dokumencie nie ma juz tresci zastepczej, wstrzymany zostaje tylko Zalacznik 1 z bledna gmina w tresci
+stopped_at: Quick 260923-mb0 zamkniety wraz z uzupelnieniem; przy zadnym dokumencie nie ma juz tresci zastepczej, Zalacznik 1 opublikowany po recznej poprawce gminy
 last_updated: "2026-09-23T14:30:00.000Z"
 last_activity: 2026-09-23
-last_activity_desc: "Quick 260923-mb0: poprawione dokumenty rekrutacyjne od dyrektor, czyli prawdziwy wniosek i regulamin zamiast atrap dla Starej Blotnicy, piec zalacznikow 2 do 6 i druga wersja druku rezygnacji; Zalacznik 1 wstrzymany"
+last_activity_desc: "Quick 260923-mb0: poprawione dokumenty rekrutacyjne od dyrektor, czyli prawdziwy wniosek i regulamin zamiast atrap dla Starej Blotnicy, szesc zalacznikow 1 do 6 (Zalacznik 1 po recznej poprawce gminy w tresci) i druga wersja druku rezygnacji"
 progress:
   total_phases: 9
   completed_phases: 6

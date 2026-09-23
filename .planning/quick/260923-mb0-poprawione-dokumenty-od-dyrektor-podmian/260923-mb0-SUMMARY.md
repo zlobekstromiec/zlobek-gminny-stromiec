@@ -254,3 +254,24 @@ Kontrola wzrokowa (zrzuty przy 1280 px i 390 px dla /rekrutacja i /dokumenty):
 
 Wszystkie wymienione pliki istnieją na dysku, wszystkie trzy commity istnieją w `git log`
 (8beea64, a2f907a, 7263fc9), a `docs/documents/` pozostaje nieśledzone i niezakommitowane.
+
+---
+
+## Uzupełnienie z 2026-09-23 (po południu): Załącznik 1 opublikowany
+
+Użytkownik zdecydował, że wadliwe zdanie poprawiamy sami. W `Zalacznik 1 Oswiadczenie o
+zamieszkaniu.docx` zamieniono JEDNO wyrażenie w `word/document.xml`: „Gminy Stara Błotnica"
+na „Gminy Stromiec" (jedno wystąpienie, sprawdzone przed i po; nagłówek już wcześniej mówił
+o Gminie Stromiec). Nic więcej w pliku nie zmieniono; archiwum i wszystkie części XML
+przeszły kontrolę poprawności, a `textutil` renderuje poprawione zdanie.
+
+Plik trafił do `static/dokumenty/rekrutacja-zalacznik-1.docx`, wpis do
+`src/lib/content/dokumenty/rekrutacja-zalacznik-1.json` (nazwa „Załącznik 1: Oświadczenie
+o zamieszkaniu na obszarze Gminy Stromiec", wersja 23.09.2026). Kategoria Rekrutacja ma
+teraz DZIEWIĘĆ wpisów; dwa pierwsze alfabetycznie to nadal `rekrutacja-regulamin` i
+`rekrutacja-wniosek`, więc kafel na stronie głównej się nie zmienił. Trzy komentarze, które
+opisywały Załącznik 1 jako wstrzymany (`rekrutacja.ts`, `/rekrutacja/+page.svelte`,
+`tests/home.spec.ts`), mówią teraz prawdę; przy okazji zniknął z nich myślnik długi.
+
+Punkt 1 z listy „Do zgłoszenia użytkownikowi" jest tym samym ZAMKNIĘTY. Punkty 2 do 5
+pozostają otwarte.
