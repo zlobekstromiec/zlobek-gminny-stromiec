@@ -226,9 +226,10 @@ test.describe('Homepage: Phase 1 + 01.1 acceptance', () => {
 			page.getByText('Nie ma możliwości złożenia wniosku', { exact: false })
 		).toBeVisible();
 		await expect(page.getByText('pokój 17', { exact: false })).toBeVisible();
-		// Curated subset (D-18): the rekrutacja category holds EIGHT documents since quick
-		// 260923-mb0 — the regulamin, the wniosek, załączniki 2 to 6 and the druk rezygnacji
-		// — and the homepage panel is a curation of the two alphabetically first, never a
+		// Curated subset (D-18): the rekrutacja category holds NINE documents since quick
+		// 260923-mb0 (the regulamin, the wniosek, załączniki 1 to 6 and the druk rezygnacji;
+		// załącznik 1 joined a day after the other five, once its wrong gmina was corrected)
+		// and the homepage panel is a curation of the two alphabetically first, never a
 		// listing of the category. The full set lives on /dokumenty behind the see-all link.
 		// This count is what stands between a parent and the day a new entry is filed under
 		// a name that sorts ahead of `rekrutacja-wniosek` and quietly pushes the wniosek,
