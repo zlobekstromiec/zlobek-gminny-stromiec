@@ -166,10 +166,15 @@ export const OPLATY = {
 	nieobecnosc: CENNIK.nieobecnosc
 } as const;
 
-/** The żłobek's page in the Gmina's Biuletyn Informacji Publicznej. It is the
- *  authoritative source of the wniosek and all six załączniki, so the download
- *  section always links to it, whatever the local document list happens to hold.
- *  We link to the BIP and never rebuild it. */
+/** The żłobek's page in the Gmina's Biuletyn Informacji Publicznej. It holds the complete
+ *  set of recruitment documents, and since quick 260923-mb0 this site publishes most of
+ *  that set itself: the wniosek, the regulamin and załączniki 2 to 6. Załącznik 1 is the
+ *  one we hold back — the version delivered for Stromiec still declares residence in Gmina
+ *  Stara Błotnica in its body — so a parent who needs it has to reach the BIP, and the day
+ *  a corrected version arrives that will not be true either. Which is exactly why the rule
+ *  this comment protects does not depend on any of that: THE BIP LINK RENDERS ALWAYS,
+ *  however many rows the local list happens to hold, including none. We link to the BIP and
+ *  never rebuild it. */
 export const BIP_ZLOBEK = {
 	etykieta: 'Biuletyn Informacji Publicznej (BIP)',
 	url: 'https://ugstromiec.naszbip.pl/zlobek',

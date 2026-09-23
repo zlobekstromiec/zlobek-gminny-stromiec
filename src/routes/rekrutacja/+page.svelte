@@ -145,9 +145,11 @@
 			     INSIDE the link so a screen reader announces it together with the name (D-14).
 			     The rows come from the same shared resolver as /dokumenty and the homepage
 			     panel, so a document staff replace through the CMS appears here with correct
-			     metadata and no code change. The BIP link is rendered ALWAYS, however many
-			     rows there are: the complete set of the wniosek and its six załączniki lives
-			     there, and we link to it rather than rebuilding it. -->
+			     metadata and no code change. Since quick 260923-mb0 they are the wniosek, the
+			     regulamin, załączniki 2 to 6 and the druk rezygnacji; załącznik 1 is held back
+			     until its body stops declaring residence in another gmina. The BIP link is
+			     rendered ALWAYS, however many rows there are — the complete set lives there
+			     and we link to it rather than rebuilding it. -->
 			<section aria-labelledby="wnioski-heading">
 				<h2 id="wnioski-heading">Wnioski do pobrania</h2>
 

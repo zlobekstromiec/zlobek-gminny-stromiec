@@ -226,10 +226,14 @@ test.describe('Homepage: Phase 1 + 01.1 acceptance', () => {
 			page.getByText('Nie ma możliwości złożenia wniosku', { exact: false })
 		).toBeVisible();
 		await expect(page.getByText('pokój 17', { exact: false })).toBeVisible();
-		// Curated subset: exactly the two real rekrutacja documents from the shared
-		// collection (Wniosek o przyjęcie dziecka, Regulamin rekrutacji). The three
-		// non-BIP docs (Regulamin organizacyjny, Upoważnienie do odbioru dziecka,
-		// Oświadczenia RODO) are dropped (D-18).
+		// Curated subset (D-18): the rekrutacja category holds EIGHT documents since quick
+		// 260923-mb0 — the regulamin, the wniosek, załączniki 2 to 6 and the druk rezygnacji
+		// — and the homepage panel is a curation of the two alphabetically first, never a
+		// listing of the category. The full set lives on /dokumenty behind the see-all link.
+		// This count is what stands between a parent and the day a new entry is filed under
+		// a name that sorts ahead of `rekrutacja-wniosek` and quietly pushes the wniosek,
+		// the one document a parent comes to the homepage for, off the page. It happened
+		// once already, in quick 260921-j9c, with `druk-rezygnacji.json`.
 		await expect(page.locator('.doc-row')).toHaveCount(2);
 		// File meta must live INSIDE the link so it is announced with the name; the
 		// row carries the real BIP name plus its computed „... wersja z ..." meta.

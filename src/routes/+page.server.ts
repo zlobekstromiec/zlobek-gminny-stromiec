@@ -24,6 +24,12 @@ export const load: PageServerLoad = () => {
 		// way: filed as `druk-rezygnacji.json` it sorted ahead of both `rekrutacja-*`
 		// entries and pushed the wniosek, the single document a parent comes here for, off
 		// the homepage. It is filed as `rezygnacja-z-miejsca.json` for that reason alone.
+		// Quick 260923-mb0 then added five more, `rekrutacja-zalacznik-2` through `-6`, and
+		// they are safe precisely because `zalacznik` sorts after `wniosek`: the category
+		// now holds eight entries and this slice still hands over the regulamin and the
+		// wniosek. That is the constraint on every future name — a new rekrutacja entry may
+		// be called anything that does NOT sort ahead of `rekrutacja-wniosek`, and this
+		// comment is the only place from which that is visible.
 		.slice(0, 2)
 		.map((entry) => ({ name: entry.nazwa, meta: entry.meta, href: entry.plik }));
 	// Curated homepage news feed (NEWS-01): the three newest posts for the
