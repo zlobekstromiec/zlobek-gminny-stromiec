@@ -175,9 +175,12 @@ test('zasiane dokumenty stoja pod wlasciwymi kategoriami, z meta i odznaka', asy
 	await expect(
 		rekrutacja.locator('li').filter({ hasText: 'Wniosek o przyjęcie dziecka' })
 	).toHaveCount(1);
-	// The wniosek and the regulamin rekrutacji ARE still placeholders: neither was delivered
-	// for Stromiec, so the badge has to be somewhere and it is here.
-	await expect(rekrutacja.getByText(KOPIA_LISTY.odznakaZastepcza)).toHaveCount(2);
+	// The wniosek and the regulamin rekrutacji STOPPED being placeholder content on
+	// 2026-09-23, when the director sent the versions written for Stromiec (the pair we had
+	// were Stara Błotnica templates, which is why they had never been published). No category
+	// carries the badge any more, and that is precisely why this assertion stays: it is the
+	// one place in the suite that goes red the day a real document is swapped back for a stub.
+	await expect(rekrutacja.getByText(KOPIA_LISTY.odznakaZastepcza)).toHaveCount(0);
 });
 
 test('lista nie zawiera zadnego elementu wysylajacego formularz (T-04.1-27)', async ({
