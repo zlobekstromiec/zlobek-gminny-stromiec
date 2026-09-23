@@ -51,6 +51,16 @@ const MIESIAC = '3';
  *  absence from the delivered HTML is an assertion, not a convention. */
 const DATY_ARCHIWALNE = ['01.04.2026', '27.04.2026', '29.04.2026', '12.05.2026'];
 
+/** The ONLY two shapes in which such a date may legitimately reach the delivered HTML: as
+ *  the version of a document offered for download. Quick 260923-mb0 published the real
+ *  regulamin, which is zarządzenie nr 29.2026 of 01.04.2026, and a document row states the
+ *  date its content comes from — „PDF · 305 KB · wersja z 01.04.2026" — with the same string
+ *  repeated inside SvelteKit's serialized load payload. That is the document's own date, not
+ *  a term a parent could act on, and suppressing it would mean lying about how old the
+ *  regulamin is. The criterion in section 10.3 is unchanged and so is its strength: an
+ *  archival date rendered ANYWHERE ELSE, in any wording, still fails the test below. */
+const WERSJA_DOKUMENTU = ['wersja z ', 'wersja:"'];
+
 /** The field Turnstile injects into its own container. It is the only DOM signal
  *  the widget gives us: with the always-pass dummy sitekey Cloudflare renders NO
  *  visible challenge and NO frame at all, so waiting for a frame would wait forever
@@ -259,7 +269,16 @@ test.describe('Rekrutacja: RECRUIT-01 / RECRUIT-02 / RECRUIT-03 acceptance', () 
 		await page.goto('/rekrutacja');
 		const html = await page.content();
 		for (const data of DATY_ARCHIWALNE) {
-			expect(html).not.toContain(data);
+			// Every occurrence is inspected, not just the first: one legitimate document-version
+			// occurrence must never excuse a second occurrence somewhere else on the page.
+			for (let od = html.indexOf(data); od !== -1; od = html.indexOf(data, od + 1)) {
+				const poprzedza = html.slice(0, od);
+				const kontekst = html.slice(Math.max(0, od - 80), od + data.length).replace(/\s+/g, ' ');
+				expect(
+					WERSJA_DOKUMENTU.some((prefiks) => poprzedza.endsWith(prefiks)),
+					`archiwalna data ${data} stoi poza wersja dokumentu: ...${kontekst}`
+				).toBe(true);
+			}
 		}
 	});
 

@@ -482,6 +482,37 @@
 		color: var(--color-muted);
 	}
 
+	/* TEN SAM DWUTOROWY UKLAD, KTORY /dokumenty DOSTALO W QUICKU 260921-j9c, i ta sama
+	   przyczyna. Meta („DOCX · 15 KB · wersja z 23.09.2026") ma flex: none i zajmuje okolo
+	   180 px niezaleznie od szerokosci ekranu, wiec przy 390 px na nazwe zostaje okolo
+	   110 px, a `overflow-wrap: anywhere` lamie ja w srodku wyrazu. Dopoki lista trzymala
+	   trzy krotkie nazwy, bylo to niewidoczne; 260923-mb0 dolozyl piec zalacznikow i
+	   „Oswiadczenie o samotnym wychowywaniu dziecka" zlamalo sie na „wychowywan / iu".
+	   Poprawka nie zostala wtedy przeniesiona tutaj, bo obie trasy maja wlasna kopie tych
+	   regul (markup i a11y sa wspolne, CSS nie). Nazwa dostaje caly wiersz, meta staje pod
+	   nia i w jej torze. Meta nadal jest WEWNATRZ odnosnika, wiec kontrakt D-14 stoi. */
+	@media (max-width: 639px) {
+		/* SIATKA, A NIE ZAWIJANY FLEX: zawijany flex lamie sie tam, gdzie zabraknie
+		   miejsca, wiec przy dluzszej nazwie pierwsza do nowego wiersza poszlaby NAZWA, a
+		   ikona zostalaby sama. Siatka stawia kazdy element tam, gdzie ma stac. */
+		.doc-row {
+			display: grid;
+			grid-template-columns: 20px minmax(0, 1fr);
+			align-items: start;
+			column-gap: 12px;
+			row-gap: 2px;
+			padding-block: 12px;
+		}
+
+		.doc-name {
+			grid-column: 2;
+		}
+
+		.doc-meta {
+			grid-column: 2;
+		}
+	}
+
 	/* Empty state for the category (UI-SPEC „Empty states"). The BIP link below stays
 	   in place, so a parent is never left with nowhere to go. */
 	.pusto {
