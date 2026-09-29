@@ -285,6 +285,20 @@
 		color: var(--color-muted);
 	}
 
+	/* The meta stacks UNDER the name at every width (quick 260929-klv). The meta
+	   („PDF · 305 KB · wersja z 01.04.2026") never shrinks, so beside it the name got
+	   about 100 px on a 390 px phone and `overflow-wrap: anywhere` broke „Regulamin
+	   rekrutacji" one syllable per line; on desktop this panel is a sidebar of roughly
+	   400 px, so the same squeeze left the name four lines deep. /dokumenty and
+	   /rekrutacja stack only below 640 px, because their rows span the full page;
+	   this panel never does, so the rule is unconditional here. */
+	.doc-row {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 2px;
+		padding-block: 12px;
+	}
+
 	.see-all {
 		display: inline-block;
 		margin-top: auto;

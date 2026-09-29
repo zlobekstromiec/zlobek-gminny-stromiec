@@ -13,21 +13,42 @@
 
 	type Variant = 'primary' | 'secondary';
 
+	// `external` (quick 260929-klv): the link leaves the site, so it opens in a new tab with
+	// the same reverse-tabnabbing guard and the same visually-hidden suffix as the footer's
+	// BIP and Facebook links. The suffix is part of the accessible name on purpose.
+	// `ikona` is an optional leading mark (a brand glyph, aria-hidden by its author); the
+	// trailing arrow stays reserved for `icon`, which means „this is the main action".
 	let {
 		href,
 		variant = 'primary',
 		icon = false,
+		external = false,
+		ikona,
 		children
 	}: {
 		href: string;
 		variant?: Variant;
 		icon?: boolean;
+		external?: boolean;
+		ikona?: import('svelte').Snippet;
 		children: import('svelte').Snippet;
 	} = $props();
 </script>
 
-<a {href} class="cta {variant}">
-	<span class="label">{@render children()}</span>
+<a
+	{href}
+	class="cta {variant}"
+	target={external ? '_blank' : undefined}
+	rel={external ? 'noopener noreferrer' : undefined}
+>
+	{#if ikona}
+		{@render ikona()}
+	{/if}
+	<span class="label"
+		>{@render children()}{#if external}<span class="visually-hidden">
+				(otwiera się w nowej karcie)</span
+			>{/if}</span
+	>
 	{#if icon}
 		<ArrowRight class="cta-icon" size={18} aria-hidden="true" focusable="false" />
 	{/if}
@@ -93,6 +114,19 @@
 
 	.cta.secondary:hover {
 		background: var(--color-band);
+	}
+
+	/* Visually hidden but exposed to assistive tech (the new-tab suffix of `external`). */
+	.visually-hidden {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
 	}
 
 	/* Reduced motion: no transform raise (WCAG 2.3.3). */

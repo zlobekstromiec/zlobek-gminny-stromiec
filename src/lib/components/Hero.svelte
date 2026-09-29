@@ -19,6 +19,7 @@
 	// uploads is the panel's directory and the gallery globs it, so a hero photograph
 	// living there would show up in an editor's photo picker as if it were a gallery tile.
 	import Cta from './Cta.svelte';
+	import IconFacebook from '$lib/icons/IconFacebook.svelte';
 	import IconSun from '$lib/icons/IconSun.svelte';
 	import { contact, recruitment } from '$lib/content/site';
 	import budynek from '$lib/assets/foto/budynek-front.jpg?enhanced';
@@ -55,6 +56,17 @@
 				     invitation has something to honour it with (site.ts). It read „Napisz do
 				     nas" for the month the site published no number at all. -->
 				<Cta href="/kontakt" variant="secondary">Zadzwoń do nas</Cta>
+				<!-- Third action since quick 260929-klv, at the director's request: the żłobek's
+				     Facebook page, read from contact.facebookUrl like every other surface that
+				     links it. External, so it opens in a new tab with the visually-hidden suffix
+				     that Cta adds for `external`; the mark is the same hand-drawn IconFacebook the
+				     footer and the Aktualności headers use. -->
+				<Cta href={contact.facebookUrl} variant="secondary" external>
+					{#snippet ikona()}
+						<IconFacebook size={20} />
+					{/snippet}
+					Odwiedź nas na Facebooku
+				</Cta>
 			</div>
 
 			<!-- The hero's phone line, back with the number on 2026-09-21 (site.ts). The

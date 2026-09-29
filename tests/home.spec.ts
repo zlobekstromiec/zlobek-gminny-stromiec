@@ -352,3 +352,50 @@ test.describe('Homepage: Phase 1 + 01.1 acceptance', () => {
 		expect(results.violations).toEqual([]);
 	});
 });
+
+// quick 260929-klv: the director asked for a Facebook action in the hero, next to the two
+// existing buttons. Same shape as the footer and Aktualności links: external, new tab,
+// accessible name carries the suffix, href read from site.ts, never retyped.
+test.describe('Strona główna: przycisk Facebooka w hero i wiersze dokumentów na telefonie (quick 260929-klv)', () => {
+	test('hero ma trzeci przycisk prowadzący do profilu na Facebooku', async ({ page }) => {
+		await page.goto('/');
+		const hero = page.locator('section.hero');
+		const fb = hero.getByRole('link', {
+			name: 'Odwiedź nas na Facebooku (otwiera się w nowej karcie)'
+		});
+		await expect(fb).toBeVisible();
+		await expect(fb).toHaveAttribute('href', contact.facebookUrl);
+		await expect(fb).toHaveAttribute('target', '_blank');
+		const rel = (await fb.getAttribute('rel')) ?? '';
+		expect(rel).toContain('noopener');
+		expect(rel).toContain('noreferrer');
+		// The two original actions are untouched and keep their order before it.
+		const etykiety = await hero.locator('.cta-row a').allInnerTexts();
+		expect(etykiety.map((t) => t.trim().split('\n')[0])).toEqual([
+			'Zapisz dziecko',
+			'Zadzwoń do nas',
+			'Odwiedź nas na Facebooku'
+		]);
+	});
+
+	// The bug this pins: on a 390 px phone the meta column („PDF · 305 KB · wersja z …")
+	// kept its width and left the name about 100 px, so it broke one syllable per line.
+	// The property, not the pixel: the meta must sit BELOW the name, and the name must get
+	// the panel's full width, on every row of the homepage documents panel.
+	test('na telefonie nazwa dokumentu dostaje całą szerokość, a meta stoi pod nią', async ({
+		page
+	}) => {
+		await page.setViewportSize({ width: 390, height: 844 });
+		await page.goto('/');
+		const wiersze = page.locator('.doc-row');
+		await expect(wiersze).toHaveCount(2);
+		for (let i = 0; i < 2; i++) {
+			const nazwa = await wiersze.nth(i).locator('.doc-name').boundingBox();
+			const meta = await wiersze.nth(i).locator('.doc-meta').boundingBox();
+			expect(nazwa).not.toBeNull();
+			expect(meta).not.toBeNull();
+			expect(nazwa!.width).toBeGreaterThan(220);
+			expect(meta!.y).toBeGreaterThanOrEqual(nazwa!.y + nazwa!.height - 1);
+		}
+	});
+});
