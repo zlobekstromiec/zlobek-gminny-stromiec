@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { navLinks } from '../src/lib/nav';
+import { contact } from '../src/lib/content/site';
 
 /**
  * Navigation shell acceptance (SITE-03 / SITE-02 / A11Y baseline).
@@ -54,6 +55,35 @@ test.describe('Navigation shell: Phase 1 acceptance', () => {
 		const rel = (await bip.getAttribute('rel')) ?? '';
 		expect(rel).toContain('noopener');
 		expect(rel).toContain('noreferrer');
+	});
+
+	// Second external link in the footer (quick 260929-ips, Amendment v1.8). Shares the
+	// project's single external-link pattern with BIP above, so the two assertions have the
+	// same shape on purpose. One difference: the href is READ from `contact.facebookUrl`
+	// instead of being written out here, because the address exists in src/ exactly once and
+	// a literal in this file would be the second copy.
+	test('stopka prowadzi do profilu żłobka na Facebooku wzorcem odnośnika zewnętrznego (quick 260929-ips)', async ({
+		page
+	}) => {
+		await page.goto('/');
+		const fb = page
+			.getByRole('contentinfo')
+			.getByRole('link', { name: 'Profil żłobka na Facebooku (otwiera się w nowej karcie)' });
+		await expect(fb).toHaveAttribute('href', contact.facebookUrl);
+		await expect(fb).toHaveAttribute('target', '_blank');
+		const relFb = (await fb.getAttribute('rel')) ?? '';
+		expect(relFb).toContain('noopener');
+		expect(relFb).toContain('noreferrer');
+
+		// The icon is never the link's only name: a visible Polish label sits beside it, so a
+		// sighted parent reads where the link goes without hovering it.
+		await expect(fb).toContainText('Profil żłobka na Facebooku');
+
+		// Touch target, UI-SPEC §interactive targets: at least 44 px tall even though the
+		// glyph is 20 px.
+		const prostokat = await fb.boundingBox();
+		expect(prostokat).not.toBeNull();
+		expect(prostokat?.height ?? 0).toBeGreaterThanOrEqual(44);
 	});
 
 	test('footer links to Deklaracja dostępności, Polityka prywatności and Kontakt (SITE-03)', async ({

@@ -86,6 +86,16 @@ export const contact = {
 	 *  content, so there is no placeholder marker here. This one field feeds every surface
 	 *  that shows an address, so a future change is again a one-place edit. */
 	email: 'publicznyzlobek@ugstromiec.pl',
+	/** The żłobek's own Facebook page, given by the director in her mail of 2026-09-29. She
+	 *  asked for the icon „na wszystkich stronach i przy Aktualnościach", so the address now
+	 *  has three surfaces: the footer of every route plus both Aktualności headings. It lives
+	 *  here as ONE field and every one of those three interpolates it, so moving the żłobek to
+	 *  a different page (or to a vanity URL once the page gets one) is a one-place edit and no
+	 *  two surfaces can point at different profiles. The trailing `#` that came with the
+	 *  pasted link is stripped: it is an empty fragment, not part of the address.
+	 *
+	 *  Not placeholder content, so there is no placeholder marker here. */
+	facebookUrl: 'https://www.facebook.com/profile.php?id=61593361692060',
 	/** The inspektor ochrony danych, NAME AND ADDRESS TOGETHER, because art. 11 of the
 	 *  ustawa of 10 May 2018 o ochronie danych osobowych requires both and a field pair
 	 *  that can be filled in halves is a field pair that eventually is.

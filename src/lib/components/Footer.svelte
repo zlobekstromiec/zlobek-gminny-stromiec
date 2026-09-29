@@ -5,7 +5,13 @@
 	// versions live in TopBar, Hero and ContactAndMap). BIP stays an external
 	// municipal system:
 	// do NOT rebuild it (RESEARCH Pitfall 14).
+	//
+	// TWO external links now, not one (quick 260929-ips, Amendment v1.8): BIP and the
+	// żłobek's Facebook page. Both hold the project's single external-link pattern
+	// byte for byte: target="_blank", rel="noopener noreferrer" and the visually hidden
+	// „(otwiera się w nowej karcie)" suffix, so neither is a special case.
 	import AdresEmail from './AdresEmail.svelte';
+	import IconFacebook from '$lib/icons/IconFacebook.svelte';
 	import Wave from './Wave.svelte';
 	import { contact } from '$lib/content/site';
 	import { nipDoWyswietlenia, regonDoWyswietlenia } from '$lib/identyfikatory';
@@ -98,6 +104,23 @@
 							rel="noopener noreferrer"
 						>
 							Biuletyn Informacji Publicznej (BIP)<span class="visually-hidden">
+								(otwiera się w nowej karcie)</span
+							>
+						</a>
+					</li>
+					<!-- The żłobek's Facebook page (quick 260929-ips, Amendment v1.8). Same external
+					     pattern as BIP above; the address comes from site.ts, where it exists once.
+					     The visible Polish label is what names the link, the mark beside it is
+					     aria-hidden, so the icon is never the accessible name. -->
+					<li>
+						<a
+							class="footer-link"
+							href={contact.facebookUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							<IconFacebook size={20} />
+							Profil żłobka na Facebooku<span class="visually-hidden">
 								(otwiera się w nowej karcie)</span
 							>
 						</a>
@@ -271,6 +294,9 @@
 	.footer-link {
 		display: inline-flex;
 		align-items: center;
+		/* Spacing for the one link that carries a mark beside its label (Facebook); the
+		   others hold a single text node, so the declaration changes nothing for them. */
+		gap: 8px;
 		min-height: 44px;
 		font-family: var(--font-body);
 		font-size: 14px;
@@ -311,7 +337,8 @@
 		margin: 0;
 	}
 
-	/* Visually hidden but exposed to assistive tech (new-tab suffix on the BIP link). */
+	/* Visually hidden but exposed to assistive tech (the new-tab suffix on both external
+	   links, BIP and Facebook). */
 	.visually-hidden {
 		position: absolute;
 		width: 1px;
