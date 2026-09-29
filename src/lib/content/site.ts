@@ -50,6 +50,13 @@ export const recruitmentOpen = nabor.otwarty;
  *  Copy and rules live in .planning/DESIGN-BANK.md (accent bg, never danger). */
 export const openingBanner = false;
 
+/** The site's own origin, ABSOLUTE and without a trailing slash (quick 260929-kzw). It is
+ *  the host every canonical and Open Graph URL is built on, so the *.pages.dev alias, which
+ *  serves identical HTML, defers to this domain in search results instead of duplicating it.
+ *  The domain is owned (bought 2026-08-13) and both hostnames are attached to the Pages
+ *  project; robots.txt and sitemap.xml under static/ name the same host by hand. */
+export const siteUrl = 'https://zlobekstromiec.pl';
+
 export const contact = {
 	/** The administrator's own name, as every document the inspektor ochrony danych
 	 *  delivered on 2026-09-21 spells it. It exists as a FIELD rather than as a literal in

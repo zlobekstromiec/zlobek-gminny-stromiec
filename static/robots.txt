@@ -1,6 +1,8 @@
-# Placeholder deployment on *.pages.dev — disallow ALL crawling (D-11).
-# The site is intentionally not indexed while it lives on the free Cloudflare
-# Pages subdomain. At Phase 6 (custom domain / launch) this flips to an
-# allow-all group plus a `Sitemap:` reference to the real sitemap.xml.
+# Indexable since 2026-09-29 (quick 260929-kzw), at the director's request. Until then
+# this file disallowed everything (D-11) while the site lived on *.pages.dev. The panel
+# stays out of search engines: its pages also carry a noindex meta of their own.
 User-agent: *
-Disallow: /
+Disallow: /admin
+Allow: /
+
+Sitemap: https://zlobekstromiec.pl/sitemap.xml

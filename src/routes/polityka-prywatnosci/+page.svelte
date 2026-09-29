@@ -32,7 +32,9 @@
 
 <svelte:head>
 	<title>Polityka prywatności | Publiczny Żłobek w Stromcu</title>
-	<meta name="robots" content="noindex" />
+	<!-- The `noindex` that stood here came off on 2026-09-29 with the rest of the public
+	     site (quick 260929-kzw): this page carries the administrator's full klauzula and
+	     a parent searching for it should find it. -->
 </svelte:head>
 
 <div class="policy">

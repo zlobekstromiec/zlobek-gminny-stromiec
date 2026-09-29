@@ -335,13 +335,15 @@ test.describe('Homepage: Phase 1 + 01.1 acceptance', () => {
 		expect(rel).toContain('noreferrer');
 	});
 
-	test('emits Polish per-route SEO metadata with noindex (D-10, D-11)', async ({ page }) => {
+	test('emits Polish per-route SEO metadata, indexable since 2026-09-29 (D-10, quick 260929-kzw)', async ({
+		page
+	}) => {
 		await page.goto('/');
 		await expect(page).toHaveTitle(/Publiczny Żłobek w Stromcu/);
 		await expect(page.locator('head meta[name="description"]')).toHaveAttribute('content', /.+/);
 		await expect(page.locator('head link[rel="canonical"]')).toHaveCount(1);
 		await expect(page.locator('head meta[property="og:image"]')).toHaveCount(1);
-		await expect(page.locator('head meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+		await expect(page.locator('head meta[name="robots"]')).toHaveCount(0);
 	});
 
 	test('no WCAG 2.1 AA violations (SITE-04 / A11Y baseline)', async ({ page }) => {

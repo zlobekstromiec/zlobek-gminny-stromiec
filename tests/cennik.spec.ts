@@ -253,14 +253,16 @@ test.describe('Cennik: FEES-01 acceptance', () => {
 		);
 	});
 
-	test('emituje polskie metadane SEO wraz z noindex (D-11)', async ({ page }) => {
+	test('emituje polskie metadane SEO bez noindex, indeksowana od 2026-09-29 (quick 260929-kzw)', async ({
+		page
+	}) => {
 		await page.goto('/cennik');
 		await expect(page).toHaveTitle('Cennik: Publiczny Żłobek w Stromcu');
 		await expect(page.locator('head meta[name="description"]')).toHaveAttribute(
 			'content',
 			/Opłaty w Publicznym Żłobku w Stromcu/
 		);
-		await expect(page.locator('head meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+		await expect(page.locator('head meta[name="robots"]')).toHaveCount(0);
 	});
 
 	test('brak naruszeń WCAG 2.1 AA (SITE-04 / A11Y baseline)', async ({ page }) => {

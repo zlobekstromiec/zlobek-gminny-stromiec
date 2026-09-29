@@ -164,10 +164,12 @@ test.describe('O nas: Phase 2 acceptance', () => {
 		await expect(page.locator('main h4, main h5, main h6')).toHaveCount(0);
 	});
 
-	test('emits Polish per-route SEO metadata with noindex (D-11)', async ({ page }) => {
+	test('emits Polish per-route SEO metadata, indexable since 2026-09-29 (quick 260929-kzw)', async ({
+		page
+	}) => {
 		await page.goto('/o-nas');
 		await expect(page).toHaveTitle(/O nas/);
-		await expect(page.locator('head meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+		await expect(page.locator('head meta[name="robots"]')).toHaveCount(0);
 	});
 
 	test('no WCAG 2.1 AA violations (SITE-04 / A11Y baseline)', async ({ page }) => {

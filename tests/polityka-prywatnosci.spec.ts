@@ -31,9 +31,11 @@ test.describe('Polityka prywatności: strona prawna o dwóch zakresach', () => {
 		await expect(page.getByRole('heading', { name: POLITYKA_TYTUL, level: 1 })).toBeVisible();
 	});
 
-	test('strona zostaje noindex (cała witryna jest noindex do Fazy 6/7)', async ({ page }) => {
+	test('strona jest indeksowana od 2026-09-29 (quick 260929-kzw), bez noindex', async ({
+		page
+	}) => {
 		await page.goto('/polityka-prywatnosci');
-		await expect(page.locator('head meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+		await expect(page.locator('head meta[name="robots"]')).toHaveCount(0);
 	});
 
 	test('no WCAG 2.1 AA violations', async ({ page }) => {

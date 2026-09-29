@@ -1,28 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Scaffolded noindex-aligned (D-11): the sitemap exists as the mechanism but is
-  NOT advertised to crawlers (no `Sitemap:` line in robots.txt) while the site is
-  on the *.pages.dev placeholder. The host below is a PLACEHOLDER; at Phase 6 the
-  real custom domain and the full URL set (all five sections) land here, and
-  robots.txt flips to allow-all + references this file.
+  Indexable since 2026-09-29 (quick 260929-kzw). The eight section pages are listed by hand
+  on the custom domain; single news posts are not, because their set changes with every
+  panel save and crawlers reach them from /aktualnosci anyway. /deklaracja-dostepnosci is
+  left out on purpose: it is an interim stub with its own noindex until Phase 6 rebuilds it.
 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://zlobek-stromiec.pages.dev/</loc>
-    <lastmod>2026-08-12</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://zlobekstromiec.pl/</loc>
+    <lastmod>2026-09-29</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://zlobek-stromiec.pages.dev/kontakt</loc>
-    <lastmod>2026-08-14</lastmod>
+    <loc>https://zlobekstromiec.pl/aktualnosci</loc>
+    <lastmod>2026-09-29</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://zlobekstromiec.pl/rekrutacja</loc>
+    <lastmod>2026-09-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://zlobekstromiec.pl/o-nas</loc>
+    <lastmod>2026-09-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://zlobek-stromiec.pages.dev/rekrutacja</loc>
-    <lastmod>2026-08-14</lastmod>
+    <loc>https://zlobekstromiec.pl/cennik</loc>
+    <lastmod>2026-09-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://zlobekstromiec.pl/dokumenty</loc>
+    <lastmod>2026-09-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://zlobekstromiec.pl/kontakt</loc>
+    <lastmod>2026-09-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://zlobekstromiec.pl/polityka-prywatnosci</loc>
+    <lastmod>2026-09-29</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
   </url>
 </urlset>

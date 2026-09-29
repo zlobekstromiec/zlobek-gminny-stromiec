@@ -59,10 +59,14 @@
 	const przewiniete = $derived(scrollY > 4);
 </script>
 
+<!-- `noindex` is EXPLICIT here since quick 260929-kzw: the public routes became indexable
+     that day and Seo's default flipped with them, so the panel is now the one caller that
+     asks to stay out of search engines (T-04.1-14, asserted by tests/admin-auth.spec.ts). -->
 <Seo
 	title={tytulStrony(data.sekcja)}
 	description="Panel redakcyjny strony Publicznego Żłobka w Stromcu. Dostęp wyłącznie dla osób upoważnionych."
 	canonical="/admin"
+	noindex
 />
 
 <!-- Must sit at the top level: a svelte:window tag cannot live inside an element or a
