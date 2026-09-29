@@ -9,7 +9,9 @@
 	// tolerated meanwhile as known-future 404s by the /aktualnosci allow-list entry.
 	import Seo from '$lib/components/Seo.svelte';
 	import NewsCard from '$lib/components/NewsCard.svelte';
+	import IconFacebook from '$lib/icons/IconFacebook.svelte';
 	import Newspaper from '@lucide/svelte/icons/newspaper';
+	import { contact } from '$lib/content/site';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -28,6 +30,15 @@
 		<h1>Aktualności</h1>
 		<p class="lead">
 			Wydarzenia, ogłoszenia i nowości z życia żłobka. Najnowsze wpisy znajdziesz na górze.
+		</p>
+		<!-- The same link the homepage news header carries (quick 260929-ips, Amendment v1.8),
+		     under the lead and OUTSIDE the h1: a link inside the heading would make the page
+		     title itself a link target. The heading order above is untouched. -->
+		<p class="akcja">
+			<a class="link-facebook" href={contact.facebookUrl} target="_blank" rel="noopener noreferrer">
+				<IconFacebook size={20} />
+				Śledź nas na Facebooku<span class="visually-hidden"> (otwiera się w nowej karcie)</span>
+			</a>
 		</p>
 	</div>
 </header>
@@ -123,6 +134,25 @@
 		color: var(--color-muted);
 		max-width: 56ch;
 		margin: 0;
+	}
+
+	.akcja {
+		margin: 16px 0 0;
+	}
+
+	/* brand-blue on the light page head: the Accessible tier token, matching the same link in
+	   NewsPreview.svelte. The mark takes the colour through `currentColor` and its letter is a
+	   cut-out, so the surface behind shows through it. */
+	.link-facebook {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		min-height: 44px;
+		font-family: var(--font-body);
+		font-size: 16px;
+		font-weight: 700;
+		color: var(--color-brand-blue);
+		text-decoration: underline;
 	}
 
 	/* Single column at every width (Amendment v1.6 §10): each card is the poziomy

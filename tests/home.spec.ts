@@ -91,6 +91,36 @@ test.describe('Homepage: Phase 1 + 01.1 acceptance', () => {
 		expect(cardCount).toBeLessThanOrEqual(3);
 	});
 
+	// quick 260929-ips / Amendment v1.8: the director asked for the mark „przy Aktualnościach",
+	// so the news header on the homepage carries a link to the żłobek's page. It sits BESIDE the
+	// heading and never inside it: a link nested in an h2 makes the heading's text a link target
+	// and muddles both the heading and the link for a screen reader, so the `h2 a` count below
+	// is the real assertion, not the prose.
+	test('nagłówek Aktualności na stronie głównej prowadzi do profilu na Facebooku (quick 260929-ips)', async ({
+		page
+	}) => {
+		await page.goto('/');
+		const news = page.locator('section.news');
+		const fb = news.getByRole('link', {
+			name: 'Śledź nas na Facebooku (otwiera się w nowej karcie)'
+		});
+		await expect(fb).toBeVisible();
+		await expect(fb).toHaveAttribute('href', contact.facebookUrl);
+		await expect(fb).toHaveAttribute('target', '_blank');
+		const rel = (await fb.getAttribute('rel')) ?? '';
+		expect(rel).toContain('noopener');
+		expect(rel).toContain('noreferrer');
+		await expect(fb).toContainText('Śledź nas na Facebooku');
+
+		// Structure, not source order: nothing anywhere in the section's headings is a link.
+		expect(await news.locator('h2 a').count()).toBe(0);
+
+		// The new link is not a post tile: the curated subset stays at one to three cards.
+		const cardCount = await news.locator('a.news-card').count();
+		expect(cardCount).toBeGreaterThan(0);
+		expect(cardCount).toBeLessThanOrEqual(3);
+	});
+
 	test('TopBar surfaces opening hours on every viewport', async ({ page }) => {
 		await page.goto('/');
 		await expect(page.getByText('Czynne:', { exact: false })).toBeVisible();

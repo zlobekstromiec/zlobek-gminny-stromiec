@@ -8,7 +8,8 @@
 	import Newspaper from '@lucide/svelte/icons/newspaper';
 	import Cta from './Cta.svelte';
 	import NewsCard from './NewsCard.svelte';
-	import type { Post } from '$lib/content/site';
+	import IconFacebook from '$lib/icons/IconFacebook.svelte';
+	import { contact, type Post } from '$lib/content/site';
 
 	let { posts }: { posts: Post[] } = $props();
 </script>
@@ -17,7 +18,23 @@
 	<div class="news-inner">
 		<div class="news-header">
 			<h2 id="news-heading">Aktualności</h2>
-			<Cta href="/aktualnosci" variant="secondary">Zobacz wszystkie</Cta>
+			<!-- Both actions share ONE flex child (quick 260929-ips, Amendment v1.8). The header
+			     is a space-between pair by design: heading left, actions right. A third direct
+			     child would turn that into three spread-out columns and, once it wrapped, leave
+			     the Facebook link stranded on a line of its own. The link sits BESIDE the h2,
+			     never inside it. -->
+			<div class="news-akcje">
+				<Cta href="/aktualnosci" variant="secondary">Zobacz wszystkie</Cta>
+				<a
+					class="link-facebook"
+					href={contact.facebookUrl}
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					<IconFacebook size={20} />
+					Śledź nas na Facebooku<span class="visually-hidden"> (otwiera się w nowej karcie)</span>
+				</a>
+			</div>
 		</div>
 
 		{#if posts.length > 0}
@@ -87,6 +104,42 @@
 		justify-content: space-between;
 		gap: 16px;
 		margin-bottom: 24px;
+	}
+
+	.news-akcje {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 16px;
+	}
+
+	/* brand-blue is the Accessible tier token this file already paints `.empty-icon` with, so
+	   the link introduces no new colour. `currentColor` carries it into the mark, whose letter
+	   is a cut-out, so the warm surface behind shows through it. */
+	.link-facebook {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		min-height: 44px;
+		font-family: var(--font-body);
+		font-size: 16px;
+		font-weight: 700;
+		color: var(--color-brand-blue);
+		text-decoration: underline;
+	}
+
+	/* Svelte styles are scoped, so the new-tab suffix needs its own copy of this rule here;
+	   the one in Footer.svelte does not reach this component and the suffix would be visible. */
+	.visually-hidden {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0 0 0 0);
+		white-space: nowrap;
+		border: 0;
 	}
 
 	.news-header h2 {

@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { test, expect, type Locator } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { contact } from '../src/lib/content/site';
 
 /**
  * Aktualności list acceptance test: encodes NEWS-01 (a visitor can view a list
@@ -65,6 +66,29 @@ test.describe('Aktualności: NEWS-01 list acceptance', () => {
 		const pierwszaData = await cards.first().locator('time').getAttribute('datetime');
 		const pierwszyHref = await cards.first().getAttribute('href');
 		expect(pierwszyHref).toContain(pierwszaData ?? 'brak-daty');
+	});
+
+	// quick 260929-ips / Amendment v1.8: the same link as the homepage news header, on the page
+	// the director named. It sits under the lead paragraph, inside the page header, and never
+	// inside the h1: the `h1 a` count below is what holds that, and the h1 count above stays at
+	// one, so adding it cannot have introduced a second heading.
+	test('nagłówek strony prowadzi do profilu na Facebooku, poza samym h1 (quick 260929-ips)', async ({
+		page
+	}) => {
+		await page.goto('/aktualnosci');
+		const fb = page.locator('.page-head').getByRole('link', {
+			name: 'Śledź nas na Facebooku (otwiera się w nowej karcie)'
+		});
+		await expect(fb).toBeVisible();
+		await expect(fb).toHaveAttribute('href', contact.facebookUrl);
+		await expect(fb).toHaveAttribute('target', '_blank');
+		const rel = (await fb.getAttribute('rel')) ?? '';
+		expect(rel).toContain('noopener');
+		expect(rel).toContain('noreferrer');
+		await expect(fb).toContainText('Śledź nas na Facebooku');
+
+		expect(await page.locator('h1 a').count()).toBe(0);
+		await expect(page.locator('h1')).toHaveCount(1);
 	});
 
 	test('brak naruszeń WCAG 2.1 AA (SITE-04 / A11Y baseline)', async ({ page }) => {
