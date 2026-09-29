@@ -646,3 +646,61 @@ store.
 - **Nothing in this phase's own acceptance evidence may require real photography.** The
   gallery is demonstrable end to end with placeholder images on the formats the panel
   already accepts.
+
+---
+
+## Amendment v1.8 (2026-09-29): odnośnik do profilu na Facebooku
+
+Źródło: mail dyrektor z 2026-09-29, prośba o ikonę Facebooka „na wszystkich stronach i przy
+Aktualnościach", z wyraźnym wskazaniem rodziców korzystających z czytnika ekranu. Wykonane
+w zadaniu szybkim `260929-ips`. Trzy powierzchnie, nie cztery.
+
+### 1. Stopka: kolumna „Informacje" ma pięć wierszy, nie cztery
+
+Wyliczenie tej kolumny z Amendment v1.2 jest tutaj poprawione. Kolejność: Deklaracja
+dostępności, Polityka prywatności (RODO), Biuletyn Informacji Publicznej (BIP), **Profil
+żłobka na Facebooku**, Kontakt. Nowy wiersz trzyma wzorzec odnośnika zewnętrznego identyczny
+z BIP, bajt w bajt: `target="_blank"`, `rel="noopener noreferrer"` i wizualnie ukryty sufiks
+`(otwiera się w nowej karcie)`. Kolor i cel dotykowy bierze z istniejącej reguły
+`.footer-link` (`--color-band` na brand-blue, para zmierzona na AA w tabeli v1.2, minimalna
+wysokość 44 px); doszła jedynie deklaracja `gap: 8px` dla odstępu między marką a etykietą.
+Kolumna „Na skróty" jest nietknięta.
+
+### 2. Oba nagłówki Aktualności: odnośnik OBOK nagłówka, nigdy w nim
+
+Sekcja `Aktualności` na stronie głównej i nagłówek strony `/aktualnosci` niosą odnośnik
+`Śledź nas na Facebooku`: brand-blue, podkreślony, 16 px / 700, cel dotykowy 44 px, ta sama
+marka 20 px i ten sam wizualnie ukryty sufiks. Na stronie głównej `Cta „Zobacz wszystkie"`
+i nowy odnośnik dzielą jeden blok akcji, więc nagłówek pozostaje parą `space-between`
+(nagłówek po lewej, akcje po prawej). Na `/aktualnosci` odnośnik stoi pod akapitem
+wiodącym, wewnątrz nagłówka strony. Odnośnik NIGDY nie jest potomkiem `h1` ani `h2`:
+`tests/home.spec.ts` i `tests/aktualnosci.spec.ts` liczą `h2 a` oraz `h1 a` i wymagają zera.
+Kolejność nagłówków `/aktualnosci` bez zmian: `h1 Aktualności`, potem wizualnie ukryty
+`h2 Wszystkie wpisy`.
+
+### 3. Pasek górny zostaje dwuelementowy
+
+`TopBar.svelte` NIE dostaje odnośnika i jest to decyzja, nie przeoczenie. Powody, w kolejności
+wagi: (a) stopka renderuje się na każdej trasie, więc „na wszystkich stronach" jest już
+spełnione i pasek nie dodałby ani jednej strony; (b) układ paska to para `space-between`,
+a trzeci element przy 390 px ląduje w trzecim wierszu zawijania jako osierocony glif;
+(c) cel 44 px pogrubiłby pasek o 8 px na wszystkich trasach za duplikat odnośnika;
+(d) odnośnik tylko z ikoną jest najsłabszą formą dostępności, a prośba wprost dotyczyła
+osób z niepełnosprawnością wzroku. Decyzja jest zapisana także w komentarzu `TopBar.svelte`.
+Jeśli obecność w górnej części strony będzie kiedyś potrzebna, właściwym miejscem jest
+`Header.svelte` i jest to osobna zmiana z własną poprawką.
+
+### 4. `IconFacebook` jest świadomym wyjątkiem od kontraktu duotone z paragrafu 7
+
+`@lucide/svelte` 1.31.0 nie ma ŻADNEJ ikony marki (Lucide je usunął), więc marka jest
+napisana ręcznie w `src/lib/icons/IconFacebook.svelte` i żadna nowa zależność nie weszła.
+Łamie kontrakt duotone (obrys 2 px, `fill="var(--icon-fill, none)"`) celowo: obrysowa litera
+f czyta się jak zwykła litera, a znak marki musi być rozpoznawalny. Kontrakt tej jednej
+ikony: `viewBox="0 0 24 24"`, `fill="currentColor"`, płyta zaokrąglonego kwadratu z literą
+WYCIĘTĄ przez `fill-rule="evenodd"`, więc tło prześwieca i jeden kolor działa na
+brand-blue w stopce oraz na białym i ciepłym tle przy Aktualnościach. Poza tym jak każda
+ikona w tym katalogu: `aria-hidden="true"`, `focusable="false"`, prop `size` (używamy 20).
+Ikona nigdy nie jest jedyną nazwą odnośnika.
+
+Poza wyliczeniem kolumny stopki z punktu 1 żadna istniejąca sekcja tej specyfikacji nie jest
+przepisywana.
