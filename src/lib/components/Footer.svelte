@@ -132,7 +132,7 @@
 			</div>
 		</nav>
 
-		<div class="col">
+		<div class="col hours-col">
 			<h2 class="col-heading">Godziny otwarcia</h2>
 			<!-- COMPOSED, not typed. Until plan 05-09 these three lines were hard-coded here
 			     while the same hours also lived in the homepage tile and in `contact.hours`,
@@ -178,6 +178,19 @@
 		.inner {
 			grid-template-columns: 1.2fr 2fr 1fr;
 			padding-inline: 32px;
+		}
+	}
+
+	/* Desktop only: the brand column is about 450px tall (192px badge, wordmark, five
+	   address lines, NIP, program chips) while the tallest link column is about 305px,
+	   so top-aligned link columns left a 145px void under them. The offset drops the
+	   three link groups so their headings stay level with each other beside the badge
+	   and their last lines land on the chips' baseline. Below 1024px the hours block
+	   wraps under the brand column, so the offset would only open a gap there. */
+	@media (min-width: 1024px) {
+		.footer-links,
+		.hours-col {
+			padding-top: 145px;
 		}
 	}
 
