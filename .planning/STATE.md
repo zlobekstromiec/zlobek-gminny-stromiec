@@ -5,10 +5,10 @@ current_phase: 6
 current_phase_name: Accessibility, Legal Compliance & Performance
 status: executing
 stopped_at: Quick 261024-sq8 zamkniety; nowe logo-odznaka dyrektor w naglowku, stopce, panelu i favikonach; paleta strony i og-placeholder.png nadal ze starej identyfikacji
-last_updated: "2026-10-24T21:25:07.496Z"
+last_updated: "2026-10-24T21:33:08.831Z"
 last_activity: 2026-10-24
 last_activity_desc: "Quick 261024-sq8: nowe logo-odznaka od dyrektor (pictures/Logo żłobek.png) zastepuje tymczasowe; jeden plik src/lib/assets/brand/logo-badge.png w Header, Footer, pasku /admin i na /admin/logowanie, nowe favicon.png i apple-touch-icon.png, stare logo-full/logo-mark usuniete, UI-SPEC Amendment v1.9"
-state_head: 24bbee293933be7b5bd9be27347c30e1d9902c51
+state_head: b796ef38d3d33e47f7d6e0ffab2ad0c85b0a97ad
 progress:
   total_phases: 9
   completed_phases: 5
@@ -355,6 +355,7 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 | 260929-kzw | Wlaczenie indeksowania na prosbe dyrektor: D-11 zamkniete, bo jego przeslanka (strona tylko na *.pages.dev) wygasla 2026-08-14. Seo.svelte: noindex domyslnie false, canonical/og:url/og:image absolutne na nowej stalej siteUrl; panel jawnie noindex; polityka prywatnosci bez recznego noindex; deklaracja (stub) nadal noindex; robots.txt Allow / + Disallow /admin + Sitemap; sitemap.xml osiem stron sekcji na zlobekstromiec.pl. Cztery testy noindex odwrocone, nowy tests/indeksowanie.spec.ts pinuje robots, sitemap (kazdy adres 200) i absolutny canonical. Google Search Console do zrobienia recznie. Tryb gsd-fast | 2026-09-29 | 7b32553 | [260929-kzw-wlaczenie-indeksowania-noindex-zdjete-z-](./quick/260929-kzw-wlaczenie-indeksowania-noindex-zdjete-z-/) |
 | 261024-sq8 | Nowe logo od dyrektor (odznaka ze sloniem z pictures/Logo żłobek.png) zastepuje tymczasowe: jeden plik logo-badge.png w naglowku 52 px, stopce 128 px bez bialej karty, pasku panelu 40 px i na ekranie logowania 52 px; favicon i ikona Apple z przezroczystym tlem; stare logo-full/logo-mark usuniete; UI-SPEC v1.9. Do zrobienia: paleta strony nadal niebiesko-pomaranczowa, og-placeholder.png ze starym logo | 2026-10-24 | e19706f | [261024-sq8-replace-the-temporary-logo-with-the-dire](./quick/261024-sq8-replace-the-temporary-logo-with-the-dire/) |
 | 10 | Wieksza odznaka: w stopce 192 px zamiast 128 px, w pasku od 1024 px 76 px w pasku 88 px (telefon bez zmian, 52 px w 64 px, bo szerszy znak spychal tagline poza pasek) | 2026-10-24 | 24bbee2 | — |
+| 10 | Stopka na desktopie: trzy kolumny odnosnikow i godzin zsuniete o 145 px, naglowki na wysokosci wstegi odznaki, ostatnie wiersze na linii chipow (pustka pod kolumnami zniknela); tablet i telefon bez zmian | 2026-10-24 | b796ef3 | — |
 
 ### Roadmap Evolution
 
