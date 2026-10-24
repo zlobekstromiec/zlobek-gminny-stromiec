@@ -704,3 +704,62 @@ Ikona nigdy nie jest jedyną nazwą odnośnika.
 
 Poza wyliczeniem kolumny stopki z punktu 1 żadna istniejąca sekcja tej specyfikacji nie jest
 przepisywana.
+
+---
+
+## Amendment v1.9 (2026-10-24): logo dyrektor, odznaka zamiast sygnetu
+
+Źródło: logo dostarczone przez dyrektor 2026-10-24 jako `pictures/Logo żłobek.png` (2000 x 2000 px,
+katalog `pictures/` jest w `.gitignore` i plik nigdy nie trafia do repozytorium). Wykonane
+w zadaniu szybkim `261024-sq8`. Odznaka zastępuje tymczasową grafikę ze słońcem i domkiem na
+wszystkich powierzchniach marki.
+
+### 1. Źródło i model zasobu: jeden plik zamiast dwóch
+
+Logo dyrektor to okrągła odznaka (słoń na fioletowym tle, turkusowa falista obwódka, wstęga
+z hasłem), w której nazwa żłobka jest częścią grafiki. Nie ma osobnego napisu, który dałoby się
+odciąć, więc dwuplikowy model z Amendment v1.3 (pełny znak i sygnet) zostaje wycofany. Jest
+jeden plik: `src/lib/assets/brand/logo-badge.png`, przezroczysty, najdłuższy bok 1024 px.
+Białe tło usunięto spójnym wypełnieniem (flood fill) rozpoczętym od każdego piksela krawędzi,
+z progiem R, G i B co najmniej 245. To NIE jest globalna zamiana bieli: 278 jasnych pikseli
+wewnątrz odznaki (odblaski oczu i wstęgi) zostaje nieprzezroczystych. Kadr to obrys kanału
+alfa plus 4 px marginesu z każdej strony. Wiele rozdzielczości w AVIF i WebP generuje
+`enhanced:img` z tego jednego źródła.
+
+### 2. Nagłówek: odznaka w miejscu sygnetu, ta sama wysokość
+
+Odznaka zastępuje sygnet z v1.3 §1 przy tej samej wysokości 52 px (szerokość wynika z proporcji,
+około 52 px wobec około 48 px wcześniej). Dwuwierszowy napis tekstowy pozostaje dostępną nazwą
+odnośnika, a obraz ma pusty `alt`. Tekst wewnątrz odznaki jest przy tej wielkości nieczytelny
+i jest to akceptowane, bo grafika jest dekoracyjna. Reszta v1.3 §1 obowiązuje bez zmian.
+
+### 3. Stopka: odznaka bez białej karty (zastępuje v1.3 §2)
+
+Odznaka stoi bezpośrednio na brand-blue, w stałej szerokości 128 px, BEZ białej karty. Karta
+istniała wyłącznie po to, by niebiesko-pomarańczowy napis starego znaku był czytelny na
+niebieskim tle; odznaka jest samodzielna i na brand-blue czyta się czysto, co potwierdził
+zrzut ekranu z działającej strony przy 390 px i 1280 px. Kwadratowa odznaka w karcie o szerokości
+280 px wyglądałaby jak znaczek pocztowy. Obraz jest dekoracyjny, ma pusty `alt`, a nazwę niesie
+`.footer-wordmark` pod nim. Klasa opakowania to `.brand-badge`.
+
+### 4. Panel redakcyjny: ta sama odznaka
+
+Pasek panelu (40 px wysokości, `sizes="40px"`) i ekran `/admin/logowanie` (52 px,
+`sizes="52px"`) używają tej samej odznaki, z pustym `alt` i bez zmian w tekstach panelu.
+
+### 5. Ikony karty i ekranu głównego wygenerowane z odznaki
+
+v1.3 §3 obowiązuje w tych samych rozmiarach i konwencjach, tylko ze źródłem w odznace:
+`static/favicon.png` to 512 x 512 px z przezroczystym tłem, `static/apple-touch-icon.png` to
+180 x 180 px, nieprzezroczysta biała płytka z odznaką na około 80 procent (bezpieczna strefa
+144 px). Oba pliki są zapisane jako PNG z paletą 256 kolorów, bo malarska faktura odznaki
+rozdmuchała bezstratny favicon do 436 KB; po kwantyzacji ma 120 KB (poprzedni miał 157 KB),
+bez różnicy widocznej na zrzucie. Odwołania w `src/app.html` i `static/site.webmanifest`
+są nietknięte. Przy 16 px odznaka czyta się jako fioletowy krążek z turkusowym rantem i jasną
+plamą słonia; jest to akceptowane, bo odznaka nie ma prostszego znaku.
+
+### 6. Znana niezgodność, celowo nierozstrzygnięta
+
+Paleta strony to nadal kontrakt niebiesko-żółto-pomarańczowy z v1.2, a odznaka jest
+fioletowo-turkusowa. Ponowne wyprowadzenie palety to osobna decyzja i nie jest częścią tej
+poprawki.
