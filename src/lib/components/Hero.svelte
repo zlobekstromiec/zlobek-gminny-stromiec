@@ -188,6 +188,21 @@
 		margin-bottom: 24px;
 	}
 
+	/* From 640px the row is a two-column grid sized by the first two buttons, and the
+	   Facebook button spans both columns, so its width is exactly Zapisz + gap +
+	   Zadzwoń and the block reads as one neat stack. Below 640px the three buttons
+	   wrap to their own rows anyway, so the flex row above stays. */
+	@media (min-width: 640px) {
+		.cta-row {
+			display: grid;
+			grid-template-columns: max-content max-content;
+		}
+
+		.cta-row > :global(:nth-child(3)) {
+			grid-column: 1 / -1;
+		}
+	}
+
 	.phone-line {
 		font-family: var(--font-body);
 		font-size: 15px;
