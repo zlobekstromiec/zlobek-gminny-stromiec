@@ -26,7 +26,7 @@
 	<div class="inner">
 		<div class="col brand-col">
 			<div class="brand-badge">
-				<enhanced:img src={logoBadge} alt="" sizes="128px" />
+				<enhanced:img src={logoBadge} alt="" sizes="192px" />
 			</div>
 			<p class="footer-wordmark">Publiczny Żłobek w Stromcu</p>
 			<p class="org">
@@ -204,7 +204,7 @@
 
 	.brand-badge :global(img) {
 		display: block;
-		width: 128px;
+		width: 192px;
 		height: auto;
 	}
 

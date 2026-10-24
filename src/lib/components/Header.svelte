@@ -26,7 +26,7 @@
 	<div class="bar">
 		<a class="wordmark" href="/">
 			<span class="brand-mark">
-				<enhanced:img src={logoBadge} alt="" sizes="52px" />
+				<enhanced:img src={logoBadge} alt="" sizes="(min-width: 1024px) 76px, 52px" />
 			</span>
 			<span class="wordmark-text">
 				<span class="wordmark-name">Publiczny Żłobek w Stromcu</span>
@@ -87,7 +87,7 @@
 
 	@media (min-width: 1024px) {
 		.bar {
-			height: 72px;
+			height: 88px;
 			padding-inline: 32px;
 		}
 	}
@@ -121,6 +121,16 @@
 		width: auto;
 	}
 
+	/* The badge carries its own lettering, so from 1024px the bar grows to 88px and
+	   the badge to 76px so the text inside is legible on desktop. Below 1024px the
+	   52px emblem geometry stays: a wider badge pushes the two-line wordmark and the
+	   tagline past the 64px bar on a 390px phone. */
+	@media (min-width: 1024px) {
+		.brand-mark :global(img) {
+			height: 76px;
+		}
+	}
+
 	.wordmark-text {
 		display: flex;
 		flex-direction: column;
@@ -150,7 +160,7 @@
 
 	/* Desktop links: hidden below lg, horizontal flex from 1024px up (v1.7 §1).
 	   The tier moved from 768px rather than the geometry: a sixth chip does not fit
-	   at 768px beside the 52px emblem and the two-line wordmark without tightening
+	   at 768px beside the 52px badge and the two-line wordmark without tightening
 	   the chip padding below the locked 44px-target geometry, so below 1024px the
 	   inherited hamburger drawer serves and it carries Cennik too. */
 	.desktop-nav {
