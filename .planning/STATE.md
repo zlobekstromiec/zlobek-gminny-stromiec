@@ -1,20 +1,20 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.0
-milestone_name: milestone
 current_phase: 6
 current_phase_name: Accessibility, Legal Compliance & Performance
 status: executing
 stopped_at: Quick 261024-sq8 zamkniety; nowe logo-odznaka dyrektor w naglowku, stopce, panelu i favikonach; paleta strony i og-placeholder.png nadal ze starej identyfikacji
-last_updated: "2026-10-24T19:55:00.000Z"
+last_updated: "2026-10-24T21:25:07.496Z"
 last_activity: 2026-10-24
 last_activity_desc: "Quick 261024-sq8: nowe logo-odznaka od dyrektor (pictures/Logo żłobek.png) zastepuje tymczasowe; jeden plik src/lib/assets/brand/logo-badge.png w Header, Footer, pasku /admin i na /admin/logowanie, nowe favicon.png i apple-touch-icon.png, stare logo-full/logo-mark usuniete, UI-SPEC Amendment v1.9"
+state_head: 24bbee293933be7b5bd9be27347c30e1d9902c51
 progress:
   total_phases: 9
-  completed_phases: 6
-  total_plans: 47
+  completed_phases: 5
+  total_plans: 61
   completed_plans: 47
-  percent: 67
+milestone_name: milestone
 ---
 
 # Project State
@@ -354,6 +354,7 @@ External/client-input items (see ROADMAP.md "External Dependencies & Open Items"
 | 260929-klv | Trzecia akcja w hero strony glownej: „Odwiedz nas na Facebooku" (secondary, zewnetrzny, z ukrytym sufiksem o nowej karcie i ta sama ikona co stopka), przez nowe opcje `external` i `ikona` w Cta.svelte; href wylacznie z contact.facebookUrl. Naprawa bledu z iPhone'a: w kaflu „Dokumenty do pobrania" meta nie kurczyla sie, nazwa dostawala okolo 100 px i lamala sie sylabami; ponizej 640 px wiersz jest kolumna (nazwa nad meta), jak juz od 260921-j9c i 260923-mb0 na /dokumenty i /rekrutacja. Dwa nowe testy w home.spec.ts. Tryb gsd-fast | 2026-09-29 | 4509c85 | [260929-klv-przycisk-facebooka-w-hero-i-naprawa-lama](./quick/260929-klv-przycisk-facebooka-w-hero-i-naprawa-lama/) |
 | 260929-kzw | Wlaczenie indeksowania na prosbe dyrektor: D-11 zamkniete, bo jego przeslanka (strona tylko na *.pages.dev) wygasla 2026-08-14. Seo.svelte: noindex domyslnie false, canonical/og:url/og:image absolutne na nowej stalej siteUrl; panel jawnie noindex; polityka prywatnosci bez recznego noindex; deklaracja (stub) nadal noindex; robots.txt Allow / + Disallow /admin + Sitemap; sitemap.xml osiem stron sekcji na zlobekstromiec.pl. Cztery testy noindex odwrocone, nowy tests/indeksowanie.spec.ts pinuje robots, sitemap (kazdy adres 200) i absolutny canonical. Google Search Console do zrobienia recznie. Tryb gsd-fast | 2026-09-29 | 7b32553 | [260929-kzw-wlaczenie-indeksowania-noindex-zdjete-z-](./quick/260929-kzw-wlaczenie-indeksowania-noindex-zdjete-z-/) |
 | 261024-sq8 | Nowe logo od dyrektor (odznaka ze sloniem z pictures/Logo żłobek.png) zastepuje tymczasowe: jeden plik logo-badge.png w naglowku 52 px, stopce 128 px bez bialej karty, pasku panelu 40 px i na ekranie logowania 52 px; favicon i ikona Apple z przezroczystym tlem; stare logo-full/logo-mark usuniete; UI-SPEC v1.9. Do zrobienia: paleta strony nadal niebiesko-pomaranczowa, og-placeholder.png ze starym logo | 2026-10-24 | e19706f | [261024-sq8-replace-the-temporary-logo-with-the-dire](./quick/261024-sq8-replace-the-temporary-logo-with-the-dire/) |
+| 10 | Wieksza odznaka: w stopce 192 px zamiast 128 px, w pasku od 1024 px 76 px w pasku 88 px (telefon bez zmian, 52 px w 64 px, bo szerszy znak spychal tagline poza pasek) | 2026-10-24 | 24bbee2 | — |
 
 ### Roadmap Evolution
 
