@@ -1,12 +1,13 @@
 <script lang="ts">
-	// Persistent sticky header (SITE-03, UI-SPEC v1.3 §3, v1.7 §1). Real circular
-	// brand emblem + two-line wordmark left, six section links right at >= 1024px;
-	// below 1024px the links collapse to the MobileNav hamburger drawer. Active
-	// section is an accent pill chip AND aria-current="page", never colour alone.
+	// Persistent sticky header (SITE-03, UI-SPEC v1.3 §3, v1.7 §1, v1.9). The
+	// director's circular badge + two-line wordmark left, six section links right
+	// at >= 1024px; below 1024px the links collapse to the MobileNav hamburger
+	// drawer. Active section is an accent pill chip AND aria-current="page",
+	// never colour alone.
 	import { page } from '$app/state';
 	import { navLinks } from '$lib/nav';
 	import MobileNav from './MobileNav.svelte';
-	import logoMark from '$lib/assets/brand/logo-mark.png?enhanced';
+	import logoBadge from '$lib/assets/brand/logo-badge.png?enhanced';
 
 	// Reactive current path for the active-link state (Svelte 5 runes).
 	const pathname = $derived(page.url.pathname);
@@ -25,7 +26,7 @@
 	<div class="bar">
 		<a class="wordmark" href="/">
 			<span class="brand-mark">
-				<enhanced:img src={logoMark} alt="" sizes="52px" />
+				<enhanced:img src={logoBadge} alt="" sizes="52px" />
 			</span>
 			<span class="wordmark-text">
 				<span class="wordmark-name">Publiczny Żłobek w Stromcu</span>
@@ -105,9 +106,10 @@
 		text-decoration: none;
 	}
 
-	/* Brand emblem (v1.3 §3): the real mark is full-colour and self-contained, so
-	   it sits directly on the header surface with no accent circle behind it and
-	   no hard toy shadow. Decorative: the wordmark text names the link. */
+	/* Brand badge (UI-SPEC v1.9): the director's circular badge is full-colour and
+	   self-contained, so it sits directly on the header surface with no accent
+	   circle behind it and no hard toy shadow. Decorative: the wordmark text
+	   names the link. */
 	.brand-mark {
 		flex: none;
 		display: flex;
