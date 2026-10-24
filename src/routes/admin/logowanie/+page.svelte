@@ -28,7 +28,7 @@
 	import Przycisk from '$lib/components/admin/Przycisk.svelte';
 	import { KOPIA_LOGOWANIE, wyslanoKodNa } from '$lib/content/panel';
 	import { page } from '$app/state';
-	import logoMark from '$lib/assets/brand/logo-mark.png?enhanced';
+	import logoBadge from '$lib/assets/brand/logo-badge.png?enhanced';
 	import type { ActionData } from './$types';
 
 	let { form }: { form: ActionData } = $props();
@@ -67,7 +67,7 @@
 
 <div class="ekran">
 	<span class="emblemat">
-		<enhanced:img src={logoMark} alt="" sizes="52px" />
+		<enhanced:img src={logoBadge} alt="" sizes="52px" />
 	</span>
 
 	{#if pasmo}

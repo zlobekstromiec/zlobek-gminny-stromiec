@@ -17,7 +17,7 @@
 	import { nipDoWyswietlenia, regonDoWyswietlenia } from '$lib/identyfikatory';
 	import { godzinyStopkiDni, godzinyStopkiWeekend, godzinyStopkiZakres } from '$lib/godziny';
 	import { ATOMY_GODZIN } from '$lib/w-skrocie';
-	import logoFull from '$lib/assets/brand/logo-full.png?enhanced';
+	import logoBadge from '$lib/assets/brand/logo-badge.png?enhanced';
 </script>
 
 <footer class="site-footer">
@@ -25,8 +25,8 @@
 
 	<div class="inner">
 		<div class="col brand-col">
-			<div class="brand-lockup">
-				<enhanced:img src={logoFull} alt="" sizes="280px" />
+			<div class="brand-badge">
+				<enhanced:img src={logoBadge} alt="" sizes="128px" />
 			</div>
 			<p class="footer-wordmark">Publiczny Żłobek w Stromcu</p>
 			<p class="org">
@@ -194,20 +194,17 @@
 		}
 	}
 
-	/* White card so the lockup's blue and orange wordmark stays legible on
-	   brand-blue (v1.3). Radius matches the .logo-slot chips below. Decorative:
-	   the .footer-wordmark text carries the name. */
-	.brand-lockup {
-		background: var(--color-surface);
-		border-radius: var(--radius-sm);
-		padding: 10px 12px;
-		max-width: 280px;
+	/* The director's badge sits directly on brand-blue with no card behind it
+	   (UI-SPEC v1.9): it is self-contained and reads cleanly on the blue.
+	   Decorative: the .footer-wordmark text carries the name. */
+	.brand-badge {
+		display: flex;
 		margin: 0 0 12px;
 	}
 
-	.brand-lockup :global(img) {
+	.brand-badge :global(img) {
 		display: block;
-		width: 100%;
+		width: 128px;
 		height: auto;
 	}
 

@@ -42,7 +42,7 @@
 	import PanelStopka from '$lib/components/admin/PanelStopka.svelte';
 	import Przycisk from '$lib/components/admin/Przycisk.svelte';
 	import { KOPIA_POWLOKA, tytulStrony, zalogowanoJako } from '$lib/content/panel';
-	import logoMark from '$lib/assets/brand/logo-mark.png?enhanced';
+	import logoBadge from '$lib/assets/brand/logo-badge.png?enhanced';
 	import type { LayoutData } from './$types';
 
 	let { data, children }: { data: LayoutData; children: Snippet } = $props();
@@ -84,7 +84,7 @@
 			<div class="pasek-wnetrze">
 				<a class="wordmark" href="/admin" aria-label={KOPIA_POWLOKA.wordmarkLink}>
 					<span class="emblemat">
-						<enhanced:img src={logoMark} alt="" sizes="40px" />
+						<enhanced:img src={logoBadge} alt="" sizes="40px" />
 					</span>
 					<span class="wordmark-tekst">{KOPIA_POWLOKA.wordmark}</span>
 				</a>
