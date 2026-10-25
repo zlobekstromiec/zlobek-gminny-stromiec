@@ -21,8 +21,8 @@ export const FROM = 'Formularz zlobka <formularz@send.zlobekstromiec.pl>';
 export const TO = 'publicznyzlobek@ugstromiec.pl';
 
 /** Hard-coded copy recipient, never request-derived, exactly like FROM, TO and BCC
- *  (FORM-02, D-2). Semantically the żłobek is the addressee and the Urząd Gminy, which
- *  runs the recruitment casework, is the copy, so this is `cc` and not a second `to`.
+ *  (FORM-02, D-2). Semantically the żłobek is the addressee and the Urząd Gminy, as the
+ *  organ prowadzący the żłobek, is the copy, so this is `cc` and not a second `to`.
  *
  *  This recipient IS DISCLOSED in the „Odbiorcy danych" block of KLAUZULA in
  *  src/lib/content/forms.ts, and neither may exist without the other: a recipient the
@@ -34,7 +34,7 @@ export const CC = 'kamila.dobosz@ugstromiec.pl';
 
 /** TEMPORARY anti-silent-loss backup (D-13). Because nothing is stored, a filtered
  *  or bounced message is a lost application with no record anywhere.
- *  LAUNCH GATE: once delivery to the Gmina mailbox is proven reliable, remove this
+ *  LAUNCH GATE: once delivery to the żłobek mailbox is proven reliable, remove this
  *  constant AND the klauzula informacyjna sentence describing the backup copy in
  *  the SAME commit. The mailbox holder is a processor and its provider a
  *  sub-processor, so the disclosure and the constant must never drift apart. */

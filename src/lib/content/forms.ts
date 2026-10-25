@@ -223,14 +223,13 @@ export const KOPIA_KONTAKT = {
  *
  *  The intro and the success body carry decision D-01 in plain language: this is an
  *  expression of interest for the waiting list, and the formal wniosek is filed in
- *  person at the Urząd Gminy. Being honest about that here is the whole point of the
+ *  person at the żłobek itself (placówka correction of 2026-10-25). Being honest about that here is the whole point of the
  *  copy, because an online form that looks like an application would leave a parent
  *  believing their child is enrolled when nothing has been filed at all.
  *
- *  The office name, street, room and hours are interpolated from `urzad`, never
- *  pasted. Both sentences are phrased so the nominative `urzad.name` follows a verb
- *  rather than a preposition that would need the locative, which is the same
- *  constraint the /kontakt info box works under. */
+ *  The filing place, street and hours are interpolated from `skladanieWniosku` in
+ *  site.ts, never pasted, so this copy, /kontakt, /rekrutacja and the homepage cannot
+ *  drift apart. */
 export const KOPIA_ZGLOSZENIE = {
 	// „Zgłoszenie na listę rezerwową" until 2026-08-18. The lista rezerwowa is what this
 	// form means while the nabór is CLOSED, and on that day the żłobek confirmed the
@@ -241,8 +240,8 @@ export const KOPIA_ZGLOSZENIE = {
 	//
 	// THE FIX IS NEUTRAL COPY, NOT A SECOND BRANCH ON THE FLAG. What this form does is the
 	// same in both states: it sends the żłobek a parent's contact details and a child's
-	// age, and it is never the formal wniosek, which is filed in person at the Urząd
-	// Gminy. Wording that states that is true whichever way the flag sits, and it keeps
+	// age, and it is never the formal wniosek, which is filed in person at the żłobek,
+	// with the values from `skladanieWniosku`. Wording that states that is true whichever way the flag sits, and it keeps
 	// the number of places that have to be edited when the flag flips at one.
 	naglowek: 'Zgłoszenie zainteresowania',
 	intro: `Zostaw kontakt, a odezwiemy się i pomożemy przejść przez formalności. To zgłoszenie zainteresowania, a nie formalny wniosek: wniosek o przyjęcie dziecka trzeba złożyć osobiście, ${skladanieWniosku.miejsce}, ${skladanieWniosku.ulica}, w godzinach ${skladanieWniosku.godziny}.`,
@@ -387,7 +386,7 @@ export const KLAUZULA: readonly BlokKlauzuli[] = Object.freeze([
 		akapity: [
 			// LAUNCH GATE (D-13): this paragraph and the BCC constant in
 			// src/lib/server/forms/mailer.ts are removed in the SAME commit, once
-			// delivery to the Gmina mailbox is proven. Neither may outlive the other:
+			// delivery to the żłobek mailbox is proven. Neither may outlive the other:
 			// a klauzula describing a copy that no longer exists is as wrong as a copy
 			// nobody was told about (04-RESEARCH Pitfall 8).
 			'Do czasu potwierdzenia, że wiadomości docierają do skrzynki żłobka bez zakłóceń, każde zgłoszenie jest dodatkowo wysyłane w ukrytej kopii na pomocniczą skrzynkę pocztową kontrolowaną przez operatora strony. Ta kopia zabezpiecza przed cichą utratą zgłoszenia i zostanie wyłączona po zakończeniu weryfikacji dostarczania.'

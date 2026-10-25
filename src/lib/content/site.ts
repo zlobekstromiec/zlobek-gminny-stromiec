@@ -143,8 +143,8 @@ export const contact = {
 	// tests/zastepcze.unit.ts is the sweep that finds it (05-UI-SPEC Contract 11).
 	hours: godzinyPaska(ATOMY_GODZIN)
 	// The former żłobek office-hours field is deliberately GONE: the source
-	// document records no such hours, so the old value was invented. Where a
-	// wniosek is filed is an Urząd Gminy fact, see `urzad` below.
+	// document records no such hours, so the old value was invented. Where and
+	// when a wniosek is filed lives in `skladanieWniosku` below.
 } as const;
 
 /** FINAL: the placówka confirmed on 2026-10-25 that the żłobek itself accepts and
@@ -159,15 +159,15 @@ export const skladanieWniosku = {
 	godziny: contact.hours
 } as const;
 
-/** FINAL [BIP]: recruitment is run by the Wójt through the Komisja Rekrutacyjna,
- *  not by the żłobek (Zarządzenie 29.2026), and wnioski are filed at the Urząd
- *  Gminy. Every surface that tells a parent where to file reads THIS object, so
- *  the homepage, /rekrutacja and /kontakt can never drift apart. */
+/** The Urząd Gminy w Stromcu is the organ prowadzący the żłobek and the recipient of
+ *  the form copy disclosed in the klauzula (a RODO pair with the CC constant in
+ *  src/lib/server/forms/mailer.ts). It is NOT the place wnioski are filed: the
+ *  placówka corrected that on 2026-10-25, and where a wniosek is filed lives in
+ *  `skladanieWniosku` above. The former room and office-hours fields went with that
+ *  correction, because nothing may send a parent to the Urząd to file anything. */
 export const urzad = {
 	name: 'Urząd Gminy w Stromcu',
-	addressLines: ['ul. Piaski 4', '26-804 Stromiec'],
-	room: 'pokój 17',
-	wnioskiHours: 'pon.-pt. 8:00–15:00'
+	addressLines: ['ul. Piaski 4', '26-804 Stromiec']
 } as const;
 
 /** Re-exported rather than declared, since plan 05-09 moved the tiles into src/lib/w-skrocie.ts
@@ -244,7 +244,7 @@ type RecruitmentStrings = {
 	/** The banner's closing line on /rekrutacja.
 	 *
 	 *  IT BELONGS TO THE STATE, which is what 2026-08-18 established. It used to be a
-	 *  single string on the derived object below, saying that the Urząd Gminy would
+	 *  single string on the derived object below, saying that the żłobek would
 	 *  announce the date of the next nabór, and /rekrutacja renders it unconditionally.
 	 *  That was harmless only while the nabór was closed. Under a standing open nabór the
 	 *  same sentence tells a parent, three lines under „Nabór trwa przez cały rok", to wait
@@ -311,7 +311,8 @@ export const recruitment = {
 	infoCard:
 		'Przyjmujemy dzieci od ukończenia 20. tygodnia życia do 3 lat (wyjątkowo do 4 lat), zamieszkałe na terenie Gminy Stromiec. Dzieci nieprzyjęte trafiają na listę oczekujących. W kolejnych latach pobyt przedłuża się na podstawie deklaracji kontynuacji, bez ponownego naboru.',
 	/** Exactly FOUR steps: the homepage acceptance suite asserts the count, and
-	 *  the addresses come from `urzad` so no component hard-codes them. Step 2
+	 *  the filing place, street and hours come from `skladanieWniosku` so no
+	 *  component hard-codes them. Step 2
 	 *  carries no e-mail and no electronic route: filing is in person only ([BIP]
 	 *  regulamin), which also keeps the homepage's single-mailto rule intact. */
 	steps: [

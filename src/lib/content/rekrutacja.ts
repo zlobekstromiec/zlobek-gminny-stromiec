@@ -18,9 +18,9 @@
 // This module still survived the Phase 04.1 editor replacement untouched, which is what
 // D-18 was written to guarantee.
 //
-// Address, room and office-hours values are NEVER duplicated here: they are
-// interpolated from the shared `urzad` object in site.ts, so /rekrutacja, /kontakt
-// and the homepage can never tell a parent three different things.
+// The filing place, street and hours are NEVER duplicated here: they are
+// interpolated from the shared `skladanieWniosku` object in site.ts, so /rekrutacja,
+// /kontakt and the homepage can never tell a parent three different things.
 //
 // PLACEHOLDER convention (Phase 6 pre-launch grep gate) extends to `// PLACEHOLDER:`
 // line comments in this module.
@@ -77,8 +77,10 @@ export type KrokProcedury = {
 };
 
 /** FINAL [BIP]: the real procedure from the Regulamin rekrutacji (source document
- *  section 4, „Procedura"). Recruitment is run by the Wójt through the Komisja
- *  Rekrutacyjna, not by the żłobek, and wnioski are accepted in person only.
+ *  section 4, „Procedura"), as corrected by the placówka on 2026-10-25: the żłobek
+ *  accepts the wnioski and runs the recruitment together with the Komisja
+ *  Rekrutacyjna, wnioski are accepted in person only, and the appeal goes to the Wójt
+ *  as the regulamin provides.
  *
  *  No step carries a date. The 2026/2027 stage-by-stage timetable in the source
  *  document is ARCHIVAL and section 10.3 forbids presenting it as current, so it is
