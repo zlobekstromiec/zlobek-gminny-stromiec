@@ -244,7 +244,7 @@ export const KOPIA_ZGLOSZENIE = {
 	// with the values from `skladanieWniosku`. Wording that states that is true whichever way the flag sits, and it keeps
 	// the number of places that have to be edited when the flag flips at one.
 	naglowek: 'Zgłoszenie zainteresowania',
-	intro: `Zostaw kontakt, a odezwiemy się i pomożemy przejść przez formalności. To zgłoszenie zainteresowania, a nie formalny wniosek: wniosek o przyjęcie dziecka trzeba złożyć osobiście, ${skladanieWniosku.miejsce}, ${skladanieWniosku.ulica}, w godzinach ${skladanieWniosku.godziny}.`,
+	intro: `Zostaw kontakt, a odezwiemy się i pomożemy przejść przez formalności. To zgłoszenie zainteresowania, a nie formalny wniosek: wniosek o przyjęcie dziecka trzeba złożyć osobiście ${skladanieWniosku.miejsce}, ${skladanieWniosku.ulica}, w godzinach ${skladanieWniosku.godziny}.`,
 	wymaganeNota: 'Pola oznaczone gwiazdką (*) są wymagane.',
 	imieEtykieta: 'Imię i nazwisko rodzica',
 	emailEtykieta: 'Adres e-mail',
