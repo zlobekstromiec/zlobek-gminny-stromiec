@@ -3,7 +3,7 @@
 	// 01-UI-SPEC Amendment v1.6 §8 (supersedes the v1.4 table): page header (white),
 	// then ONE band holding Dane kontaktowe beside Mapa dojazdu at >=1024px (the
 	// homepage ContactAndMap ratio), then ONE warm zone where the form card fills the
-	// left track and the FallbackPanel + Urząd Gminy info box sit in the right rail.
+	// left track and the FallbackPanel + wnioski info box sit in the right rail.
 	// DOM order stays the mobile order and no CSS `order` is used.
 	//
 	// Static, zero-JavaScript content with exactly ONE hydrated island: the contact
@@ -35,7 +35,7 @@
 	import KontaktForm from '$lib/components/KontaktForm.svelte';
 	import MapPanel from '$lib/components/MapPanel.svelte';
 	import Seo from '$lib/components/Seo.svelte';
-	import { contact, urzad } from '$lib/content/site';
+	import { contact, skladanieWniosku } from '$lib/content/site';
 	// The grouping moved to $lib/identyfikatory when the footer started showing the NIP too:
 	// this page is no longer the only surface that renders it, and two copies of the same
 	// formatting are two places that can disagree about how one number looks.
@@ -152,8 +152,8 @@
 </div>
 
 <!-- Form zone (Amendment v1.6 §8): one warm band, one desktop grid. DOM order is the
-     MOBILE order: FallbackPanel, form island, Urząd Gminy info box. At >=1024px grid
-     areas keep the form card in the left track and stack the fallback and the urząd
+     MOBILE order: FallbackPanel, form island, wnioski info box. At >=1024px grid
+     areas keep the form card in the left track and stack the fallback and the wnioski
      panel in the right rail; no `order` property, so DOM and visual order stay in
      sync. The form section is labelled by the island card's own h2 (id declared in
      KontaktForm.svelte); the island also renders the noscript note, the consent
@@ -168,20 +168,20 @@
 			<KontaktForm />
 		</section>
 
-		<!-- Urząd Gminy info box (tint-blue panel). D-16: a parent must not be left
-		     thinking the żłobek accepts wnioski. The name, street, room and hours come
-		     from `urzad`, never pasted, and the sentence is phrased so the nominative
-		     form of the interpolated name stays grammatical Polish (the same
-		     construction site.ts already uses for the recruitment steps). -->
-		<section class="blok-urzad" aria-labelledby="urzad-heading">
-			<div class="urzad-panel">
-				<Info class="urzad-ikona" size={22} aria-hidden="true" focusable="false" />
+		<!-- Wnioski info box (tint-blue panel). D-16, as corrected by the placówka on
+		     2026-10-25: the żłobek itself accepts every wniosek, in person only. The
+		     place, street and hours come from `skladanieWniosku` in site.ts, never
+		     pasted, so this box, the homepage, /rekrutacja and the form copy cannot
+		     drift apart. -->
+		<section class="blok-wnioski" aria-labelledby="wnioski-heading">
+			<div class="wnioski-panel">
+				<Info class="wnioski-ikona" size={22} aria-hidden="true" focusable="false" />
 				<div>
-					<h2 id="urzad-heading">Wnioski rekrutacyjne składasz w Urzędzie Gminy</h2>
+					<h2 id="wnioski-heading">Wnioski rekrutacyjne składasz w żłobku</h2>
 					<p>
-						Żłobek nie przyjmuje wniosków o przyjęcie dziecka. Wnioski przyjmuje {urzad.name}, {urzad
-							.addressLines[0]}, {urzad.room}, w godzinach {urzad.wnioskiHours}. Wniosek wraz z
-						załącznikami składa się osobiście.
+						Wniosek o przyjęcie dziecka wraz z załącznikami składasz osobiście {skladanieWniosku.miejsce},
+						{skladanieWniosku.ulica}, w godzinach {skladanieWniosku.godziny}. Nie ma możliwości
+						złożenia wniosku drogą elektroniczną ani pocztą.
 					</p>
 				</div>
 			</div>
@@ -260,7 +260,7 @@
 			grid-template-rows: auto auto 1fr;
 			grid-template-areas:
 				'formularz awaria'
-				'formularz urzad'
+				'formularz wnioski'
 				'formularz .';
 			column-gap: 48px;
 			row-gap: 24px;
@@ -275,8 +275,8 @@
 			grid-area: awaria;
 		}
 
-		.blok-urzad {
-			grid-area: urzad;
+		.blok-wnioski {
+			grid-area: wnioski;
 		}
 	}
 
@@ -396,7 +396,7 @@
 
 	/* Info box: tint-blue panel with the info icon (UI-SPEC Contract 8 treatment
 	   applied to the D-16 panel). Its heading is a section-level h2 at panel size. */
-	.urzad-panel {
+	.wnioski-panel {
 		display: flex;
 		align-items: flex-start;
 		gap: 12px;
@@ -407,23 +407,23 @@
 	}
 
 	@media (min-width: 768px) {
-		.urzad-panel {
+		.wnioski-panel {
 			padding: 24px;
 		}
 	}
 
-	.urzad-panel :global(.urzad-ikona) {
+	.wnioski-panel :global(.wnioski-ikona) {
 		flex: none;
 		margin-top: 2px;
 		color: var(--color-brand-blue);
 	}
 
-	.urzad-panel h2 {
+	.wnioski-panel h2 {
 		font-size: 20px;
 		margin: 0 0 8px;
 	}
 
-	.urzad-panel p {
+	.wnioski-panel p {
 		margin: 0;
 		max-width: 65ch;
 		font-family: var(--font-body);

@@ -18,7 +18,7 @@
 // literals here, so a phone number or an address can only ever change in one
 // place. The relative `.ts` import (rather than the `$lib` alias) is deliberate:
 // tests/forms-copy.unit.ts loads this module directly under `node --test`.
-import { contact, urzad } from './site.ts';
+import { contact, skladanieWniosku, urzad } from './site.ts';
 import type { FormCode } from '../forms/types.ts';
 
 /** Turnstile site key. Public by design (it is rendered into the page markup and
@@ -200,7 +200,8 @@ export function komunikatPola(pole: string, powod: string): string | undefined {
  *  panels" and Component Contracts 6 and 7). */
 export const KOPIA_KONTAKT = {
 	naglowek: 'Napisz do nas',
-	intro: `Odpowiadamy w dni robocze. Sprawy rekrutacyjne prowadzi ${urzad.name}, informacja o tym jest pod formularzem.`,
+	intro:
+		'Odpowiadamy w dni robocze. Jeśli pytasz o rekrutację, informację o składaniu wniosków znajdziesz pod formularzem.',
 	wymaganeNota: 'Pola oznaczone gwiazdką (*) są wymagane.',
 	imieEtykieta: 'Imię i nazwisko',
 	emailEtykieta: 'Adres e-mail',
@@ -244,7 +245,7 @@ export const KOPIA_ZGLOSZENIE = {
 	// Gminy. Wording that states that is true whichever way the flag sits, and it keeps
 	// the number of places that have to be edited when the flag flips at one.
 	naglowek: 'Zgłoszenie zainteresowania',
-	intro: `Zostaw kontakt, a odezwiemy się i pomożemy przejść przez formalności. To zgłoszenie zainteresowania, a nie formalny wniosek: wniosek o przyjęcie dziecka trzeba złożyć osobiście, przyjmuje go ${urzad.name}, ${urzad.addressLines[0]}, ${urzad.room}, w godzinach ${urzad.wnioskiHours}.`,
+	intro: `Zostaw kontakt, a odezwiemy się i pomożemy przejść przez formalności. To zgłoszenie zainteresowania, a nie formalny wniosek: wniosek o przyjęcie dziecka trzeba złożyć osobiście, ${skladanieWniosku.miejsce}, ${skladanieWniosku.ulica}, w godzinach ${skladanieWniosku.godziny}.`,
 	wymaganeNota: 'Pola oznaczone gwiazdką (*) są wymagane.',
 	imieEtykieta: 'Imię i nazwisko rodzica',
 	emailEtykieta: 'Adres e-mail',
@@ -268,7 +269,7 @@ export const KOPIA_ZGLOSZENIE = {
 	wysylanie: 'Wysyłanie...',
 	statusWysylania: 'Wysyłanie zgłoszenia, proszę czekać.',
 	sukcesNaglowek: 'Dziękujemy, zgłoszenie zostało wysłane',
-	sukcesTresc: `Odezwiemy się na podany adres e-mail, zwykle w ciągu kilku dni roboczych. Pamiętaj, że formalny wniosek o przyjęcie dziecka trzeba złożyć osobiście, przyjmuje go ${urzad.name}, ${urzad.addressLines[0]}, ${urzad.room}.`
+	sukcesTresc: `Odezwiemy się na podany adres e-mail, zwykle w ciągu kilku dni roboczych. Pamiętaj, że formalny wniosek o przyjęcie dziecka trzeba złożyć osobiście ${skladanieWniosku.miejsce}, ${skladanieWniosku.ulica}.`
 } as const;
 
 /** Static fallback panel. Always in the prerendered HTML above the form card, so
@@ -315,8 +316,7 @@ export const KLAUZULA: readonly BlokKlauzuli[] = Object.freeze([
 			// wskazywać dwa różne podmioty, a nie było źródła, które by to rozstrzygało.
 			// Rozstrzygnęło je osiem dokumentów inspektora ochrony danych, z których każdy
 			// nazywa administratora tak samo, i to brzmienie stoi teraz po obu stronach.
-			`Administratorem Twoich danych osobowych jest ${contact.name}, ${contact.addressLines.join(', ')}.`,
-			`W sprawach dotyczących wniosków rekrutacyjnych właściwy jest ${urzad.name}, ${urzad.addressLines.join(', ')}, ${urzad.room}.`
+			`Administratorem Twoich danych osobowych jest ${contact.name}, ${contact.addressLines.join(', ')}.`
 		]
 	},
 	{
@@ -357,7 +357,7 @@ export const KLAUZULA: readonly BlokKlauzuli[] = Object.freeze([
 			// of the sentence: „trafia do ${urzad.name}" would be a grammar bug, because
 			// „do" governs the genitive and the constant is not declined. Plans 04-04 and
 			// 04-05 already fixed that exact mistake once.
-			`Kopię każdej wiadomości i każdego zgłoszenia z formularza otrzymuje ${urzad.name}, który prowadzi sprawy rekrutacyjne żłobka.`,
+			`Kopię każdej wiadomości i każdego zgłoszenia z formularza otrzymuje ${urzad.name} jako organ prowadzący żłobek.`,
 			'Wiadomość dostarcza nam Resend, dostawca usługi wysyłki poczty elektronicznej, działający jako podmiot przetwarzający.',
 			'Strona jest hostowana przez Cloudflare, który dostarcza także mechanizm ochrony formularza przed automatycznymi zgłoszeniami (Cloudflare Turnstile) i działa jako podmiot przetwarzający.'
 		]
@@ -390,7 +390,7 @@ export const KLAUZULA: readonly BlokKlauzuli[] = Object.freeze([
 			// delivery to the Gmina mailbox is proven. Neither may outlive the other:
 			// a klauzula describing a copy that no longer exists is as wrong as a copy
 			// nobody was told about (04-RESEARCH Pitfall 8).
-			'Do czasu potwierdzenia, że wiadomości docierają do skrzynki Urzędu Gminy bez zakłóceń, każde zgłoszenie jest dodatkowo wysyłane w ukrytej kopii na pomocniczą skrzynkę pocztową kontrolowaną przez operatora strony. Ta kopia zabezpiecza przed cichą utratą zgłoszenia i zostanie wyłączona po zakończeniu weryfikacji dostarczania.'
+			'Do czasu potwierdzenia, że wiadomości docierają do skrzynki żłobka bez zakłóceń, każde zgłoszenie jest dodatkowo wysyłane w ukrytej kopii na pomocniczą skrzynkę pocztową kontrolowaną przez operatora strony. Ta kopia zabezpiecza przed cichą utratą zgłoszenia i zostanie wyłączona po zakończeniu weryfikacji dostarczania.'
 		]
 	},
 	{

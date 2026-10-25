@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { contact, keyFacts, recruitment } from '../src/lib/content/site';
+import { contact, keyFacts, recruitment, skladanieWniosku } from '../src/lib/content/site';
 import { CENNIK } from '../src/lib/cennik';
 
 /**
@@ -250,12 +250,17 @@ test.describe('Homepage: Phase 1 + 01.1 acceptance', () => {
 		// Whichever state is live, the enrolment channel it advertises stays visible.
 		await expect(page.getByText(recruitment.deadline)).toBeVisible();
 		await expect(page.locator('.step')).toHaveCount(4);
-		// D-05: the wniosek is filed in person at the Urząd Gminy. The old step 2 offered
-		// an e-mail address and an ePUAP route, both factually wrong.
+		// D-05, as corrected by the placówka on 2026-10-25: the wniosek is filed in person
+		// at the żłobek itself. The old step 2 offered an e-mail address and an ePUAP
+		// route, both factually wrong. The street and hours are scoped to the step because
+		// the same values also appear in the contact section and the footer.
 		await expect(
 			page.getByText('Nie ma możliwości złożenia wniosku', { exact: false })
 		).toBeVisible();
-		await expect(page.getByText('pokój 17', { exact: false })).toBeVisible();
+		const krokDrugi = page.locator('.step').nth(1);
+		await expect(krokDrugi).toContainText('w żłobku');
+		await expect(krokDrugi).toContainText(skladanieWniosku.ulica);
+		await expect(krokDrugi).toContainText(skladanieWniosku.godziny);
 		// Curated subset (D-18): the rekrutacja category holds NINE documents since quick
 		// 260923-mb0 (the regulamin, the wniosek, załączniki 1 to 6 and the druk rezygnacji;
 		// załącznik 1 joined a day after the other five, once its wrong gmina was corrected)

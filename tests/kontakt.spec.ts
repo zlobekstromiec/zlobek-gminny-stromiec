@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { contact, urzad } from '../src/lib/content/site';
+import { contact, skladanieWniosku } from '../src/lib/content/site';
 import { KOPIA_FALLBACK, KOPIA_KONTAKT, tekstBledu } from '../src/lib/content/forms';
 
 /**
@@ -156,18 +156,17 @@ test.describe('Kontakt: CONTACT-01 / CONTACT-02 / CONTACT-03 acceptance', () => 
 		await expect(trasa).toHaveAttribute('href', /openstreetmap\.org\/directions/);
 	});
 
-	test('informacja o wnioskach w Urzędzie Gminy podaje pokój i godziny (D-16)', async ({
-		page
-	}) => {
+	test('informacja o wnioskach w żłobku podaje adres i godziny (D-16)', async ({ page }) => {
 		await page.goto('/kontakt');
-		const panel = page.locator('.urzad-panel');
+		const panel = page.locator('.wnioski-panel');
 		await expect(panel).toHaveCount(1);
 		await expect(
-			panel.getByRole('heading', { name: 'Wnioski rekrutacyjne składasz w Urzędzie Gminy' })
+			panel.getByRole('heading', { name: 'Wnioski rekrutacyjne składasz w żłobku' })
 		).toBeVisible();
-		await expect(panel).toContainText(urzad.name);
-		await expect(panel).toContainText(urzad.room);
-		await expect(panel).toContainText(urzad.wnioskiHours);
+		await expect(panel).toContainText(skladanieWniosku.ulica);
+		await expect(panel).toContainText(skladanieWniosku.godziny);
+		await expect(panel).toContainText('osobiście');
+		await expect(panel).not.toContainText(/Urz[ąę]d/);
 	});
 
 	test('zgoda RODO nie jest zaznaczona po wejściu na stronę (RECRUIT-04)', async ({ page }) => {

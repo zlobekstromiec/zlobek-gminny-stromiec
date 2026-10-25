@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { recruitment, urzad } from '../src/lib/content/site';
+import { recruitment, skladanieWniosku } from '../src/lib/content/site';
 import { BIP_ZLOBEK, KRYTERIA, OPLATY, PROCEDURA, REMIS } from '../src/lib/content/rekrutacja';
 import { KOPIA_FALLBACK, KOPIA_ZGLOSZENIE, tekstBledu } from '../src/lib/content/forms';
 
@@ -160,19 +160,32 @@ test.describe('Rekrutacja: RECRUIT-01 / RECRUIT-02 / RECRUIT-03 acceptance', () 
 		await expect(remis).toHaveText(REMIS);
 	});
 
-	test('procedura mówi o złożeniu osobistym, podaje pokój i termin odwołania', async ({ page }) => {
+	test('procedura mówi o złożeniu osobistym w żłobku, podaje adres i termin odwołania', async ({
+		page
+	}) => {
 		await page.goto('/rekrutacja');
 		const procedura = page.locator('.procedura');
 		await expect(procedura).toHaveCount(1);
 		await expect(procedura.locator('li')).toHaveCount(PROCEDURA.length);
 		await expect(procedura).toContainText('osobiście');
 		await expect(procedura).toContainText('elektroniczną');
-		// Adres i pokój są interpolowane z modułu treści, nigdy przepisane.
-		await expect(procedura).toContainText(urzad.room);
-		await expect(procedura).toContainText(urzad.wnioskiHours);
+		// Korekta placówki z 2026-10-25: wnioski przyjmuje żłobek. Adres i godziny są
+		// interpolowane z `skladanieWniosku`, nigdy przepisane.
+		await expect(procedura).toContainText('w żłobku');
+		await expect(procedura).toContainText(skladanieWniosku.ulica);
+		await expect(procedura).toContainText(skladanieWniosku.godziny);
+		await expect(procedura).not.toContainText(/Urz[ąę]d/);
 		await expect(procedura).toContainText('Komisja Rekrutacyjna');
+		await expect(procedura).not.toContainText('powołana');
 		await expect(procedura).toContainText('7 dni');
 		await expect(procedura).toContainText('deklaracji kontynuacji');
+	});
+
+	test('wstęp strony mówi, że nabór prowadzi żłobek (korekta 2026-10-25)', async ({ page }) => {
+		await page.goto('/rekrutacja');
+		const lead = page.locator('.page-head .lead');
+		await expect(lead).toContainText('Nabór prowadzi żłobek');
+		await expect(lead).not.toContainText(/Gmin/);
 	});
 
 	test('ramka opłat podaje kwotę i wyżywienie, a zero nigdy bez warunku (D-15, sekcja 10.1)', async ({

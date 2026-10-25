@@ -31,7 +31,7 @@
 // under bare `node --test`, where the alias does not resolve, and that suite is the only
 // place the byte pin on OPLATY.kwota can run at all. Same convention and same reason as
 // the panel validator at walidacja/nabor.ts:13-15.
-import { urzad } from './site.ts';
+import { skladanieWniosku } from './site.ts';
 // CYCLE CONSTRAINT (D-03), recorded here so a later edit does not undo it: this module
 // imports site.ts, so routing a homepage value through OPLATY would close a cycle
 // site -> rekrutacja -> site. Nothing here does that, and plan 05-09 reads CENNIK
@@ -94,11 +94,11 @@ export const PROCEDURA: KrokProcedury[] = [
 	},
 	{
 		tytul: 'Złóż wniosek osobiście',
-		tresc: `Wnioski przyjmuje ${urzad.name}, ${urzad.addressLines[0]}, ${urzad.room}, w godzinach ${urzad.wnioskiHours}. Nie ma możliwości złożenia wniosku drogą elektroniczną ani pocztą.`
+		tresc: `Wnioski przyjmujemy ${skladanieWniosku.miejsce}, ${skladanieWniosku.ulica}, w godzinach ${skladanieWniosku.godziny}. Nie ma możliwości złożenia wniosku drogą elektroniczną ani pocztą.`
 	},
 	{
 		tytul: 'Poczekaj na weryfikację i punktację',
-		tresc: `Wnioski weryfikuje i punktuje Komisja Rekrutacyjna powołana przez Wójta Gminy Stromiec. ${REMIS}`
+		tresc: `Wnioski weryfikuje i punktuje Komisja Rekrutacyjna. ${REMIS}`
 	},
 	{
 		tytul: 'Możesz się odwołać',

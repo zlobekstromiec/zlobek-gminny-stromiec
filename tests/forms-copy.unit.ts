@@ -74,7 +74,7 @@ import {
 	KOORDYNATOR_WSTEP,
 	NAGLOWKI as NAGLOWKI_DOSTEPNOSCI
 } from '../src/lib/content/dostepnosc.ts';
-import { contact, urzad } from '../src/lib/content/site.ts';
+import { contact, skladanieWniosku, urzad } from '../src/lib/content/site.ts';
 // The CC recipient is IMPORTED, never repeated as a literal here. Two literals could
 // drift apart the day the address changes, and the drifted copy would be the one that
 // silently stops being checked. The mailer module has a type-only import and executes
@@ -245,15 +245,28 @@ test('obie klauzule nazywaja administratora dokladnie tak samo', () => {
 	);
 });
 
-// D-2 / T-bfa-04. The Urząd Gminy receives a copy of every submission, so art. 13 RODO
-// obliges the klauzula to say so. The constant in mailer.ts and this sentence are a pair:
-// a recipient nobody was told about is exactly the defect 04-RESEARCH Pitfall 8 names.
+// D-2 / T-bfa-04. The Urząd Gminy receives a copy of every submission as the organ
+// prowadzący the żłobek, not because it runs recruitment (the placówka corrected that on
+// 2026-10-25: the żłobek accepts the wnioski and runs the nabór). The copy itself is real,
+// so art. 13 RODO still obliges the klauzula to say so. The constant in mailer.ts and this
+// sentence are a pair: a recipient nobody was told about is exactly the defect
+// 04-RESEARCH Pitfall 8 names.
 test('the klauzula discloses the copy sent to the Urząd Gminy (D-2, Pitfall 8)', () => {
 	assert.match(
 		KLAUZULA_TEKST,
 		/Kopię każdej wiadomości i każdego zgłoszenia z formularza otrzymuje/
 	);
 	assert.ok(KLAUZULA_TEKST.includes(urzad.name));
+	assert.ok(KLAUZULA_TEKST.includes('jako organ prowadzący żłobek'));
+});
+
+// Korekta placówki z 2026-10-25: wnioski przyjmuje żłobek, więc klauzula nie może już
+// wskazywać urzędu jako właściwego w sprawach wniosków ani podawać pokoju w urzędzie, a
+// tymczasowa kopia zapasowa dotyczy dostarczania do skrzynki żłobka.
+test('the klauzula no longer sends wnioski to the Urząd Gminy (korekta 2026-10-25)', () => {
+	assert.equal(KLAUZULA_TEKST.includes('pokój'), false, 'klauzula nadal podaje pokój');
+	assert.equal(KLAUZULA_TEKST.includes('właściwy jest'), false, 'klauzula nadal wskazuje urząd');
+	assert.ok(KLAUZULA_TEKST.includes('do skrzynki żłobka'));
 });
 
 // D-2 / T-bfa-01. The named clerk's address is a server-side constant and must never be
@@ -397,15 +410,22 @@ test('the zgłoszenie copy carries every string the enrollment island needs', ()
 test('the zgłoszenie intro frames the form as an enquiry, not a formal wniosek (D-01)', () => {
 	assert.match(KOPIA_ZGLOSZENIE.intro, /zgłoszenie zainteresowania, a nie formalny wniosek/);
 	assert.match(KOPIA_ZGLOSZENIE.intro, /osobiście/);
-	assert.ok(KOPIA_ZGLOSZENIE.intro.includes(urzad.name));
-	assert.ok(KOPIA_ZGLOSZENIE.intro.includes(urzad.room));
-	assert.ok(KOPIA_ZGLOSZENIE.intro.includes(urzad.wnioskiHours));
+	// Korekta placówki z 2026-10-25: wniosek składa się w żłobku, nie w urzędzie.
+	assert.ok(KOPIA_ZGLOSZENIE.intro.includes(skladanieWniosku.miejsce));
+	assert.ok(KOPIA_ZGLOSZENIE.intro.includes(skladanieWniosku.ulica));
+	assert.ok(KOPIA_ZGLOSZENIE.intro.includes(skladanieWniosku.godziny));
+	assert.equal(KOPIA_ZGLOSZENIE.intro.includes(urzad.name), false);
 });
 
 test('the zgłoszenie success body repeats where the formal wniosek goes (D-01)', () => {
 	assert.match(KOPIA_ZGLOSZENIE.sukcesTresc, /osobiście/);
-	assert.ok(KOPIA_ZGLOSZENIE.sukcesTresc.includes(urzad.name));
-	assert.ok(KOPIA_ZGLOSZENIE.sukcesTresc.includes(urzad.room));
+	assert.ok(KOPIA_ZGLOSZENIE.sukcesTresc.includes(skladanieWniosku.miejsce));
+	assert.ok(KOPIA_ZGLOSZENIE.sukcesTresc.includes(skladanieWniosku.ulica));
+	assert.equal(KOPIA_ZGLOSZENIE.sukcesTresc.includes(urzad.name), false);
+});
+
+test('the kontakt intro no longer names the Urząd Gminy (korekta 2026-10-25)', () => {
+	assert.equal(KOPIA_KONTAKT.intro.includes(urzad.name), false);
 });
 
 // D-02 / T-04-24. The instruction not to supply the child's name is part of the

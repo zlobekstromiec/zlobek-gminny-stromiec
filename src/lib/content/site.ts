@@ -147,6 +147,18 @@ export const contact = {
 	// wniosek is filed is an Urząd Gminy fact, see `urzad` below.
 } as const;
 
+/** FINAL: the placówka confirmed on 2026-10-25 that the żłobek itself accepts and
+ *  processes every wniosek and runs the whole recruitment; the Urząd Gminy does not.
+ *  This object is the ONE source every surface interpolates for where, at what street
+ *  and in what hours a wniosek is filed, so the homepage, /rekrutacja, /kontakt and the
+ *  form copy cannot drift apart. Both values are read from `contact`, never retyped:
+ *  the hours come from the editor store through `contact.hours`. */
+export const skladanieWniosku = {
+	miejsce: 'w żłobku',
+	ulica: contact.addressLines[0],
+	godziny: contact.hours
+} as const;
+
 /** FINAL [BIP]: recruitment is run by the Wójt through the Komisja Rekrutacyjna,
  *  not by the żłobek (Zarządzenie 29.2026), and wnioski are filed at the Urząd
  *  Gminy. Every surface that tells a parent where to file reads THIS object, so
@@ -259,7 +271,7 @@ const openStrings: RecruitmentStrings = {
 	heading: 'Nabór trwa przez cały rok',
 	deadline: 'Zapisy przyjmujemy przez cały rok, dopóki mamy wolne miejsca',
 	body: 'Nie czekasz na termin: wystarczą cztery kroki. Jeśli coś jest niejasne, napisz do nas.',
-	nastepnyNabor: `Wnioski przyjmuje ${urzad.name}. Liczba miejsc jest ograniczona, więc o przyjęciu decyduje kolejność i punktacja wniosków.`
+	nastepnyNabor: `Wnioski przyjmujemy ${skladanieWniosku.miejsce}. Liczba miejsc jest ograniczona, więc o przyjęciu decyduje kolejność i punktacja wniosków.`
 };
 
 /** Live copy since D-06. Verified string by string against 04-UI-SPEC.md
@@ -273,8 +285,8 @@ const closedStrings: RecruitmentStrings = {
 	body: 'Rekrutacja podstawowa została zakończona, ale w ciągu roku zwalniają się miejsca. Zgłoszenie na listę rezerwową możesz złożyć w dowolnym momencie.',
 	// PLACEHOLDER: the date of the next nabór is unconfirmed. The archival 2026/2027
 	// harmonogram may NEVER be presented as current (dane-bip §10.3), so this line
-	// points at the announcing authority instead of a date.
-	nastepnyNabor: 'Termin kolejnego naboru ogłosi Urząd Gminy w Stromcu.'
+	// points at the żłobek, which announces the next nabór, instead of a date.
+	nastepnyNabor: 'Termin kolejnego naboru ogłosi żłobek.'
 };
 
 /** Both status-banner headlines, side by side, for the panel's „Tak zobaczy to
@@ -309,11 +321,11 @@ export const recruitment = {
 		},
 		{
 			title: 'Złóż wniosek osobiście',
-			body: `Wnioski przyjmuje ${urzad.name}, ${urzad.addressLines[0]}, ${urzad.room}, w godzinach ${urzad.wnioskiHours}. Nie ma możliwości złożenia wniosku drogą elektroniczną ani pocztą.`
+			body: `Wnioski przyjmujemy ${skladanieWniosku.miejsce}, ${skladanieWniosku.ulica}, w godzinach ${skladanieWniosku.godziny}. Nie ma możliwości złożenia wniosku drogą elektroniczną ani pocztą.`
 		},
 		{
 			title: 'Poczekaj na wyniki',
-			body: 'Wnioski weryfikuje i punktuje Komisja Rekrutacyjna powołana przez Wójta Gminy Stromiec. Przy równej liczbie punktów decyduje data wpływu wniosku. Od rozstrzygnięcia możesz odwołać się do Wójta w ciągu 7 dni.'
+			body: 'Wnioski weryfikuje i punktuje Komisja Rekrutacyjna. Przy równej liczbie punktów decyduje data wpływu wniosku. Od rozstrzygnięcia możesz odwołać się do Wójta w ciągu 7 dni.'
 		},
 		{
 			title: 'Podpisz umowę',

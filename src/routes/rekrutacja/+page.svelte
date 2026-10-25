@@ -65,8 +65,8 @@
 		<div class="intro">
 			<h1>Rekrutacja do żłobka</h1>
 			<p class="lead">
-				Nabór podstawowy prowadzi Gmina Stromiec. Poniżej znajdziesz aktualny status naboru,
-				kryteria przyjęcia, przebieg procedury i wnioski do pobrania.
+				Nabór prowadzi żłobek. Poniżej znajdziesz aktualny status naboru, kryteria przyjęcia,
+				przebieg procedury i wnioski do pobrania.
 			</p>
 		</div>
 
