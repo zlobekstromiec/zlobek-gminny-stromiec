@@ -4,7 +4,7 @@
 	// flips `recruitmentOpen` there, never a date comparison). The docs panel
 	// rows keep their file meta INSIDE the link so screen readers announce it
 	// with the name (Polish public-sector expectation, WCAG 2.1 AA). No step
-	// carries an e-mail address: wnioski are filed in person at the Urząd Gminy
+	// carries an e-mail address: wnioski are filed in person at the żłobek itself
 	// ([BIP] regulamin, D-05), so the homepage keeps exactly one mailto (in
 	// ContactAndMap).
 	//

@@ -19,7 +19,7 @@
 	//     such a field later would be a RODO regression, and the endpoint would drop
 	//     the value regardless.
 	//  2. Honesty about what this is (D-01). Recruitment wnioski are accepted in
-	//     person at the Urząd Gminy only, so the intro and the success panel both say
+	//     person at the żłobek only (korekta 2026-10-25), so the intro and the success panel say
 	//     that this form is an expression of interest and where the formal wniosek
 	//     goes. A parent must never leave believing something has been filed.
 	//
