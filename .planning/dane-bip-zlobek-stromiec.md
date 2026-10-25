@@ -100,6 +100,8 @@ Zebrane z BIP Urzędu Gminy Stromiec (stan na 14 sierpnia 2026 r.) oraz z odpowi
 - **Odwołanie:** 7 dni do Wójta; Wójt rozpatruje w 7 dni; rozstrzygnięcie ostateczne
 - Kolejne lata: **deklaracja kontynuacji**, nie nowa rekrutacja
 
+Korekta placówki (2026-10-25): wnioski przyjmuje i całą rekrutację prowadzi żłobek, nie Urząd Gminy. Powyższe punkty zostają jako archiwalny zapis regulaminu z BIP; strona nie kieruje już rodziców do Urzędu.
+
 ### Harmonogram 2026/2027 (zakończony — archiwalny)
 
 | Etap                  | Termin        |

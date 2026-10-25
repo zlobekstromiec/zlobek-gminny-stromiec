@@ -249,11 +249,11 @@ prefix is itself `send`, SPF and MX sit one level deeper than the sending domain
 The recipient `publicznyzlobek@ugstromiec.pl` is hard-coded. The placówka gave this
 address in writing on 2026-08-27; it replaced an earlier address on the same domain
 that was never a real mailbox, which is why the old rule forbidding a recipient change
-is gone. A hard-coded `cc` copy also goes to the Urząd Gminy clerk who runs the
-recruitment casework, and that recipient is disclosed in the klauzula informacyjna, so
-the constant and the disclosure may never drift apart. **Delivery to the new mailbox is
-not proven yet**, so the BCC backup mailbox stays; proving it is one form submission
-after deploy plus a look in the inbox, and needs no deploy of its own.
+is gone. A hard-coded `cc` copy also goes to the Urząd Gminy clerk, the Urząd being
+the żłobek's organ prowadzący, and that recipient is disclosed in the klauzula
+informacyjna, so the constant and the disclosure may never drift apart. **Delivery to
+the new mailbox is not proven yet**, so the BCC backup mailbox stays; proving it is one
+form submission after deploy plus a look in the inbox, and needs no deploy of its own.
 
 ### Redeploy / handoff gotcha — create a **Pages** project, not a Worker
 
